@@ -9,8 +9,98 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RestaurantesRouteImport } from './routes/restaurantes'
+import { Route as MercadoImobiliarioRouteImport } from './routes/mercado-imobiliario'
+import { Route as MeioAmbienteRouteImport } from './routes/meio-ambiente'
+import { Route as InvestimentosRouteImport } from './routes/investimentos'
+import { Route as ImoveisRouteImport } from './routes/imoveis'
+import { Route as HistoriaRouteImport } from './routes/historia'
+import { Route as GuiaTamboreRouteImport } from './routes/guia-tambore'
+import { Route as GuiaSantanaDeParnaibaRouteImport } from './routes/guia-santana-de-parnaiba'
+import { Route as GuiaBarueriRouteImport } from './routes/guia-barueri'
+import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
+import { Route as EscolasRouteImport } from './routes/escolas'
+import { Route as EmpresasRouteImport } from './routes/empresas'
+import { Route as CondominiosRouteImport } from './routes/condominios'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestaurantesRoute = RestaurantesRouteImport.update({
+  id: '/restaurantes',
+  path: '/restaurantes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MercadoImobiliarioRoute = MercadoImobiliarioRouteImport.update({
+  id: '/mercado-imobiliario',
+  path: '/mercado-imobiliario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeioAmbienteRoute = MeioAmbienteRouteImport.update({
+  id: '/meio-ambiente',
+  path: '/meio-ambiente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestimentosRoute = InvestimentosRouteImport.update({
+  id: '/investimentos',
+  path: '/investimentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImoveisRoute = ImoveisRouteImport.update({
+  id: '/imoveis',
+  path: '/imoveis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoriaRoute = HistoriaRouteImport.update({
+  id: '/historia',
+  path: '/historia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuiaTamboreRoute = GuiaTamboreRouteImport.update({
+  id: '/guia-tambore',
+  path: '/guia-tambore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuiaSantanaDeParnaibaRoute = GuiaSantanaDeParnaibaRouteImport.update({
+  id: '/guia-santana-de-parnaiba',
+  path: '/guia-santana-de-parnaiba',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuiaBarueriRoute = GuiaBarueriRouteImport.update({
+  id: '/guia-barueri',
+  path: '/guia-barueri',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuiaAlphavilleRoute = GuiaAlphavilleRouteImport.update({
+  id: '/guia-alphaville',
+  path: '/guia-alphaville',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscolasRoute = EscolasRouteImport.update({
+  id: '/escolas',
+  path: '/escolas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasRoute = EmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CondominiosRoute = CondominiosRouteImport.update({
+  id: '/condominios',
+  path: '/condominios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +109,242 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/blog': typeof BlogRoute
+  '/condominios': typeof CondominiosRoute
+  '/empresas': typeof EmpresasRoute
+  '/escolas': typeof EscolasRoute
+  '/guia-alphaville': typeof GuiaAlphavilleRoute
+  '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
+  '/guia-tambore': typeof GuiaTamboreRoute
+  '/historia': typeof HistoriaRoute
+  '/imoveis': typeof ImoveisRoute
+  '/investimentos': typeof InvestimentosRoute
+  '/meio-ambiente': typeof MeioAmbienteRoute
+  '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/restaurantes': typeof RestaurantesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/blog': typeof BlogRoute
+  '/condominios': typeof CondominiosRoute
+  '/empresas': typeof EmpresasRoute
+  '/escolas': typeof EscolasRoute
+  '/guia-alphaville': typeof GuiaAlphavilleRoute
+  '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
+  '/guia-tambore': typeof GuiaTamboreRoute
+  '/historia': typeof HistoriaRoute
+  '/imoveis': typeof ImoveisRoute
+  '/investimentos': typeof InvestimentosRoute
+  '/meio-ambiente': typeof MeioAmbienteRoute
+  '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/restaurantes': typeof RestaurantesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/blog': typeof BlogRoute
+  '/condominios': typeof CondominiosRoute
+  '/empresas': typeof EmpresasRoute
+  '/escolas': typeof EscolasRoute
+  '/guia-alphaville': typeof GuiaAlphavilleRoute
+  '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
+  '/guia-tambore': typeof GuiaTamboreRoute
+  '/historia': typeof HistoriaRoute
+  '/imoveis': typeof ImoveisRoute
+  '/investimentos': typeof InvestimentosRoute
+  '/meio-ambiente': typeof MeioAmbienteRoute
+  '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/restaurantes': typeof RestaurantesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/blog'
+    | '/condominios'
+    | '/empresas'
+    | '/escolas'
+    | '/guia-alphaville'
+    | '/guia-barueri'
+    | '/guia-santana-de-parnaiba'
+    | '/guia-tambore'
+    | '/historia'
+    | '/imoveis'
+    | '/investimentos'
+    | '/meio-ambiente'
+    | '/mercado-imobiliario'
+    | '/restaurantes'
+    | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/blog'
+    | '/condominios'
+    | '/empresas'
+    | '/escolas'
+    | '/guia-alphaville'
+    | '/guia-barueri'
+    | '/guia-santana-de-parnaiba'
+    | '/guia-tambore'
+    | '/historia'
+    | '/imoveis'
+    | '/investimentos'
+    | '/meio-ambiente'
+    | '/mercado-imobiliario'
+    | '/restaurantes'
+    | '/sitemap.xml'
+  id:
+    | '__root__'
+    | '/'
+    | '/blog'
+    | '/condominios'
+    | '/empresas'
+    | '/escolas'
+    | '/guia-alphaville'
+    | '/guia-barueri'
+    | '/guia-santana-de-parnaiba'
+    | '/guia-tambore'
+    | '/historia'
+    | '/imoveis'
+    | '/investimentos'
+    | '/meio-ambiente'
+    | '/mercado-imobiliario'
+    | '/restaurantes'
+    | '/sitemap.xml'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BlogRoute: typeof BlogRoute
+  CondominiosRoute: typeof CondominiosRoute
+  EmpresasRoute: typeof EmpresasRoute
+  EscolasRoute: typeof EscolasRoute
+  GuiaAlphavilleRoute: typeof GuiaAlphavilleRoute
+  GuiaBarueriRoute: typeof GuiaBarueriRoute
+  GuiaSantanaDeParnaibaRoute: typeof GuiaSantanaDeParnaibaRoute
+  GuiaTamboreRoute: typeof GuiaTamboreRoute
+  HistoriaRoute: typeof HistoriaRoute
+  ImoveisRoute: typeof ImoveisRoute
+  InvestimentosRoute: typeof InvestimentosRoute
+  MeioAmbienteRoute: typeof MeioAmbienteRoute
+  MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
+  RestaurantesRoute: typeof RestaurantesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restaurantes': {
+      id: '/restaurantes'
+      path: '/restaurantes'
+      fullPath: '/restaurantes'
+      preLoaderRoute: typeof RestaurantesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mercado-imobiliario': {
+      id: '/mercado-imobiliario'
+      path: '/mercado-imobiliario'
+      fullPath: '/mercado-imobiliario'
+      preLoaderRoute: typeof MercadoImobiliarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meio-ambiente': {
+      id: '/meio-ambiente'
+      path: '/meio-ambiente'
+      fullPath: '/meio-ambiente'
+      preLoaderRoute: typeof MeioAmbienteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investimentos': {
+      id: '/investimentos'
+      path: '/investimentos'
+      fullPath: '/investimentos'
+      preLoaderRoute: typeof InvestimentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imoveis': {
+      id: '/imoveis'
+      path: '/imoveis'
+      fullPath: '/imoveis'
+      preLoaderRoute: typeof ImoveisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historia': {
+      id: '/historia'
+      path: '/historia'
+      fullPath: '/historia'
+      preLoaderRoute: typeof HistoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guia-tambore': {
+      id: '/guia-tambore'
+      path: '/guia-tambore'
+      fullPath: '/guia-tambore'
+      preLoaderRoute: typeof GuiaTamboreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guia-santana-de-parnaiba': {
+      id: '/guia-santana-de-parnaiba'
+      path: '/guia-santana-de-parnaiba'
+      fullPath: '/guia-santana-de-parnaiba'
+      preLoaderRoute: typeof GuiaSantanaDeParnaibaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guia-barueri': {
+      id: '/guia-barueri'
+      path: '/guia-barueri'
+      fullPath: '/guia-barueri'
+      preLoaderRoute: typeof GuiaBarueriRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guia-alphaville': {
+      id: '/guia-alphaville'
+      path: '/guia-alphaville'
+      fullPath: '/guia-alphaville'
+      preLoaderRoute: typeof GuiaAlphavilleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escolas': {
+      id: '/escolas'
+      path: '/escolas'
+      fullPath: '/escolas'
+      preLoaderRoute: typeof EscolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas': {
+      id: '/empresas'
+      path: '/empresas'
+      fullPath: '/empresas'
+      preLoaderRoute: typeof EmpresasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/condominios': {
+      id: '/condominios'
+      path: '/condominios'
+      fullPath: '/condominios'
+      preLoaderRoute: typeof CondominiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +357,22 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BlogRoute: BlogRoute,
+  CondominiosRoute: CondominiosRoute,
+  EmpresasRoute: EmpresasRoute,
+  EscolasRoute: EscolasRoute,
+  GuiaAlphavilleRoute: GuiaAlphavilleRoute,
+  GuiaBarueriRoute: GuiaBarueriRoute,
+  GuiaSantanaDeParnaibaRoute: GuiaSantanaDeParnaibaRoute,
+  GuiaTamboreRoute: GuiaTamboreRoute,
+  HistoriaRoute: HistoriaRoute,
+  ImoveisRoute: ImoveisRoute,
+  InvestimentosRoute: InvestimentosRoute,
+  MeioAmbienteRoute: MeioAmbienteRoute,
+  MercadoImobiliarioRoute: MercadoImobiliarioRoute,
+  RestaurantesRoute: RestaurantesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
