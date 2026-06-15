@@ -1,29 +1,222 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SiteLayout } from "@/components/site-layout";
+import { InstitutionalBlock } from "@/components/section-page";
+
+import heroImg from "@/assets/hero-architecture.jpg";
+import alphavilleImg from "@/assets/region-alphaville.jpg";
+import tamboreImg from "@/assets/region-tambore.jpg";
+import barueriImg from "@/assets/region-barueri.jpg";
+import santanaImg from "@/assets/region-santana.jpg";
+import interiorImg from "@/assets/article-interior.jpg";
+import gardenImg from "@/assets/article-garden.jpg";
+import clubhouseImg from "@/assets/article-clubhouse.jpg";
+import prop1 from "@/assets/property-1.jpg";
+import prop2 from "@/assets/property-2.jpg";
+import prop3 from "@/assets/property-3.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "S.A Imóveis Alphaville — Portal Editorial Regional" },
+      {
+        name: "description",
+        content:
+          "Portal editorial sobre Alphaville, Tamboré, Barueri e Santana de Parnaíba: mercado imobiliário, condomínios, história, gastronomia e cultura de alto padrão.",
+      },
+      { property: "og:title", content: "S.A Imóveis Alphaville — Portal Editorial Regional" },
+      {
+        property: "og:description",
+        content:
+          "Autoridade digital sobre Alphaville e região. Mercado imobiliário, condomínios, história e estilo de vida.",
+      },
+      { property: "og:url", content: "/" },
+      { property: "og:image", content: heroImg },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
-  component: Index,
+  component: HomePage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const ARTICLES = [
+  {
+    eyebrow: "Mercado",
+    title: "Tendências de valorização no Tamboré",
+    lead: "Entenda os fatores que impulsionaram o crescimento de dois dígitos no último semestre.",
+    image: interiorImg,
+    alt: "Sala de estar minimalista em apartamento de alto padrão em Tamboré.",
+  },
+  {
+    eyebrow: "História",
+    title: "50 anos de Alphaville: de fazenda a metrópole",
+    lead: "Uma retrospectiva sobre o projeto urbanístico que mudou Barueri para sempre.",
+    image: gardenImg,
+    alt: "Jardim arborizado em condomínio fechado de Alphaville.",
+  },
+  {
+    eyebrow: "Guia",
+    title: "A nova cena gastronômica de Santana de Parnaíba",
+    lead: "Onde a tradição colonial encontra a sofisticação da culinária contemporânea.",
+    image: clubhouseImg,
+    alt: "Clube de golfe contemporâneo na região de Alphaville.",
+  },
+] as const;
+
+const REGIONS = [
+  { label: "Alphaville", to: "/guia-alphaville" as const, image: alphavilleImg, alt: "Vista aérea de Alphaville em preto e branco." },
+  { label: "Tamboré", to: "/guia-tambore" as const, image: tamboreImg, alt: "Arquitetura contemporânea em Tamboré." },
+  { label: "Barueri", to: "/guia-barueri" as const, image: barueriImg, alt: "Skyline corporativo de Barueri." },
+  { label: "S. Parnaíba", to: "/guia-santana-de-parnaiba" as const, image: santanaImg, alt: "Casario colonial de Santana de Parnaíba." },
+];
+
+const PROPERTIES = [
+  { name: "Tamboré 10", code: "Cód. SA-2041", price: "Sob consulta", image: prop1, alt: "Casa moderna de alto padrão no Residencial Tamboré 10." },
+  { name: "Ed. Legacy Alphaville", code: "Cód. SA-9923", price: "R$ 4.200.000", image: prop2, alt: "Sala ampla com pé-direito duplo em apartamento Legacy Alphaville." },
+  { name: "Residencial 2", code: "Cód. SA-1150", price: "R$ 8.900.000", image: prop3, alt: "Piscina e jardim de mansão no Residencial 2 de Alphaville." },
+];
+
+function HomePage() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <SiteLayout>
+      {/* Hero */}
+      <section className="py-12 md:py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-7 flex flex-col justify-end">
+              <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-6">
+                Destaque Editorial
+              </p>
+              <h1 className="font-serif text-5xl md:text-7xl font-medium leading-[1] tracking-tight text-balance max-w-[20ch]">
+                A evolução silenciosa da arquitetura em Alphaville
+              </h1>
+              <p className="mt-8 text-muted-foreground text-lg leading-relaxed max-w-[52ch] text-pretty">
+                Uma análise profunda sobre como o design contemporâneo está redefinindo o
+                horizonte dos residenciais de alto padrão na região metropolitana de São Paulo.
+              </p>
+              <div className="mt-10">
+                <Link
+                  to="/blog"
+                  className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-medium border-b border-ink pb-1 hover:text-muted-foreground"
+                >
+                  Ler reportagem
+                </Link>
+              </div>
+            </div>
+            <div className="lg:col-span-5">
+              <img
+                src={heroImg}
+                alt="Residência contemporânea em concreto aparente em Alphaville, fotografia preto e branco."
+                width={1080}
+                height={1440}
+                className="w-full aspect-[3/4] object-cover bg-muted"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Articles */}
+      <section className="py-24 bg-muted/50 border-y border-ink/8 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12 border-b border-ink/8 pb-4">
+            <h2 className="font-serif text-2xl font-medium">Perspectivas Recentes</h2>
+            <Link to="/blog" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">
+              Ver todos
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {ARTICLES.map((a) => (
+              <article key={a.title} className="group">
+                <img
+                  src={a.image}
+                  alt={a.alt}
+                  loading="lazy"
+                  width={1024}
+                  height={768}
+                  className="w-full aspect-[4/3] object-cover mb-6 bg-muted"
+                />
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">{a.eyebrow}</p>
+                <h3 className="font-serif text-xl font-medium mb-3 text-balance group-hover:underline decoration-ink/30 underline-offset-4">
+                  {a.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{a.lead}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Properties */}
+      <section className="py-24 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-6 mb-12">
+            <h2 className="font-serif text-2xl font-medium whitespace-nowrap">Curadoria S.A</h2>
+            <div className="h-px w-full bg-ink/8" />
+            <Link to="/imoveis" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink whitespace-nowrap">
+              Portfólio
+            </Link>
+          </div>
+          <div className="flex gap-8 overflow-x-auto pb-4 no-scrollbar">
+            {PROPERTIES.map((p) => (
+              <article key={p.name} className="flex-shrink-0 w-80">
+                <img
+                  src={p.image}
+                  alt={p.alt}
+                  loading="lazy"
+                  width={768}
+                  height={1024}
+                  className="w-full aspect-[3/4] object-cover bg-muted mb-4"
+                />
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-widest">{p.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{p.code}</p>
+                  </div>
+                  <p className="text-sm font-medium">{p.price}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Regions */}
+      <section className="py-24 bg-ink text-canvas px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-[52ch] mb-16">
+            <h2 className="font-serif text-4xl md:text-5xl font-medium mb-6 leading-tight">
+              Territórios de autoridade
+            </h2>
+            <p className="text-canvas/60 leading-relaxed">
+              Nossa expertise local traduzida em guias detalhados sobre cada cidade e seus
+              ecossistemas de vida e investimento.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {REGIONS.map((r) => (
+              <Link
+                key={r.to}
+                to={r.to}
+                className="group relative aspect-[4/5] overflow-hidden bg-canvas/5"
+              >
+                <img
+                  src={r.image}
+                  alt={r.alt}
+                  loading="lazy"
+                  width={1024}
+                  height={1280}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
+                <div className="absolute bottom-6 left-6">
+                  <span className="text-xs uppercase tracking-[0.2em] font-medium">{r.label}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <InstitutionalBlock />
+    </SiteLayout>
   );
 }
