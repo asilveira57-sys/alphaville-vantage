@@ -14,16 +14,370 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          content_markdown: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          faq: Json | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          slug: string
+          source: string
+          status: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          content_markdown?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          faq?: Json | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug: string
+          source?: string
+          status?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          content_markdown?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          faq?: Json | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug?: string
+          source?: string
+          status?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      condominiums: {
+        Row: {
+          amenities: string[]
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          region: string | null
+          slug: string
+          status: string
+          units_count: number | null
+          updated_at: string
+          year_built: number | null
+        }
+        Insert: {
+          amenities?: string[]
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          region?: string | null
+          slug: string
+          status?: string
+          units_count?: number | null
+          updated_at?: string
+          year_built?: number | null
+        }
+        Update: {
+          amenities?: string[]
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          region?: string | null
+          slug?: string
+          status?: string
+          units_count?: number | null
+          updated_at?: string
+          year_built?: number | null
+        }
+        Relationships: []
+      }
+      content_generation_jobs: {
+        Row: {
+          blog_post_id: string | null
+          category: string | null
+          created_at: string
+          created_by: string | null
+          error: string | null
+          finished_at: string | null
+          id: string
+          model: string
+          prompt: string | null
+          result: Json | null
+          status: string
+          topic: string
+        }
+        Insert: {
+          blog_post_id?: string | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model: string
+          prompt?: string | null
+          result?: Json | null
+          status?: string
+          topic: string
+        }
+        Update: {
+          blog_post_id?: string | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model?: string
+          prompt?: string | null
+          result?: Json | null
+          status?: string
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_generation_jobs_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_base: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          area_total: number | null
+          area_useful: number | null
+          bedrooms: number | null
+          condominium_id: string | null
+          created_at: string
+          description: string | null
+          external_ref: string | null
+          id: string
+          images: Json
+          last_seen_at: string | null
+          parking: number | null
+          price_rent: number | null
+          price_sale: number | null
+          property_type: string | null
+          purpose: string | null
+          raw: Json | null
+          region: string | null
+          slug: string
+          source_url: string | null
+          status: string
+          suites: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          area_total?: number | null
+          area_useful?: number | null
+          bedrooms?: number | null
+          condominium_id?: string | null
+          created_at?: string
+          description?: string | null
+          external_ref?: string | null
+          id?: string
+          images?: Json
+          last_seen_at?: string | null
+          parking?: number | null
+          price_rent?: number | null
+          price_sale?: number | null
+          property_type?: string | null
+          purpose?: string | null
+          raw?: Json | null
+          region?: string | null
+          slug: string
+          source_url?: string | null
+          status?: string
+          suites?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          area_total?: number | null
+          area_useful?: number | null
+          bedrooms?: number | null
+          condominium_id?: string | null
+          created_at?: string
+          description?: string | null
+          external_ref?: string | null
+          id?: string
+          images?: Json
+          last_seen_at?: string | null
+          parking?: number | null
+          price_rent?: number | null
+          price_sale?: number | null
+          property_type?: string | null
+          purpose?: string | null
+          raw?: Json | null
+          region?: string | null
+          slug?: string
+          source_url?: string | null
+          status?: string
+          suites?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "properties_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scraper_runs: {
+        Row: {
+          error: string | null
+          finished_at: string | null
+          id: string
+          pages_crawled: number
+          properties_upserted: number
+          started_at: string
+          status: string
+          triggered_by: string | null
+        }
+        Insert: {
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          pages_crawled?: number
+          properties_upserted?: number
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
+        }
+        Update: {
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          pages_crawled?: number
+          properties_upserted?: number
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +504,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor", "user"],
+    },
   },
 } as const
