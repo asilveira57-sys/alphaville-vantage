@@ -135,7 +135,7 @@ export const runScraper = createServerFn({ method: "POST" })
         .select("external_ref,last_seen_at")
         .in("external_ref", externalRefs);
       const seenMap = new Map<string, string | null>();
-      (known ?? []).forEach((r) => seenMap.set(r.external_ref, r.last_seen_at));
+      (known ?? []).forEach((r) => { if (r.external_ref) seenMap.set(r.external_ref, r.last_seen_at); });
 
       const queue = allUrls
         .map((u) => ({ url: u, ref: new URL(u).pathname, lastSeen: seenMap.get(new URL(u).pathname) ?? null }))
