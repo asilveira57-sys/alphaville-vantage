@@ -152,10 +152,10 @@ function extractNumber(html: string, label: RegExp): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function inferPurpose(url: string, html: string): "rent" | "sale" | null {
+function inferPurpose(url: string, html: string): "rent" | "sale" | "both" | null {
   const p = new URL(url).pathname;
   if (/^\/alugar/i.test(p)) return "rent";
-  if (/^\/comprar-ou-alugar/i.test(p)) return null;
+  if (/^\/comprar-ou-alugar/i.test(p)) return "both";
   if (/^\/(comprar|venda)/i.test(p)) return "sale";
   if (/loca[cç][aã]o|alug/i.test(html)) return "rent";
   if (/\bvenda\b|\bcomprar\b/i.test(html)) return "sale";
