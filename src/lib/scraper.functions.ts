@@ -188,20 +188,26 @@ export const runScraper = createServerFn({ method: "POST" })
       const sm = await politeFetch(SITEMAP);
       pages++;
       if (!sm) throw new Error("Sitemap inacessível (sem resposta)");
-      if (!sm.ok && sm.status !== 304) throw new Error(`Sitemap inacessível (${sm.status})`);
+      if (!sm.ok) throw new Error(`Sitemap inacessível (${sm.status})`);
 
       const xml = await sm.text();
-      const allUrls = extractSitemapUrls(xml).filter(isPropertyUrl);
+      let allUrls = uniq(extractSitemapUrls(xml).filter(isPropertyUrl));
+      if (!allUrls.length) allUrls = await discoverFromListings();
       discovered = allUrls.length;
+      if (!discovered) throw new Error("Nenhuma URL de imóvel encontrada na origem");
 
       // 2) Prioriza URLs ainda não vistas (ou vistas há mais tempo)
       const externalRefs = allUrls.map((u) => new URL(u).pathname);
-      const { data: known } = await supabaseAdmin
-        .from("properties")
-        .select("external_ref,last_seen_at")
-        .in("external_ref", externalRefs);
+      const knownRows: { external_ref: string | null; last_seen_at: string | null }[] = [];
+      for (const refs of chunk(externalRefs, 500)) {
+        const { data } = await supabaseAdmin
+          .from("properties")
+          .select("external_ref,last_seen_at")
+          .in("external_ref", refs);
+        knownRows.push(...(data ?? []));
+      }
       const seenMap = new Map<string, string | null>();
-      (known ?? []).forEach((r) => { if (r.external_ref) seenMap.set(r.external_ref, r.last_seen_at); });
+      knownRows.forEach((r) => { if (r.external_ref) seenMap.set(r.external_ref, r.last_seen_at); });
 
       const queue = allUrls
         .map((u) => ({ url: u, ref: new URL(u).pathname, lastSeen: seenMap.get(new URL(u).pathname) ?? null }))
@@ -222,16 +228,19 @@ export const runScraper = createServerFn({ method: "POST" })
 
         try {
           const html = await res.text();
-          const title = extractTitle(html);
+          const title = extractPropertyTitle(html, item.url);
           const description = pickMeta(html, "og:description") ?? "";
           const images = extractImages(html, item.url);
           const purpose = inferPurpose(item.url, html);
-          const refTail = item.ref.split("/").filter(Boolean).pop() ?? "";
+          const pathParts = item.ref.split("/").filter(Boolean);
+          const refTail = pathParts.at(-1) ?? "";
           const slug = `${slugify(title)}-${refTail}`;
 
-          const price = extractNumber(html, /R\$\s*([\d.,]+)/);
-          const bedrooms = extractNumber(html, /(\d+)\s*(?:quartos?|dorm)/i);
-          const area = extractNumber(html, /([\d.,]+)\s*m[²2]/i);
+          const price = extractNumber(html, /(?:valor\s*)?(?:aluguel|loca[cç][aã]o|venda)[^R]{0,40}R\$\s*([\d.,]+)/i) ?? extractNumber(html, /R\$\s*([\d.,]+)/);
+          const bedrooms = extractNumber(html, /(\d+)\s*(?:quartos?|dormit[oó]rios?|dorm)/i);
+          const parking = extractNumber(html, /(\d+)\s*vagas?/i);
+          const suites = extractNumber(html, /(\d+)\s*su[ií]tes?/i);
+          const area = extractNumber(html, /([\d.,]+)\s*m[²2]\s*(?:útil|util|constru[ií]da)?/i);
 
           await supabaseAdmin.from("properties").upsert({
             external_ref: item.ref,
@@ -240,17 +249,21 @@ export const runScraper = createServerFn({ method: "POST" })
             title,
             description,
             purpose,
+            property_type: pathParts.at(-2)?.replace(/-/g, " ") ?? null,
             images,
             price_rent: purpose === "rent" ? price : null,
             price_sale: purpose === "sale" ? price : null,
             bedrooms: bedrooms ?? null,
+            suites: suites ?? null,
+            parking: parking ?? null,
             area_useful: area ?? null,
             raw: { html_excerpt: html.slice(0, 4000) },
             status: "active",
             last_seen_at: new Date().toISOString(),
-          }, { onConflict: "external_ref" });
+          }, { onConflict: "external_ref", ignoreDuplicates: false });
           upserted++;
-        } catch {
+        } catch (e) {
+          console.error("Crawler property failed", item.url, e instanceof Error ? e.message : String(e));
           errors++;
         }
 
