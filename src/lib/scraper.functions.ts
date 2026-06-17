@@ -160,11 +160,11 @@ export const runScraper = createServerFn({ method: "POST" })
           const description = pickMeta(html, "og:description") ?? "";
           const images = extractImages(html, item.url);
           const purpose = inferPurpose(item.url, html);
-          const slug = slugify(title) + "-" + item.ref.split("/").filter(Boolean).pop();
+          const refTail = item.ref.split("/").filter(Boolean).pop() ?? "";
+          const slug = `${slugify(title)}-${refTail}`;
 
           const price = extractNumber(html, /R\$\s*([\d.,]+)/);
           const bedrooms = extractNumber(html, /(\d+)\s*(?:quartos?|dorm)/i);
-          const bathrooms = extractNumber(html, /(\d+)\s*banheir/i);
           const area = extractNumber(html, /([\d.,]+)\s*m[²2]/i);
 
           await supabaseAdmin.from("properties").upsert({
@@ -175,10 +175,10 @@ export const runScraper = createServerFn({ method: "POST" })
             description,
             purpose,
             images,
-            price,
-            bedrooms,
-            bathrooms,
-            area,
+            price_rent: purpose === "rent" ? price : null,
+            price_sale: purpose === "sale" ? price : null,
+            bedrooms: bedrooms ?? null,
+            area_useful: area ?? null,
             raw: { html_excerpt: html.slice(0, 4000) },
             status: "active",
             last_seen_at: new Date().toISOString(),
@@ -187,6 +187,7 @@ export const runScraper = createServerFn({ method: "POST" })
         } catch {
           errors++;
         }
+
       }
 
       await supabaseAdmin.from("scraper_runs").update({
