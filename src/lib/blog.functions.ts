@@ -19,8 +19,8 @@ export const listPublishedPosts = createServerFn({ method: "GET" }).handler(asyn
     .from("blog_posts")
     .select("id, slug, title, excerpt, category, cover_image_url, published_at, tags")
     .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(60);
+    .order("published_at", { ascending: false });
+
   if (error) throw new Error(error.message);
   return data ?? [];
 });
