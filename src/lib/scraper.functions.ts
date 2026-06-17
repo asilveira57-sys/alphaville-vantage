@@ -19,9 +19,12 @@ const slugify = (s: string) =>
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 110);
 
 async function politeFetch(url: string): Promise<Response | null> {
+  // Cache-buster: o CDN da origem devolve 304 (body vazio) para o mesmo
+  // path/IP mesmo sem If-None-Match. Anexar um parâmetro único força 200.
+  const bust = `${url.includes("?") ? "&" : "?"}_t=${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const res = await fetch(url, {
+      const res = await fetch(url + bust, {
         headers: {
           "user-agent": UA,
           "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -43,6 +46,7 @@ async function politeFetch(url: string): Promise<Response | null> {
   }
   return null;
 }
+
 
 
 function extractSitemapUrls(xml: string): string[] {
