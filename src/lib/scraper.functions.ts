@@ -130,7 +130,9 @@ export const runScraper = createServerFn({ method: "POST" })
       // 1) Sitemap
       const sm = await politeFetch(SITEMAP);
       pages++;
-      if (!sm || !sm.ok) throw new Error(`Sitemap inacessível (${sm?.status ?? "no response"})`);
+      if (!sm) throw new Error("Sitemap inacessível (sem resposta)");
+      if (!sm.ok && sm.status !== 304) throw new Error(`Sitemap inacessível (${sm.status})`);
+
       const xml = await sm.text();
       const allUrls = extractSitemapUrls(xml).filter(isPropertyUrl);
       discovered = allUrls.length;
