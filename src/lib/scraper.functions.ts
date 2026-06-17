@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const SOURCE = "https://saimoveisalphaville.com.br";
 const SITEMAP = `${SOURCE}/sitemap.xml`;
-const UA = "SAImoveisPortalBot/1.0 (+https://saimoveisalphaville.com.br)";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
 // Tempo máximo de uma execução (deixa folga até o timeout do worker)
 const RUN_BUDGET_MS = 50_000;
@@ -19,15 +19,15 @@ const slugify = (s: string) =>
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 110);
 
 async function politeFetch(url: string): Promise<Response | null> {
-  // Cache-buster: o CDN da origem devolve 304 (body vazio) para o mesmo
-  // path/IP mesmo sem If-None-Match. Anexar um parâmetro único força 200.
-  const bust = `${url.includes("?") ? "&" : "?"}_t=${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const res = await fetch(url + bust, {
+      const requestUrl = new URL(url);
+      requestUrl.searchParams.set("_t", `${Date.now()}${Math.random().toString(36).slice(2, 8)}`);
+      const res = await fetch(requestUrl.toString(), {
         headers: {
           "user-agent": UA,
           "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "accept-language": "pt-BR,pt;q=0.9,en;q=0.8",
           "cache-control": "no-cache",
           "pragma": "no-cache",
         },
@@ -47,6 +47,22 @@ async function politeFetch(url: string): Promise<Response | null> {
   return null;
 }
 
+const uniq = <T,>(items: T[]) => [...new Set(items)];
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size));
+  return chunks;
+}
+
+function stripTags(input: string): string {
+  return input.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function toAbsoluteUrl(url: string): string | null {
+  try { return new URL(url, SOURCE).toString(); } catch { return null; }
+}
+
 
 
 function extractSitemapUrls(xml: string): string[] {
@@ -60,8 +76,36 @@ function extractSitemapUrls(xml: string): string[] {
 function isPropertyUrl(u: string): boolean {
   try {
     const p = new URL(u).pathname;
-    return /^\/(alugar|comprar|venda|imoveis\/referencia-)/i.test(p);
+    return /^\/(alugar|comprar|comprar-ou-alugar)\//i.test(p);
   } catch { return false; }
+}
+
+function extractPropertyLinks(html: string, base: string): string[] {
+  const out: string[] = [];
+  const re = /href=["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html))) {
+    const absolute = toAbsoluteUrl(m[1]);
+    if (absolute && isPropertyUrl(absolute)) out.push(new URL(absolute).origin === SOURCE ? absolute : absolute.replace(/^http:/, "https:"));
+  }
+  return uniq(out.map((u) => new URL(u, base).toString().split("#")[0]));
+}
+
+async function discoverFromListings(): Promise<string[]> {
+  const urls: string[] = [];
+  for (const section of ["imoveis", "comprar", "alugar"]) {
+    for (let page = 1; page <= 8; page++) {
+      const listUrl = page === 1 ? `${SOURCE}/${section}` : `${SOURCE}/${section}/pagina-${page}/`;
+      const res = await politeFetch(listUrl);
+      if (!res?.ok) break;
+      const html = await res.text();
+      const links = extractPropertyLinks(html, listUrl);
+      if (!links.length) break;
+      urls.push(...links);
+      await sleep(REQUEST_DELAY_MS);
+    }
+  }
+  return uniq(urls).filter(isPropertyUrl);
 }
 
 function pickMeta(html: string, prop: string): string | undefined {
@@ -71,6 +115,14 @@ function pickMeta(html: string, prop: string): string | undefined {
 
 function extractTitle(html: string): string {
   return pickMeta(html, "og:title") ?? html.match(/<title>([^<]+)<\/title>/i)?.[1]?.trim() ?? "Imóvel";
+}
+
+function extractPropertyTitle(html: string, url: string): string {
+  const h1 = stripTags(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? "");
+  const h2 = stripTags(html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i)?.[1] ?? "");
+  const type = new URL(url).pathname.split("/").filter(Boolean).at(-2)?.replace(/-/g, " ") ?? "Imóvel";
+  const title = [h1 || type, h2].filter(Boolean).join(" — ");
+  return title || extractTitle(html);
 }
 
 function extractImages(html: string, base: string): string[] {
@@ -100,9 +152,10 @@ function extractNumber(html: string, label: RegExp): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function inferPurpose(url: string, html: string): "rent" | "sale" | null {
+function inferPurpose(url: string, html: string): "rent" | "sale" | "both" | null {
   const p = new URL(url).pathname;
   if (/^\/alugar/i.test(p)) return "rent";
+  if (/^\/comprar-ou-alugar/i.test(p)) return "both";
   if (/^\/(comprar|venda)/i.test(p)) return "sale";
   if (/loca[cç][aã]o|alug/i.test(html)) return "rent";
   if (/\bvenda\b|\bcomprar\b/i.test(html)) return "sale";
@@ -135,20 +188,26 @@ export const runScraper = createServerFn({ method: "POST" })
       const sm = await politeFetch(SITEMAP);
       pages++;
       if (!sm) throw new Error("Sitemap inacessível (sem resposta)");
-      if (!sm.ok && sm.status !== 304) throw new Error(`Sitemap inacessível (${sm.status})`);
+      if (!sm.ok) throw new Error(`Sitemap inacessível (${sm.status})`);
 
       const xml = await sm.text();
-      const allUrls = extractSitemapUrls(xml).filter(isPropertyUrl);
+      let allUrls = uniq(extractSitemapUrls(xml).filter(isPropertyUrl));
+      if (!allUrls.length) allUrls = await discoverFromListings();
       discovered = allUrls.length;
+      if (!discovered) throw new Error("Nenhuma URL de imóvel encontrada na origem");
 
       // 2) Prioriza URLs ainda não vistas (ou vistas há mais tempo)
       const externalRefs = allUrls.map((u) => new URL(u).pathname);
-      const { data: known } = await supabaseAdmin
-        .from("properties")
-        .select("external_ref,last_seen_at")
-        .in("external_ref", externalRefs);
+      const knownRows: { external_ref: string | null; last_seen_at: string | null }[] = [];
+      for (const refs of chunk(externalRefs, 500)) {
+        const { data } = await supabaseAdmin
+          .from("properties")
+          .select("external_ref,last_seen_at")
+          .in("external_ref", refs);
+        knownRows.push(...(data ?? []));
+      }
       const seenMap = new Map<string, string | null>();
-      (known ?? []).forEach((r) => { if (r.external_ref) seenMap.set(r.external_ref, r.last_seen_at); });
+      knownRows.forEach((r) => { if (r.external_ref) seenMap.set(r.external_ref, r.last_seen_at); });
 
       const queue = allUrls
         .map((u) => ({ url: u, ref: new URL(u).pathname, lastSeen: seenMap.get(new URL(u).pathname) ?? null }))
@@ -169,35 +228,43 @@ export const runScraper = createServerFn({ method: "POST" })
 
         try {
           const html = await res.text();
-          const title = extractTitle(html);
+          const title = extractPropertyTitle(html, item.url);
           const description = pickMeta(html, "og:description") ?? "";
           const images = extractImages(html, item.url);
           const purpose = inferPurpose(item.url, html);
-          const refTail = item.ref.split("/").filter(Boolean).pop() ?? "";
+          const pathParts = item.ref.split("/").filter(Boolean);
+          const refTail = pathParts.at(-1) ?? "";
           const slug = `${slugify(title)}-${refTail}`;
 
-          const price = extractNumber(html, /R\$\s*([\d.,]+)/);
-          const bedrooms = extractNumber(html, /(\d+)\s*(?:quartos?|dorm)/i);
-          const area = extractNumber(html, /([\d.,]+)\s*m[²2]/i);
+          const price = extractNumber(html, /(?:valor\s*)?(?:aluguel|loca[cç][aã]o|venda)[^R]{0,40}R\$\s*([\d.,]+)/i) ?? extractNumber(html, /R\$\s*([\d.,]+)/);
+          const bedrooms = extractNumber(html, /(\d+)\s*(?:quartos?|dormit[oó]rios?|dorm)/i);
+          const parking = extractNumber(html, /(\d+)\s*vagas?/i);
+          const suites = extractNumber(html, /(\d+)\s*su[ií]tes?/i);
+          const area = extractNumber(html, /([\d.,]+)\s*m[²2]\s*(?:útil|util|constru[ií]da)?/i);
 
-          await supabaseAdmin.from("properties").upsert({
+          const { error: upsertErr } = await supabaseAdmin.from("properties").upsert({
             external_ref: item.ref,
             source_url: item.url,
             slug,
             title,
             description,
             purpose,
+            property_type: pathParts.at(-2)?.replace(/-/g, " ") ?? null,
             images,
             price_rent: purpose === "rent" ? price : null,
             price_sale: purpose === "sale" ? price : null,
             bedrooms: bedrooms ?? null,
+            suites: suites ?? null,
+            parking: parking ?? null,
             area_useful: area ?? null,
             raw: { html_excerpt: html.slice(0, 4000) },
             status: "active",
             last_seen_at: new Date().toISOString(),
-          }, { onConflict: "external_ref" });
+          }, { onConflict: "external_ref", ignoreDuplicates: false });
+          if (upsertErr) throw new Error(upsertErr.message);
           upserted++;
-        } catch {
+        } catch (e) {
+          console.error("Crawler property failed", item.url, e instanceof Error ? e.message : String(e));
           errors++;
         }
 
