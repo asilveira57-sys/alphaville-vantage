@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const SOURCE = "https://saimoveisalphaville.com.br";
 const SITEMAP = `${SOURCE}/sitemap.xml`;
-const UA = "SAImoveisPortalBot/1.0 (+https://saimoveisalphaville.com.br)";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
 // Tempo máximo de uma execução (deixa folga até o timeout do worker)
 const RUN_BUDGET_MS = 50_000;
@@ -19,15 +19,15 @@ const slugify = (s: string) =>
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 110);
 
 async function politeFetch(url: string): Promise<Response | null> {
-  // Cache-buster: o CDN da origem devolve 304 (body vazio) para o mesmo
-  // path/IP mesmo sem If-None-Match. Anexar um parâmetro único força 200.
-  const bust = `${url.includes("?") ? "&" : "?"}_t=${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const res = await fetch(url + bust, {
+      const requestUrl = new URL(url);
+      requestUrl.searchParams.set("_t", `${Date.now()}${Math.random().toString(36).slice(2, 8)}`);
+      const res = await fetch(requestUrl.toString(), {
         headers: {
           "user-agent": UA,
           "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "accept-language": "pt-BR,pt;q=0.9,en;q=0.8",
           "cache-control": "no-cache",
           "pragma": "no-cache",
         },
@@ -47,6 +47,22 @@ async function politeFetch(url: string): Promise<Response | null> {
   return null;
 }
 
+const uniq = <T,>(items: T[]) => [...new Set(items)];
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size));
+  return chunks;
+}
+
+function stripTags(input: string): string {
+  return input.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function toAbsoluteUrl(url: string): string | null {
+  try { return new URL(url, SOURCE).toString(); } catch { return null; }
+}
+
 
 
 function extractSitemapUrls(xml: string): string[] {
@@ -60,8 +76,36 @@ function extractSitemapUrls(xml: string): string[] {
 function isPropertyUrl(u: string): boolean {
   try {
     const p = new URL(u).pathname;
-    return /^\/(alugar|comprar|venda|imoveis\/referencia-)/i.test(p);
+    return /^\/(alugar|comprar|comprar-ou-alugar)\//i.test(p);
   } catch { return false; }
+}
+
+function extractPropertyLinks(html: string, base: string): string[] {
+  const out: string[] = [];
+  const re = /href=["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html))) {
+    const absolute = toAbsoluteUrl(m[1]);
+    if (absolute && isPropertyUrl(absolute)) out.push(new URL(absolute).origin === SOURCE ? absolute : absolute.replace(/^http:/, "https:"));
+  }
+  return uniq(out.map((u) => new URL(u, base).toString().split("#")[0]));
+}
+
+async function discoverFromListings(): Promise<string[]> {
+  const urls: string[] = [];
+  for (const section of ["imoveis", "comprar", "alugar"]) {
+    for (let page = 1; page <= 8; page++) {
+      const listUrl = page === 1 ? `${SOURCE}/${section}` : `${SOURCE}/${section}/pagina-${page}/`;
+      const res = await politeFetch(listUrl);
+      if (!res?.ok) break;
+      const html = await res.text();
+      const links = extractPropertyLinks(html, listUrl);
+      if (!links.length) break;
+      urls.push(...links);
+      await sleep(REQUEST_DELAY_MS);
+    }
+  }
+  return uniq(urls).filter(isPropertyUrl);
 }
 
 function pickMeta(html: string, prop: string): string | undefined {
@@ -71,6 +115,14 @@ function pickMeta(html: string, prop: string): string | undefined {
 
 function extractTitle(html: string): string {
   return pickMeta(html, "og:title") ?? html.match(/<title>([^<]+)<\/title>/i)?.[1]?.trim() ?? "Imóvel";
+}
+
+function extractPropertyTitle(html: string, url: string): string {
+  const h1 = stripTags(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? "");
+  const h2 = stripTags(html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i)?.[1] ?? "");
+  const type = new URL(url).pathname.split("/").filter(Boolean).at(-2)?.replace(/-/g, " ") ?? "Imóvel";
+  const title = [h1 || type, h2].filter(Boolean).join(" — ");
+  return title || extractTitle(html);
 }
 
 function extractImages(html: string, base: string): string[] {
@@ -103,6 +155,7 @@ function extractNumber(html: string, label: RegExp): number | null {
 function inferPurpose(url: string, html: string): "rent" | "sale" | null {
   const p = new URL(url).pathname;
   if (/^\/alugar/i.test(p)) return "rent";
+  if (/^\/comprar-ou-alugar/i.test(p)) return null;
   if (/^\/(comprar|venda)/i.test(p)) return "sale";
   if (/loca[cç][aã]o|alug/i.test(html)) return "rent";
   if (/\bvenda\b|\bcomprar\b/i.test(html)) return "sale";
