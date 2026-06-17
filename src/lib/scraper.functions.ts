@@ -242,7 +242,7 @@ export const runScraper = createServerFn({ method: "POST" })
           const suites = extractNumber(html, /(\d+)\s*su[ií]tes?/i);
           const area = extractNumber(html, /([\d.,]+)\s*m[²2]\s*(?:útil|util|constru[ií]da)?/i);
 
-          await supabaseAdmin.from("properties").upsert({
+          const { error: upsertErr } = await supabaseAdmin.from("properties").upsert({
             external_ref: item.ref,
             source_url: item.url,
             slug,
@@ -261,6 +261,7 @@ export const runScraper = createServerFn({ method: "POST" })
             status: "active",
             last_seen_at: new Date().toISOString(),
           }, { onConflict: "external_ref", ignoreDuplicates: false });
+          if (upsertErr) throw new Error(upsertErr.message);
           upserted++;
         } catch (e) {
           console.error("Crawler property failed", item.url, e instanceof Error ? e.message : String(e));
