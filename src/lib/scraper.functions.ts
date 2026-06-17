@@ -22,8 +22,14 @@ async function politeFetch(url: string): Promise<Response | null> {
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
       const res = await fetch(url, {
-        headers: { "user-agent": UA, "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" },
+        headers: {
+          "user-agent": UA,
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "cache-control": "no-cache",
+          "pragma": "no-cache",
+        },
         redirect: "follow",
+        cache: "no-store",
       });
       if (res.status === 429 || res.status >= 500) {
         const wait = Math.min(8000, 800 * Math.pow(2, attempt));
@@ -37,6 +43,7 @@ async function politeFetch(url: string): Promise<Response | null> {
   }
   return null;
 }
+
 
 function extractSitemapUrls(xml: string): string[] {
   const out: string[] = [];
