@@ -127,23 +127,31 @@ function extractPropertyTitle(html: string, url: string): string {
 
 function extractImages(html: string, base: string): string[] {
   const set = new Set<string>();
-  const re = /<img[^>]+src=["']([^"']+\.(?:jpe?g|png|webp))[^"']*["']/gi;
+  // Site-chrome assets to skip (logos, icons, WhatsApp badges, photographer avatars, etc.)
+  const isChrome = (u: string) =>
+    /(logo|logos|icone|placeholder|whats|favicon|mini_|topo_|supremo_|ficha|usuarios\/)/i.test(u);
+
+  // Prefer real property photos: cdn.uso.com.br/{accountId}/{yyyy}/{mm}/<hash>.jpg
+  const reCdn = /https?:\/\/cdn\d*\.uso\.com\.br\/\d+\/\d{4}\/\d{2}\/[^"'\s)]+\.(?:jpe?g|png|webp)/gi;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(html))) {
-    try {
-      const u = new URL(m[1], base);
-      if (!/(logo|icone|placeholder|whatsapp|favicon|mini_)/i.test(u.pathname)) set.add(u.toString());
-    } catch { /* ignore */ }
+  while ((m = reCdn.exec(html))) {
+    if (!isChrome(m[0])) set.add(m[0]);
   }
-  // Also collect cdn.uso.com.br full-size images from inline data
-  const re2 = /https?:\/\/cdn\.uso\.com\.br\/[^"'\s)]+\.(?:jpe?g|png|webp)/gi;
-  let m2: RegExpExecArray | null;
-  while ((m2 = re2.exec(html))) {
-    const u = m2[0];
-    if (!/mini_|logo|favicon/i.test(u)) set.add(u);
+
+  // Fallback: any <img src> when no CDN photos were found
+  if (set.size === 0) {
+    const reImg = /<img[^>]+src=["']([^"']+\.(?:jpe?g|png|webp))[^"']*["']/gi;
+    let mi: RegExpExecArray | null;
+    while ((mi = reImg.exec(html))) {
+      try {
+        const u = new URL(mi[1], base).toString();
+        if (!isChrome(u)) set.add(u);
+      } catch { /* ignore */ }
+    }
   }
   return [...set].slice(0, 24);
 }
+
 
 function extractNumber(html: string, label: RegExp): number | null {
   const m = html.match(label);
@@ -197,17 +205,21 @@ export const runScraper = createServerFn({ method: "POST" })
       if (!discovered) throw new Error("Nenhuma URL de imóvel encontrada na origem");
 
       // 2) Prioriza URLs ainda não vistas (ou vistas há mais tempo)
-      const externalRefs = allUrls.map((u) => new URL(u).pathname);
-      const knownRows: { external_ref: string | null; last_seen_at: string | null }[] = [];
-      for (const refs of chunk(externalRefs, 500)) {
-        const { data } = await supabaseAdmin
+      // Carrega TODOS os refs conhecidos paginando (evita estourar limite de URL do .in()).
+      const seenMap = new Map<string, string | null>();
+      const PAGE = 1000;
+      for (let from = 0; ; from += PAGE) {
+        const { data, error: selErr } = await supabaseAdmin
           .from("properties")
           .select("external_ref,last_seen_at")
-          .in("external_ref", refs);
-        knownRows.push(...(data ?? []));
+          .order("external_ref", { ascending: true })
+          .range(from, from + PAGE - 1);
+        if (selErr) throw new Error(`Falha ao listar refs existentes: ${selErr.message}`);
+        const rows = data ?? [];
+        for (const r of rows) if (r.external_ref) seenMap.set(r.external_ref, r.last_seen_at);
+        if (rows.length < PAGE) break;
       }
-      const seenMap = new Map<string, string | null>();
-      knownRows.forEach((r) => { if (r.external_ref) seenMap.set(r.external_ref, r.last_seen_at); });
+
 
       const queue = allUrls
         .map((u) => ({ url: u, ref: new URL(u).pathname, lastSeen: seenMap.get(new URL(u).pathname) ?? null }))
