@@ -86,7 +86,7 @@ function PropertyDetail() {
         <div className="max-w-6xl mx-auto">
           {p.images.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {p.images.slice(0, 8).map((src, i) => (
+              {p.images.slice(0, 8).map((src: string, i: number) => (
                 <img key={i} src={src} alt={`${p.title} — imagem ${i + 1}`} loading="lazy" className="w-full aspect-[4/3] object-cover bg-ink/5" />
               ))}
             </div>
