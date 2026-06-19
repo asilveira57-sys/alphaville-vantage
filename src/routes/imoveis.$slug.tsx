@@ -5,10 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) &&
-  !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
+  !/(logo|favicon|whats|placeholder|topo_contato|supremo_|topo_)/i.test(u);
 
 const fmtPrice = (n: number | null) =>
-  n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(n));
+  n == null
+    ? null
+    : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(n));
 
 async function fetchProperty(slug: string) {
   const { data, error } = await supabase
@@ -51,16 +53,20 @@ export const Route = createFileRoute("/imoveis/$slug")({
   component: PropertyDetail,
 });
 
+function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  if (value == null || value === "" ) return null;
+  return (
+    <div className="flex justify-between gap-6 py-3 text-sm border-b border-ink/10">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="text-ink text-right break-all">{value}</dd>
+    </div>
+  );
+}
+
 function PropertyDetail() {
   const p = Route.useLoaderData();
   const sale = fmtPrice(p.price_sale);
   const rent = fmtPrice(p.price_rent);
-  const specs: { label: string; value: string }[] = [];
-  if (p.bedrooms) specs.push({ label: "Dormitórios", value: String(p.bedrooms) });
-  if (p.suites) specs.push({ label: "Suítes", value: String(p.suites) });
-  if (p.parking) specs.push({ label: "Vagas", value: String(p.parking) });
-  if (p.area_useful) specs.push({ label: "Área útil", value: `${Number(p.area_useful)} m²` });
-  if (p.area_total) specs.push({ label: "Área total", value: `${Number(p.area_total)} m²` });
 
   return (
     <SiteLayout>
@@ -72,7 +78,8 @@ function PropertyDetail() {
             </Link>
           </nav>
           <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-6">
-            {p.property_type ?? "Imóvel"}{p.purpose === "rent" ? " · Locação" : p.purpose === "sale" ? " · Venda" : ""}
+            {p.property_type ?? "Imóvel"}
+            {p.purpose === "rent" ? " · Locação" : p.purpose === "sale" ? " · Venda" : p.purpose === "both" ? " · Venda/Locação" : ""}
           </p>
           <h1 className="font-serif text-3xl md:text-4xl leading-tight text-balance">{p.title}</h1>
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2">
@@ -86,7 +93,7 @@ function PropertyDetail() {
         <div className="max-w-6xl mx-auto">
           {p.images.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {p.images.slice(0, 8).map((src: string, i: number) => (
+              {p.images.slice(0, 12).map((src: string, i: number) => (
                 <img key={i} src={src} alt={`${p.title} — imagem ${i + 1}`} loading="lazy" className="w-full aspect-[4/3] object-cover bg-ink/5" />
               ))}
             </div>
@@ -107,23 +114,43 @@ function PropertyDetail() {
             </p>
             {p.source_url && (
               <a href={p.source_url} target="_blank" rel="noreferrer" className="mt-6 inline-block text-xs uppercase tracking-widest underline">
-                Ver anúncio original
+                Ver anúncio original ↗
               </a>
             )}
           </div>
-          {specs.length > 0 && (
-            <aside>
-              <h2 className="font-serif text-2xl mb-4">Ficha</h2>
-              <dl className="divide-y divide-ink/10 border-t border-ink/10">
-                {specs.map((s) => (
-                  <div key={s.label} className="flex justify-between py-3 text-sm">
-                    <dt className="text-muted-foreground">{s.label}</dt>
-                    <dd className="text-ink">{s.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </aside>
-          )}
+          <aside>
+            <h2 className="font-serif text-2xl mb-4">Dados coletados</h2>
+            <dl className="border-t border-ink/10">
+              <Row label="Tipo" value={p.property_type} />
+              <Row label="Finalidade" value={p.purpose} />
+              <Row label="Região" value={p.region} />
+              <Row label="Dormitórios" value={p.bedrooms} />
+              <Row label="Suítes" value={p.suites} />
+              <Row label="Vagas" value={p.parking} />
+              <Row label="Área útil" value={p.area_useful ? `${Number(p.area_useful)} m²` : null} />
+              <Row label="Área total" value={p.area_total ? `${Number(p.area_total)} m²` : null} />
+              <Row label="Venda" value={sale} />
+              <Row label="Locação" value={rent ? `${rent}/mês` : null} />
+              <Row label="Status" value={p.status} />
+              <Row label="Última coleta" value={p.last_seen_at ? new Date(p.last_seen_at).toLocaleString("pt-BR") : null} />
+              <Row label="Imagens" value={`${p.images.length}`} />
+              <Row label="Slug" value={<code className="text-xs">{p.slug}</code>} />
+              <Row label="Ref externa" value={<code className="text-xs">{p.external_ref}</code>} />
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <section className="px-6 py-12 border-t border-ink/8">
+        <div className="max-w-6xl mx-auto">
+          <details className="text-sm">
+            <summary className="cursor-pointer text-muted-foreground uppercase tracking-[0.2em] text-[10px]">
+              Debug — payload bruto do scraper
+            </summary>
+            <pre className="mt-6 p-4 bg-ink/5 overflow-auto text-[11px] leading-relaxed max-h-[500px]">
+{JSON.stringify({ ...p, raw: p.raw ? { ...(p.raw as object), html_excerpt: "[omitido — ver source_url]" } : null }, null, 2)}
+            </pre>
+          </details>
         </div>
       </section>
 
