@@ -53,6 +53,18 @@ export const Route = createFileRoute("/imoveis/$slug")({
   component: PropertyDetail,
 });
 
+function fmtPurpose(v: string | null) {
+  if (v === "rent") return "Locação";
+  if (v === "sale") return "Venda";
+  if (v === "both") return "Venda/Locação";
+  return v ?? null;
+}
+
+function fmtStatus(v: string | null) {
+  if (v === "active") return "Ativo";
+  return v ?? null;
+}
+
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   if (value == null || value === "" ) return null;
   return (
