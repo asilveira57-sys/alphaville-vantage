@@ -27,6 +27,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -120,6 +121,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImoveisIndexRoute = ImoveisIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ImoveisRoute,
+} as any)
 const ImoveisSlugRoute = ImoveisSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/imoveis/': typeof ImoveisIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -170,7 +177,6 @@ export interface FileRoutesByTo {
   '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
   '/guia-tambore': typeof GuiaTamboreRoute
   '/historia': typeof HistoriaRoute
-  '/imoveis': typeof ImoveisRouteWithChildren
   '/investimentos': typeof InvestimentosRoute
   '/meio-ambiente': typeof MeioAmbienteRoute
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
@@ -179,6 +185,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/imoveis': typeof ImoveisIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -203,6 +210,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/imoveis/': typeof ImoveisIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -227,6 +235,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog/$slug'
     | '/imoveis/$slug'
+    | '/imoveis/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -240,7 +249,6 @@ export interface FileRouteTypes {
     | '/guia-santana-de-parnaiba'
     | '/guia-tambore'
     | '/historia'
-    | '/imoveis'
     | '/investimentos'
     | '/meio-ambiente'
     | '/mercado-imobiliario'
@@ -249,6 +257,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog/$slug'
     | '/imoveis/$slug'
+    | '/imoveis'
   id:
     | '__root__'
     | '/'
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/blog/$slug'
     | '/imoveis/$slug'
+    | '/imoveis/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -423,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/imoveis/': {
+      id: '/imoveis/'
+      path: '/'
+      fullPath: '/imoveis/'
+      preLoaderRoute: typeof ImoveisIndexRouteImport
+      parentRoute: typeof ImoveisRoute
+    }
     '/imoveis/$slug': {
       id: '/imoveis/$slug'
       path: '/$slug'
@@ -470,10 +487,12 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface ImoveisRouteChildren {
   ImoveisSlugRoute: typeof ImoveisSlugRoute
+  ImoveisIndexRoute: typeof ImoveisIndexRoute
 }
 
 const ImoveisRouteChildren: ImoveisRouteChildren = {
   ImoveisSlugRoute: ImoveisSlugRoute,
+  ImoveisIndexRoute: ImoveisIndexRoute,
 }
 
 const ImoveisRouteWithChildren =
