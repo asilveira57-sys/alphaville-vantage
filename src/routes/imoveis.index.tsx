@@ -36,7 +36,7 @@ async function fetchProperties(): Promise<PropertyRow[]> {
   })) as PropertyRow[];
 }
 
-export const Route = createFileRoute("/imoveis")({
+export const Route = createFileRoute("/imoveis/")({
   head: () => ({
     meta: [
       { title: "Imóveis em Alphaville — S.A Imóveis Alphaville" },
