@@ -131,10 +131,10 @@ function PropertyDetail() {
             )}
           </div>
           <aside>
-            <h2 className="font-serif text-2xl mb-4">Dados coletados</h2>
+            <h2 className="font-serif text-2xl mb-4">Dados do imóvel</h2>
             <dl className="border-t border-ink/10">
               <Row label="Tipo" value={p.property_type} />
-              <Row label="Finalidade" value={p.purpose} />
+              <Row label="Finalidade" value={fmtPurpose(p.purpose)} />
               <Row label="Região" value={p.region} />
               <Row label="Dormitórios" value={p.bedrooms} />
               <Row label="Suítes" value={p.suites} />
@@ -143,7 +143,7 @@ function PropertyDetail() {
               <Row label="Área total" value={p.area_total ? `${Number(p.area_total)} m²` : null} />
               <Row label="Venda" value={sale} />
               <Row label="Locação" value={rent ? `${rent}/mês` : null} />
-              <Row label="Status" value={p.status} />
+              <Row label="Status" value={fmtStatus(p.status)} />
               <Row label="Última coleta" value={p.last_seen_at ? new Date(p.last_seen_at).toLocaleString("pt-BR") : null} />
               <Row label="Imagens" value={`${p.images.length}`} />
               <Row label="Slug" value={<code className="text-xs">{p.slug}</code>} />

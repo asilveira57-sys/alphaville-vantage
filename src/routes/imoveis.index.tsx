@@ -101,7 +101,7 @@ function PropertyCard({ p }: { p: PropertyRow }) {
         )}
       </div>
       <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
-        {p.property_type ?? "Imóvel"} {p.purpose === "rent" ? "· Locação" : p.purpose === "sale" ? "· Venda" : ""}
+        {p.property_type ?? "Imóvel"} {p.purpose === "rent" ? "· Locação" : p.purpose === "sale" ? "· Venda" : p.purpose === "both" ? "· Venda/Locação" : ""}
       </p>
       <h3 className="font-serif text-xl leading-snug mb-3 text-balance line-clamp-2">
         {p.title}
