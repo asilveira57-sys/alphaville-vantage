@@ -50,7 +50,19 @@ function AdminPage() {
   });
   const scrapeMut = useMutation({
     mutationFn: () => scrapeFn(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["scraperRuns"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["scraperRuns"] });
+      qc.invalidateQueries({ queryKey: ["scrapAudit"] });
+    },
+  });
+  const reprocessMut = useMutation({
+    mutationFn: () => reprocessFn({ data: { all: true } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["scrapAudit"] }),
+  });
+  const auditQ = useQuery({
+    queryKey: ["scrapAudit"],
+    queryFn: () => auditFn(),
+    enabled: !!adminQ.data?.isAdmin,
   });
 
   async function signOut() {
