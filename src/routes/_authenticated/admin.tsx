@@ -24,6 +24,8 @@ function AdminPage() {
   const genFn = useServerFn(generatePostWithAI);
   const scrapeFn = useServerFn(runScraper);
   const saveFn = useServerFn(upsertPost);
+  const reprocessFn = useServerFn(reprocessProperties);
+  const auditFn = useServerFn(getScrapAudit);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
