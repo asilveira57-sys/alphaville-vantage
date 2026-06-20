@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { parsePropertyText, computeReviewStatus } from "./property-parser";
 
 const SOURCE = "https://saimoveisalphaville.com.br";
 const SITEMAP = `${SOURCE}/sitemap.xml`;
@@ -248,11 +249,45 @@ export const runScraper = createServerFn({ method: "POST" })
           const refTail = pathParts.at(-1) ?? "";
           const slug = `${slugify(title)}-${refTail}`;
 
-          const price = extractNumber(html, /(?:valor\s*)?(?:aluguel|loca[cç][aã]o|venda)[^R]{0,40}R\$\s*([\d.,]+)/i) ?? extractNumber(html, /R\$\s*([\d.,]+)/);
-          const bedrooms = extractNumber(html, /(\d+)\s*(?:quartos?|dormit[oó]rios?|dorm)/i);
-          const parking = extractNumber(html, /(\d+)\s*vagas?/i);
-          const suites = extractNumber(html, /(\d+)\s*su[ií]tes?/i);
-          const area = extractNumber(html, /([\d.,]+)\s*m[²2]\s*(?:útil|util|constru[ií]da)?/i);
+          // Texto rico para o parser: descrição + porção visível do HTML
+          const bodyText = stripTags(html).slice(0, 8000);
+          const parsed = parsePropertyText({
+            title,
+            description: `${description}\n${bodyText}`,
+            url: item.url,
+          });
+
+          // Fallbacks de purpose pelos preços extraídos
+          let finalPurpose = purpose;
+          if (!finalPurpose) {
+            if (parsed.price_rent && parsed.price_sale) finalPurpose = "both";
+            else if (parsed.price_rent) finalPurpose = "rent";
+            else if (parsed.price_sale) finalPurpose = "sale";
+          }
+
+          const propertyType = parsed.property_type ?? pathParts.at(-2)?.replace(/-/g, " ") ?? null;
+
+          const review_status = computeReviewStatus({
+            property_type: propertyType,
+            city: parsed.city,
+            bedrooms: parsed.bedrooms,
+            area_useful: parsed.area_useful,
+            area_built: parsed.area_built,
+            area_total: parsed.area_total,
+            price_sale: parsed.price_sale,
+            price_rent: parsed.price_rent,
+          });
+
+          // IMPORTANTE: preserva manual_overrides existentes — não sobrescreve
+          // dados editados manualmente no admin.
+          const { data: existing } = await supabaseAdmin
+            .from("properties")
+            .select("manual_overrides")
+            .eq("external_ref", item.ref)
+            .maybeSingle();
+          const overrides = (existing?.manual_overrides ?? {}) as Record<string, unknown>;
+          const applyOverride = <T,>(field: string, value: T): T =>
+            (overrides[field] !== undefined ? (overrides[field] as T) : value);
 
           const { error: upsertErr } = await supabaseAdmin.from("properties").upsert({
             external_ref: item.ref,
@@ -260,17 +295,32 @@ export const runScraper = createServerFn({ method: "POST" })
             slug,
             title,
             description,
-            purpose,
-            property_type: pathParts.at(-2)?.replace(/-/g, " ") ?? null,
+            purpose: applyOverride("purpose", finalPurpose),
+            property_type: applyOverride("property_type", propertyType),
+            city: applyOverride("city", parsed.city),
+            state: applyOverride("state", parsed.state),
+            neighborhood: applyOverride("neighborhood", parsed.neighborhood),
+            condominium_name: applyOverride("condominium_name", parsed.condominium_name),
             images,
-            price_rent: purpose === "rent" ? price : null,
-            price_sale: purpose === "sale" ? price : null,
-            bedrooms: bedrooms ?? null,
-            suites: suites ?? null,
-            parking: parking ?? null,
-            area_useful: area ?? null,
-            raw: { html_excerpt: html.slice(0, 4000) },
+            price_rent: applyOverride("price_rent", parsed.price_rent),
+            price_sale: applyOverride("price_sale", parsed.price_sale),
+            condo_fee: applyOverride("condo_fee", parsed.condo_fee),
+            iptu: applyOverride("iptu", parsed.iptu),
+            bedrooms: applyOverride("bedrooms", parsed.bedrooms),
+            suites: applyOverride("suites", parsed.suites),
+            bathrooms: applyOverride("bathrooms", parsed.bathrooms),
+            parking: applyOverride("parking", parsed.parking),
+            area_useful: applyOverride("area_useful", parsed.area_useful),
+            area_built: applyOverride("area_built", parsed.area_built),
+            area_total: applyOverride("area_total", parsed.area_total),
+            furnished: applyOverride("furnished", parsed.furnished),
+            is_launch: applyOverride("is_launch", parsed.is_launch),
+            accepts_exchange: applyOverride("accepts_exchange", parsed.accepts_exchange),
+            internal_code: applyOverride("internal_code", parsed.internal_code),
+            raw: { html_excerpt: html.slice(0, 4000), body_excerpt: bodyText.slice(0, 4000) },
             status: "active",
+            review_status,
+            extracted_at: new Date().toISOString(),
             last_seen_at: new Date().toISOString(),
           }, { onConflict: "external_ref", ignoreDuplicates: false });
           if (upsertErr) throw new Error(upsertErr.message);

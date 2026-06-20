@@ -225,16 +225,29 @@ export type Database = {
       }
       properties: {
         Row: {
+          accepts_exchange: boolean | null
+          area_built: number | null
           area_total: number | null
           area_useful: number | null
+          bathrooms: number | null
           bedrooms: number | null
+          city: string | null
+          condo_fee: number | null
           condominium_id: string | null
+          condominium_name: string | null
           created_at: string
           description: string | null
           external_ref: string | null
+          extracted_at: string | null
+          furnished: boolean | null
           id: string
           images: Json
+          internal_code: string | null
+          iptu: number | null
+          is_launch: boolean | null
           last_seen_at: string | null
+          manual_overrides: Json | null
+          neighborhood: string | null
           parking: number | null
           price_rent: number | null
           price_sale: number | null
@@ -242,24 +255,39 @@ export type Database = {
           purpose: string | null
           raw: Json | null
           region: string | null
+          review_status: string | null
           slug: string
           source_url: string | null
+          state: string | null
           status: string
           suites: number | null
           title: string
           updated_at: string
         }
         Insert: {
+          accepts_exchange?: boolean | null
+          area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
+          bathrooms?: number | null
           bedrooms?: number | null
+          city?: string | null
+          condo_fee?: number | null
           condominium_id?: string | null
+          condominium_name?: string | null
           created_at?: string
           description?: string | null
           external_ref?: string | null
+          extracted_at?: string | null
+          furnished?: boolean | null
           id?: string
           images?: Json
+          internal_code?: string | null
+          iptu?: number | null
+          is_launch?: boolean | null
           last_seen_at?: string | null
+          manual_overrides?: Json | null
+          neighborhood?: string | null
           parking?: number | null
           price_rent?: number | null
           price_sale?: number | null
@@ -267,24 +295,39 @@ export type Database = {
           purpose?: string | null
           raw?: Json | null
           region?: string | null
+          review_status?: string | null
           slug: string
           source_url?: string | null
+          state?: string | null
           status?: string
           suites?: number | null
           title: string
           updated_at?: string
         }
         Update: {
+          accepts_exchange?: boolean | null
+          area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
+          bathrooms?: number | null
           bedrooms?: number | null
+          city?: string | null
+          condo_fee?: number | null
           condominium_id?: string | null
+          condominium_name?: string | null
           created_at?: string
           description?: string | null
           external_ref?: string | null
+          extracted_at?: string | null
+          furnished?: boolean | null
           id?: string
           images?: Json
+          internal_code?: string | null
+          iptu?: number | null
+          is_launch?: boolean | null
           last_seen_at?: string | null
+          manual_overrides?: Json | null
+          neighborhood?: string | null
           parking?: number | null
           price_rent?: number | null
           price_sale?: number | null
@@ -292,8 +335,10 @@ export type Database = {
           purpose?: string | null
           raw?: Json | null
           region?: string | null
+          review_status?: string | null
           slug?: string
           source_url?: string | null
+          state?: string | null
           status?: string
           suites?: number | null
           title?: string
