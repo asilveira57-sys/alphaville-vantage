@@ -7,6 +7,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { checkIsAdmin, grantSelfAdminIfFirst } from "@/lib/admin.functions";
 import { listAllPostsAdmin, generatePostWithAI, upsertPost } from "@/lib/blog.functions";
 import { runScraper, listScraperRuns } from "@/lib/scraper.functions";
+import { reprocessProperties, getScrapAudit } from "@/lib/property-review.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Portal S.A" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -23,6 +24,8 @@ function AdminPage() {
   const genFn = useServerFn(generatePostWithAI);
   const scrapeFn = useServerFn(runScraper);
   const saveFn = useServerFn(upsertPost);
+  const reprocessFn = useServerFn(reprocessProperties);
+  const auditFn = useServerFn(getScrapAudit);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
@@ -47,7 +50,19 @@ function AdminPage() {
   });
   const scrapeMut = useMutation({
     mutationFn: () => scrapeFn(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["scraperRuns"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["scraperRuns"] });
+      qc.invalidateQueries({ queryKey: ["scrapAudit"] });
+    },
+  });
+  const reprocessMut = useMutation({
+    mutationFn: () => reprocessFn({ data: { all: true } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["scrapAudit"] }),
+  });
+  const auditQ = useQuery({
+    queryKey: ["scrapAudit"],
+    queryFn: () => auditFn(),
+    enabled: !!adminQ.data?.isAdmin,
   });
 
   async function signOut() {
@@ -154,18 +169,49 @@ function AdminPage() {
         <section>
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="font-serif text-2xl text-ink">Crawler de imóveis</h2>
-            <button
-              onClick={() => scrapeMut.mutate()}
-              disabled={scrapeMut.isPending}
-              className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-50"
-            >
-              {scrapeMut.isPending ? "Rodando…" : "Rodar agora"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => reprocessMut.mutate()}
+                disabled={reprocessMut.isPending}
+                className="border border-ink/20 text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/5 disabled:opacity-50"
+              >
+                {reprocessMut.isPending ? "Reprocessando…" : "Reprocessar todos"}
+              </button>
+              <button
+                onClick={() => scrapeMut.mutate()}
+                disabled={scrapeMut.isPending}
+                className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-50"
+              >
+                {scrapeMut.isPending ? "Rodando…" : "Rodar agora"}
+              </button>
+            </div>
           </div>
+          {auditQ.data && (
+            <div className="grid grid-cols-5 gap-3 mb-4 text-xs">
+              {[
+                ["Total", auditQ.data.total],
+                ["Ativos", auditQ.data.active],
+                ["Completos", auditQ.data.complete],
+                ["Incompletos", auditQ.data.incomplete],
+                ["Revisar", auditQ.data.needsReview],
+              ].map(([label, value]) => (
+                <div key={label as string} className="border border-ink/10 px-3 py-2">
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
+                  <div className="font-serif text-2xl text-ink">{value as number}</div>
+                </div>
+              ))}
+            </div>
+          )}
           {scrapeMut.error && <p className="text-xs text-red-600 mb-3">{(scrapeMut.error as Error).message}</p>}
           {scrapeMut.data && (
             <p className="text-xs text-emerald-700 mb-3">
               Páginas: {scrapeMut.data.pages} · Imóveis upsertados: {scrapeMut.data.upserted} · Descobertos: {scrapeMut.data.discovered}
+            </p>
+          )}
+          {reprocessMut.error && <p className="text-xs text-red-600 mb-3">{(reprocessMut.error as Error).message}</p>}
+          {reprocessMut.data && (
+            <p className="text-xs text-emerald-700 mb-3">
+              Reprocessados: {reprocessMut.data.processed} · Atualizados: {reprocessMut.data.updated}
             </p>
           )}
           <div className="border border-ink/10">
