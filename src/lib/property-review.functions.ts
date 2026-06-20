@@ -127,7 +127,7 @@ export const saveManualReview = createServerFn({ method: "POST" })
       ...data.overrides,
     };
 
-    const update: Record<string, unknown> = { ...data.overrides, manual_overrides: merged };
+    const update = { ...data.overrides, manual_overrides: merged } as never;
     const { error } = await supabaseAdmin
       .from("properties")
       .update(update)
@@ -150,19 +150,13 @@ export const getScrapAudit = createServerFn({ method: "GET" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const counts = async (filter: (q: ReturnType<typeof supabaseAdmin.from<"properties">>) => ReturnType<typeof supabaseAdmin.from<"properties">>) => {
-      const { count } = await filter(
-        supabaseAdmin.from("properties").select("*", { count: "exact", head: true })
-      );
-      return count ?? 0;
-    };
-
+    const base = () => supabaseAdmin.from("properties").select("*", { count: "exact", head: true });
     const [total, active, complete, incomplete, needsReview] = await Promise.all([
-      counts((q) => q),
-      counts((q) => q.eq("status", "active")),
-      counts((q) => q.eq("review_status", "complete")),
-      counts((q) => q.eq("review_status", "incomplete")),
-      counts((q) => q.eq("review_status", "needs_review")),
+      base().then((r) => r.count ?? 0),
+      base().eq("status", "active").then((r) => r.count ?? 0),
+      base().eq("review_status", "complete").then((r) => r.count ?? 0),
+      base().eq("review_status", "incomplete").then((r) => r.count ?? 0),
+      base().eq("review_status", "needs_review").then((r) => r.count ?? 0),
     ]);
 
     const { data: lastRun } = await supabaseAdmin
