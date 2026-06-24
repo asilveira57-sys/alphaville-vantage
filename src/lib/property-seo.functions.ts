@@ -98,6 +98,7 @@ export const regenerateSeo = createServerFn({ method: "POST" })
         // Preserva descricao_original (se ainda não houver, copia da description bruta)
         const descricao_original = row.descricao_original ?? row.description ?? null;
 
+        const audit = auditProperty({ ...src, descricao_seo });
         const update: Record<string, unknown> = {
           descricao_original,
           descricao_seo,
@@ -105,6 +106,8 @@ export const regenerateSeo = createServerFn({ method: "POST" })
           seo_description,
           seo_generated_at: new Date().toISOString(),
           seo_used_ai: !!opening,
+          audit_status: audit.status,
+          audit_issues: audit.issues,
         };
 
         // Atualiza slug somente se ainda for o legado (com sufixo aleatório do scraper)
