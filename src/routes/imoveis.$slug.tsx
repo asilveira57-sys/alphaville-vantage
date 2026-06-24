@@ -231,7 +231,7 @@ function PropertyDetail() {
               <Link to="/imoveis" className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">Ver todos →</Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
-              {p.related.map((r) => (
+              {p.related.map((r: typeof p.related[number]) => (
                 <Link key={r.id} to="/imoveis/$slug" params={{ slug: r.slug }} className="group block">
                   <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-4">
                     {r.images[0] && <img src={r.images[0]} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />}
