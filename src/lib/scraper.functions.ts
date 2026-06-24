@@ -283,19 +283,56 @@ export const runScraper = createServerFn({ method: "POST" })
           // dados editados manualmente no admin.
           const { data: existing } = await supabaseAdmin
             .from("properties")
-            .select("manual_overrides")
+            .select("manual_overrides,descricao_original")
             .eq("external_ref", item.ref)
             .maybeSingle();
           const overrides = (existing?.manual_overrides ?? {}) as Record<string, unknown>;
           const applyOverride = <T,>(field: string, value: T): T =>
             (overrides[field] !== undefined ? (overrides[field] as T) : value);
 
+          // Monta SeoSource para gerar SEO determinístico no momento do scrap.
+          const seoSrc: SeoSource = {
+            property_type: applyOverride("property_type", propertyType),
+            purpose: applyOverride("purpose", finalPurpose ?? null),
+            city: applyOverride("city", parsed.city),
+            state: applyOverride("state", parsed.state),
+            neighborhood: applyOverride("neighborhood", parsed.neighborhood),
+            condominium_name: applyOverride("condominium_name", parsed.condominium_name),
+            bedrooms: applyOverride("bedrooms", parsed.bedrooms),
+            suites: applyOverride("suites", parsed.suites),
+            bathrooms: applyOverride("bathrooms", parsed.bathrooms),
+            parking: applyOverride("parking", parsed.parking),
+            area_useful: applyOverride("area_useful", parsed.area_useful),
+            area_built: applyOverride("area_built", parsed.area_built),
+            area_total: applyOverride("area_total", parsed.area_total),
+            price_sale: applyOverride("price_sale", parsed.price_sale),
+            price_rent: applyOverride("price_rent", parsed.price_rent),
+            condo_fee: applyOverride("condo_fee", parsed.condo_fee),
+            iptu: applyOverride("iptu", parsed.iptu),
+            furnished: applyOverride("furnished", parsed.furnished),
+            is_launch: applyOverride("is_launch", parsed.is_launch),
+            accepts_exchange: applyOverride("accepts_exchange", parsed.accepts_exchange),
+            description,
+            internal_code: applyOverride("internal_code", parsed.internal_code),
+          };
+          const descricao_original = existing?.descricao_original ?? description;
+          const descricao_seo = buildSeoBody(seoSrc);
+          const seo_title = buildSeoTitle(seoSrc);
+          const seo_description = buildSeoDescription(seoSrc);
+          const niceSlug = buildSeoSlug(seoSrc, item.ref) || slug;
+
           const { error: upsertErr } = await supabaseAdmin.from("properties").upsert({
             external_ref: item.ref,
             source_url: item.url,
-            slug,
+            slug: niceSlug,
             title,
             description,
+            descricao_original,
+            descricao_seo,
+            seo_title,
+            seo_description,
+            seo_generated_at: new Date().toISOString(),
+            seo_used_ai: false,
             purpose: applyOverride("purpose", finalPurpose),
             property_type: applyOverride("property_type", propertyType),
             city: applyOverride("city", parsed.city),
