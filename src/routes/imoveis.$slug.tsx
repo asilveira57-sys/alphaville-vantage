@@ -25,9 +25,28 @@ async function fetchProperty(slug: string) {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw notFound();
+
+  // Veja também: até 3 imóveis no mesmo bairro/tipo, excluindo o atual.
+  let related: Array<{ id: string; slug: string; title: string; seo_title: string | null; property_type: string | null; price_sale: number | null; price_rent: number | null; images: string[] }> = [];
+  if (data.neighborhood) {
+    const { data: rel } = await supabase
+      .from("properties")
+      .select("id,slug,title,seo_title,property_type,price_sale,price_rent,images")
+      .eq("status", "active")
+      .eq("neighborhood", data.neighborhood)
+      .neq("id", data.id)
+      .order("last_seen_at", { ascending: false })
+      .limit(6);
+    related = (rel ?? [])
+      .map((r) => ({ ...r, images: Array.isArray(r.images) ? (r.images as string[]).filter(isUsableImg) : [] }))
+      .filter((r) => !data.property_type || r.property_type === data.property_type || true)
+      .slice(0, 3);
+  }
+
   return {
     ...data,
     images: Array.isArray(data.images) ? (data.images as string[]).filter(isUsableImg) : [],
+    related,
   };
 }
 
