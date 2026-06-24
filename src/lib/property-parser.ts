@@ -212,7 +212,28 @@ export function parsePropertyText(input: {
   const parkingInfo = detectParking(combined);
 
   // Valores
-  const price_rent = pickMoney(combined, /(?:valor\s+)?(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)/i);
+  // Aluguel: cascata 1) "aluguel total R$ X"; 2) "aluguel R$ X/m²" * área;
+  // 3) "aluguel R$ X" puro (negative lookahead p/ não casar "/m²").
+  let price_rent: number | null = pickMoney(
+    combined,
+    /(?:valor\s+)?(?:aluguel|loca[cç][aã]o)\s+total[^R$]{0,30}R\$\s*([\d.,]+)/i,
+  );
+  const rent_per_m2 = pickMoney(
+    combined,
+    /(?:valor\s+)?(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)\s*\/\s*m[²2]/i,
+  );
+  if (price_rent == null && rent_per_m2 != null) {
+    const area = area_total ?? area_built ?? area_useful;
+    if (area && area >= 10) price_rent = Math.round(rent_per_m2 * area);
+  }
+  if (price_rent == null) {
+    price_rent = pickMoney(
+      combined,
+      /(?:valor\s+)?(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)(?![\d.,])(?!\s*\/?\s*m[²2])/i,
+    );
+  }
+  // Sanidade: aluguel < R$ 100 é quase certamente um "/m²" que escapou.
+  if (price_rent != null && price_rent < 100) price_rent = null;
   const price_sale = pickMoney(combined, /(?:valor\s+)?(?:venda|compra)[^R$]{0,30}R\$\s*([\d.,]+)/i);
   const condo_fee = pickMoney(combined, /condom[ií]nio[^R$]{0,30}R\$\s*([\d.,]+)/i);
   const iptu = pickMoney(combined, /\biptu\b[^R$]{0,30}R\$\s*([\d.,]+)/i);
