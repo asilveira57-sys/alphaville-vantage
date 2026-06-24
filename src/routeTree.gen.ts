@@ -32,6 +32,7 @@ import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -147,6 +148,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedAuditRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -167,10 +173,11 @@ export interface FileRoutesByFullPath {
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/audit': typeof AuthenticatedAuditRoute
+  '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis/': typeof ImoveisIndexRoute
+  '/audit/$id': typeof AuthenticatedAuditIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -190,10 +197,11 @@ export interface FileRoutesByTo {
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/audit': typeof AuthenticatedAuditRoute
+  '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis': typeof ImoveisIndexRoute
+  '/audit/$id': typeof AuthenticatedAuditIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -216,10 +224,11 @@ export interface FileRoutesById {
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis/': typeof ImoveisIndexRoute
+  '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/imoveis/$slug'
     | '/imoveis/'
+    | '/audit/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/imoveis/$slug'
     | '/imoveis'
+    | '/audit/$id'
   id:
     | '__root__'
     | '/'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/imoveis/$slug'
     | '/imoveis/'
+    | '/_authenticated/audit/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -480,17 +492,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/audit/$id': {
+      id: '/_authenticated/audit/$id'
+      path: '/$id'
+      fullPath: '/audit/$id'
+      preLoaderRoute: typeof AuthenticatedAuditIdRouteImport
+      parentRoute: typeof AuthenticatedAuditRoute
+    }
   }
 }
 
+interface AuthenticatedAuditRouteChildren {
+  AuthenticatedAuditIdRoute: typeof AuthenticatedAuditIdRoute
+}
+
+const AuthenticatedAuditRouteChildren: AuthenticatedAuditRouteChildren = {
+  AuthenticatedAuditIdRoute: AuthenticatedAuditIdRoute,
+}
+
+const AuthenticatedAuditRouteWithChildren =
+  AuthenticatedAuditRoute._addFileChildren(AuthenticatedAuditRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedAuditRoute: typeof AuthenticatedAuditRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedAuditRoute: AuthenticatedAuditRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

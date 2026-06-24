@@ -103,7 +103,7 @@ function AuditPage() {
                   {it.price_rent ? <div>Loc: R$ {Number(it.price_rent).toLocaleString("pt-BR")}</div> : null}
                   {it.price_sale ? <div>Venda: R$ {Number(it.price_sale).toLocaleString("pt-BR")}</div> : null}
                 </div>
-                <div className="md:col-span-3">
+                <div className="md:col-span-3 flex flex-col gap-2">
                   {issues.length === 0 ? (
                     <span className="text-emerald-700">Sem pendências</span>
                   ) : (
@@ -111,6 +111,11 @@ function AuditPage() {
                       {issues.map((iss, i) => (<li key={i}>• {iss}</li>))}
                     </ul>
                   )}
+                  <Link
+                    to="/_authenticated/audit/$id"
+                    params={{ id: it.id }}
+                    className="self-start text-[10px] uppercase tracking-widest border border-ink/30 px-2 py-1 hover:bg-ink hover:text-canvas"
+                  >Editar →</Link>
                 </div>
               </div>
             );
