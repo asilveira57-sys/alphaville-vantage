@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/audit")({
 });
 
 type StatusFilter = "all" | "ok" | "review" | "error";
-type IssueFilter = "" | "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price";
+type IssueFilter = "" | "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off";
 
 function AuditPage() {
   const checkFn = useServerFn(checkIsAdmin);
