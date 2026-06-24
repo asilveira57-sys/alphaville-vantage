@@ -10,7 +10,7 @@
  */
 
 @theme inline {
-  --font-serif: "Playfair Display", Georgia, serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -22,6 +22,10 @@
   --color-foreground: var(--foreground);
   --color-canvas: var(--canvas);
   --color-ink: var(--ink);
+  --color-brand-red: var(--brand-red);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-ink-soft: var(--brand-ink-soft);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -43,7 +47,12 @@
 }
 
 :root {
-  --radius: 0.25rem;
+  --radius: 0.125rem;
+
+  --brand-red: oklch(0.46 0.18 27);
+  --brand-yellow: oklch(0.86 0.18 92);
+  --brand-dark: oklch(0.16 0 0);
+  --brand-ink-soft: oklch(0.24 0.005 270);
 
   --canvas: oklch(0.985 0 0);
   --ink: oklch(0.18 0.005 270);
@@ -54,14 +63,14 @@
   --card-foreground: oklch(0.18 0.005 270);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.005 270);
-  --primary: oklch(0.18 0.005 270);
+  --primary: var(--brand-dark);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.96 0.002 270);
   --secondary-foreground: oklch(0.18 0.005 270);
   --muted: oklch(0.96 0.002 270);
   --muted-foreground: oklch(0.50 0.005 270);
-  --accent: oklch(0.94 0.002 270);
-  --accent-foreground: oklch(0.18 0.005 270);
+  --accent: var(--brand-yellow);
+  --accent-foreground: var(--brand-dark);
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.18 0.005 270 / 0.08);

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
+import { PropertyGallery } from "@/components/property-gallery";
 import { supabase } from "@/integrations/supabase/client";
 import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
 import { humanizeOriginalDescription } from "@/lib/property-parser";
@@ -120,21 +121,12 @@ function PropertyDetail() {
         </div>
       </section>
 
-      <section className="px-6 py-12">
+      <section className="px-6 py-12 bg-ink/[0.02]">
         <div className="max-w-6xl mx-auto">
-          {p.images.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {p.images.slice(0, 12).map((src: string, i: number) => (
-                <img key={i} src={src} alt={`${p.title} — imagem ${i + 1}`} loading="lazy" className="w-full aspect-[4/3] object-cover bg-ink/5" />
-              ))}
-            </div>
-          ) : (
-            <div className="aspect-[16/9] bg-ink/5 flex items-center justify-center text-xs uppercase tracking-widest text-muted-foreground">
-              Sem imagens disponíveis
-            </div>
-          )}
+          <PropertyGallery images={p.images} title={p.title} />
         </div>
       </section>
+
 
       <section className="px-6 py-12 border-t border-ink/8">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
@@ -154,7 +146,12 @@ function PropertyDetail() {
               </details>
             )}
             {p.source_url && (
-              <a href={p.source_url} target="_blank" rel="noreferrer" className="mt-6 inline-block text-xs uppercase tracking-widest underline">
+              <a
+                href={p.source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest hover:brightness-95 transition"
+              >
                 Mais detalhes deste imóvel no site da corretora ↗
               </a>
             )}
