@@ -232,6 +232,12 @@ function AdminPage() {
               Reprocessados: {reprocessMut.data.processed} · Atualizados: {reprocessMut.data.updated}
             </p>
           )}
+          {seoMut.error && <p className="text-xs text-red-600 mb-3">{(seoMut.error as Error).message}</p>}
+          {seoMut.data && (
+            <p className="text-xs text-emerald-700 mb-3">
+              SEO regerado: {seoMut.data.processed} · Atualizados: {seoMut.data.updated} · IA: {seoMut.data.withAI ? "sim" : "não"}
+            </p>
+          )}
           <div className="border border-ink/10">
             {(runsQ.data ?? []).map((r) => (
               <div key={r.id} className="grid grid-cols-12 gap-3 px-4 py-2 border-b border-ink/8 text-xs items-center">
