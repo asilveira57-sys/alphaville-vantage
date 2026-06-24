@@ -169,18 +169,20 @@ export function parsePropertyText(input: {
   const neighborhood = detectNeighborhood(combined);
   const condominium_name = detectCondoFromTitle(title) ?? detectCondoFromTitle(desc);
 
-  // Áreas — AT/AC/AU + variantes por extenso (rótulo antes OU depois do número)
+  // Áreas — AT/AC/AU + variantes por extenso (rótulo antes OU depois do número).
+  // [\s\S]{0,30}? cobre whitespace/quebras de linha vindos da tabelinha lateral,
+  // onde o rótulo e o número às vezes ficam em células/linhas separadas.
   const area_total = pickArea(n, /\bat\s*([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+(?:do\s+)?terreno[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+total[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*(?:de\s+)?(?:terreno|total)\b/i);
+    ?? pickArea(combined, /[áa]rea\s+(?:do\s+)?terreno[\s\S]{0,30}?([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+total[\s\S]{0,30}?([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*(?:de\s+)?(?:terreno|total|[áa]rea\s+total)\b/i);
   const area_built = pickArea(n, /\bac\s*([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+constru[ií]da[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*constru[ií]da\b/i);
+    ?? pickArea(combined, /[áa]rea\s+constru[ií]da[\s\S]{0,30}?([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*(?:de\s+)?(?:constru[ií]da|[áa]rea\s+constru[ií]da)\b/i);
   let area_useful = pickArea(n, /\bau\s*([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+[uú]til[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+privativa[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*(?:[úu]til|privativ[ao])\b/i);
+    ?? pickArea(combined, /[áa]rea\s+[uú]til(?:\s*\/\s*privativ[ao])?[\s\S]{0,30}?([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+privativa[\s\S]{0,30}?([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*(?:de\s+)?(?:[úu]til|privativ[ao]|[áa]rea\s+[úu]til|[áa]rea\s+privativa)\b/i);
 
   // Fallback — metragem solta sem rótulo (ex.: "50 m2" na descrição).
   // Só usa se nenhum dos três campos rotulados foi preenchido, e ignora valores
