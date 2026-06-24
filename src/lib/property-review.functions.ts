@@ -28,7 +28,7 @@ export const reprocessProperties = createServerFn({ method: "POST" })
     for (let from = 0; ; from += PAGE) {
       let q = supabaseAdmin
         .from("properties")
-        .select("id,title,description,source_url,raw,manual_overrides")
+        .select("id,title,description,source_url,raw,manual_overrides,descricao_seo,purpose")
         .order("id", { ascending: true })
         .range(from, from + PAGE - 1);
       if (data.id) q = q.eq("id", data.id);
