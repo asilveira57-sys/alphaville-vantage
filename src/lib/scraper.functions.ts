@@ -272,9 +272,11 @@ export const runScraper = createServerFn({ method: "POST" })
 
         try {
           const html = await res.text();
+          if (looksLikeSearchFallback(html)) { errors++; continue; }
           const title = extractPropertyTitle(html, item.url);
           const description = pickMeta(html, "og:description") ?? "";
           const images = extractImages(html, item.url);
+          if (images.length === 0) { errors++; continue; }
           const purpose = inferPurpose(item.url, html);
           const pathParts = item.ref.split("/").filter(Boolean);
           const refTail = pathParts.at(-1) ?? "";
