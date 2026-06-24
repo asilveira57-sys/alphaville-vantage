@@ -5,7 +5,8 @@ import logoAsset from "@/assets/logo-sa-imoveis.png.asset.json";
 const NAV = [
   { label: "Home", to: "/" },
   { label: "Imóveis", to: "/imoveis" },
-  { label: "Guia Alphaville", to: "/guia-alphaville" },
+  { label: "Alphaville", to: "/alphaville" },
+  { label: "Guia", to: "/guia-alphaville" },
   { label: "Condomínios", to: "/condominios" },
   { label: "Mercado", to: "/mercado-imobiliario" },
   { label: "Blog", to: "/blog" },

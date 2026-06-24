@@ -25,9 +25,28 @@ async function fetchProperty(slug: string) {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw notFound();
+
+  // Veja também: até 3 imóveis no mesmo bairro/tipo, excluindo o atual.
+  let related: Array<{ id: string; slug: string; title: string; seo_title: string | null; property_type: string | null; price_sale: number | null; price_rent: number | null; images: string[] }> = [];
+  if (data.neighborhood) {
+    const { data: rel } = await supabase
+      .from("properties")
+      .select("id,slug,title,seo_title,property_type,price_sale,price_rent,images")
+      .eq("status", "active")
+      .eq("neighborhood", data.neighborhood)
+      .neq("id", data.id)
+      .order("last_seen_at", { ascending: false })
+      .limit(6);
+    related = (rel ?? [])
+      .map((r) => ({ ...r, images: Array.isArray(r.images) ? (r.images as string[]).filter(isUsableImg) : [] }))
+      .filter((r) => !data.property_type || r.property_type === data.property_type || true)
+      .slice(0, 3);
+  }
+
   return {
     ...data,
     images: Array.isArray(data.images) ? (data.images as string[]).filter(isUsableImg) : [],
+    related,
   };
 }
 
@@ -104,10 +123,15 @@ function PropertyDetail() {
     <SiteLayout>
       <section className="px-6 pt-16 pb-12 border-b border-ink/8">
         <div className="max-w-6xl mx-auto">
-          <nav className="mb-8">
-            <Link to="/imoveis" className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">
-              ← Voltar ao catálogo
-            </Link>
+          <nav aria-label="Trilha de navegação" className="mb-8">
+            <ol className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              <li><Link to="/" className="hover:text-ink">Início</Link></li>
+              <li className="flex items-center gap-2"><span aria-hidden>/</span><Link to="/imoveis" className="hover:text-ink">Imóveis</Link></li>
+              {p.neighborhood === "Alphaville" && (
+                <li className="flex items-center gap-2"><span aria-hidden>/</span><Link to="/alphaville" className="hover:text-ink">Alphaville</Link></li>
+              )}
+              <li className="flex items-center gap-2"><span aria-hidden>/</span><span className="text-ink truncate max-w-[40ch]">{p.title}</span></li>
+            </ol>
           </nav>
           <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-6">
             {p.property_type ?? "Imóvel"}
@@ -198,6 +222,33 @@ function PropertyDetail() {
           </details>
         </div>
       </section>
+
+      {p.related && p.related.length > 0 && (
+        <section className="px-6 py-20 border-t border-ink/8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-baseline justify-between mb-10">
+              <h2 className="font-serif text-3xl">Veja também</h2>
+              <Link to="/imoveis" className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">Ver todos →</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
+              {p.related.map((r: typeof p.related[number]) => (
+                <Link key={r.id} to="/imoveis/$slug" params={{ slug: r.slug }} className="group block">
+                  <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-4">
+                    {r.images[0] && <img src={r.images[0]} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />}
+                  </div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{r.property_type ?? "Imóvel"}</p>
+                  <h3 className="font-serif text-lg leading-snug mb-2 text-balance group-hover:underline">{r.seo_title?.replace(/\s*\|\s*S\.A.*$/i, "") ?? r.title}</h3>
+                  <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4">
+                    {r.price_sale && <span>{fmtPrice(r.price_sale)}</span>}
+                    {r.price_rent && <span>{fmtPrice(r.price_rent)}/mês</span>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
 
       <InstitutionalBlock />
     </SiteLayout>
