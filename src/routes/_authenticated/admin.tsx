@@ -52,7 +52,13 @@ function AdminPage() {
     onSuccess: () => { setTopic(""); qc.invalidateQueries({ queryKey: ["adminPosts"] }); },
   });
   const scrapeMut = useMutation({
-    mutationFn: () => scrapeFn(),
+    mutationFn: async () => {
+      const scrape = await scrapeFn();
+      // Reaplica a versão mais recente do motor SEO em TODOS os imóveis
+      // (inclusive os já cadastrados antes da última atualização das regras).
+      const seo = await seoFn({ data: { all: true, useAI: seoUseAI } });
+      return { scrape, seo };
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["scraperRuns"] });
       qc.invalidateQueries({ queryKey: ["scrapAudit"] });
@@ -205,7 +211,7 @@ function AdminPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mb-3">
-            O scraper já gera SEO + abertura com IA + auditoria de cada imóvel na primeira coleta. "Regerar SEO" e "Reprocessar" só são necessários se você alterar o template ou o parser.
+            "Rodar agora" coleta novos imóveis e reaplica o motor SEO mais recente em TODOS os imóveis cadastrados (descrição, título, meta e slug). Marque "IA na abertura" para usar IA no 1º parágrafo.
           </p>
           {auditQ.data && (
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4 text-xs">
@@ -230,7 +236,7 @@ function AdminPage() {
           {scrapeMut.error && <p className="text-xs text-red-600 mb-3">{(scrapeMut.error as Error).message}</p>}
           {scrapeMut.data && (
             <p className="text-xs text-emerald-700 mb-3">
-              Páginas: {scrapeMut.data.pages} · Imóveis upsertados: {scrapeMut.data.upserted} · Descobertos: {scrapeMut.data.discovered}
+              Páginas: {scrapeMut.data.scrape.pages} · Imóveis upsertados: {scrapeMut.data.scrape.upserted} · Descobertos: {scrapeMut.data.scrape.discovered} · SEO regerado: {scrapeMut.data.seo.updated}/{scrapeMut.data.seo.processed}
             </p>
           )}
           {reprocessMut.error && <p className="text-xs text-red-600 mb-3">{(reprocessMut.error as Error).message}</p>}
