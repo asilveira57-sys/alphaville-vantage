@@ -366,9 +366,12 @@ export const runScraper = createServerFn({ method: "POST" })
             raw: { html_excerpt: html.slice(0, 4000), body_excerpt: bodyText.slice(0, 4000) },
             status: "active",
             review_status,
+            audit_status: audit.status,
+            audit_issues: audit.issues,
             extracted_at: new Date().toISOString(),
             last_seen_at: new Date().toISOString(),
           }, { onConflict: "external_ref", ignoreDuplicates: false });
+
           if (upsertErr) throw new Error(upsertErr.message);
           upserted++;
         } catch (e) {
