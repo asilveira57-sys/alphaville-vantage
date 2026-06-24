@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -205,19 +205,23 @@ function AdminPage() {
             </div>
           </div>
           {auditQ.data && (
-            <div className="grid grid-cols-5 gap-3 mb-4 text-xs">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4 text-xs">
               {[
                 ["Total", auditQ.data.total],
-                ["Ativos", auditQ.data.active],
                 ["Completos", auditQ.data.complete],
-                ["Incompletos", auditQ.data.incomplete],
                 ["Revisar", auditQ.data.needsReview],
+                ["✓ Audit OK", auditQ.data.auditOk],
+                ["⚠ Audit revisar", auditQ.data.auditReview],
+                ["✗ Audit erro", auditQ.data.auditError],
               ].map(([label, value]) => (
                 <div key={label as string} className="border border-ink/10 px-3 py-2">
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
                   <div className="font-serif text-2xl text-ink">{value as number}</div>
                 </div>
               ))}
+              <Link to="/_authenticated/audit" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
+                Abrir auditoria →
+              </Link>
             </div>
           )}
           {scrapeMut.error && <p className="text-xs text-red-600 mb-3">{(scrapeMut.error as Error).message}</p>}

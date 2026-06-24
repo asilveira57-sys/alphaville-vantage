@@ -11,7 +11,10 @@ export type SeoSource = {
   bedrooms: number | null;
   suites: number | null;
   bathrooms: number | null;
+  lavabos: number | null;
   parking: number | null;
+  parking_covered: number | null;
+  parking_uncovered: number | null;
   area_useful: number | null;
   area_built: number | null;
   area_total: number | null;
@@ -22,7 +25,7 @@ export type SeoSource = {
   furnished: boolean | null;
   is_launch: boolean | null;
   accepts_exchange: boolean | null;
-  description?: string | null; // descricao_original
+  description?: string | null;
   internal_code?: string | null;
 };
 
@@ -114,8 +117,10 @@ export function buildSeoDescription(s: SeoSource): string {
 }
 
 /**
- * Descrição SEO completa, em parágrafos legíveis.
- * Determinística: usa apenas dados estruturados + (opcionalmente) parágrafo de abertura gerado por IA.
+ * Descrição SEO completa em duas partes:
+ *  PARTE 1 — abertura humanizada (max ~120 palavras), só usa fatos existentes.
+ *  PARTE 2 — bloco estruturado linha a linha, vindo APENAS dos campos.
+ * Nada de "Características adicionais" sem evidência estruturada.
  */
 export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): string {
   const type = typeLabel(s.property_type);
@@ -123,43 +128,98 @@ export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): st
   const loc = locationPhrase(s);
   const condo = s.condominium_name ? cap(s.condominium_name) : null;
 
-  // Abertura: usa IA se houver, senão template
-  const opening = openingParagraph?.trim()
-    ?? `${type} ${p.action}${condo ? ` no condomínio ${condo}` : ""}, localizado em ${loc}.`;
-
-  // Bloco de características
-  const lines: string[] = [];
-  const area = fmtArea(s.area_useful ?? s.area_built ?? s.area_total);
-  if (area) {
-    const label = s.area_useful ? "área útil" : s.area_built ? "área construída" : "área total";
-    lines.push(`O imóvel possui ${area} de ${label}.`);
+  // PARTE 1 — abertura
+  let opening = openingParagraph?.trim() || "";
+  if (!opening) {
+    const bits: string[] = [];
+    bits.push(`${type} ${p.action}${condo ? ` no condomínio ${condo}` : ""}, em ${loc}.`);
+    const areaParts: string[] = [];
+    if (s.area_built != null) areaParts.push(`área construída de ${fmtArea(s.area_built)}`);
+    if (s.area_useful != null) areaParts.push(`área útil de ${fmtArea(s.area_useful)}`);
+    if (s.area_total != null) areaParts.push(`terreno de ${fmtArea(s.area_total)}`);
+    if (areaParts.length) {
+      bits.push(`O imóvel possui ${areaParts.join(" e ")}.`);
+    }
+    opening = bits.join(" ");
   }
-  const dormBits: string[] = [];
-  if (s.bedrooms) dormBits.push(`${s.bedrooms} ${s.bedrooms === 1 ? "dormitório" : "dormitórios"}`);
-  if (s.suites) dormBits.push(`sendo ${s.suites} ${s.suites === 1 ? "suíte" : "suítes"}`);
-  if (s.bathrooms) dormBits.push(`${s.bathrooms} ${s.bathrooms === 1 ? "banheiro" : "banheiros"}`);
-  if (s.parking) dormBits.push(`${s.parking} ${s.parking === 1 ? "vaga de garagem" : "vagas de garagem"}`);
-  if (dormBits.length) lines.push(`Conta com ${dormBits.join(", ")}.`);
 
-  const flags: string[] = [];
-  if (s.furnished === true) flags.push("mobiliado");
-  if (s.is_launch === true) flags.push("lançamento");
-  if (s.accepts_exchange === true) flags.push("aceita permuta");
-  if (flags.length) lines.push(`Características adicionais: ${flags.join(", ")}.`);
+  // PARTE 2 — bloco estruturado (uma linha por dado)
+  const lines: string[] = [];
+  if (s.bedrooms != null) lines.push(`Dormitórios: ${s.bedrooms}`);
+  if (s.suites != null) lines.push(`Suítes: ${s.suites}`);
+  if (s.bathrooms != null) lines.push(`Banheiros: ${s.bathrooms}`);
+  if (s.lavabos != null) lines.push(`Lavabos: ${s.lavabos}`);
+  if (s.parking_covered != null || s.parking_uncovered != null) {
+    const c = s.parking_covered ?? 0;
+    const u = s.parking_uncovered ?? 0;
+    const total = c + u;
+    const detail: string[] = [];
+    if (c) detail.push(`${c} ${c === 1 ? "coberta" : "cobertas"}`);
+    if (u) detail.push(`${u} ${u === 1 ? "descoberta" : "descobertas"}`);
+    lines.push(`Vagas: ${total}${detail.length ? ` (${detail.join(" + ")})` : ""}`);
+  } else if (s.parking != null) {
+    lines.push(`Vagas: ${s.parking}`);
+  }
+  if (s.area_useful != null) lines.push(`Área útil: ${fmtArea(s.area_useful)}`);
+  if (s.area_built != null) lines.push(`Área construída: ${fmtArea(s.area_built)}`);
+  if (s.area_total != null) lines.push(`Área total: ${fmtArea(s.area_total)}`);
+  if (s.price_rent != null) lines.push(`Locação: ${fmtBRL(s.price_rent)}`);
+  if (s.price_sale != null) lines.push(`Venda: ${fmtBRL(s.price_sale)}`);
+  if (s.condo_fee != null) lines.push(`Condomínio: ${fmtBRL(s.condo_fee)}`);
+  if (s.iptu != null) lines.push(`IPTU: ${fmtBRL(s.iptu)}`);
+  if (s.furnished === true) lines.push("Mobiliado: sim");
+  if (s.accepts_exchange === true) lines.push("Aceita permuta: sim");
 
-  // Valores
-  const moneyLines: string[] = [];
-  if (s.price_rent) moneyLines.push(`Valor da locação: ${fmtBRL(s.price_rent)}.`);
-  if (s.price_sale) moneyLines.push(`Valor de venda: ${fmtBRL(s.price_sale)}.`);
-  if (s.condo_fee) moneyLines.push(`Condomínio: ${fmtBRL(s.condo_fee)}.`);
-  if (s.iptu) moneyLines.push(`IPTU: ${fmtBRL(s.iptu)}.`);
-
-  return [opening, lines.join(" "), moneyLines.join(" ")].filter(Boolean).join("\n\n");
+  return [opening, lines.join("\n")].filter(Boolean).join("\n\n");
 }
 
 /**
- * JSON-LD Schema.org RealEstateListing.
+ * Valida que a descrição SEO não introduz números que contradigam os campos
+ * estruturados. Retorna lista de issues — vazio = OK.
  */
+export function auditSeoConsistency(s: SeoSource, seoText: string | null | undefined): string[] {
+  const issues: string[] = [];
+  if (!seoText) return issues;
+  const txt = seoText.toLowerCase();
+
+  type Rule = { label: string; value: number | null; re: RegExp };
+  const rules: Rule[] = [
+    { label: "dormitórios", value: s.bedrooms, re: /(\d+)\s*(?:dormit[oó]rios?|quartos?)/gi },
+    { label: "suítes", value: s.suites, re: /(\d+)\s*su[ií]tes?/gi },
+    { label: "banheiros", value: s.bathrooms, re: /(\d+)\s*banheiros?/gi },
+    { label: "lavabos", value: s.lavabos, re: /(\d+)\s*lavabos?/gi },
+  ];
+  for (const r of rules) {
+    const matches = Array.from(txt.matchAll(r.re)).map((m) => parseInt(m[1], 10));
+    if (!matches.length) continue;
+    if (r.value == null) {
+      issues.push(`SEO menciona ${r.label} (${matches.join(",")}) mas campo estruturado está vazio`);
+    } else if (!matches.includes(r.value)) {
+      issues.push(`SEO diz ${matches.join(",")} ${r.label}, estruturado=${r.value}`);
+    }
+  }
+  return issues;
+}
+
+/** Avalia auditoria geral do imóvel — usado pelo painel. */
+export function auditProperty(s: SeoSource & { descricao_seo?: string | null }): {
+  status: "ok" | "review" | "error";
+  issues: string[];
+} {
+  const issues: string[] = [];
+  if (!s.property_type) issues.push("Sem tipo de imóvel");
+  if (!s.city) issues.push("Sem cidade");
+  if (!s.condominium_name) issues.push("Sem condomínio");
+  if (!s.bedrooms) issues.push("Sem dormitórios");
+  if (s.area_useful == null && s.area_built == null && s.area_total == null) issues.push("Sem metragem");
+  if (!s.price_rent && !s.price_sale) issues.push("Sem valor");
+  issues.push(...auditSeoConsistency(s, s.descricao_seo));
+  const hasNumberConflict = issues.some((i) => i.startsWith("SEO diz"));
+  if (hasNumberConflict) return { status: "error", issues };
+  if (issues.length === 0) return { status: "ok", issues };
+  return { status: "review", issues };
+}
+
 export function buildRealEstateJsonLd(s: SeoSource, opts: { url: string; title: string; description: string; image?: string | null }) {
   const offerType = s.purpose === "rent" ? "RentAction" : "Offer";
   const price = s.price_rent ?? s.price_sale;

@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
+import { humanizeOriginalDescription } from "@/lib/property-parser";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 
@@ -147,9 +148,9 @@ function PropertyDetail() {
                 <summary className="cursor-pointer text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">
                   Ver descrição original do anúncio
                 </summary>
-                <p className="mt-3 text-muted-foreground whitespace-pre-line text-pretty">
-                  {p.descricao_original}
-                </p>
+                <div className="mt-3 text-muted-foreground whitespace-pre-line text-pretty leading-relaxed">
+                  {humanizeOriginalDescription(p.descricao_original)}
+                </div>
               </details>
             )}
             {p.source_url && (
@@ -166,8 +167,15 @@ function PropertyDetail() {
               <Row label="Região" value={p.region} />
               <Row label="Dormitórios" value={p.bedrooms} />
               <Row label="Suítes" value={p.suites} />
-              <Row label="Vagas" value={p.parking} />
+              <Row label="Banheiros" value={p.bathrooms} />
+              <Row label="Lavabos" value={p.lavabos} />
+              <Row label="Vagas" value={
+                p.parking_covered != null || p.parking_uncovered != null
+                  ? `${(p.parking_covered ?? 0) + (p.parking_uncovered ?? 0)}${(p.parking_covered || p.parking_uncovered) ? ` (${[p.parking_covered ? `${p.parking_covered} coberta${p.parking_covered === 1 ? "" : "s"}` : null, p.parking_uncovered ? `${p.parking_uncovered} descoberta${p.parking_uncovered === 1 ? "" : "s"}` : null].filter(Boolean).join(" + ")})` : ""}`
+                  : p.parking
+              } />
               <Row label="Área útil" value={p.area_useful ? `${Number(p.area_useful)} m²` : null} />
+              <Row label="Área construída" value={p.area_built ? `${Number(p.area_built)} m²` : null} />
               <Row label="Área total" value={p.area_total ? `${Number(p.area_total)} m²` : null} />
               <Row label="Venda" value={sale} />
               <Row label="Locação" value={rent ? `${rent}/mês` : null} />

@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   buildSeoBody, buildSeoTitle, buildSeoDescription, buildSeoSlug, seoLabels,
-  type SeoSource,
+  auditProperty, type SeoSource,
 } from "./property-seo";
 
 type Row = SeoSource & {
@@ -76,7 +76,7 @@ export const regenerateSeo = createServerFn({ method: "POST" })
     for (let from = 0; processed < maxItems; from += PAGE) {
       let q = supabaseAdmin
         .from("properties")
-        .select("id,external_ref,slug,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,parking,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code")
+        .select("id,external_ref,slug,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code")
         .order("id", { ascending: true })
         .range(from, from + PAGE - 1);
       if (data.id) q = q.eq("id", data.id);
@@ -98,6 +98,7 @@ export const regenerateSeo = createServerFn({ method: "POST" })
         // Preserva descricao_original (se ainda não houver, copia da description bruta)
         const descricao_original = row.descricao_original ?? row.description ?? null;
 
+        const audit = auditProperty({ ...src, descricao_seo });
         const update: Record<string, unknown> = {
           descricao_original,
           descricao_seo,
@@ -105,6 +106,8 @@ export const regenerateSeo = createServerFn({ method: "POST" })
           seo_description,
           seo_generated_at: new Date().toISOString(),
           seo_used_ai: !!opening,
+          audit_status: audit.status,
+          audit_issues: audit.issues,
         };
 
         // Atualiza slug somente se ainda for o legado (com sufixo aleatório do scraper)

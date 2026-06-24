@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parsePropertyText, computeReviewStatus } from "./property-parser";
-import { buildSeoBody, buildSeoTitle, buildSeoDescription, buildSeoSlug, type SeoSource } from "./property-seo";
+import { buildSeoBody, buildSeoTitle, buildSeoDescription, buildSeoSlug, auditProperty, type SeoSource } from "./property-seo";
 
 const SOURCE = "https://saimoveisalphaville.com.br";
 const SITEMAP = `${SOURCE}/sitemap.xml`;
@@ -301,7 +301,10 @@ export const runScraper = createServerFn({ method: "POST" })
             bedrooms: applyOverride("bedrooms", parsed.bedrooms),
             suites: applyOverride("suites", parsed.suites),
             bathrooms: applyOverride("bathrooms", parsed.bathrooms),
+            lavabos: applyOverride("lavabos", parsed.lavabos),
             parking: applyOverride("parking", parsed.parking),
+            parking_covered: applyOverride("parking_covered", parsed.parking_covered),
+            parking_uncovered: applyOverride("parking_uncovered", parsed.parking_uncovered),
             area_useful: applyOverride("area_useful", parsed.area_useful),
             area_built: applyOverride("area_built", parsed.area_built),
             area_total: applyOverride("area_total", parsed.area_total),
@@ -320,6 +323,8 @@ export const runScraper = createServerFn({ method: "POST" })
           const seo_title = buildSeoTitle(seoSrc);
           const seo_description = buildSeoDescription(seoSrc);
           const niceSlug = buildSeoSlug(seoSrc, item.ref) || slug;
+          const audit = auditProperty({ ...seoSrc, descricao_seo });
+
 
           const { error: upsertErr } = await supabaseAdmin.from("properties").upsert({
             external_ref: item.ref,
@@ -347,7 +352,10 @@ export const runScraper = createServerFn({ method: "POST" })
             bedrooms: applyOverride("bedrooms", parsed.bedrooms),
             suites: applyOverride("suites", parsed.suites),
             bathrooms: applyOverride("bathrooms", parsed.bathrooms),
+            lavabos: applyOverride("lavabos", parsed.lavabos),
             parking: applyOverride("parking", parsed.parking),
+            parking_covered: applyOverride("parking_covered", parsed.parking_covered),
+            parking_uncovered: applyOverride("parking_uncovered", parsed.parking_uncovered),
             area_useful: applyOverride("area_useful", parsed.area_useful),
             area_built: applyOverride("area_built", parsed.area_built),
             area_total: applyOverride("area_total", parsed.area_total),
@@ -358,9 +366,12 @@ export const runScraper = createServerFn({ method: "POST" })
             raw: { html_excerpt: html.slice(0, 4000), body_excerpt: bodyText.slice(0, 4000) },
             status: "active",
             review_status,
+            audit_status: audit.status,
+            audit_issues: audit.issues,
             extracted_at: new Date().toISOString(),
             last_seen_at: new Date().toISOString(),
           }, { onConflict: "external_ref", ignoreDuplicates: false });
+
           if (upsertErr) throw new Error(upsertErr.message);
           upserted++;
         } catch (e) {

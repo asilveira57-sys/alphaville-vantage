@@ -11,7 +11,10 @@ export type ParsedProperty = {
   bedrooms: number | null;
   suites: number | null;
   bathrooms: number | null;
+  lavabos: number | null;
   parking: number | null;
+  parking_covered: number | null;
+  parking_uncovered: number | null;
   area_useful: number | null;
   area_built: number | null;
   area_total: number | null;
@@ -38,10 +41,8 @@ function norm(s: string): string {
 }
 
 function parseMoney(raw: string): number | null {
-  // "R$ 50.000,00" → 50000; "R$ 2.236,00" → 2236
   const cleaned = raw.replace(/[^\d,.\-]/g, "");
   if (!cleaned) return null;
-  // remove thousands "." then convert "," to "."
   const n = parseFloat(cleaned.replace(/\.(?=\d{3}(?:[.,]|$))/g, "").replace(",", "."));
   return Number.isFinite(n) ? n : null;
 }
@@ -52,13 +53,6 @@ function pickMoney(text: string, labels: RegExp): number | null {
   return parseMoney(m[1]);
 }
 
-function pickInt(text: string, re: RegExp): number | null {
-  const m = text.match(re);
-  if (!m) return null;
-  const n = parseInt(m[1], 10);
-  return Number.isFinite(n) ? n : null;
-}
-
 function pickArea(text: string, re: RegExp): number | null {
   const m = text.match(re);
   if (!m) return null;
@@ -66,12 +60,26 @@ function pickArea(text: string, re: RegExp): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** Itera todas as ocorrências de um número seguido de label e devolve o MAIOR.
+ * Usado p/ banheiros/dormitórios: o sumário do anúncio (5 banheiros) vence
+ * referências incidentais (1 banheiro compartilhado). */
+function pickMaxInt(text: string, re: RegExp): number | null {
+  const flags = re.flags.includes("g") ? re.flags : re.flags + "g";
+  const r = new RegExp(re.source, flags);
+  let max: number | null = null;
+  let m: RegExpExecArray | null;
+  while ((m = r.exec(text)) !== null) {
+    const n = parseInt(m[1], 10);
+    if (Number.isFinite(n) && (max == null || n > max)) max = n;
+  }
+  return max;
+}
+
 function detectType(text: string): string | null {
   const n = norm(text);
   for (const t of TYPES) {
     const re = new RegExp(`\\b${t.replace(/[áéíóúãâ]/g, ".")}\\b`, "i");
     if (re.test(n)) {
-      // normalizar para o canônico
       if (t === "area") return "área";
       if (t === "chacara") return "chácara";
       if (t === "galpao") return "galpão";
@@ -84,7 +92,6 @@ function detectType(text: string): string | null {
 }
 
 function detectCityState(text: string): { city: string | null; state: string | null } {
-  // Padrão: "Cidade - SP" ou "Cidade/SP"
   const re = new RegExp(`([A-ZÁÉÍÓÚÂÊÔÃÕÇ][\\wÀ-ÿ\\s\\.]{2,50}?)\\s*[-/]\\s*(${STATES.join("|")})\\b`);
   const m = text.match(re);
   if (m) {
@@ -94,12 +101,10 @@ function detectCityState(text: string): { city: string | null; state: string | n
 }
 
 function detectCondoFromTitle(title: string): string | null {
-  // Heurística: títulos do tipo "Casa Avenida X Tamborê 11 - Tamboré - Santana de Parnaíba - SP"
-  // Procura padrões "Tamboré N", "Alphaville X", "Residencial Y", etc.
   const patterns = [
     /\b(Tambor[eé]\s*\d+(?:\s*Alphaville)?)/i,
     /\b(Alphaville\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+){0,3})/,
-    /\b(Residencial\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+){0,3})/,
+    /\b(Residencial\s+[A-ZÁÉÍÓÚÂÊÔÃ0-9][\wÀ-ÿ]*(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ0-9][\wÀ-ÿ]*){0,3})/,
     /\b(Condom[ií]nio\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+){0,3})/i,
   ];
   for (const re of patterns) {
@@ -110,7 +115,6 @@ function detectCondoFromTitle(title: string): string | null {
 }
 
 function detectNeighborhood(text: string): string | null {
-  // Bairros conhecidos da região
   const bairros = [
     "Tamboré", "Alphaville", "Aldeia da Serra", "Genesis", "Melville",
     "Granja Viana", "Centro", "Jardins",
@@ -120,6 +124,25 @@ function detectNeighborhood(text: string): string | null {
     if (re.test(text)) return b;
   }
   return null;
+}
+
+/** Extrai vagas com breakdown coberto/descoberto se mencionado. */
+function detectParking(text: string): { total: number | null; covered: number | null; uncovered: number | null } {
+  // "2 vagas (de garagem)? cobertas e 2 descobertas"
+  const both = text.match(/(\d+)\s*vagas?(?:\s+(?:de\s+)?garagem)?\s+cobertas?\s+e\s+(\d+)\s+descobertas?/i)
+    ?? text.match(/(\d+)\s*cobertas?\s+e\s+(\d+)\s+descobertas?/i);
+  if (both) {
+    const c = parseInt(both[1], 10);
+    const u = parseInt(both[2], 10);
+    return { covered: c, uncovered: u, total: c + u };
+  }
+  const covered = pickMaxInt(text, /(\d+)\s*vagas?(?:\s+(?:de\s+)?garagem)?\s+cobertas?\b/i);
+  const uncovered = pickMaxInt(text, /(\d+)\s*vagas?\s+descobertas?\b/i);
+  if (covered != null || uncovered != null) {
+    return { covered, uncovered, total: (covered ?? 0) + (uncovered ?? 0) };
+  }
+  const total = pickMaxInt(text, /(\d+)\s*(?:vagas?|garagens?|garagem)\b/i);
+  return { total, covered: null, uncovered: null };
 }
 
 export function parsePropertyText(input: {
@@ -135,7 +158,6 @@ export function parsePropertyText(input: {
 
   // Tipo
   let property_type: string | null = detectType(title) ?? detectType(desc);
-  // tenta extrair tipo da URL (/alugar/casa/...)
   if (!property_type && url) {
     try {
       const segs = new URL(url).pathname.split("/").filter(Boolean);
@@ -143,23 +165,31 @@ export function parsePropertyText(input: {
     } catch { /* ignore */ }
   }
 
-  // Cidade / Estado
   const { city, state } = detectCityState(combined);
-
-  // Bairro / Condomínio
   const neighborhood = detectNeighborhood(combined);
   const condominium_name = detectCondoFromTitle(title) ?? detectCondoFromTitle(desc);
 
-  // Áreas: "at 420 m²", "ac 440 m²", "au 200 m²"
-  const area_total = pickArea(n, /\bat\s*([\d.,]+)\s*m[²2]/i) ?? pickArea(combined, /[áa]rea\s+total[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
-  const area_built = pickArea(n, /\bac\s*([\d.,]+)\s*m[²2]/i) ?? pickArea(combined, /[áa]rea\s+constru[ií]da[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
-  const area_useful = pickArea(n, /\bau\s*([\d.,]+)\s*m[²2]/i) ?? pickArea(combined, /[áa]rea\s+[uú]til[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
+  // Áreas — AT/AC/AU + variantes por extenso
+  const area_total = pickArea(n, /\bat\s*([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+(?:do\s+)?terreno[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+total[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
+  const area_built = pickArea(n, /\bac\s*([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+constru[ií]da[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
+  const area_useful = pickArea(n, /\bau\s*([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+[uú]til[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+privativa[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
 
-  // Dormitórios / suítes / vagas / banheiros
-  const bedrooms = pickInt(combined, /(\d+)\s*(?:quartos?|dormit[oó]rios?|dorm\.?)\b/i);
-  const suites = pickInt(combined, /(\d+)\s*su[ií]tes?\b/i);
-  const parking = pickInt(combined, /(\d+)\s*(?:vagas?|garagens?|garagem)\b/i);
-  const bathrooms = pickInt(combined, /(\d+)\s*banheiros?\b/i);
+  // Dormitórios / suítes / banheiros / lavabos — usa MAX p/ vencer menções
+  // incidentais como "1 banheiro compartilhado".
+  const bedrooms = pickMaxInt(combined, /(\d+)\s*(?:quartos?|dormit[oó]rios?|dorm\.?)\b/i);
+  const suites = pickMaxInt(combined, /(\d+)\s*su[ií]tes?\b/i);
+  // Banheiros: exclui "X lavabos" e "X suítes"; pega só "N banheiros" puro.
+  const bathrooms = pickMaxInt(combined, /(\d+)\s*banheiros?(?!\s+(?:compartilhad))/i);
+  // Lavabos
+  let lavabos: number | null = pickMaxInt(combined, /(\d+)\s*lavabos?\b/i);
+  if (lavabos == null && /\blavabo\b/i.test(combined)) lavabos = 1;
+
+  const parkingInfo = detectParking(combined);
 
   // Valores
   const price_rent = pickMoney(combined, /(?:valor\s+)?(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)/i);
@@ -167,18 +197,26 @@ export function parsePropertyText(input: {
   const condo_fee = pickMoney(combined, /condom[ií]nio[^R$]{0,30}R\$\s*([\d.,]+)/i);
   const iptu = pickMoney(combined, /\biptu\b[^R$]{0,30}R\$\s*([\d.,]+)/i);
 
-  // Booleans
-  const furnished = /\bmobiliad[oa]\b/i.test(combined) ? true : (/\bsem\s+mob[ií]lia\b|\bn[ãa]o\s+mobiliad/i.test(combined) ? false : null);
-  const is_launch = /\blan[çc]amento\b/i.test(combined) ? true : null;
+  // Booleans — regras estritas, sem adivinhação
+  const furnished = /\bmobiliad[oa]\b/i.test(combined)
+    ? true
+    : (/\bsem\s+mob[ií]lia\b|\bn[ãa]o\s+mobiliad/i.test(combined) ? false : null);
+  // is_launch: exige termo explícito de marketing imobiliário, não a palavra
+  // solta "lançamento" em qualquer contexto.
+  const is_launch = /\blan[çc]amento\s+(?:imobili[áa]rio|do\s+empreendimento)\b|\bempreendimento\s+em\s+lan[çc]amento\b|\bbreve\s+lan[çc]amento\b/i.test(combined)
+    ? true
+    : null;
   const accepts_exchange = /\b(?:aceita\s+permuta|permuta\s+por|permuta-se|estuda\s+permuta)\b/i.test(combined) ? true : null;
 
-  // Código interno: tenta achar "Cód.: 12345" ou "Ref. 12345"
   const codeMatch = combined.match(/\b(?:c[oó]d(?:igo)?\.?|ref(?:er[eê]ncia)?\.?)\s*:?\s*([A-Z0-9\-]{3,20})\b/i);
   const internal_code = codeMatch ? codeMatch[1] : null;
 
   return {
     city, state, neighborhood, condominium_name, property_type,
-    bedrooms, suites, bathrooms, parking,
+    bedrooms, suites, bathrooms, lavabos,
+    parking: parkingInfo.total,
+    parking_covered: parkingInfo.covered,
+    parking_uncovered: parkingInfo.uncovered,
     area_useful, area_built, area_total,
     price_sale, price_rent, condo_fee, iptu,
     furnished, is_launch, accepts_exchange,
@@ -186,7 +224,6 @@ export function parsePropertyText(input: {
   };
 }
 
-// Avalia se um imóvel está com dados completos / incompletos / precisa revisar
 export function computeReviewStatus(p: {
   property_type?: string | null;
   city?: string | null;
@@ -203,4 +240,20 @@ export function computeReviewStatus(p: {
   if (essentials === 2 && hasPrice && hasArea) return "complete";
   if (!hasPrice || !p.property_type) return "incomplete";
   return "needs_review";
+}
+
+/** Capitaliza primeira letra após ponto/quebra, preservando o resto. */
+export function humanizeOriginalDescription(raw: string | null | undefined): string {
+  if (!raw) return "";
+  // Normaliza espaços múltiplos mas preserva quebras de linha
+  let s = raw.replace(/[ \t]+/g, " ").trim();
+  // Insere quebras antes de blocos comerciais comuns
+  s = s.replace(/\s*(valor\s+(?:aluguel|venda|loca[cç][aã]o))/gi, "\n\n$1");
+  s = s.replace(/\s*(condom[ií]nio\s+r\$)/gi, "\n$1");
+  s = s.replace(/\s*(\biptu\b\s+r\$)/gi, "\n$1");
+  // Capitaliza início de cada frase
+  s = s.replace(/(^|[.!?]\s+|\n+)([a-záàâãéêíóôõúç])/g, (_, sep: string, ch: string) => sep + ch.toUpperCase());
+  // Capitaliza "r$" → "R$"
+  s = s.replace(/\br\$/g, "R$");
+  return s;
 }
