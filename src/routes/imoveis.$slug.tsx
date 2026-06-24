@@ -146,7 +146,12 @@ function PropertyDetail() {
               </details>
             )}
             {p.source_url && (
-              <a href={p.source_url} target="_blank" rel="noreferrer" className="mt-6 inline-block text-xs uppercase tracking-widest underline">
+              <a
+                href={p.source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest hover:brightness-95 transition"
+              >
                 Mais detalhes deste imóvel no site da corretora ↗
               </a>
             )}
