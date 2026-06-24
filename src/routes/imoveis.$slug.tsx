@@ -111,7 +111,7 @@ function PropertyDetail() {
             {p.property_type ?? "Imóvel"}
             {p.purpose === "rent" ? " · Locação" : p.purpose === "sale" ? " · Venda" : p.purpose === "both" ? " · Venda/Locação" : ""}
           </p>
-          <h1 className="font-serif text-3xl md:text-4xl leading-tight text-balance">{p.title}</h1>
+          <h1 className="font-serif text-3xl md:text-4xl leading-tight text-balance">{p.seo_title ? p.seo_title.replace(/\s*\|\s*S\.A Im[óo]veis.*$/i, "") : p.title}</h1>
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2">
             {sale && <span className="font-serif text-2xl">{sale}</span>}
             {rent && <span className="text-muted-foreground">{rent}/mês</span>}
