@@ -2,6 +2,9 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
+import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
+
+const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) &&
@@ -28,12 +31,27 @@ async function fetchProperty(slug: string) {
 
 export const Route = createFileRoute("/imoveis/$slug")({
   loader: ({ params }) => fetchProperty(params.slug),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: `${loaderData?.title ?? "Imóvel"} — S.A Imóveis Alphaville` },
-      { name: "description", content: loaderData?.description?.slice(0, 160) ?? "Imóvel em Alphaville." },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const p = loaderData;
+    const url = `${SITE_URL}/imoveis/${params.slug}`;
+    const title = p?.seo_title ?? `${p?.title ?? "Imóvel"} — S.A Imóveis Alphaville`;
+    const description = p?.seo_description ?? p?.description?.slice(0, 160) ?? "Imóvel em Alphaville.";
+    const image = (p?.images?.[0] as string | undefined) ?? undefined;
+    const jsonLd = p ? buildRealEstateJsonLd(p as unknown as SeoSource, { url, title, description, image }) : null;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        ...(image ? [{ property: "og:image", content: image }] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: jsonLd ? [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }] : [],
+    };
+  },
   errorComponent: ({ error }) => (
     <SiteLayout>
       <section className="px-6 py-24 max-w-3xl mx-auto">
