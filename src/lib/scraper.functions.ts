@@ -75,11 +75,41 @@ function extractSitemapUrls(xml: string): string[] {
   return out;
 }
 
+// Tipos válidos de imóvel aceitos pela whitelist de URL canônica.
+const PROPERTY_TYPE_SLUGS = new Set([
+  "apartamento", "casa", "cobertura", "sala", "terreno", "predio",
+  "galpao", "sobrado", "loja", "flat", "chacara", "sitio", "fazenda",
+  "area", "conjunto", "kitnet", "studio", "duplex", "triplex", "lote",
+]);
+
+// Aceita SOMENTE o padrão canônico de página de detalhe:
+//   /{alugar|comprar|comprar-ou-alugar}/{uf}/{cidade}/{bairro}/{tipo}/{id}
+// Rejeita URLs do sitemap antigo que retornam página de busca como fallback
+// (ex.: ".../bairro1/bairro2./apartamento/123" → 200 mas é listagem genérica).
 function isPropertyUrl(u: string): boolean {
   try {
     const p = new URL(u).pathname;
-    return /^\/(alugar|comprar|comprar-ou-alugar)\//i.test(p);
+    if (!/^\/(alugar|comprar|comprar-ou-alugar)\//i.test(p)) return false;
+    const parts = p.replace(/\/+$/, "").split("/").filter(Boolean);
+    if (parts.length !== 6) return false;
+    // Nenhum segmento pode conter ponto (descarta "alphaville." e similares).
+    if (parts.some((s) => s.includes("."))) return false;
+    // UF (2 letras).
+    if (!/^[a-z]{2}$/i.test(parts[1])) return false;
+    // Tipo na whitelist.
+    if (!PROPERTY_TYPE_SLUGS.has(parts[4].toLowerCase())) return false;
+    // Último segmento = id numérico.
+    if (!/^\d+$/.test(parts[5])) return false;
+    return true;
   } catch { return false; }
+}
+
+// Salvaguarda pós-fetch: detecta páginas de listagem servidas como fallback.
+function looksLikeSearchFallback(html: string): boolean {
+  const title = (html.match(/<title>([^<]+)<\/title>/i)?.[1] ?? "").toLowerCase();
+  const og = (pickMeta(html, "og:title") ?? "").toLowerCase();
+  return /resultados encontrados|p[aá]gina \d+/.test(title)
+      || /resultados encontrados|p[aá]gina \d+/.test(og);
 }
 
 function extractPropertyLinks(html: string, base: string): string[] {
