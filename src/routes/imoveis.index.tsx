@@ -1,21 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { MessageCircle } from "lucide-react";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
+import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
 
 type PropertyRow = {
   id: string;
   slug: string;
   title: string;
+  internal_code: string | null;
   purpose: "rent" | "sale" | "both" | null;
   property_type: string | null;
+  city: string | null;
+  neighborhood: string | null;
+  condominium_name: string | null;
   region: string | null;
   bedrooms: number | null;
   suites: number | null;
   parking: number | null;
+  parking_covered: number | null;
+  parking_uncovered: number | null;
   area_useful: number | null;
+  area_built: number | null;
+  area_total: number | null;
   price_sale: number | null;
   price_rent: number | null;
+  last_seen_at: string | null;
+  seo_title: string | null;
   images: string[];
 };
 
@@ -23,20 +38,57 @@ const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) &&
   !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
 
-async function fetchProperties(): Promise<PropertyRow[]> {
+const WHATSAPP_NUMBER = "5511995515053";
+
+async function fetchProperties(): Promise<{ items: PropertyRow[]; options: FilterOptions }> {
   const { data, error } = await supabase
     .from("properties")
-    .select("id,slug,title,purpose,property_type,region,bedrooms,suites,parking,area_useful,price_sale,price_rent,images")
+    .select(
+      "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,images",
+    )
     .eq("status", "active")
     .order("last_seen_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return (data ?? []).map((p) => ({
+  const items = (data ?? []).map((p) => ({
     ...p,
     images: Array.isArray(p.images) ? (p.images as string[]).filter(isUsableImg) : [],
   })) as PropertyRow[];
+
+  const uniq = (arr: (string | null | undefined)[]) =>
+    Array.from(new Set(arr.filter((x): x is string => !!x && x.trim() !== ""))).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const options: FilterOptions = {
+    types: uniq(items.map((p) => p.property_type)),
+    cities: uniq(items.map((p) => p.city)),
+    neighborhoods: uniq(items.map((p) => p.neighborhood)),
+    condos: uniq(items.map((p) => p.condominium_name)),
+    priceMax: Math.max(
+      0,
+      ...items.map((p) => Math.max(p.price_sale ?? 0, p.price_rent ?? 0)),
+    ),
+    isRent: items.some((p) => p.purpose === "rent") && !items.some((p) => p.purpose === "sale"),
+  };
+
+  return { items, options };
 }
 
+const searchSchema = z.object({
+  purpose: fallback(z.string(), "").default(""),
+  type: fallback(z.string(), "").default(""),
+  city: fallback(z.string(), "").default(""),
+  neighborhood: fallback(z.string(), "").default(""),
+  condo: fallback(z.string(), "").default(""),
+  bedrooms: fallback(z.number(), 0).default(0),
+  parking: fallback(z.number(), 0).default(0),
+  priceMin: fallback(z.number(), 0).default(0),
+  priceMax: fallback(z.number(), 0).default(0),
+  areaMin: fallback(z.number(), 0).default(0),
+  sort: fallback(z.enum(["recent", "price_asc", "price_desc", "area_desc"]), "recent").default("recent"),
+  q: fallback(z.string(), "").default(""),
+});
+
 export const Route = createFileRoute("/imoveis/")({
+  validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
       { title: "Imóveis em Alphaville — S.A Imóveis Alphaville" },
@@ -60,91 +112,189 @@ export const Route = createFileRoute("/imoveis/")({
 const fmtPrice = (n: number | null) =>
   n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
 
+function whatsappLink(p: PropertyRow) {
+  const url = typeof window !== "undefined"
+    ? `${window.location.origin}/imoveis/${p.slug}`
+    : `/imoveis/${p.slug}`;
+  const ref = p.internal_code ?? p.slug;
+  const text = `Olá! Tenho interesse no imóvel "${p.title}" (cód. ${ref}) — ${url}.`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
 function PropertyCard({ p }: { p: PropertyRow }) {
   const img = p.images[0];
   const sale = fmtPrice(p.price_sale);
   const rent = fmtPrice(p.price_rent);
+  const totalParking = (p.parking_covered ?? 0) + (p.parking_uncovered ?? 0) || p.parking || 0;
+  const area = p.area_useful ?? p.area_built ?? p.area_total;
   const specs = [
     p.bedrooms && `${p.bedrooms} dorm.`,
     p.suites && `${p.suites} suítes`,
-    p.parking && `${p.parking} vagas`,
-    p.area_useful && `${Number(p.area_useful)}m²`,
+    totalParking ? `${totalParking} vagas` : null,
+    area && `${Number(area)}m²`,
   ].filter(Boolean);
 
   return (
-    <Link
-      to="/imoveis/$slug"
-      params={{ slug: p.slug }}
-      className="group block bg-card border border-ink/10 hover:border-brand-yellow hover:shadow-lg transition overflow-hidden"
-    >
-      <div className="relative aspect-[4/3] bg-ink/5 overflow-hidden">
-        {img ? (
-          <img
-            src={img}
-            alt={p.title}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-muted-foreground">
-            Sem imagem
-          </div>
-        )}
-        {(sale || rent) && (
-          <div className="absolute top-0 left-0 right-0 bg-brand-dark/85 text-white px-4 py-2 text-[11px] tracking-wider font-semibold flex flex-wrap gap-x-4">
-            {sale && <span>VENDA · <span className="text-brand-yellow">{sale}</span></span>}
-            {rent && <span>ALUGAR · <span className="text-brand-yellow">{rent}</span></span>}
-          </div>
-        )}
-      </div>
+    <div className="group flex flex-col bg-card border border-ink/10 hover:border-brand-yellow hover:shadow-lg transition overflow-hidden">
+      <Link to="/imoveis/$slug" params={{ slug: p.slug }} className="block">
+        <div className="relative aspect-[4/3] bg-ink/5 overflow-hidden">
+          {img ? (
+            <img
+              src={img}
+              alt={p.title}
+              loading="lazy"
+              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-muted-foreground">
+              Sem imagem
+            </div>
+          )}
+          {(sale || rent) && (
+            <div className="absolute top-0 left-0 right-0 bg-brand-dark/85 text-white px-4 py-2 text-[11px] tracking-wider font-semibold flex flex-wrap gap-x-4">
+              {sale && <span>VENDA · <span className="text-brand-yellow">{sale}</span></span>}
+              {rent && <span>ALUGAR · <span className="text-brand-yellow">{rent}</span></span>}
+            </div>
+          )}
+        </div>
 
-      <div className="p-5">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
-          {p.property_type ?? "Imóvel"}
-          {p.purpose === "rent" ? " · Locação" : p.purpose === "sale" ? " · Venda" : p.purpose === "both" ? " · Venda/Locação" : ""}
-        </p>
-        <h3 className="font-serif text-xl leading-snug mb-3 text-balance line-clamp-2">
-          {p.title}
-        </h3>
-        {specs.length > 0 && (
-          <p className="text-xs text-muted-foreground">{specs.join(" · ")}</p>
-        )}
-      </div>
+        <div className="p-5">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
+            {p.property_type ?? "Imóvel"}
+            {p.neighborhood ? ` · ${p.neighborhood}` : p.city ? ` · ${p.city}` : ""}
+          </p>
+          <h3 className="font-serif text-xl leading-snug mb-3 text-balance line-clamp-2">
+            {p.title}
+          </h3>
+          {specs.length > 0 && (
+            <p className="text-xs text-muted-foreground">{specs.join(" · ")}</p>
+          )}
+        </div>
+      </Link>
 
-      <div className="bg-brand-yellow text-brand-dark text-center py-3 text-[11px] font-bold uppercase tracking-widest group-hover:brightness-95">
-        Ver imóvel
+      <div className="mt-auto grid grid-cols-2 gap-px bg-ink/10">
+        <Link
+          to="/imoveis/$slug"
+          params={{ slug: p.slug }}
+          className="bg-brand-yellow text-brand-dark text-center py-3 text-[11px] font-bold uppercase tracking-widest hover:brightness-95"
+        >
+          Ver imóvel
+        </Link>
+        <a
+          href={whatsappLink(p)}
+          target="_blank"
+          rel="noreferrer"
+          className="bg-[#25D366] text-white text-center py-3 text-[11px] font-bold uppercase tracking-widest hover:brightness-95 inline-flex items-center justify-center gap-2"
+          aria-label="Falar no WhatsApp sobre este imóvel"
+        >
+          <MessageCircle className="h-4 w-4" /> WhatsApp
+        </a>
       </div>
-    </Link>
+    </div>
   );
 }
 
+function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
+  let out = items;
+  if (s.purpose) {
+    out = out.filter((p) => p.purpose === s.purpose || p.purpose === "both" || (s.purpose === "both"));
+  }
+  if (s.type) out = out.filter((p) => p.property_type === s.type);
+  if (s.city) out = out.filter((p) => p.city === s.city);
+  if (s.neighborhood) out = out.filter((p) => p.neighborhood === s.neighborhood);
+  if (s.condo) out = out.filter((p) => p.condominium_name === s.condo);
+  if (s.bedrooms) out = out.filter((p) => (p.bedrooms ?? 0) >= s.bedrooms);
+  if (s.parking) {
+    out = out.filter((p) => {
+      const t = (p.parking_covered ?? 0) + (p.parking_uncovered ?? 0) || p.parking || 0;
+      return t >= s.parking;
+    });
+  }
+  if (s.priceMin || s.priceMax) {
+    out = out.filter((p) => {
+      const candidates: number[] = [];
+      if (s.purpose === "sale") { if (p.price_sale) candidates.push(p.price_sale); }
+      else if (s.purpose === "rent") { if (p.price_rent) candidates.push(p.price_rent); }
+      else {
+        if (p.price_sale) candidates.push(p.price_sale);
+        if (p.price_rent) candidates.push(p.price_rent);
+      }
+      if (!candidates.length) return false;
+      const v = Math.min(...candidates);
+      if (s.priceMin && v < s.priceMin) return false;
+      if (s.priceMax && v > s.priceMax) return false;
+      return true;
+    });
+  }
+  if (s.areaMin) {
+    out = out.filter((p) => {
+      const a = Math.max(p.area_useful ?? 0, p.area_built ?? 0, p.area_total ?? 0);
+      return a >= s.areaMin;
+    });
+  }
+  if (s.q) {
+    const q = s.q.toLowerCase();
+    out = out.filter((p) =>
+      [p.title, p.condominium_name, p.neighborhood, p.seo_title, p.city]
+        .filter(Boolean)
+        .some((f) => (f as string).toLowerCase().includes(q)),
+    );
+  }
+  const sorted = [...out];
+  if (s.sort === "price_asc") {
+    sorted.sort((a, b) => (a.price_sale ?? a.price_rent ?? Infinity) - (b.price_sale ?? b.price_rent ?? Infinity));
+  } else if (s.sort === "price_desc") {
+    sorted.sort((a, b) => (b.price_sale ?? b.price_rent ?? 0) - (a.price_sale ?? a.price_rent ?? 0));
+  } else if (s.sort === "area_desc") {
+    sorted.sort((a, b) => {
+      const ax = Math.max(a.area_useful ?? 0, a.area_built ?? 0, a.area_total ?? 0);
+      const bx = Math.max(b.area_useful ?? 0, b.area_built ?? 0, b.area_total ?? 0);
+      return bx - ax;
+    });
+  } else {
+    sorted.sort((a, b) => (b.last_seen_at ?? "").localeCompare(a.last_seen_at ?? ""));
+  }
+  return sorted;
+}
+
 function ImoveisPage() {
-  const properties = Route.useLoaderData();
-  const total = properties.length;
+  const { items, options } = Route.useLoaderData();
+  const search = Route.useSearch();
+
+  const filtered = useMemo(() => applyFilters(items, search), [items, search]);
+  const total = items.length;
 
   return (
     <SiteLayout>
-      <section className="px-6 pt-16 md:pt-24 pb-12 border-b border-ink/8">
+      <section className="px-6 pt-12 md:pt-16 pb-8 border-b border-ink/8">
         <div className="max-w-7xl mx-auto">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-6">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-4">
             Portfólio
           </p>
-          <h1 className="font-serif text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-balance max-w-[22ch]">
-            Imóveis selecionados
+          <h1 className="font-serif text-4xl md:text-5xl font-medium leading-[1.05] tracking-tight text-balance max-w-[22ch]">
+            Buscar imóveis
           </h1>
-          <p className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-[60ch] text-pretty">
+          <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-[60ch]">
             {total} {total === 1 ? "imóvel disponível" : "imóveis disponíveis"} em Alphaville, Tamboré, Barueri e Santana de Parnaíba.
           </p>
         </div>
       </section>
 
-      <section className="px-6 py-20">
+      <PropertyFilters options={options} state={search} filteredCount={filtered.length} totalCount={total} />
+
+      <section className="px-6 py-12 md:py-16">
         <div className="max-w-7xl mx-auto">
-          {total === 0 ? (
-            <p className="text-muted-foreground">Nenhum imóvel ativo no momento.</p>
+          {filtered.length === 0 ? (
+            <div className="text-center py-16 border border-dashed border-ink/15">
+              <p className="font-serif text-2xl text-ink mb-2">Nenhum imóvel encontrado</p>
+              <p className="text-sm text-muted-foreground mb-6">Tente remover algum filtro para ver mais opções.</p>
+              <Link to="/imoveis" search={{ purpose: "", type: "", city: "", neighborhood: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "" }} className="inline-block bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest">
+                Limpar filtros
+              </Link>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {properties.map((p: PropertyRow) => <PropertyCard key={p.id} p={p} />)}
+              {filtered.map((p) => <PropertyCard key={p.id} p={p} />)}
             </div>
           )}
         </div>
