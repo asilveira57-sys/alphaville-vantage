@@ -112,7 +112,7 @@ export const regenerateSeo = createServerFn({ method: "POST" })
         if (niceSlug && niceSlug.length > 8) update.slug = niceSlug;
 
         const { error: upErr } = await supabaseAdmin
-          .from("properties").update(update).eq("id", row.id);
+          .from("properties").update(update as never).eq("id", row.id);
         if (!upErr) updated++;
 
         if (processed >= maxItems) break;
