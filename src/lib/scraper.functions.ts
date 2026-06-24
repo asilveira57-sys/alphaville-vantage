@@ -352,7 +352,8 @@ export const runScraper = createServerFn({ method: "POST" })
             internal_code: applyOverride("internal_code", parsed.internal_code),
           };
           const descricao_original = existing?.descricao_original ?? description;
-          const descricao_seo = buildSeoBody(seoSrc);
+          const opening = await generateOpeningWithAI(seoSrc);
+          const descricao_seo = buildSeoBody(seoSrc, opening);
           const seo_title = buildSeoTitle(seoSrc);
           const seo_description = buildSeoDescription(seoSrc);
           const niceSlug = buildSeoSlug(seoSrc, item.ref) || slug;
