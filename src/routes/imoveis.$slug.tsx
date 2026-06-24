@@ -123,10 +123,15 @@ function PropertyDetail() {
     <SiteLayout>
       <section className="px-6 pt-16 pb-12 border-b border-ink/8">
         <div className="max-w-6xl mx-auto">
-          <nav className="mb-8">
-            <Link to="/imoveis" className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">
-              ← Voltar ao catálogo
-            </Link>
+          <nav aria-label="Trilha de navegação" className="mb-8">
+            <ol className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              <li><Link to="/" className="hover:text-ink">Início</Link></li>
+              <li className="flex items-center gap-2"><span aria-hidden>/</span><Link to="/imoveis" className="hover:text-ink">Imóveis</Link></li>
+              {p.neighborhood === "Alphaville" && (
+                <li className="flex items-center gap-2"><span aria-hidden>/</span><Link to="/alphaville" className="hover:text-ink">Alphaville</Link></li>
+              )}
+              <li className="flex items-center gap-2"><span aria-hidden>/</span><span className="text-ink truncate max-w-[40ch]">{p.title}</span></li>
+            </ol>
           </nav>
           <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-6">
             {p.property_type ?? "Imóvel"}
