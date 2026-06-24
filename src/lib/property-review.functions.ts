@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parsePropertyText, computeReviewStatus } from "./property-parser";
+import { auditProperty, type SeoSource } from "./property-seo";
 
 type RawPayload = { html_excerpt?: string; body_excerpt?: string };
 
