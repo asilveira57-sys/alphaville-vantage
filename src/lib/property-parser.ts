@@ -169,15 +169,33 @@ export function parsePropertyText(input: {
   const neighborhood = detectNeighborhood(combined);
   const condominium_name = detectCondoFromTitle(title) ?? detectCondoFromTitle(desc);
 
-  // Áreas — AT/AC/AU + variantes por extenso
+  // Áreas — AT/AC/AU + variantes por extenso (rótulo antes OU depois do número)
   const area_total = pickArea(n, /\bat\s*([\d.,]+)\s*m[²2]/i)
     ?? pickArea(combined, /[áa]rea\s+(?:do\s+)?terreno[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+total[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
+    ?? pickArea(combined, /[áa]rea\s+total[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*(?:de\s+)?(?:terreno|total)\b/i);
   const area_built = pickArea(n, /\bac\s*([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+constru[ií]da[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
-  const area_useful = pickArea(n, /\bau\s*([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /[áa]rea\s+constru[ií]da[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*constru[ií]da\b/i);
+  let area_useful = pickArea(n, /\bau\s*([\d.,]+)\s*m[²2]/i)
     ?? pickArea(combined, /[áa]rea\s+[uú]til[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
-    ?? pickArea(combined, /[áa]rea\s+privativa[^0-9]{0,12}([\d.,]+)\s*m[²2]/i);
+    ?? pickArea(combined, /[áa]rea\s+privativa[^0-9]{0,12}([\d.,]+)\s*m[²2]/i)
+    ?? pickArea(combined, /([\d.,]+)\s*m[²2]\s*(?:[úu]til|privativ[ao])\b/i);
+
+  // Fallback — metragem solta sem rótulo (ex.: "50 m2" na descrição).
+  // Só usa se nenhum dos três campos rotulados foi preenchido, e ignora valores
+  // absurdos (< 10 ou > 10.000) para descartar ruído.
+  if (area_useful == null && area_built == null && area_total == null) {
+    const re = /(\d{2,5}(?:[.,]\d{1,2})?)\s*m[²2]\b/gi;
+    let best: number | null = null;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(combined)) !== null) {
+      const n2 = parseFloat(m[1].replace(/\./g, "").replace(",", "."));
+      if (!Number.isFinite(n2) || n2 < 10 || n2 > 10_000) continue;
+      if (best == null || n2 > best) best = n2;
+    }
+    if (best != null) area_useful = best;
+  }
 
   // Dormitórios / suítes / banheiros / lavabos — usa MAX p/ vencer menções
   // incidentais como "1 banheiro compartilhado".
