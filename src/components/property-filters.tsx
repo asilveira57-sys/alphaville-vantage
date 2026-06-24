@@ -1,7 +1,4 @@
 import { useNavigate } from "@tanstack/react-router";
-import { getRouteApi } from "@tanstack/react-router";
-
-const routeApi = getRouteApi("/imoveis/");
 
 export type FilterOptions = {
   types: string[];
@@ -70,7 +67,7 @@ export function PropertyFilters({
   const navigate = useNavigate({ from: "/imoveis" });
 
   const update = (patch: Partial<FilterState>) => {
-    navigate({ search: (prev) => ({ ...prev, ...patch }) });
+    navigate({ search: (prev: FilterState) => ({ ...prev, ...patch }) });
   };
 
   const clear = () =>
