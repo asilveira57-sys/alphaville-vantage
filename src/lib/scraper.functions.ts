@@ -323,6 +323,8 @@ export const runScraper = createServerFn({ method: "POST" })
           const seo_title = buildSeoTitle(seoSrc);
           const seo_description = buildSeoDescription(seoSrc);
           const niceSlug = buildSeoSlug(seoSrc, item.ref) || slug;
+          const audit = auditProperty({ ...seoSrc, descricao_seo });
+
 
           const { error: upsertErr } = await supabaseAdmin.from("properties").upsert({
             external_ref: item.ref,
