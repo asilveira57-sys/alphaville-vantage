@@ -167,8 +167,15 @@ function PropertyDetail() {
               <Row label="Região" value={p.region} />
               <Row label="Dormitórios" value={p.bedrooms} />
               <Row label="Suítes" value={p.suites} />
-              <Row label="Vagas" value={p.parking} />
+              <Row label="Banheiros" value={p.bathrooms} />
+              <Row label="Lavabos" value={p.lavabos} />
+              <Row label="Vagas" value={
+                p.parking_covered != null || p.parking_uncovered != null
+                  ? `${(p.parking_covered ?? 0) + (p.parking_uncovered ?? 0)}${(p.parking_covered || p.parking_uncovered) ? ` (${[p.parking_covered ? `${p.parking_covered} coberta${p.parking_covered === 1 ? "" : "s"}` : null, p.parking_uncovered ? `${p.parking_uncovered} descoberta${p.parking_uncovered === 1 ? "" : "s"}` : null].filter(Boolean).join(" + ")})` : ""}`
+                  : p.parking
+              } />
               <Row label="Área útil" value={p.area_useful ? `${Number(p.area_useful)} m²` : null} />
+              <Row label="Área construída" value={p.area_built ? `${Number(p.area_built)} m²` : null} />
               <Row label="Área total" value={p.area_total ? `${Number(p.area_total)} m²` : null} />
               <Row label="Venda" value={sale} />
               <Row label="Locação" value={rent ? `${rent}/mês` : null} />
