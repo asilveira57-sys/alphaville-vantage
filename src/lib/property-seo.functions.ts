@@ -13,7 +13,7 @@ type Row = SeoSource & {
   slug: string | null;
 };
 
-async function generateOpeningWithAI(s: SeoSource): Promise<string | null> {
+export async function generateOpeningWithAI(s: SeoSource): Promise<string | null> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) return null;
   const { generateText } = await import("ai");
