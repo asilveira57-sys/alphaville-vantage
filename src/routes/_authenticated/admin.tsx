@@ -8,6 +8,7 @@ import { checkIsAdmin, grantSelfAdminIfFirst } from "@/lib/admin.functions";
 import { listAllPostsAdmin, generatePostWithAI, upsertPost } from "@/lib/blog.functions";
 import { runScraper, listScraperRuns } from "@/lib/scraper.functions";
 import { reprocessProperties, getScrapAudit } from "@/lib/property-review.functions";
+import { regenerateSeo } from "@/lib/property-seo.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Portal S.A" }, { name: "robots", content: "noindex,nofollow" }] }),
