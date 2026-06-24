@@ -1,4 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
+import { getRouteApi } from "@tanstack/react-router";
+
+const routeApi = getRouteApi("/imoveis/");
 
 export type FilterOptions = {
   types: string[];
