@@ -9,7 +9,7 @@ const SITEMAP = `${SOURCE}/sitemap.xml`;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
 // Tempo máximo de uma execução (deixa folga até o timeout do worker)
-const RUN_BUDGET_MS = 50_000;
+const RUN_BUDGET_MS = 55_000;
 // Pausa entre requisições ao site de origem (rate limit defensivo)
 const REQUEST_DELAY_MS = 350;
 // Tentativas em caso de 429/5xx
