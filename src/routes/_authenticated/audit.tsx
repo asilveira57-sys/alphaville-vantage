@@ -73,6 +73,8 @@ function AuditPage() {
             <option value="missing_area">Sem metragem</option>
             <option value="missing_bedrooms">Sem dormitórios</option>
             <option value="missing_price">Sem valor</option>
+            <option value="rent_suspect">Aluguel &lt; R$ 100 (suspeito)</option>
+            <option value="ratio_off">Razão aluguel/venda fora</option>
           </select>
           <span className="ml-auto text-muted-foreground">{items.length} imóveis</span>
         </div>
