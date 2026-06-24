@@ -229,6 +229,8 @@ export type Database = {
           area_built: number | null
           area_total: number | null
           area_useful: number | null
+          audit_issues: Json | null
+          audit_status: string | null
           bathrooms: number | null
           bedrooms: number | null
           city: string | null
@@ -248,9 +250,12 @@ export type Database = {
           iptu: number | null
           is_launch: boolean | null
           last_seen_at: string | null
+          lavabos: number | null
           manual_overrides: Json | null
           neighborhood: string | null
           parking: number | null
+          parking_covered: number | null
+          parking_uncovered: number | null
           price_rent: number | null
           price_sale: number | null
           property_type: string | null
@@ -275,6 +280,8 @@ export type Database = {
           area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
+          audit_issues?: Json | null
+          audit_status?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
@@ -294,9 +301,12 @@ export type Database = {
           iptu?: number | null
           is_launch?: boolean | null
           last_seen_at?: string | null
+          lavabos?: number | null
           manual_overrides?: Json | null
           neighborhood?: string | null
           parking?: number | null
+          parking_covered?: number | null
+          parking_uncovered?: number | null
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
@@ -321,6 +331,8 @@ export type Database = {
           area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
+          audit_issues?: Json | null
+          audit_status?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
@@ -340,9 +352,12 @@ export type Database = {
           iptu?: number | null
           is_launch?: boolean | null
           last_seen_at?: string | null
+          lavabos?: number | null
           manual_overrides?: Json | null
           neighborhood?: string | null
           parking?: number | null
+          parking_covered?: number | null
+          parking_uncovered?: number | null
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
