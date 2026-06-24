@@ -194,7 +194,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: {
     status?: "ok" | "review" | "error" | "all";
-    filter?: "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | null;
+    filter?: "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off" | null;
     limit?: number;
   }) => d)
   .handler(async ({ data, context }) => {
@@ -214,6 +214,11 @@ export const listAuditProperties = createServerFn({ method: "POST" })
     if (data.filter === "missing_area") q = q.is("area_useful", null).is("area_built", null).is("area_total", null);
     if (data.filter === "missing_bedrooms") q = q.is("bedrooms", null);
     if (data.filter === "missing_price") q = q.is("price_rent", null).is("price_sale", null);
+    if (data.filter === "rent_suspect") q = q.not("price_rent", "is", null).lt("price_rent", 100);
+    if (data.filter === "ratio_off") {
+      // filtragem fina por razão é feita client-side; aqui só restringe a quem tem ambos
+      q = q.not("price_rent", "is", null).not("price_sale", "is", null);
+    }
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
     return rows ?? [];
