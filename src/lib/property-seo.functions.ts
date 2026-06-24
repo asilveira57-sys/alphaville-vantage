@@ -76,7 +76,7 @@ export const regenerateSeo = createServerFn({ method: "POST" })
     for (let from = 0; processed < maxItems; from += PAGE) {
       let q = supabaseAdmin
         .from("properties")
-        .select("id,external_ref,slug,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,parking,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code")
+        .select("id,external_ref,slug,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code")
         .order("id", { ascending: true })
         .range(from, from + PAGE - 1);
       if (data.id) q = q.eq("id", data.id);
