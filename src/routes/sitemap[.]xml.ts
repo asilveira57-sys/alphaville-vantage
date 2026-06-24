@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 
-// TODO: substituir pelo domínio do portal (ex: https://portal.saimoveisalphaville.com.br) quando configurado.
-const BASE_URL = "";
+const BASE_URL = "https://alphaville-vantage.lovable.app";
 
 interface SitemapEntry {
   path: string;
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/blog", changefreq: "daily", priority: "0.9" },
+          { path: "/alphaville", changefreq: "weekly", priority: "0.9" },
           { path: "/guia-alphaville", changefreq: "weekly", priority: "0.9" },
           { path: "/guia-tambore", changefreq: "weekly", priority: "0.8" },
           { path: "/guia-barueri", changefreq: "weekly", priority: "0.8" },
@@ -32,6 +33,25 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/investimentos", changefreq: "weekly", priority: "0.8" },
           { path: "/imoveis", changefreq: "daily", priority: "0.9" },
         ];
+
+        // Dynamic: imóveis ativos
+        const { data: props } = await supabase
+          .from("properties")
+          .select("slug,updated_at")
+          .eq("status", "active");
+        for (const p of props ?? []) {
+          entries.push({ path: `/imoveis/${p.slug}`, lastmod: p.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
+        }
+
+        // Dynamic: condomínios publicados
+        const { data: condos } = await supabase
+          .from("condominiums")
+          .select("slug,updated_at")
+          .eq("status", "active");
+        for (const c of condos ?? []) {
+          entries.push({ path: `/condominio/${c.slug}`, lastmod: c.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
+        }
+
 
         const urls = entries.map((e) =>
           [
