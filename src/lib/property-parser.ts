@@ -229,7 +229,7 @@ export function parsePropertyText(input: {
   if (price_rent == null) {
     price_rent = pickMoney(
       combined,
-      /(?:valor\s+)?(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)(?!\s*\/?\s*m[²2])/i,
+      /(?:valor\s+)?(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)(?![\d.,])(?!\s*\/?\s*m[²2])/i,
     );
   }
   // Sanidade: aluguel < R$ 100 é quase certamente um "/m²" que escapou.
