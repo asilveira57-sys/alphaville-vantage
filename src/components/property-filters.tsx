@@ -51,7 +51,7 @@ const fmtPrice = (n: number, isRent: boolean) =>
       : `R$ ${(n / 1000).toFixed(0)} mil`;
 
 const selectCls =
-  "bg-white/5 text-white border border-white/15 px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-brand-yellow w-full";
+  "bg-white/5 text-white border border-white/15 px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-brand-yellow w-full [&>option]:bg-white [&>option]:text-ink";
 
 export function PropertyFilters({
   options,
