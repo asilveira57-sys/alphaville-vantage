@@ -10,7 +10,7 @@
  */
 
 @theme inline {
-  --font-serif: "Playfair Display", Georgia, serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -22,6 +22,10 @@
   --color-foreground: var(--foreground);
   --color-canvas: var(--canvas);
   --color-ink: var(--ink);
+  --color-brand-red: var(--brand-red);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-ink-soft: var(--brand-ink-soft);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
