@@ -371,7 +371,7 @@ export const runScraper = createServerFn({ method: "POST" })
             seo_title,
             seo_description,
             seo_generated_at: new Date().toISOString(),
-            seo_used_ai: false,
+            seo_used_ai: !!opening,
             purpose: applyOverride("purpose", finalPurpose),
             property_type: applyOverride("property_type", propertyType),
             city: applyOverride("city", parsed.city),
