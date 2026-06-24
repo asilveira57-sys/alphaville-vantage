@@ -116,61 +116,146 @@ export function buildSeoDescription(s: SeoSource): string {
   return parts.join(" ").replace(/\s+/g, " ").slice(0, 300);
 }
 
+// Lista controlada de características — só entram na descrição SEO se forem
+// detectadas na descrição original ou nos campos estruturados. Nada de inventar.
+const FEATURE_PATTERNS: { key: string; label: string; re: RegExp }[] = [
+  { key: "piscina", label: "piscina", re: /\bpiscinas?\b/i },
+  { key: "churrasqueira", label: "churrasqueira", re: /\bchurrasqueiras?\b/i },
+  { key: "escritorio", label: "escritório", re: /\bescrit[oó]rios?\b/i },
+  { key: "closet", label: "closet", re: /\bclosets?\b/i },
+  { key: "hidromassagem", label: "hidromassagem", re: /\bhidromassagens?\b|\bhidro\b/i },
+  { key: "varanda_gourmet", label: "varanda gourmet", re: /\bvarandas?\s+gourmet\b/i },
+  { key: "varanda", label: "varanda", re: /\bvarandas?\b(?!\s+gourmet)/i },
+  { key: "elevador", label: "elevador", re: /\belevadores?\b/i },
+  { key: "mezanino", label: "mezanino", re: /\bmezaninos?\b/i },
+  { key: "deposito", label: "depósito", re: /\bdep[oó]sitos?\b/i },
+  { key: "ar_condicionado", label: "ar-condicionado", re: /\bar[\s-]?condicionad[oa]s?\b/i },
+  { key: "armarios", label: "armários planejados", re: /\barm[aá]rios?\s+planejad[oa]s?\b/i },
+  { key: "area_gourmet", label: "área gourmet", re: /\b[aá]rea\s+gourmet\b/i },
+  { key: "espaco_gourmet", label: "espaço gourmet", re: /\bespa[cç]o\s+gourmet\b/i },
+  { key: "sauna", label: "sauna", re: /\bsaunas?\b/i },
+  { key: "lareira", label: "lareira", re: /\blareiras?\b/i },
+  { key: "home_theater", label: "home theater", re: /\bhome\s*theater\b/i },
+  { key: "adega", label: "adega", re: /\badegas?\b/i },
+  { key: "salao_festas", label: "salão de festas", re: /\bsal[aã]o\s+de\s+festas\b/i },
+  { key: "academia", label: "academia", re: /\bacademias?\b|\bfitness\b/i },
+  { key: "brinquedoteca", label: "brinquedoteca", re: /\bbrinquedotecas?\b/i },
+  { key: "quadra", label: "quadra", re: /\bquadras?\b/i },
+  { key: "jardim", label: "jardim", re: /\bjardins?\b/i },
+  { key: "quintal", label: "quintal", re: /\bquintal\b/i },
+  { key: "lavabo", label: "lavabo", re: /\blavabos?\b/i },
+  { key: "dep_empregada", label: "dependência de empregada", re: /\bdepend[eê]ncia\s+(?:de\s+)?empregad[oa]\b/i },
+  { key: "suite_master", label: "suíte master", re: /\bsu[ií]te\s+master\b/i },
+  { key: "andar_alto", label: "andar alto", re: /\bandar\s+alto\b/i },
+];
+
+export function extractFeatures(text: string | null | undefined): string[] {
+  if (!text) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const f of FEATURE_PATTERNS) {
+    if (f.re.test(text) && !seen.has(f.label)) {
+      seen.add(f.label);
+      out.push(f.label);
+    }
+  }
+  return out;
+}
+
+function detectFloors(text: string | null | undefined): number | null {
+  if (!text) return null;
+  const m = text.match(/(\d+)\s*(?:andares?|pavimentos?|pisos?)\b/i);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  return Number.isFinite(n) && n > 0 && n < 100 ? n : null;
+}
+
+const BANNED_PHRASES = [
+  /\bexcelente\s+oportunidade\b/gi,
+  /\blocaliza[cç][aã]o\s+privilegiada\b/gi,
+  /\bregi[aã]o\s+consolidada\b/gi,
+  /\b[oó]tima\s+op[cç][aã]o\b/gi,
+  /\binfraestrutura\s+completa\b/gi,
+  /\bim[oó]vel\s+diferenciado\b/gi,
+  /\bideal\s+para\b/gi,
+  /\bperfeito\s+para\b/gi,
+  /\bexcelente\s+escolha\b/gi,
+  /\boportunidade\s+[uú]nica\b/gi,
+];
+
+export function stripMarketing(text: string): string {
+  let out = text;
+  for (const re of BANNED_PHRASES) out = out.replace(re, "");
+  return out.replace(/\s{2,}/g, " ").replace(/\s+([.,;:])/g, "$1").trim();
+}
+
 /**
- * Descrição SEO completa em duas partes:
- *  PARTE 1 — abertura humanizada (max ~120 palavras), só usa fatos existentes.
- *  PARTE 2 — bloco estruturado linha a linha, vindo APENAS dos campos.
- * Nada de "Características adicionais" sem evidência estruturada.
+ * Descrição SEO em 3 parágrafos. Apenas fatos. Metragem e localização obrigatórias.
+ *  P1: tipo + finalidade + localização + metragem
+ *  P2: características (dorms/suítes/banheiros/vagas + features detectadas)
+ *  P3: valores (locação/venda/condomínio/IPTU)
  */
 export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): string {
   const type = typeLabel(s.property_type);
   const p = purposeLabel(s.purpose);
-  const loc = locationPhrase(s);
+  const city = s.city ? cap(s.city) : null;
   const condo = s.condominium_name ? cap(s.condominium_name) : null;
+  const nb = s.neighborhood ? cap(s.neighborhood) : null;
 
-  // PARTE 1 — abertura
-  let opening = openingParagraph?.trim() || "";
-  if (!opening) {
-    const bits: string[] = [];
-    bits.push(`${type} ${p.action}${condo ? ` no condomínio ${condo}` : ""}, em ${loc}.`);
-    const areaParts: string[] = [];
-    if (s.area_built != null) areaParts.push(`área construída de ${fmtArea(s.area_built)}`);
-    if (s.area_useful != null) areaParts.push(`área útil de ${fmtArea(s.area_useful)}`);
-    if (s.area_total != null) areaParts.push(`terreno de ${fmtArea(s.area_total)}`);
-    if (areaParts.length) {
-      bits.push(`O imóvel possui ${areaParts.join(" e ")}.`);
-    }
-    opening = bits.join(" ");
+  const locBits: string[] = [];
+  if (condo) locBits.push(`no condomínio ${condo}`);
+  if (nb && nb.toLowerCase() !== (condo ?? "").toLowerCase()) locBits.push(condo ? `bairro ${nb}` : `em ${nb}`);
+  if (city) locBits.push(`em ${city}${s.state ? `/${s.state}` : ""}`);
+  const loc = locBits.join(", ");
+
+  const areaBits: string[] = [];
+  if (s.area_useful != null) areaBits.push(`área útil de ${fmtArea(s.area_useful)}`);
+  if (s.area_built != null) areaBits.push(`área construída de ${fmtArea(s.area_built)}`);
+  if (s.area_total != null) areaBits.push(`área total de ${fmtArea(s.area_total)}`);
+  const areaPhrase = areaBits.length ? `, com ${areaBits.join(" e ")}` : "";
+
+  let p1: string;
+  const aiOpening = openingParagraph ? stripMarketing(openingParagraph) : "";
+  if (aiOpening && aiOpening.length > 40) {
+    const hasArea = /m[²2]/i.test(aiOpening);
+    p1 = hasArea || !areaBits.length ? aiOpening : `${aiOpening.replace(/[.!]?\s*$/, "")}${areaPhrase}.`;
+  } else {
+    p1 = `${type} ${p.action}${loc ? ` ${loc}` : ""}${areaPhrase}.`;
   }
 
-  // PARTE 2 — bloco estruturado (uma linha por dado)
-  const lines: string[] = [];
-  if (s.bedrooms != null) lines.push(`Dormitórios: ${s.bedrooms}`);
-  if (s.suites != null) lines.push(`Suítes: ${s.suites}`);
-  if (s.bathrooms != null) lines.push(`Banheiros: ${s.bathrooms}`);
-  if (s.lavabos != null) lines.push(`Lavabos: ${s.lavabos}`);
-  if (s.parking_covered != null || s.parking_uncovered != null) {
+  const charBits: string[] = [];
+  if (s.bedrooms) charBits.push(`${s.bedrooms} ${s.bedrooms === 1 ? "dormitório" : "dormitórios"}`);
+  if (s.suites) charBits.push(`${s.suites} ${s.suites === 1 ? "suíte" : "suítes"}`);
+  if (s.bathrooms) charBits.push(`${s.bathrooms} ${s.bathrooms === 1 ? "banheiro" : "banheiros"}`);
+  if (s.lavabos) charBits.push(`${s.lavabos} ${s.lavabos === 1 ? "lavabo" : "lavabos"}`);
+  if (s.parking) {
     const c = s.parking_covered ?? 0;
     const u = s.parking_uncovered ?? 0;
-    const total = c + u;
-    const detail: string[] = [];
-    if (c) detail.push(`${c} ${c === 1 ? "coberta" : "cobertas"}`);
-    if (u) detail.push(`${u} ${u === 1 ? "descoberta" : "descobertas"}`);
-    lines.push(`Vagas: ${total}${detail.length ? ` (${detail.join(" + ")})` : ""}`);
-  } else if (s.parking != null) {
-    lines.push(`Vagas: ${s.parking}`);
+    const detail = c || u
+      ? ` (${[c ? `${c} ${c === 1 ? "coberta" : "cobertas"}` : null, u ? `${u} ${u === 1 ? "descoberta" : "descobertas"}` : null].filter(Boolean).join(" + ")})`
+      : "";
+    charBits.push(`${s.parking} ${s.parking === 1 ? "vaga" : "vagas"}${detail}`);
   }
-  if (s.area_useful != null) lines.push(`Área útil: ${fmtArea(s.area_useful)}`);
-  if (s.area_built != null) lines.push(`Área construída: ${fmtArea(s.area_built)}`);
-  if (s.area_total != null) lines.push(`Área total: ${fmtArea(s.area_total)}`);
-  if (s.price_rent != null) lines.push(`Locação: ${fmtBRL(s.price_rent)}`);
-  if (s.price_sale != null) lines.push(`Venda: ${fmtBRL(s.price_sale)}`);
-  if (s.condo_fee != null) lines.push(`Condomínio: ${fmtBRL(s.condo_fee)}`);
-  if (s.iptu != null) lines.push(`IPTU: ${fmtBRL(s.iptu)}`);
-  if (s.furnished === true) lines.push("Mobiliado: sim");
-  if (s.accepts_exchange === true) lines.push("Aceita permuta: sim");
+  const floors = detectFloors(s.description);
+  if (floors) charBits.push(`${floors} ${floors === 1 ? "andar" : "andares"}`);
+  const features = extractFeatures(s.description);
+  for (const f of features) charBits.push(f);
 
-  return [opening, lines.join("\n")].filter(Boolean).join("\n\n");
+  let p2 = "";
+  if (charBits.length === 1) {
+    p2 = `O imóvel possui ${charBits[0]}.`;
+  } else if (charBits.length > 1) {
+    p2 = `O imóvel possui ${charBits.slice(0, -1).join(", ")} e ${charBits[charBits.length - 1]}.`;
+  }
+
+  const valBits: string[] = [];
+  if (s.price_rent != null) valBits.push(`Valor da locação: ${fmtBRL(s.price_rent)}.`);
+  if (s.price_sale != null) valBits.push(`Valor de venda: ${fmtBRL(s.price_sale)}.`);
+  if (s.condo_fee != null) valBits.push(`Condomínio: ${fmtBRL(s.condo_fee)}.`);
+  if (s.iptu != null) valBits.push(`IPTU: ${fmtBRL(s.iptu)}.`);
+  const p3 = valBits.join(" ");
+
+  return [p1, p2, p3].filter(Boolean).join("\n\n");
 }
 
 /**
