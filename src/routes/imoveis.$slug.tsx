@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
+import { humanizeOriginalDescription } from "@/lib/property-parser";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 
