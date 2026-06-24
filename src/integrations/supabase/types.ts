@@ -236,6 +236,8 @@ export type Database = {
           condominium_id: string | null
           condominium_name: string | null
           created_at: string
+          descricao_original: string | null
+          descricao_seo: string | null
           description: string | null
           external_ref: string | null
           extracted_at: string | null
@@ -256,6 +258,10 @@ export type Database = {
           raw: Json | null
           region: string | null
           review_status: string | null
+          seo_description: string | null
+          seo_generated_at: string | null
+          seo_title: string | null
+          seo_used_ai: boolean | null
           slug: string
           source_url: string | null
           state: string | null
@@ -276,6 +282,8 @@ export type Database = {
           condominium_id?: string | null
           condominium_name?: string | null
           created_at?: string
+          descricao_original?: string | null
+          descricao_seo?: string | null
           description?: string | null
           external_ref?: string | null
           extracted_at?: string | null
@@ -296,6 +304,10 @@ export type Database = {
           raw?: Json | null
           region?: string | null
           review_status?: string | null
+          seo_description?: string | null
+          seo_generated_at?: string | null
+          seo_title?: string | null
+          seo_used_ai?: boolean | null
           slug: string
           source_url?: string | null
           state?: string | null
@@ -316,6 +328,8 @@ export type Database = {
           condominium_id?: string | null
           condominium_name?: string | null
           created_at?: string
+          descricao_original?: string | null
+          descricao_seo?: string | null
           description?: string | null
           external_ref?: string | null
           extracted_at?: string | null
@@ -336,6 +350,10 @@ export type Database = {
           raw?: Json | null
           region?: string | null
           review_status?: string | null
+          seo_description?: string | null
+          seo_generated_at?: string | null
+          seo_title?: string | null
+          seo_used_ai?: boolean | null
           slug?: string
           source_url?: string | null
           state?: string | null

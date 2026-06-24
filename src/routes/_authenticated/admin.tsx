@@ -8,6 +8,7 @@ import { checkIsAdmin, grantSelfAdminIfFirst } from "@/lib/admin.functions";
 import { listAllPostsAdmin, generatePostWithAI, upsertPost } from "@/lib/blog.functions";
 import { runScraper, listScraperRuns } from "@/lib/scraper.functions";
 import { reprocessProperties, getScrapAudit } from "@/lib/property-review.functions";
+import { regenerateSeo } from "@/lib/property-seo.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Portal S.A" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -26,6 +27,8 @@ function AdminPage() {
   const saveFn = useServerFn(upsertPost);
   const reprocessFn = useServerFn(reprocessProperties);
   const auditFn = useServerFn(getScrapAudit);
+  const seoFn = useServerFn(regenerateSeo);
+  const [seoUseAI, setSeoUseAI] = useState(false);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
@@ -57,6 +60,10 @@ function AdminPage() {
   });
   const reprocessMut = useMutation({
     mutationFn: () => reprocessFn({ data: { all: true } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["scrapAudit"] }),
+  });
+  const seoMut = useMutation({
+    mutationFn: () => seoFn({ data: { all: true, useAI: seoUseAI } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["scrapAudit"] }),
   });
   const auditQ = useQuery({
@@ -169,7 +176,18 @@ function AdminPage() {
         <section>
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="font-serif text-2xl text-ink">Crawler de imóveis</h2>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <label className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground mr-2">
+                <input type="checkbox" checked={seoUseAI} onChange={(e) => setSeoUseAI(e.target.checked)} />
+                IA na abertura
+              </label>
+              <button
+                onClick={() => seoMut.mutate()}
+                disabled={seoMut.isPending}
+                className="border border-ink/20 text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/5 disabled:opacity-50"
+              >
+                {seoMut.isPending ? "Regerando…" : "Regerar SEO (todos)"}
+              </button>
               <button
                 onClick={() => reprocessMut.mutate()}
                 disabled={reprocessMut.isPending}
@@ -212,6 +230,12 @@ function AdminPage() {
           {reprocessMut.data && (
             <p className="text-xs text-emerald-700 mb-3">
               Reprocessados: {reprocessMut.data.processed} · Atualizados: {reprocessMut.data.updated}
+            </p>
+          )}
+          {seoMut.error && <p className="text-xs text-red-600 mb-3">{(seoMut.error as Error).message}</p>}
+          {seoMut.data && (
+            <p className="text-xs text-emerald-700 mb-3">
+              SEO regerado: {seoMut.data.processed} · Atualizados: {seoMut.data.updated} · IA: {seoMut.data.withAI ? "sim" : "não"}
             </p>
           )}
           <div className="border border-ink/10">

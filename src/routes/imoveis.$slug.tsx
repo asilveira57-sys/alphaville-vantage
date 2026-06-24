@@ -2,6 +2,9 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
+import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
+
+const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) &&
@@ -28,12 +31,27 @@ async function fetchProperty(slug: string) {
 
 export const Route = createFileRoute("/imoveis/$slug")({
   loader: ({ params }) => fetchProperty(params.slug),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: `${loaderData?.title ?? "Imóvel"} — S.A Imóveis Alphaville` },
-      { name: "description", content: loaderData?.description?.slice(0, 160) ?? "Imóvel em Alphaville." },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const p = loaderData;
+    const url = `${SITE_URL}/imoveis/${params.slug}`;
+    const title = p?.seo_title ?? `${p?.title ?? "Imóvel"} — S.A Imóveis Alphaville`;
+    const description = p?.seo_description ?? p?.description?.slice(0, 160) ?? "Imóvel em Alphaville.";
+    const image = (p?.images?.[0] as string | undefined) ?? undefined;
+    const jsonLd = p ? buildRealEstateJsonLd(p as unknown as SeoSource, { url, title, description, image }) : null;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        ...(image ? [{ property: "og:image", content: image }] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: jsonLd ? [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }] : [],
+    };
+  },
   errorComponent: ({ error }) => (
     <SiteLayout>
       <section className="px-6 py-24 max-w-3xl mx-auto">
@@ -93,7 +111,7 @@ function PropertyDetail() {
             {p.property_type ?? "Imóvel"}
             {p.purpose === "rent" ? " · Locação" : p.purpose === "sale" ? " · Venda" : p.purpose === "both" ? " · Venda/Locação" : ""}
           </p>
-          <h1 className="font-serif text-3xl md:text-4xl leading-tight text-balance">{p.title}</h1>
+          <h1 className="font-serif text-3xl md:text-4xl leading-tight text-balance">{p.seo_title ? p.seo_title.replace(/\s*\|\s*S\.A Im[óo]veis.*$/i, "") : p.title}</h1>
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2">
             {sale && <span className="font-serif text-2xl">{sale}</span>}
             {rent && <span className="text-muted-foreground">{rent}/mês</span>}
@@ -120,10 +138,20 @@ function PropertyDetail() {
       <section className="px-6 py-12 border-t border-ink/8">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
           <div className="md:col-span-2">
-            <h2 className="font-serif text-2xl mb-4">Descrição</h2>
-            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-pretty">
-              {p.description || "Sem descrição cadastrada."}
-            </p>
+            <h2 className="font-serif text-2xl mb-4">Sobre este imóvel</h2>
+            <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-pretty">
+              {p.descricao_seo || p.description || "Sem descrição cadastrada."}
+            </div>
+            {p.descricao_original && p.descricao_original !== p.descricao_seo && (
+              <details className="mt-6 text-sm">
+                <summary className="cursor-pointer text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">
+                  Ver descrição original do anúncio
+                </summary>
+                <p className="mt-3 text-muted-foreground whitespace-pre-line text-pretty">
+                  {p.descricao_original}
+                </p>
+              </details>
+            )}
             {p.source_url && (
               <a href={p.source_url} target="_blank" rel="noreferrer" className="mt-6 inline-block text-xs uppercase tracking-widest underline">
                 Ver anúncio original ↗
