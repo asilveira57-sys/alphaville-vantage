@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parsePropertyText, computeReviewStatus } from "./property-parser";
 import { buildSeoBody, buildSeoTitle, buildSeoDescription, buildSeoSlug, auditProperty, type SeoSource } from "./property-seo";
+import { generateOpeningWithAI } from "./property-seo.functions";
 
 const SOURCE = "https://saimoveisalphaville.com.br";
 const SITEMAP = `${SOURCE}/sitemap.xml`;
