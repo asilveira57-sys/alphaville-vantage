@@ -126,7 +126,7 @@ function AlphavillePage() {
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-              {featured.map((p) => (
+              {featured.map((p: typeof featured[number]) => (
                 <Link key={p.id} to="/imoveis/$slug" params={{ slug: p.slug }} className="group block">
                   <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-4">
                     {p.images[0] && <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />}

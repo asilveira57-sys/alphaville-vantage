@@ -124,7 +124,7 @@ function CondoPage() {
           <div className="max-w-7xl mx-auto">
             <h2 className="font-serif text-3xl mb-8">Infraestrutura e lazer</h2>
             <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm text-muted-foreground">
-              {condo.amenities.map((a, i) => (
+              {(condo.amenities as string[]).map((a: string, i: number) => (
                 <li key={i} className="border-t border-ink/10 pt-3">{a}</li>
               ))}
             </ul>
@@ -142,7 +142,7 @@ function CondoPage() {
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-              {properties.map((p) => (
+              {properties.map((p: typeof properties[number]) => (
                 <Link key={p.id} to="/imoveis/$slug" params={{ slug: p.slug }} className="group block">
                   <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-4">
                     {p.images[0] && <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />}
