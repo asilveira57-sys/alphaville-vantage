@@ -27,6 +27,8 @@ function AdminPage() {
   const saveFn = useServerFn(upsertPost);
   const reprocessFn = useServerFn(reprocessProperties);
   const auditFn = useServerFn(getScrapAudit);
+  const seoFn = useServerFn(regenerateSeo);
+  const [seoUseAI, setSeoUseAI] = useState(false);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
