@@ -236,7 +236,7 @@ function AdminPage() {
           {scrapeMut.error && <p className="text-xs text-red-600 mb-3">{(scrapeMut.error as Error).message}</p>}
           {scrapeMut.data && (
             <p className="text-xs text-emerald-700 mb-3">
-              Páginas: {scrapeMut.data.pages} · Imóveis upsertados: {scrapeMut.data.upserted} · Descobertos: {scrapeMut.data.discovered}
+              Páginas: {scrapeMut.data.scrape.pages} · Imóveis upsertados: {scrapeMut.data.scrape.upserted} · Descobertos: {scrapeMut.data.scrape.discovered} · SEO regerado: {scrapeMut.data.seo.updated}/{scrapeMut.data.seo.processed}
             </p>
           )}
           {reprocessMut.error && <p className="text-xs text-red-600 mb-3">{(reprocessMut.error as Error).message}</p>}
