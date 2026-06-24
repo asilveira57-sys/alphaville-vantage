@@ -148,9 +148,9 @@ function PropertyDetail() {
                 <summary className="cursor-pointer text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">
                   Ver descrição original do anúncio
                 </summary>
-                <p className="mt-3 text-muted-foreground whitespace-pre-line text-pretty">
-                  {p.descricao_original}
-                </p>
+                <div className="mt-3 text-muted-foreground whitespace-pre-line text-pretty leading-relaxed">
+                  {humanizeOriginalDescription(p.descricao_original)}
+                </div>
               </details>
             )}
             {p.source_url && (
