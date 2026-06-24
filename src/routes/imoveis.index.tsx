@@ -60,56 +60,60 @@ export const Route = createFileRoute("/imoveis/")({
 const fmtPrice = (n: number | null) =>
   n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
 
-function PriceTag({ p }: { p: PropertyRow }) {
-  const sale = fmtPrice(p.price_sale);
-  const rent = fmtPrice(p.price_rent);
-  if (!sale && !rent) return <span className="text-muted-foreground text-xs">Consulte</span>;
-  return (
-    <div className="flex flex-col gap-0.5">
-      {sale && <span className="font-serif text-lg">{sale}</span>}
-      {rent && <span className="text-xs text-muted-foreground">{rent}/mês</span>}
-    </div>
-  );
-}
-
 function PropertyCard({ p }: { p: PropertyRow }) {
   const img = p.images[0];
+  const sale = fmtPrice(p.price_sale);
+  const rent = fmtPrice(p.price_rent);
   const specs = [
     p.bedrooms && `${p.bedrooms} dorm.`,
     p.suites && `${p.suites} suítes`,
     p.parking && `${p.parking} vagas`,
     p.area_useful && `${Number(p.area_useful)}m²`,
   ].filter(Boolean);
+
   return (
     <Link
       to="/imoveis/$slug"
       params={{ slug: p.slug }}
-      className="group block border-t border-ink/10 pt-6"
+      className="group block bg-card border border-ink/10 hover:border-brand-yellow hover:shadow-lg transition overflow-hidden"
     >
-      <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-5">
+      <div className="relative aspect-[4/3] bg-ink/5 overflow-hidden">
         {img ? (
           <img
             src={img}
             alt={p.title}
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
+            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-muted-foreground">
             Sem imagem
           </div>
         )}
+        {(sale || rent) && (
+          <div className="absolute top-0 left-0 right-0 bg-brand-dark/85 text-white px-4 py-2 text-[11px] tracking-wider font-semibold flex flex-wrap gap-x-4">
+            {sale && <span>VENDA · <span className="text-brand-yellow">{sale}</span></span>}
+            {rent && <span>ALUGAR · <span className="text-brand-yellow">{rent}</span></span>}
+          </div>
+        )}
       </div>
-      <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
-        {p.property_type ?? "Imóvel"} {p.purpose === "rent" ? "· Locação" : p.purpose === "sale" ? "· Venda" : p.purpose === "both" ? "· Venda/Locação" : ""}
-      </p>
-      <h3 className="font-serif text-xl leading-snug mb-3 text-balance line-clamp-2">
-        {p.title}
-      </h3>
-      {specs.length > 0 && (
-        <p className="text-xs text-muted-foreground mb-3">{specs.join(" · ")}</p>
-      )}
-      <PriceTag p={p} />
+
+      <div className="p-5">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
+          {p.property_type ?? "Imóvel"}
+          {p.purpose === "rent" ? " · Locação" : p.purpose === "sale" ? " · Venda" : p.purpose === "both" ? " · Venda/Locação" : ""}
+        </p>
+        <h3 className="font-serif text-xl leading-snug mb-3 text-balance line-clamp-2">
+          {p.title}
+        </h3>
+        {specs.length > 0 && (
+          <p className="text-xs text-muted-foreground">{specs.join(" · ")}</p>
+        )}
+      </div>
+
+      <div className="bg-brand-yellow text-brand-dark text-center py-3 text-[11px] font-bold uppercase tracking-widest group-hover:brightness-95">
+        Ver imóvel
+      </div>
     </Link>
   );
 }
