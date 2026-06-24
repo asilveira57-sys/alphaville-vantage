@@ -176,7 +176,18 @@ function AdminPage() {
         <section>
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="font-serif text-2xl text-ink">Crawler de imóveis</h2>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <label className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground mr-2">
+                <input type="checkbox" checked={seoUseAI} onChange={(e) => setSeoUseAI(e.target.checked)} />
+                IA na abertura
+              </label>
+              <button
+                onClick={() => seoMut.mutate()}
+                disabled={seoMut.isPending}
+                className="border border-ink/20 text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/5 disabled:opacity-50"
+              >
+                {seoMut.isPending ? "Regerando…" : "Regerar SEO (todos)"}
+              </button>
               <button
                 onClick={() => reprocessMut.mutate()}
                 disabled={reprocessMut.isPending}
