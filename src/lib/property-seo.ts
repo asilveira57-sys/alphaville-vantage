@@ -298,6 +298,15 @@ export function auditProperty(s: SeoSource & { descricao_seo?: string | null }):
   if (!s.bedrooms) issues.push("Sem dormitórios");
   if (s.area_useful == null && s.area_built == null && s.area_total == null) issues.push("Sem metragem");
   if (!s.price_rent && !s.price_sale) issues.push("Sem valor");
+  if (s.price_rent != null && s.price_rent < 100) {
+    issues.push("Aluguel suspeito (< R$ 100 — provavelmente preço por m² sem total)");
+  }
+  if (s.price_rent && s.price_sale) {
+    const ratio = s.price_rent / s.price_sale;
+    if (ratio < 0.0015 || ratio > 0.02) {
+      issues.push(`Razão aluguel/venda fora da faixa esperada (${(ratio * 100).toFixed(3)}%)`);
+    }
+  }
   issues.push(...auditSeoConsistency(s, s.descricao_seo));
   const hasNumberConflict = issues.some((i) => i.startsWith("SEO diz"));
   if (hasNumberConflict) return { status: "error", issues };
