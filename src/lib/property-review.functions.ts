@@ -62,32 +62,44 @@ export const reprocessProperties = createServerFn({ method: "POST" })
           price_rent: parsed.price_rent,
         });
 
+        const seoSrc: SeoSource = {
+          property_type: apply("property_type", parsed.property_type),
+          purpose: (row as { purpose?: string | null }).purpose ?? null,
+          city: apply("city", parsed.city),
+          state: apply("state", parsed.state),
+          neighborhood: apply("neighborhood", parsed.neighborhood),
+          condominium_name: apply("condominium_name", parsed.condominium_name),
+          bedrooms: apply("bedrooms", parsed.bedrooms),
+          suites: apply("suites", parsed.suites),
+          bathrooms: apply("bathrooms", parsed.bathrooms),
+          lavabos: apply("lavabos", parsed.lavabos),
+          parking: apply("parking", parsed.parking),
+          parking_covered: apply("parking_covered", parsed.parking_covered),
+          parking_uncovered: apply("parking_uncovered", parsed.parking_uncovered),
+          area_useful: apply("area_useful", parsed.area_useful),
+          area_built: apply("area_built", parsed.area_built),
+          area_total: apply("area_total", parsed.area_total),
+          price_sale: apply("price_sale", parsed.price_sale),
+          price_rent: apply("price_rent", parsed.price_rent),
+          condo_fee: apply("condo_fee", parsed.condo_fee),
+          iptu: apply("iptu", parsed.iptu),
+          furnished: apply("furnished", parsed.furnished),
+          is_launch: apply("is_launch", parsed.is_launch),
+          accepts_exchange: apply("accepts_exchange", parsed.accepts_exchange),
+          internal_code: apply("internal_code", parsed.internal_code),
+        };
+        const audit = auditProperty({ ...seoSrc, descricao_seo: (row as { descricao_seo?: string | null }).descricao_seo ?? null });
+
         const { error: upErr } = await supabaseAdmin
           .from("properties")
           .update({
-            property_type: apply("property_type", parsed.property_type),
-            city: apply("city", parsed.city),
-            state: apply("state", parsed.state),
-            neighborhood: apply("neighborhood", parsed.neighborhood),
-            condominium_name: apply("condominium_name", parsed.condominium_name),
-            price_rent: apply("price_rent", parsed.price_rent),
-            price_sale: apply("price_sale", parsed.price_sale),
-            condo_fee: apply("condo_fee", parsed.condo_fee),
-            iptu: apply("iptu", parsed.iptu),
-            bedrooms: apply("bedrooms", parsed.bedrooms),
-            suites: apply("suites", parsed.suites),
-            bathrooms: apply("bathrooms", parsed.bathrooms),
-            parking: apply("parking", parsed.parking),
-            area_useful: apply("area_useful", parsed.area_useful),
-            area_built: apply("area_built", parsed.area_built),
-            area_total: apply("area_total", parsed.area_total),
-            furnished: apply("furnished", parsed.furnished),
-            is_launch: apply("is_launch", parsed.is_launch),
-            accepts_exchange: apply("accepts_exchange", parsed.accepts_exchange),
-            internal_code: apply("internal_code", parsed.internal_code),
+            ...seoSrc,
+            description: undefined as never, // não tocar
             review_status,
+            audit_status: audit.status,
+            audit_issues: audit.issues,
             extracted_at: new Date().toISOString(),
-          })
+          } as never)
           .eq("id", row.id);
         if (!upErr) updated++;
       }
