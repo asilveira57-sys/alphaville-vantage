@@ -211,7 +211,7 @@ function AdminPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mb-3">
-            "Rodar agora" coleta novos imóveis e reaplica o motor SEO mais recente em TODOS os imóveis cadastrados (descrição, título, meta e slug). Marque "IA na abertura" para usar IA no 1º parágrafo.
+            "Rodar agora" coleta novos imóveis e reaplica o motor SEO mais recente em TODOS os imóveis cadastrados (descrição, título, meta e slug). Marque "IA na abertura" para usar IA no 1º parágrafo. "Reprocessar todos" reaplica as regras atualizadas do parser e da auditoria (ex.: aluguel "R$ X/m²" vira valor total, razão aluguel/venda fora da faixa marca como Revisar) preservando overrides manuais.
           </p>
           {auditQ.data && (
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4 text-xs">
