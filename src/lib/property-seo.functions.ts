@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   buildSeoBody, buildSeoTitle, buildSeoDescription, buildSeoSlug, seoLabels,
-  auditProperty, type SeoSource,
+  auditProperty, stripMarketing, extractFeatures, type SeoSource,
 } from "./property-seo";
 
 type Row = SeoSource & {
