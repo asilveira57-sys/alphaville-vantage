@@ -62,6 +62,10 @@ function AdminPage() {
     mutationFn: () => reprocessFn({ data: { all: true } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["scrapAudit"] }),
   });
+  const seoMut = useMutation({
+    mutationFn: () => seoFn({ data: { all: true, useAI: seoUseAI } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["scrapAudit"] }),
+  });
   const auditQ = useQuery({
     queryKey: ["scrapAudit"],
     queryFn: () => auditFn(),
