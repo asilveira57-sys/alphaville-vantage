@@ -1,44 +1,45 @@
-## Diagnóstico do estado atual
+## Problema
 
-O scraper (`src/lib/scraper.functions.ts`) já gera tudo no momento da coleta:
-`descricao_seo`, `seo_title`, `seo_description`, `slug` amigável, `audit_status` e `audit_issues`. Porém:
+O imóvel da imagem tem **50 m² útil** e **50 m² construída** claramente no site da corretora (tabelinha lateral e descrição), mas o parser não captura porque ele só entende um formato de metragem.
 
-- A abertura é **100% determinística** (template) — `seo_used_ai: false`.
-- A IA na abertura **só** roda quando você clica em "Regerar SEO" com `useAI=true` (em `property-seo.functions.ts`).
+Hoje o parser só aceita o padrão "rótulo antes do número":
+- `área útil 96 m²` ✓
+- `área construída 400 m²` ✓
+- `AU 96 m²` / `AC 400 m²` / `AT 500 m²` ✓
 
-Ou seja, do jeito que está hoje, depois do scrape você **precisaria** rodar "Regerar SEO com IA" para ter a abertura humanizada. Não é "uma coisa só".
+E não reconhece os formatos que o site da corretora usa de verdade:
+- `50,00 m² útil` (número **antes** do rótulo)
+- `50,00 m² construída` (idem)
+- `50 m2` solto na descrição (sem rótulo nenhum)
 
-## Objetivo
+Por isso a auditoria marca "Sem metragem" e a descrição SEO sai sem m².
 
-Tornar o scrape um processo único e definitivo: ao importar um imóvel, ele já sai do scraper com **abertura gerada por IA + bloco estruturado + título/descrição SEO + slug + auditoria**. Sem etapa manual depois.
+## Solução
 
-## Mudanças
+Estender só o `src/lib/property-parser.ts`, sem mexer no scraper nem em banco. Aceitar as três variantes acima e usar "metragem solta" como fallback quando nenhum rótulo for encontrado.
 
-### 1. `src/lib/scraper.functions.ts`
-- Importar `generateOpeningWithAI` (movido para um helper exportável em `property-seo.functions.ts` ou inlined no scraper como função local — vou inlined para evitar dependência cruzada).
-- Antes do `buildSeoBody(seoSrc)`, chamar `await generateOpeningWithAI(seoSrc)` e passar o resultado: `buildSeoBody(seoSrc, opening)`.
-- Gravar `seo_used_ai: !!opening` em vez de `false`.
-- Se `LOVABLE_API_KEY` faltar ou a chamada falhar → fallback silencioso para abertura determinística (já é o comportamento de `generateOpeningWithAI`).
+### O que muda em `parsePropertyText`
 
-### 2. Orçamento de tempo
-Cada chamada de IA leva ~1–2s. Com `REQUEST_DELAY_MS=350` + fetch + IA, cada imóvel custa ~2–3s. Dentro do `RUN_BUDGET_MS=50s` isso dá ~15–20 imóveis por execução. Como o scraper já prioriza URLs nunca vistas e roda incrementalmente, basta clicar "Rodar scraper" algumas vezes até cobrir todo o sitemap — **cada imóvel já sai 100% pronto na primeira vez** que é processado, sem necessidade de reprocessar.
+1. **Padrão invertido com rótulo após o número** — para cada uma das três áreas:
+   - `area_useful`: também aceitar `<num> m² útil`, `<num> m² útil/privativ`, `<num> m² privativa`
+   - `area_built`: também aceitar `<num> m² constru[ií]da`
+   - `area_total`: também aceitar `<num> m² (de )?terreno`, `<num> m² total`
 
-Vou aumentar `RUN_BUDGET_MS` para `55_000` (worker tem 60s) para aproveitar melhor a janela.
+2. **Metragem solta como fallback** — se ainda assim nada foi capturado, varrer todas as ocorrências de `<num> m²` / `<num> m2` no texto e adotar a **maior** como `area_useful` (ignorando números absurdos como < 10 ou > 10.000 para descartar ruído tipo "1 m de altura" ou áreas de condomínio inteiras). Só usa esse fallback se nenhum rótulo foi encontrado, para não atropelar dados rotulados.
 
-### 3. Painel admin
-- Manter o botão "Regerar SEO (todos)" só como ferramenta de manutenção futura (mudança de template, etc.), mas **deixar de ser obrigatório** no fluxo padrão.
-- Acrescentar nota no painel: "O scraper já gera SEO+IA automaticamente. Regerar só é necessário se alterar o template."
+3. **Sincronizar útil ↔ construída quando iguais** — quando o site só publica uma das duas mas as duas costumam ser iguais em apartamentos, **não** copiar automaticamente; manter regra estrita (só preenche o que foi visto no texto). Isso evita inventar dado.
 
-## Resultado
+### O que NÃO muda
 
-Fluxo definitivo do usuário:
-1. Clicar **"Rodar scraper"** no `/admin` — repetir até o contador parar de crescer.
-2. Cada imóvel importado já vem com abertura IA + bloco estruturado + meta tags + slug + auditoria.
-3. Olhar `/admin/audit` para validar qualidade.
+- Scraper, banco, motor SEO, botão "Rodar agora": nada.
+- `humanizeOriginalDescription`, `computeReviewStatus`: nada.
+- Migration: nenhuma.
 
-Sem etapa de "regerar SEO". Sem reprocessar nada.
+## Como o usuário verifica
 
-## Arquivos a editar
-- `src/lib/scraper.functions.ts` — integrar IA na abertura + ajustar `seo_used_ai` + aumentar budget.
-- `src/lib/property-seo.functions.ts` — exportar `generateOpeningWithAI` para reuso.
-- `src/routes/_authenticated/admin.tsx` — texto auxiliar indicando que regerar é opcional.
+1. Clica em **Rodar agora** no `/admin` — o botão já dispara scraper + regenerar SEO em todos os imóveis com as regras novas.
+2. Abre o mesmo imóvel: o card "Sobre este imóvel" deve agora mostrar a metragem no parágrafo de abertura e na lista de dados, e o status de auditoria deixa de acusar "Sem metragem" nesses casos.
+
+## Detalhe técnico
+
+Arquivo único: `src/lib/property-parser.ts` — adicionar 3 novas regex no bloco "Áreas" e um helper `pickFallbackArea(text)` chamado só quando `area_useful`, `area_built` e `area_total` ficaram todos nulos.
