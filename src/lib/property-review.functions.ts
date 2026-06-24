@@ -221,7 +221,14 @@ export const listAuditProperties = createServerFn({ method: "POST" })
     }
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    let result = rows ?? [];
+    if (data.filter === "ratio_off") {
+      result = result.filter((r) => {
+        const ratio = (r.price_rent ?? 0) / (r.price_sale ?? 1);
+        return ratio < 0.0015 || ratio > 0.02;
+      });
+    }
+    return result;
   });
 
 /**
