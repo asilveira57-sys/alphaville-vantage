@@ -155,7 +155,7 @@ function PropertyDetail() {
             )}
             {p.source_url && (
               <a href={p.source_url} target="_blank" rel="noreferrer" className="mt-6 inline-block text-xs uppercase tracking-widest underline">
-                Ver anúncio original ↗
+                Mais detalhes deste imóvel no site da corretora ↗
               </a>
             )}
           </div>
