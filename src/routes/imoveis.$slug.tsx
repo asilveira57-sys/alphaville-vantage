@@ -138,10 +138,20 @@ function PropertyDetail() {
       <section className="px-6 py-12 border-t border-ink/8">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
           <div className="md:col-span-2">
-            <h2 className="font-serif text-2xl mb-4">Descrição</h2>
-            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-pretty">
-              {p.description || "Sem descrição cadastrada."}
-            </p>
+            <h2 className="font-serif text-2xl mb-4">Sobre este imóvel</h2>
+            <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-pretty">
+              {p.descricao_seo || p.description || "Sem descrição cadastrada."}
+            </div>
+            {p.descricao_original && p.descricao_original !== p.descricao_seo && (
+              <details className="mt-6 text-sm">
+                <summary className="cursor-pointer text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">
+                  Ver descrição original do anúncio
+                </summary>
+                <p className="mt-3 text-muted-foreground whitespace-pre-line text-pretty">
+                  {p.descricao_original}
+                </p>
+              </details>
+            )}
             {p.source_url && (
               <a href={p.source_url} target="_blank" rel="noreferrer" className="mt-6 inline-block text-xs uppercase tracking-widest underline">
                 Ver anúncio original ↗
