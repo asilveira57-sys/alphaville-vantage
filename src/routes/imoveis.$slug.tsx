@@ -223,6 +223,33 @@ function PropertyDetail() {
         </div>
       </section>
 
+      {p.related && p.related.length > 0 && (
+        <section className="px-6 py-20 border-t border-ink/8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-baseline justify-between mb-10">
+              <h2 className="font-serif text-3xl">Veja também</h2>
+              <Link to="/imoveis" className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">Ver todos →</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
+              {p.related.map((r) => (
+                <Link key={r.id} to="/imoveis/$slug" params={{ slug: r.slug }} className="group block">
+                  <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-4">
+                    {r.images[0] && <img src={r.images[0]} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />}
+                  </div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{r.property_type ?? "Imóvel"}</p>
+                  <h3 className="font-serif text-lg leading-snug mb-2 text-balance group-hover:underline">{r.seo_title?.replace(/\s*\|\s*S\.A.*$/i, "") ?? r.title}</h3>
+                  <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4">
+                    {r.price_sale && <span>{fmtPrice(r.price_sale)}</span>}
+                    {r.price_rent && <span>{fmtPrice(r.price_rent)}/mês</span>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+
       <InstitutionalBlock />
     </SiteLayout>
   );
