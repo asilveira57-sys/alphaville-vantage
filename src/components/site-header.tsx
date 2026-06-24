@@ -1,55 +1,103 @@
 import { Link } from "@tanstack/react-router";
+import { Phone, MessageCircle, Search } from "lucide-react";
+import logoAsset from "@/assets/logo-sa-imoveis.png.asset.json";
 
 const NAV = [
-  { label: "Blog", to: "/blog" },
+  { label: "Home", to: "/" },
+  { label: "Imóveis", to: "/imoveis" },
   { label: "Guia Alphaville", to: "/guia-alphaville" },
   { label: "Condomínios", to: "/condominios" },
   { label: "Mercado", to: "/mercado-imobiliario" },
-  { label: "Imóveis", to: "/imoveis" },
+  { label: "Blog", to: "/blog" },
 ] as const;
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 bg-canvas/85 backdrop-blur-md border-b border-ink/8">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-12">
-          <Link
-            to="/"
-            className="font-serif text-xl tracking-tighter font-medium text-ink"
-            aria-label="S.A Imóveis Alphaville — Início"
-          >
-            S.A
+    <header className="w-full">
+      {/* Faixa 1 — vermelha */}
+      <div className="bg-brand-red text-white text-[11px] tracking-[0.18em] uppercase">
+        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center justify-between gap-4">
+          <span className="hidden sm:inline opacity-90">S.A Imóveis Alphaville · Corretora oficial da região</span>
+          <div className="flex items-center gap-4 ml-auto">
+            <a href="tel:+5511947888299" className="inline-flex items-center gap-1.5 hover:opacity-80">
+              <Phone className="h-3 w-3" /> (11) 94788-8299
+            </a>
+            <a
+              href="https://wa.me/5511995515053"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 hover:opacity-80"
+            >
+              <MessageCircle className="h-3 w-3" /> WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Faixa 2 — amarela */}
+      <div className="bg-brand-yellow text-brand-dark text-[12px] tracking-[0.25em] uppercase font-semibold">
+        <div className="max-w-7xl mx-auto px-6 py-2 text-center">
+          Aluga <span className="opacity-50">*</span> Vende <span className="opacity-50">*</span> Permuta <span className="opacity-50">*</span> Administra <span className="opacity-50">*</span> Reforma <span className="opacity-50">*</span> Simplifica
+        </div>
+      </div>
+
+      {/* Faixa 3 — escura, sticky */}
+      <div className="sticky top-0 z-50 bg-brand-dark text-white border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-6">
+          <Link to="/" aria-label="S.A Imóveis Alphaville — Início" className="flex items-center gap-3 shrink-0">
+            <img
+              src={logoAsset.url}
+              alt="S.A Imóveis Alphaville"
+              className="h-12 w-auto brightness-0 invert"
+              loading="eager"
+            />
+            <span className="sr-only">S.A Imóveis Alphaville</span>
           </Link>
+
           <nav
             aria-label="Navegação principal"
-            className="hidden md:flex items-center gap-8 text-[11px] tracking-[0.18em] text-muted-foreground uppercase font-medium"
+            className="hidden lg:flex items-center gap-7 text-[11px] tracking-[0.18em] uppercase font-medium text-white/80"
           >
             {NAV.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="hover:text-ink transition-colors"
-                activeProps={{ className: "text-ink" }}
+                className="hover:text-brand-yellow transition-colors"
+                activeProps={{ className: "text-brand-yellow" }}
               >
                 {item.label}
               </Link>
             ))}
           </nav>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              to="/imoveis"
+              className="inline-flex items-center gap-2 bg-brand-yellow text-brand-dark px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest hover:brightness-95 transition"
+            >
+              <Search className="h-3.5 w-3.5" /> Buscar imóveis
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            to="/auth"
-            className="hidden md:inline-flex text-[11px] font-medium uppercase tracking-widest px-4 py-2 text-muted-foreground hover:text-ink transition-colors"
-          >
-            Acesso editorial
-          </Link>
-          <button
-            type="button"
-            className="text-xs font-medium uppercase tracking-widest px-4 py-2 ring-1 ring-ink/10 hover:bg-ink/5 transition-colors"
-          >
-            Pesquisar
-          </button>
-        </div>
+
+        {/* Nav mobile */}
+        <nav
+          aria-label="Navegação"
+          className="lg:hidden border-t border-white/10 overflow-x-auto no-scrollbar"
+        >
+          <div className="flex items-center gap-5 px-6 py-2 text-[10px] tracking-[0.2em] uppercase font-medium text-white/80 whitespace-nowrap">
+            {NAV.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="hover:text-brand-yellow"
+                activeProps={{ className: "text-brand-yellow" }}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </nav>
       </div>
     </header>
   );
