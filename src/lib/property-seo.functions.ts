@@ -20,6 +20,7 @@ export async function generateOpeningWithAI(s: SeoSource): Promise<string | null
   const { createLovableAiGatewayProvider } = await import("./ai-gateway.server");
   const gateway = createLovableAiGatewayProvider(key);
 
+  const areaM2 = s.area_useful ?? s.area_built ?? s.area_total;
   const facts = {
     tipo: seoLabels.typeLabel(s.property_type),
     finalidade: seoLabels.purposeLabel(s.purpose).action,
@@ -29,12 +30,22 @@ export async function generateOpeningWithAI(s: SeoSource): Promise<string | null
     estado: s.state,
     dormitorios: s.bedrooms,
     suites: s.suites,
+    banheiros: s.bathrooms,
     vagas: s.parking,
     area_util_m2: s.area_useful,
     area_construida_m2: s.area_built,
+    area_total_m2: s.area_total,
+    caracteristicas_detectadas: extractFeatures(s.description),
   };
 
-  const prompt = `Você é redator imobiliário. Escreva UM ÚNICO parágrafo de abertura (2 a 3 frases, máximo 350 caracteres) apresentando este imóvel. Use SOMENTE os fatos abaixo — não invente nada, não cite valores, não use adjetivos exagerados. Português brasileiro, tom profissional.
+  const prompt = `Você é redator imobiliário factual. Escreva UM ÚNICO parágrafo de abertura (2 a 3 frases, máximo 350 caracteres) apresentando este imóvel.
+
+REGRAS OBRIGATÓRIAS:
+- Use SOMENTE os fatos abaixo. Não invente nada.
+- Cite OBRIGATORIAMENTE: tipo, finalidade, localização (condomínio/bairro/cidade) e metragem${areaM2 ? ` (${areaM2} m²)` : ""}.
+- NÃO cite valores monetários.
+- PROIBIDO usar: "excelente oportunidade", "localização privilegiada", "região consolidada", "ótima opção", "infraestrutura completa", "imóvel diferenciado", "ideal para", "perfeito para", "excelente escolha", "oportunidade única", adjetivos exagerados ou opiniões.
+- Português brasileiro, tom objetivo e descritivo. Apenas fatos.
 
 Fatos: ${JSON.stringify(facts)}`;
 
@@ -43,7 +54,7 @@ Fatos: ${JSON.stringify(facts)}`;
       model: gateway("google/gemini-3-flash-preview"),
       prompt,
     });
-    const cleaned = text.trim().replace(/^["']|["']$/g, "").replace(/\s+/g, " ");
+    const cleaned = stripMarketing(text.trim().replace(/^["']|["']$/g, "").replace(/\s+/g, " "));
     return cleaned.length > 30 && cleaned.length < 600 ? cleaned : null;
   } catch (e) {
     console.warn("AI opening failed", (e as Error).message);
