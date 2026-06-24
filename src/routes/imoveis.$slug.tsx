@@ -121,21 +121,12 @@ function PropertyDetail() {
         </div>
       </section>
 
-      <section className="px-6 py-12">
+      <section className="px-6 py-12 bg-ink/[0.02]">
         <div className="max-w-6xl mx-auto">
-          {p.images.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {p.images.slice(0, 12).map((src: string, i: number) => (
-                <img key={i} src={src} alt={`${p.title} — imagem ${i + 1}`} loading="lazy" className="w-full aspect-[4/3] object-cover bg-ink/5" />
-              ))}
-            </div>
-          ) : (
-            <div className="aspect-[16/9] bg-ink/5 flex items-center justify-center text-xs uppercase tracking-widest text-muted-foreground">
-              Sem imagens disponíveis
-            </div>
-          )}
+          <PropertyGallery images={p.images} title={p.title} />
         </div>
       </section>
+
 
       <section className="px-6 py-12 border-t border-ink/8">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
