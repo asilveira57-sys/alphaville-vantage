@@ -90,11 +90,12 @@ export const reprocessProperties = createServerFn({ method: "POST" })
         };
         const audit = auditProperty({ ...seoSrc, descricao_seo: (row as { descricao_seo?: string | null }).descricao_seo ?? null });
 
+        const { description: _ignoreDesc, ...structured } = seoSrc;
+        void _ignoreDesc;
         const { error: upErr } = await supabaseAdmin
           .from("properties")
           .update({
-            ...seoSrc,
-            description: undefined as never, // não tocar
+            ...structured,
             review_status,
             audit_status: audit.status,
             audit_issues: audit.issues,
