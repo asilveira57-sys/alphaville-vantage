@@ -2,13 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parsePropertyText, computeReviewStatus } from "./property-parser";
 import { buildSeoBody, buildSeoTitle, buildSeoDescription, buildSeoSlug, auditProperty, type SeoSource } from "./property-seo";
+import { generateOpeningWithAI } from "./property-seo.functions";
 
 const SOURCE = "https://saimoveisalphaville.com.br";
 const SITEMAP = `${SOURCE}/sitemap.xml`;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
 // Tempo máximo de uma execução (deixa folga até o timeout do worker)
-const RUN_BUDGET_MS = 50_000;
+const RUN_BUDGET_MS = 55_000;
 // Pausa entre requisições ao site de origem (rate limit defensivo)
 const REQUEST_DELAY_MS = 350;
 // Tentativas em caso de 429/5xx
@@ -351,7 +352,8 @@ export const runScraper = createServerFn({ method: "POST" })
             internal_code: applyOverride("internal_code", parsed.internal_code),
           };
           const descricao_original = existing?.descricao_original ?? description;
-          const descricao_seo = buildSeoBody(seoSrc);
+          const opening = await generateOpeningWithAI(seoSrc);
+          const descricao_seo = buildSeoBody(seoSrc, opening);
           const seo_title = buildSeoTitle(seoSrc);
           const seo_description = buildSeoDescription(seoSrc);
           const niceSlug = buildSeoSlug(seoSrc, item.ref) || slug;
@@ -369,7 +371,7 @@ export const runScraper = createServerFn({ method: "POST" })
             seo_title,
             seo_description,
             seo_generated_at: new Date().toISOString(),
-            seo_used_ai: false,
+            seo_used_ai: !!opening,
             purpose: applyOverride("purpose", finalPurpose),
             property_type: applyOverride("property_type", propertyType),
             city: applyOverride("city", parsed.city),
