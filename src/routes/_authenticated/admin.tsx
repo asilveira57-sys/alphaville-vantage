@@ -211,7 +211,7 @@ function AdminPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mb-3">
-            O scraper já gera SEO + abertura com IA + auditoria de cada imóvel na primeira coleta. "Regerar SEO" e "Reprocessar" só são necessários se você alterar o template ou o parser.
+            "Rodar agora" coleta novos imóveis e reaplica o motor SEO mais recente em TODOS os imóveis cadastrados (descrição, título, meta e slug). Marque "IA na abertura" para usar IA no 1º parágrafo.
           </p>
           {auditQ.data && (
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4 text-xs">
