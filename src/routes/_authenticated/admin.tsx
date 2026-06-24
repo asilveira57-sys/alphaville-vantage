@@ -52,7 +52,13 @@ function AdminPage() {
     onSuccess: () => { setTopic(""); qc.invalidateQueries({ queryKey: ["adminPosts"] }); },
   });
   const scrapeMut = useMutation({
-    mutationFn: () => scrapeFn(),
+    mutationFn: async () => {
+      const scrape = await scrapeFn();
+      // Reaplica a versão mais recente do motor SEO em TODOS os imóveis
+      // (inclusive os já cadastrados antes da última atualização das regras).
+      const seo = await seoFn({ data: { all: true, useAI: seoUseAI } });
+      return { scrape, seo };
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["scraperRuns"] });
       qc.invalidateQueries({ queryKey: ["scrapAudit"] });
