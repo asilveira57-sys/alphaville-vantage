@@ -163,7 +163,7 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
     if (!data.id) delete payload.id;
     const { data: row, error } = await context.supabase
       .from("editorial_pages")
-      .upsert(payload, { onConflict: "id" })
+      .upsert(payload as never, { onConflict: "id" })
       .select()
       .single();
     if (error) throw new Error(error.message);
