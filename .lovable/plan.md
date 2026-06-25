@@ -1,57 +1,94 @@
-# Corrigir captura de aluguel "R$ X/m²" + auditoria de desproporção venda/aluguel
 
-## Diagnóstico
+# CMS Editorial — SA Imóveis Alphaville
 
-Caso: `Valor aluguel R$ 15,00/m²` + `Valor aluguel total R$ 135.000,00` na descrição. O parser hoje (em `src/lib/property-parser.ts:215`) usa:
+Módulo único e escalável para gerenciar todo conteúdo editorial do site (condomínios, bairros, cidade, guias, blog, institucional) com SEO completo por página.
 
-```regex
-/(?:valor\s+)?(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)/i
+## 1. Banco de dados
+
+Nova tabela `public.editorial_pages` (unificada para todos os tipos):
+
+```
+id, title, slug (unique), content_type (enum: condominio|bairro|cidade|guia|blog|institucional),
+excerpt, html_content, featured_image, gallery_images (text[]),
+status (draft|published|archived), is_featured, display_order,
+tags (text[]), related_neighborhood, related_condominium (uuid → condominiums.id, nullable),
+meta_title, meta_description, focus_keyword, secondary_keywords (text[]),
+canonical_url, og_title, og_description, og_image,
+schema_type (Article|BlogPosting|Place|Residence|LocalBusiness),
+author_id, created_at, updated_at, published_at
 ```
 
-e casa primeiro com **"Valor aluguel R$ 15,00"** (ignora o sufixo `/m²` e não tenta "aluguel total"). Resultado: `price_rent = 15`.
+RLS:
+- `anon` + `authenticated`: SELECT onde `status = 'published'`
+- `admin` (via `has_role`): full CRUD + leitura de rascunhos
 
-Consulta confirma que hoje só **1 imóvel** está nesse estado (`price_rent=15`, `price_sale=11.200.000`). Mesmo assim, vale travar a regra no parser + no audit pra não voltar a acontecer.
+Índices: slug, (content_type, status, published_at), GIN em tags.
 
-## 1. `src/lib/property-parser.ts` — capturar `price_rent` corretamente
+Mantemos `condominiums` e `blog_posts` existentes (não removemos para não quebrar `/imoveis` link ao condomínio). A `editorial_pages` é a fonte de conteúdo das **páginas editoriais**. O link de imóvel→condomínio continua via `condominiums.id`, mas a página pública `/condominios/[slug]` passa a ler de `editorial_pages` (com `content_type='condominio'` e mesmo slug).
 
-Substituir a única regex de aluguel por uma cascata que prefere o valor total e descarta o "por m²":
+## 2. Rotas públicas (TanStack)
 
-1. **Aluguel total explícito**: `valor\s+(?:aluguel|loca[cç][aã]o)\s+total[^R$]{0,30}R\$\s*([\d.,]+)` → vence tudo.
-2. **Aluguel "por m²"**: detectar `(?:aluguel|loca[cç][aã]o)[^R$]{0,30}R\$\s*([\d.,]+)\s*\/\s*m[²2]` separadamente, guardar como `rent_per_m2` interno e, se houver `area_total` (ou `area_built`/`area_useful` com sentido comercial), calcular `price_rent = rent_per_m2 * area`.
-3. **Aluguel "puro"** (regex atual): só usa o valor se a captura **não** for imediatamente seguida de `/m²` (negative lookahead `(?!\s*\/?\s*m[²2])`).
-4. Sanidade pós-captura: se `price_rent < 100` (R$ 100 mensal), descarta — nenhum imóvel em Alphaville aluga por menos disso. Fica como pendência pro audit.
+- `/condominios` — listagem dinâmica (cards = editorial_pages tipo condominio, published)
+- `/condominios/$slug` — página individual
+- `/bairros` — listagem
+- `/bairros/$slug` — página individual
+- `/blog` — listagem (continua usando blog_posts existente, mas adapta link dos cards editoriais novos)
+- `/blog/$slug` — individual (já existe — `blog.$slug.tsx`)
+- Páginas existentes `/alphaville`, `/guia-*` ganham seção "Veja também" puxando de editorial_pages
+- 404 amigável quando slug não existe ou não publicado
 
-A função devolve também `rent_per_m2` no `parsed` para alimentar o audit (passa por `manual_overrides`/audit_issues, sem migration; campo só serve em memória durante reprocesso).
+Renomeação: rota atual `condominio.$slug.tsx` (singular) → criar `condominios.$slug.tsx` (plural, conforme spec) e redirecionar singular para plural.
 
-## 2. `src/lib/property-seo.ts` — `auditProperty` ganha 2 regras
+Cards atuais em `/condominios` viram `<Link>` reais para `/condominios/$slug` (Residencial 1, 10, Tamboré 11, Gênesis, Alphaville Zero, Edifícios Verticais).
 
-Adicionar à lista de `audit_issues` (sem mudar enum `audit_status`):
+SEO por página: `head()` lê loader data e injeta meta title/description/canonical/OG + JSON-LD do `schema_type`.
 
-- **`price_rent_suspect`**: quando `price_rent` existe e é < R$ 100 — provavelmente foi capturado um "/m²" sem total. Status passa a `review`.
-- **`rent_sale_ratio_off`**: quando ambos existem e a razão `price_rent / price_sale` cai fora de `[0.0015, 0.02]` (ou seja, ~0,15% a 2% ao mês — janela larga para tolerar imóveis comerciais e residenciais). Status `review`.
+## 3. Admin (`/_authenticated/cms`)
 
-Esses códigos viram dois novos filtros opcionais no `listAuditProperties` (`filter: "rent_suspect" | "ratio_off"`) e aparecem como pendência na lista existente sem mexer no schema.
+- **Listagem** `/cms`: tabela com busca (título), filtros (tipo, status, tag), badges de status, indicador de SEO (5 checks), ações: editar, visualizar, publicar/despublicar, duplicar, excluir.
+- **Editor** `/cms/$id`:
+  - Campos: título, slug auto-editável, tipo, resumo, imagem principal (upload bucket `editorial-images`), galeria, status, destaque, ordem, tags, condomínio/bairro relacionado.
+  - Editor rico: **TipTap** (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-link`, `@tiptap/extension-image`) com toolbar (H1/H2/H3, bold, italic, listas, link, imagem, code).
+  - Sanitização: **DOMPurify** no render do front (allowlist de tags/attrs; bloqueia script, on*, iframe).
+  - Aba SEO: meta title/description, focus keyword, secondary keywords (chips), canonical, OG title/desc/image, schema_type.
+  - Indicador SEO ao vivo: meta title preenchido, meta description preenchida, slug, H1 presente no HTML, ≥600 palavras, ≥1 link interno (`href` começando com `/`).
+- **Novo** `/cms/novo`: mesmo editor, modo criação.
 
-## 3. Reaplicar nos imóveis já cadastrados
+## 4. Seeds iniciais
 
-Sem migration. O admin já tem o botão **"Reprocessar todos"** (`reprocessProperties({ all: true })`) que roda o parser + audit em cada imóvel preservando overrides. Após o deploy desta correção, basta clicar — o caso do terreno Cajamar vai pegar o valor 135.000 e os futuros casos vão entrar como `review` antes de "vazarem" para o catálogo.
+Inserir via migração 6 páginas com `content_type='condominio'`, status='published', conteúdo placeholder editorial básico + meta SEO:
+- residencial-1, residencial-10, tambore-11, genesis, alphaville-zero, edificios-verticais
 
-Documentar no admin: nota curta abaixo do botão "Reprocessar todos" lembrando que ele aplica as **regras atualizadas** do parser/audit.
+## 5. Sitemap
 
-## 4. Scraper
+`sitemap[.]xml.ts` passa a incluir todas as `editorial_pages` publicadas.
 
-`src/lib/scraper.functions.ts` apenas coleta `html_excerpt`/`body_excerpt` e delega ao parser. Nada muda lá: a correção do parser já resolve para imóveis novos.
+## 6. Dependências a instalar
 
-## Fora do escopo
+`@tiptap/react @tiptap/starter-kit @tiptap/extension-link @tiptap/extension-image isomorphic-dompurify`
 
-- Sem alteração de schema/migration.
-- Não mexer no motor SEO além das 2 regras de audit acima.
-- Não mexer em filtros do `/imoveis` (Fase 2 já entregue).
-- Não tentar inferir "preço por m²" para imóveis de venda (só para aluguel, que é o vetor do bug).
+## 7. Server functions (em `src/lib/editorial.functions.ts`)
 
-## Detalhes técnicos
+- `listEditorialPages({ contentType?, status?, search?, tag? })` — admin (auth)
+- `getEditorialPageBySlug(slug)` — público (anon, RLS filtra)
+- `listPublishedByType(type, { featured?, limit? })` — público
+- `upsertEditorialPage(input)` — admin
+- `deleteEditorialPage(id)` — admin
+- `duplicateEditorialPage(id)` — admin
+- `togglePublish(id)` — admin
 
-- Cascata implementada com 3 chamadas de `pickMoney`, escolhendo a primeira não nula nessa ordem: total → por_m²_calculado → puro_com_negative_lookahead.
-- O cálculo `rent_per_m2 * area` usa `area_total` quando disponível; senão `area_built`; senão `area_useful`. Resultado é arredondado para inteiro (R$).
-- Audit ratio usa `Math.min(price_sale, price_rent*12*100)` para evitar divisão por zero e clamp simples.
-- Sem alterações no contrato dos server fns existentes (`reprocessProperties`, `getScrapAudit`, `listAuditProperties`); só `filter` ganha 2 valores novos no validator.
+## 8. Header/Nav
+
+Adicionar link "Bairros" no menu (Condomínios e Blog já existem). Item "CMS" no menu admin.
+
+## Notas técnicas
+
+- HTML do editor é sanitizado **no render** (defesa em profundidade), não na escrita.
+- Slug auto-gerado a partir do título (lowercase, sem acento, hífens). Editável e único.
+- Upload de imagens reutiliza bucket `editorial-images` (já existe) via signed URL.
+- Schema.org gerado dinamicamente no `head()` da rota pública conforme `schema_type`.
+- Identidade visual atual preservada: reuso de tokens, `site-header`, `Card`, etc.
+
+---
+
+Após aprovação: rodo a migração (você revisa antes), instalo as deps, crio as rotas, o admin e os seeds em sequência.
