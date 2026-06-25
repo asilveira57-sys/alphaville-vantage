@@ -22,14 +22,14 @@ import { Route as GuiaBarueriRouteImport } from './routes/guia-barueri'
 import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as EmpresasRouteImport } from './routes/empresas'
-import { Route as CondominiosRouteImport } from './routes/condominios'
 import { Route as BlogRouteImport } from './routes/blog'
-import { Route as BairrosRouteImport } from './routes/bairros'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AlphavilleRouteImport } from './routes/alphaville'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
+import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
+import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -105,19 +105,9 @@ const EmpresasRoute = EmpresasRouteImport.update({
   path: '/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CondominiosRoute = CondominiosRouteImport.update({
-  id: '/condominios',
-  path: '/condominios',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BlogRoute = BlogRouteImport.update({
   id: '/blog',
   path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BairrosRoute = BairrosRouteImport.update({
-  id: '/bairros',
-  path: '/bairros',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -144,15 +134,25 @@ const ImoveisIndexRoute = ImoveisIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ImoveisRoute,
 } as any)
+const CondominiosIndexRoute = CondominiosIndexRouteImport.update({
+  id: '/condominios/',
+  path: '/condominios/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BairrosIndexRoute = BairrosIndexRouteImport.update({
+  id: '/bairros/',
+  path: '/bairros/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImoveisSlugRoute = ImoveisSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ImoveisRoute,
 } as any)
 const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => CondominiosRoute,
+  id: '/condominios/$slug',
+  path: '/condominios/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
@@ -160,9 +160,9 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   getParentRoute: () => BlogRoute,
 } as any)
 const BairrosSlugRoute = BairrosSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BairrosRoute,
+  id: '/bairros/$slug',
+  path: '/bairros/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedCmsRoute = AuthenticatedCmsRouteImport.update({
   id: '/cms',
@@ -194,9 +194,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
-  '/bairros': typeof BairrosRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
-  '/condominios': typeof CondominiosRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
@@ -217,6 +215,8 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/bairros/': typeof BairrosIndexRoute
+  '/condominios/': typeof CondominiosIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
@@ -225,9 +225,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
-  '/bairros': typeof BairrosRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
-  '/condominios': typeof CondominiosRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
@@ -247,6 +245,8 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/bairros': typeof BairrosIndexRoute
+  '/condominios': typeof CondominiosIndexRoute
   '/imoveis': typeof ImoveisIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
@@ -257,9 +257,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
-  '/bairros': typeof BairrosRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
-  '/condominios': typeof CondominiosRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
@@ -280,6 +278,8 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/bairros/': typeof BairrosIndexRoute
+  '/condominios/': typeof CondominiosIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
@@ -290,9 +290,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alphaville'
     | '/auth'
-    | '/bairros'
     | '/blog'
-    | '/condominios'
     | '/empresas'
     | '/escolas'
     | '/guia-alphaville'
@@ -313,6 +311,8 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
+    | '/bairros/'
+    | '/condominios/'
     | '/imoveis/'
     | '/audit/$id'
     | '/cms/$id'
@@ -321,9 +321,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alphaville'
     | '/auth'
-    | '/bairros'
     | '/blog'
-    | '/condominios'
     | '/empresas'
     | '/escolas'
     | '/guia-alphaville'
@@ -343,6 +341,8 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
+    | '/bairros'
+    | '/condominios'
     | '/imoveis'
     | '/audit/$id'
     | '/cms/$id'
@@ -352,9 +352,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/alphaville'
     | '/auth'
-    | '/bairros'
     | '/blog'
-    | '/condominios'
     | '/empresas'
     | '/escolas'
     | '/guia-alphaville'
@@ -375,6 +373,8 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
+    | '/bairros/'
+    | '/condominios/'
     | '/imoveis/'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
@@ -385,9 +385,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AlphavilleRoute: typeof AlphavilleRoute
   AuthRoute: typeof AuthRoute
-  BairrosRoute: typeof BairrosRouteWithChildren
   BlogRoute: typeof BlogRouteWithChildren
-  CondominiosRoute: typeof CondominiosRouteWithChildren
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
   GuiaAlphavilleRoute: typeof GuiaAlphavilleRoute
@@ -401,6 +399,10 @@ export interface RootRouteChildren {
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
   RestaurantesRoute: typeof RestaurantesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  BairrosSlugRoute: typeof BairrosSlugRoute
+  CondominiosSlugRoute: typeof CondominiosSlugRoute
+  BairrosIndexRoute: typeof BairrosIndexRoute
+  CondominiosIndexRoute: typeof CondominiosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -496,25 +498,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/condominios': {
-      id: '/condominios'
-      path: '/condominios'
-      fullPath: '/condominios'
-      preLoaderRoute: typeof CondominiosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/blog': {
       id: '/blog'
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/bairros': {
-      id: '/bairros'
-      path: '/bairros'
-      fullPath: '/bairros'
-      preLoaderRoute: typeof BairrosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -552,6 +540,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImoveisIndexRouteImport
       parentRoute: typeof ImoveisRoute
     }
+    '/condominios/': {
+      id: '/condominios/'
+      path: '/condominios'
+      fullPath: '/condominios/'
+      preLoaderRoute: typeof CondominiosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bairros/': {
+      id: '/bairros/'
+      path: '/bairros'
+      fullPath: '/bairros/'
+      preLoaderRoute: typeof BairrosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/imoveis/$slug': {
       id: '/imoveis/$slug'
       path: '/$slug'
@@ -561,10 +563,10 @@ declare module '@tanstack/react-router' {
     }
     '/condominios/$slug': {
       id: '/condominios/$slug'
-      path: '/$slug'
+      path: '/condominios/$slug'
       fullPath: '/condominios/$slug'
       preLoaderRoute: typeof CondominiosSlugRouteImport
-      parentRoute: typeof CondominiosRoute
+      parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -575,10 +577,10 @@ declare module '@tanstack/react-router' {
     }
     '/bairros/$slug': {
       id: '/bairros/$slug'
-      path: '/$slug'
+      path: '/bairros/$slug'
       fullPath: '/bairros/$slug'
       preLoaderRoute: typeof BairrosSlugRouteImport
-      parentRoute: typeof BairrosRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/cms': {
       id: '/_authenticated/cms'
@@ -655,17 +657,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface BairrosRouteChildren {
-  BairrosSlugRoute: typeof BairrosSlugRoute
-}
-
-const BairrosRouteChildren: BairrosRouteChildren = {
-  BairrosSlugRoute: BairrosSlugRoute,
-}
-
-const BairrosRouteWithChildren =
-  BairrosRoute._addFileChildren(BairrosRouteChildren)
-
 interface BlogRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
 }
@@ -675,18 +666,6 @@ const BlogRouteChildren: BlogRouteChildren = {
 }
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
-
-interface CondominiosRouteChildren {
-  CondominiosSlugRoute: typeof CondominiosSlugRoute
-}
-
-const CondominiosRouteChildren: CondominiosRouteChildren = {
-  CondominiosSlugRoute: CondominiosSlugRoute,
-}
-
-const CondominiosRouteWithChildren = CondominiosRoute._addFileChildren(
-  CondominiosRouteChildren,
-)
 
 interface ImoveisRouteChildren {
   ImoveisSlugRoute: typeof ImoveisSlugRoute
@@ -706,9 +685,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AlphavilleRoute: AlphavilleRoute,
   AuthRoute: AuthRoute,
-  BairrosRoute: BairrosRouteWithChildren,
   BlogRoute: BlogRouteWithChildren,
-  CondominiosRoute: CondominiosRouteWithChildren,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
   GuiaAlphavilleRoute: GuiaAlphavilleRoute,
@@ -722,6 +699,10 @@ const rootRouteChildren: RootRouteChildren = {
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
   RestaurantesRoute: RestaurantesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  BairrosSlugRoute: BairrosSlugRoute,
+  CondominiosSlugRoute: CondominiosSlugRoute,
+  BairrosIndexRoute: BairrosIndexRoute,
+  CondominiosIndexRoute: CondominiosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
