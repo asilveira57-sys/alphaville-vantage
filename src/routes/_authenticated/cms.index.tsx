@@ -29,7 +29,7 @@ const STATUSES = [
   { value: "archived", label: "Arquivado" },
 ];
 
-export const Route = createFileRoute("/_authenticated/cms")({
+export const Route = createFileRoute("/_authenticated/cms/")({
   head: () => ({ meta: [{ title: "CMS Editorial — Portal S.A" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: CmsListPage,
 });
