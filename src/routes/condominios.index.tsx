@@ -10,7 +10,7 @@ const condosQO = queryOptions({
   queryFn: () => listPublishedByType({ data: { type: "condominio" } }),
 });
 
-export const Route = createFileRoute("/condominios")({
+export const Route = createFileRoute("/condominios/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(condosQO),
   head: () => ({
     meta: [

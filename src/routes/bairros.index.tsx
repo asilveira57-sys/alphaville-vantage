@@ -10,7 +10,7 @@ const QO = queryOptions({
   queryFn: () => listPublishedByType({ data: { type: "bairro" } }),
 });
 
-export const Route = createFileRoute("/bairros")({
+export const Route = createFileRoute("/bairros/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(QO),
   head: () => ({
     meta: [
