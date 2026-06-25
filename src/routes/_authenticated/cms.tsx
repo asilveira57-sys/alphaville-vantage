@@ -82,7 +82,7 @@ function CmsListPage() {
           </div>
           <div className="flex gap-2">
             <Link to="/_authenticated/admin" className="text-xs uppercase tracking-widest border border-ink/20 px-4 py-2 hover:bg-ink/5">← Admin</Link>
-            <Link to="/_authenticated/cms/novo" className="bg-ink text-canvas px-5 py-2.5 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">+ Nova página</Link>
+            <Link to="/_authenticated/cms/$id" params={{ id: "novo" }} className="bg-ink text-canvas px-5 py-2.5 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">+ Nova página</Link>
           </div>
         </div>
 
