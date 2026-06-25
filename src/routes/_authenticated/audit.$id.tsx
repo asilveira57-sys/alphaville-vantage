@@ -117,7 +117,7 @@ function AuditEditPage() {
     <SiteLayout>
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <Link to="/_authenticated/audit" className="text-xs uppercase tracking-widest underline">← Voltar à auditoria</Link>
+          <Link to="/audit" className="text-xs uppercase tracking-widest underline">← Voltar à auditoria</Link>
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => reprocessMut.mutate()}
