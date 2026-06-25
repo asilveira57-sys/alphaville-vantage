@@ -123,7 +123,10 @@ function AdminPage() {
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Administração</p>
             <h1 className="font-serif text-4xl text-ink">Painel editorial</h1>
           </div>
-          <button onClick={signOut} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">Sair</button>
+          <div className="flex items-center gap-4">
+            <Link to="/_authenticated/cms" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">CMS Editorial →</Link>
+            <button onClick={signOut} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">Sair</button>
+          </div>
         </div>
 
         <section>

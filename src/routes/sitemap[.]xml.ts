@@ -24,6 +24,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/guia-barueri", changefreq: "weekly", priority: "0.8" },
           { path: "/guia-santana-de-parnaiba", changefreq: "weekly", priority: "0.8" },
           { path: "/condominios", changefreq: "weekly", priority: "0.8" },
+          { path: "/bairros", changefreq: "weekly", priority: "0.8" },
           { path: "/escolas", changefreq: "monthly", priority: "0.7" },
           { path: "/restaurantes", changefreq: "monthly", priority: "0.7" },
           { path: "/empresas", changefreq: "monthly", priority: "0.7" },
@@ -43,13 +44,18 @@ export const Route = createFileRoute("/sitemap.xml")({
           entries.push({ path: `/imoveis/${p.slug}`, lastmod: p.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
         }
 
-        // Dynamic: condomínios publicados
-        const { data: condos } = await supabase
-          .from("condominiums")
-          .select("slug,updated_at")
-          .eq("status", "active");
-        for (const c of condos ?? []) {
-          entries.push({ path: `/condominio/${c.slug}`, lastmod: c.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
+        // Dynamic: editorial_pages publicadas
+        const { data: pages } = await supabase
+          .from("editorial_pages")
+          .select("slug,content_type,updated_at")
+          .eq("status", "published");
+        for (const e of pages ?? []) {
+          const base = e.content_type === "condominio" ? "/condominios"
+            : e.content_type === "bairro" ? "/bairros"
+            : e.content_type === "blog" ? "/blog"
+            : null;
+          if (!base) continue;
+          entries.push({ path: `${base}/${e.slug}`, lastmod: e.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
         }
 
 

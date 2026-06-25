@@ -172,6 +172,104 @@ export type Database = {
           },
         ]
       }
+      editorial_pages: {
+        Row: {
+          author_id: string | null
+          canonical_url: string | null
+          content_type: string
+          created_at: string
+          display_order: number
+          excerpt: string | null
+          featured_image: string | null
+          focus_keyword: string | null
+          gallery_images: string[]
+          html_content: string
+          id: string
+          is_featured: boolean
+          meta_description: string | null
+          meta_title: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          published_at: string | null
+          related_condominium: string | null
+          related_neighborhood: string | null
+          schema_type: string
+          secondary_keywords: string[]
+          slug: string
+          status: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          canonical_url?: string | null
+          content_type: string
+          created_at?: string
+          display_order?: number
+          excerpt?: string | null
+          featured_image?: string | null
+          focus_keyword?: string | null
+          gallery_images?: string[]
+          html_content?: string
+          id?: string
+          is_featured?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          related_condominium?: string | null
+          related_neighborhood?: string | null
+          schema_type?: string
+          secondary_keywords?: string[]
+          slug: string
+          status?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          canonical_url?: string | null
+          content_type?: string
+          created_at?: string
+          display_order?: number
+          excerpt?: string | null
+          featured_image?: string | null
+          focus_keyword?: string | null
+          gallery_images?: string[]
+          html_content?: string
+          id?: string
+          is_featured?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          related_condominium?: string | null
+          related_neighborhood?: string | null
+          schema_type?: string
+          secondary_keywords?: string[]
+          slug?: string
+          status?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "editorial_pages_related_condominium_fkey"
+            columns: ["related_condominium"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base: {
         Row: {
           category: string
