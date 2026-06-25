@@ -32,7 +32,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
-import { Route as CondominioSlugRouteImport } from './routes/condominio.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
@@ -153,11 +152,6 @@ const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CondominiosRoute,
 } as any)
-const CondominioSlugRoute = CondominioSlugRouteImport.update({
-  id: '/condominio/$slug',
-  path: '/condominio/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -208,7 +202,6 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/condominio/$slug': typeof CondominioSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis/': typeof ImoveisIndexRoute
@@ -237,7 +230,6 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/condominio/$slug': typeof CondominioSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis': typeof ImoveisIndexRoute
@@ -269,7 +261,6 @@ export interface FileRoutesById {
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/condominio/$slug': typeof CondominioSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis/': typeof ImoveisIndexRoute
@@ -301,7 +292,6 @@ export interface FileRouteTypes {
     | '/audit'
     | '/bairros/$slug'
     | '/blog/$slug'
-    | '/condominio/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
     | '/imoveis/'
@@ -330,7 +320,6 @@ export interface FileRouteTypes {
     | '/audit'
     | '/bairros/$slug'
     | '/blog/$slug'
-    | '/condominio/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
     | '/imoveis'
@@ -361,7 +350,6 @@ export interface FileRouteTypes {
     | '/_authenticated/audit'
     | '/bairros/$slug'
     | '/blog/$slug'
-    | '/condominio/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
     | '/imoveis/'
@@ -389,7 +377,6 @@ export interface RootRouteChildren {
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
   RestaurantesRoute: typeof RestaurantesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  CondominioSlugRoute: typeof CondominioSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -555,13 +542,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CondominiosSlugRouteImport
       parentRoute: typeof CondominiosRoute
     }
-    '/condominio/$slug': {
-      id: '/condominio/$slug'
-      path: '/condominio/$slug'
-      fullPath: '/condominio/$slug'
-      preLoaderRoute: typeof CondominioSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/$slug'
@@ -691,7 +671,6 @@ const rootRouteChildren: RootRouteChildren = {
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
   RestaurantesRoute: RestaurantesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  CondominioSlugRoute: CondominioSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
