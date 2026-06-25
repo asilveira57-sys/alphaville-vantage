@@ -34,8 +34,10 @@ import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
+import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -162,6 +164,11 @@ const BairrosSlugRoute = BairrosSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => BairrosRoute,
 } as any)
+const AuthenticatedCmsRoute = AuthenticatedCmsRouteImport.update({
+  id: '/cms',
+  path: '/cms',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -171,6 +178,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCmsIdRoute = AuthenticatedCmsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedCmsRoute,
 } as any)
 const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
   id: '/$id',
@@ -200,12 +212,14 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
+  '/cms': typeof AuthenticatedCmsRouteWithChildren
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
+  '/cms/$id': typeof AuthenticatedCmsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -228,12 +242,14 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
+  '/cms': typeof AuthenticatedCmsRouteWithChildren
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis': typeof ImoveisIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
+  '/cms/$id': typeof AuthenticatedCmsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -259,12 +275,14 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
+  '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
+  '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -290,12 +308,14 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/audit'
+    | '/cms'
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
     | '/imoveis/'
     | '/audit/$id'
+    | '/cms/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -318,12 +338,14 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/audit'
+    | '/cms'
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
     | '/imoveis'
     | '/audit/$id'
+    | '/cms/$id'
   id:
     | '__root__'
     | '/'
@@ -348,12 +370,14 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
+    | '/_authenticated/cms'
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
     | '/imoveis/$slug'
     | '/imoveis/'
     | '/_authenticated/audit/$id'
+    | '/_authenticated/cms/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -556,6 +580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BairrosSlugRouteImport
       parentRoute: typeof BairrosRoute
     }
+    '/_authenticated/cms': {
+      id: '/_authenticated/cms'
+      path: '/cms'
+      fullPath: '/cms'
+      preLoaderRoute: typeof AuthenticatedCmsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
       path: '/audit'
@@ -569,6 +600,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cms/$id': {
+      id: '/_authenticated/cms/$id'
+      path: '/$id'
+      fullPath: '/cms/$id'
+      preLoaderRoute: typeof AuthenticatedCmsIdRouteImport
+      parentRoute: typeof AuthenticatedCmsRoute
     }
     '/_authenticated/audit/$id': {
       id: '/_authenticated/audit/$id'
@@ -591,14 +629,27 @@ const AuthenticatedAuditRouteChildren: AuthenticatedAuditRouteChildren = {
 const AuthenticatedAuditRouteWithChildren =
   AuthenticatedAuditRoute._addFileChildren(AuthenticatedAuditRouteChildren)
 
+interface AuthenticatedCmsRouteChildren {
+  AuthenticatedCmsIdRoute: typeof AuthenticatedCmsIdRoute
+}
+
+const AuthenticatedCmsRouteChildren: AuthenticatedCmsRouteChildren = {
+  AuthenticatedCmsIdRoute: AuthenticatedCmsIdRoute,
+}
+
+const AuthenticatedCmsRouteWithChildren =
+  AuthenticatedCmsRoute._addFileChildren(AuthenticatedCmsRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRouteWithChildren
+  AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRouteWithChildren,
+  AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
