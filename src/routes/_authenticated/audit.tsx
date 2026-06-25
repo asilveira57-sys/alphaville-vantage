@@ -44,7 +44,7 @@ function AuditPage() {
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Administração</p>
             <h1 className="font-serif text-3xl text-ink">Auditoria SEO de imóveis</h1>
           </div>
-          <Link to="/_authenticated/admin" className="text-xs uppercase tracking-widest underline">← Painel</Link>
+          <Link to="/admin" className="text-xs uppercase tracking-widest underline">← Painel</Link>
         </div>
 
         {stats && (
@@ -114,7 +114,7 @@ function AuditPage() {
                     </ul>
                   )}
                   <Link
-                    to="/_authenticated/audit/$id"
+                    to="/audit/$id"
                     params={{ id: it.id }}
                     className="self-start text-[10px] uppercase tracking-widest border border-ink/30 px-2 py-1 hover:bg-ink hover:text-canvas"
                   >Editar →</Link>

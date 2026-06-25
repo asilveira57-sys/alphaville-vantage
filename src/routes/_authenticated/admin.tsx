@@ -124,7 +124,7 @@ function AdminPage() {
             <h1 className="font-serif text-4xl text-ink">Painel editorial</h1>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/_authenticated/cms" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">CMS Editorial →</Link>
+            <Link to="/cms" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">CMS Editorial →</Link>
             <button onClick={signOut} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">Sair</button>
           </div>
         </div>
@@ -231,7 +231,7 @@ function AdminPage() {
                   <div className="font-serif text-2xl text-ink">{value as number}</div>
                 </div>
               ))}
-              <Link to="/_authenticated/audit" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
+              <Link to="/audit" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
                 Abrir auditoria →
               </Link>
             </div>

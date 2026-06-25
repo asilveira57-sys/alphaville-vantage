@@ -174,7 +174,7 @@ function CmsEditorPage() {
       <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <Link to="/_authenticated/cms" className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground hover:text-ink">← CMS</Link>
+            <Link to="/cms" className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground hover:text-ink">← CMS</Link>
             <h1 className="font-serif text-3xl text-ink mt-2">{isNew ? "Nova página" : "Editar página"}</h1>
           </div>
           <div className="flex gap-2 items-center">

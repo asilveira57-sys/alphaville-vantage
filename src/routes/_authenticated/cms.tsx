@@ -66,7 +66,7 @@ function CmsListPage() {
 
   if (adminQ.isLoading) return <SiteLayout><div className="px-6 py-24 text-sm">Carregando…</div></SiteLayout>;
   if (!adminQ.data?.isAdmin) {
-    return <SiteLayout><div className="px-6 py-24 text-sm">Acesso restrito. <Link to="/_authenticated/admin" className="underline">Voltar ao admin</Link>.</div></SiteLayout>;
+    return <SiteLayout><div className="px-6 py-24 text-sm">Acesso restrito. <Link to="/admin" className="underline">Voltar ao admin</Link>.</div></SiteLayout>;
   }
 
   const rows = listQ.data ?? [];
@@ -81,8 +81,8 @@ function CmsListPage() {
             <p className="text-sm text-muted-foreground mt-2">Condomínios, bairros, cidade, guias, blog e institucionais.</p>
           </div>
           <div className="flex gap-2">
-            <Link to="/_authenticated/admin" className="text-xs uppercase tracking-widest border border-ink/20 px-4 py-2 hover:bg-ink/5">← Admin</Link>
-            <Link to="/_authenticated/cms/$id" params={{ id: "novo" }} className="bg-ink text-canvas px-5 py-2.5 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">+ Nova página</Link>
+            <Link to="/admin" className="text-xs uppercase tracking-widest border border-ink/20 px-4 py-2 hover:bg-ink/5">← Admin</Link>
+            <Link to="/cms/$id" params={{ id: "novo" }} className="bg-ink text-canvas px-5 py-2.5 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">+ Nova página</Link>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ function CmsListPage() {
                     <a href={publicUrlFor(p)} target="_blank" rel="noreferrer" className="hover:underline">ver</a>
                   )}
                   <button onClick={() => togMut.mutate(p.id)} className="hover:underline">{p.status === "published" ? "despublicar" : "publicar"}</button>
-                  <Link to="/_authenticated/cms/$id" params={{ id: p.id }} className="hover:underline">editar</Link>
+                  <Link to="/cms/$id" params={{ id: p.id }} className="hover:underline">editar</Link>
                   <button onClick={() => dupMut.mutate(p.id)} className="hover:underline">duplicar</button>
                   <button onClick={() => { if (confirm("Excluir esta página?")) delMut.mutate(p.id); }} className="text-red-600 hover:underline">excluir</button>
                 </div>
