@@ -158,7 +158,7 @@ function CmsEditorPage() {
     },
     onSuccess: (row: any) => {
       if (isNew && row?.id) {
-        navigate({ to: "/_authenticated/cms/$id", params: { id: row.id } });
+        navigate({ to: "/cms/$id", params: { id: row.id } });
       } else {
         router.invalidate();
       }

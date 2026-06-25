@@ -37,6 +37,7 @@ import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
 
@@ -179,6 +180,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCmsIndexRoute = AuthenticatedCmsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedCmsRoute,
+} as any)
 const AuthenticatedCmsIdRoute = AuthenticatedCmsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -220,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/imoveis/': typeof ImoveisIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/cms/': typeof AuthenticatedCmsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -240,7 +247,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
-  '/cms': typeof AuthenticatedCmsRouteWithChildren
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
@@ -250,6 +256,7 @@ export interface FileRoutesByTo {
   '/imoveis': typeof ImoveisIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/cms': typeof AuthenticatedCmsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -283,6 +290,7 @@ export interface FileRoutesById {
   '/imoveis/': typeof ImoveisIndexRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -316,6 +324,7 @@ export interface FileRouteTypes {
     | '/imoveis/'
     | '/audit/$id'
     | '/cms/$id'
+    | '/cms/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -336,7 +345,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/audit'
-    | '/cms'
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
@@ -346,6 +354,7 @@ export interface FileRouteTypes {
     | '/imoveis'
     | '/audit/$id'
     | '/cms/$id'
+    | '/cms'
   id:
     | '__root__'
     | '/'
@@ -378,6 +387,7 @@ export interface FileRouteTypes {
     | '/imoveis/'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
+    | '/_authenticated/cms/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -603,6 +613,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cms/': {
+      id: '/_authenticated/cms/'
+      path: '/'
+      fullPath: '/cms/'
+      preLoaderRoute: typeof AuthenticatedCmsIndexRouteImport
+      parentRoute: typeof AuthenticatedCmsRoute
+    }
     '/_authenticated/cms/$id': {
       id: '/_authenticated/cms/$id'
       path: '/$id'
@@ -633,10 +650,12 @@ const AuthenticatedAuditRouteWithChildren =
 
 interface AuthenticatedCmsRouteChildren {
   AuthenticatedCmsIdRoute: typeof AuthenticatedCmsIdRoute
+  AuthenticatedCmsIndexRoute: typeof AuthenticatedCmsIndexRoute
 }
 
 const AuthenticatedCmsRouteChildren: AuthenticatedCmsRouteChildren = {
   AuthenticatedCmsIdRoute: AuthenticatedCmsIdRoute,
+  AuthenticatedCmsIndexRoute: AuthenticatedCmsIndexRoute,
 }
 
 const AuthenticatedCmsRouteWithChildren =
