@@ -355,42 +355,64 @@ function CmsEditorPage() {
         )}
 
         {tab === "seo" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl">
-            <Field label="Meta title">
-              <input value={form.meta_title} onChange={(e) => set("meta_title", e.target.value)} className={inputCls} maxLength={70} />
-              <small className="text-[11px] text-muted-foreground">{form.meta_title.length}/60 ideal</small>
-            </Field>
-            <Field label="Meta description">
-              <textarea value={form.meta_description} onChange={(e) => set("meta_description", e.target.value)} rows={3} className={inputCls} maxLength={180} />
-              <small className="text-[11px] text-muted-foreground">{form.meta_description.length}/155 ideal</small>
-            </Field>
-            <Field label="Focus keyword">
-              <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
-            </Field>
-            <Field label="Palavras-chave secundárias (vírgula)">
-              <input
-                value={form.secondary_keywords.join(", ")}
-                onChange={(e) => set("secondary_keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Canonical URL">
-              <input value={form.canonical_url} onChange={(e) => set("canonical_url", e.target.value)} className={inputCls} placeholder="https://…" />
-            </Field>
-            <Field label="Schema.org type">
-              <select value={form.schema_type} onChange={(e) => set("schema_type", e.target.value as any)} className={inputCls}>
-                <option>Article</option><option>BlogPosting</option><option>Place</option><option>Residence</option><option>LocalBusiness</option>
-              </select>
-            </Field>
-            <Field label="OG title">
-              <input value={form.og_title} onChange={(e) => set("og_title", e.target.value)} className={inputCls} />
-            </Field>
-            <Field label="OG description">
-              <textarea value={form.og_description} onChange={(e) => set("og_description", e.target.value)} rows={3} className={inputCls} />
-            </Field>
-            <Field label="OG image (URL)">
-              <input value={form.og_image} onChange={(e) => set("og_image", e.target.value)} className={inputCls} />
-            </Field>
+          <div className="space-y-4 max-w-4xl">
+            <div className="border border-ink/15 p-4 bg-ink/[0.02] flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <h3 className="text-sm font-medium text-ink">Geração automática de SEO</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">A IA usa o título, resumo e conteúdo para sugerir meta title, description e palavras-chave.</p>
+                {seoMut.error && <p className="text-xs text-red-600 mt-1">{(seoMut.error as Error).message}</p>}
+              </div>
+              <button
+                type="button"
+                onClick={() => seoMut.mutate()}
+                disabled={seoMut.isPending || !form.title}
+                className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-50 whitespace-nowrap"
+              >
+                {seoMut.isPending ? "Gerando…" : "✨ Gerar SEO com IA"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Field label="Meta title">
+                <input value={form.meta_title} onChange={(e) => set("meta_title", e.target.value)} className={inputCls} maxLength={70} />
+                <small className="text-[11px] text-muted-foreground">{form.meta_title.length}/60 ideal</small>
+              </Field>
+              <Field label="Meta description">
+                <textarea value={form.meta_description} onChange={(e) => set("meta_description", e.target.value)} rows={3} className={inputCls} maxLength={180} />
+                <small className="text-[11px] text-muted-foreground">{form.meta_description.length}/155 ideal</small>
+              </Field>
+              <Field label="Focus keyword">
+                <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
+              </Field>
+              <Field label="Palavras-chave secundárias (vírgula)">
+                <input
+                  value={form.secondary_keywords.join(", ")}
+                  onChange={(e) => set("secondary_keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Canonical URL">
+                <input value={form.canonical_url} onChange={(e) => set("canonical_url", e.target.value)} className={inputCls} placeholder="https://…" />
+              </Field>
+              <Field label="Schema.org type">
+                <select value={form.schema_type} onChange={(e) => set("schema_type", e.target.value as any)} className={inputCls}>
+                  <option>Article</option><option>BlogPosting</option><option>Place</option><option>Residence</option><option>LocalBusiness</option>
+                </select>
+              </Field>
+              <Field label="OG title">
+                <input value={form.og_title} onChange={(e) => set("og_title", e.target.value)} className={inputCls} />
+              </Field>
+              <Field label="OG description">
+                <textarea value={form.og_description} onChange={(e) => set("og_description", e.target.value)} rows={3} className={inputCls} />
+              </Field>
+              <Field label="OG image">
+                <ImageUpload
+                  value={form.og_image}
+                  onUploaded={(url) => set("og_image", url)}
+                  folder="og"
+                />
+              </Field>
+            </div>
           </div>
         )}
       </div>
