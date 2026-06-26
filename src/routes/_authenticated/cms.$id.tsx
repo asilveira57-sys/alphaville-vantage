@@ -68,12 +68,25 @@ function CmsEditorPage() {
   const checkFn = useServerFn(checkIsAdmin);
   const getFn = useServerFn(getEditorialByIdAdmin);
   const upsertFn = useServerFn(upsertEditorialPage);
+  const bairrosFn = useServerFn(listBairroOptions);
+  const condosFn = useServerFn(listCondominioOptions);
+  const seoFn = useServerFn(generateSeoMetadata);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const pageQ = useQuery({
     queryKey: ["cms", id],
     queryFn: () => getFn({ data: { id } }),
     enabled: !isNew && !!adminQ.data?.isAdmin,
+  });
+  const bairrosQ = useQuery({
+    queryKey: ["cms-bairros"],
+    queryFn: () => bairrosFn(),
+    enabled: !!adminQ.data?.isAdmin,
+  });
+  const condosQ = useQuery({
+    queryKey: ["cms-condos"],
+    queryFn: () => condosFn(),
+    enabled: !!adminQ.data?.isAdmin,
   });
 
   const [form, setForm] = useState<FormState>(EMPTY);
