@@ -5,7 +5,8 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/site-layout";
 import { checkIsAdmin, grantSelfAdminIfFirst } from "@/lib/admin.functions";
-import { listAllPostsAdmin, generatePostWithAI, upsertPost } from "@/lib/blog.functions";
+import { generatePostWithAI } from "@/lib/blog.functions";
+import { listEditorialPages } from "@/lib/editorial.functions";
 import { runScraper, listScraperRuns } from "@/lib/scraper.functions";
 import { reprocessProperties, getScrapAudit } from "@/lib/property-review.functions";
 import { regenerateSeo } from "@/lib/property-seo.functions";
@@ -20,11 +21,10 @@ function AdminPage() {
   const qc = useQueryClient();
   const checkFn = useServerFn(checkIsAdmin);
   const grantFn = useServerFn(grantSelfAdminIfFirst);
-  const postsFn = useServerFn(listAllPostsAdmin);
+  const postsFn = useServerFn(listEditorialPages);
   const runsFn = useServerFn(listScraperRuns);
   const genFn = useServerFn(generatePostWithAI);
   const scrapeFn = useServerFn(runScraper);
-  const saveFn = useServerFn(upsertPost);
   const reprocessFn = useServerFn(reprocessProperties);
   const auditFn = useServerFn(getScrapAudit);
   const seoFn = useServerFn(regenerateSeo);
@@ -32,7 +32,7 @@ function AdminPage() {
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
-    queryKey: ["adminPosts"], queryFn: () => postsFn(),
+    queryKey: ["adminPosts"], queryFn: () => postsFn({ data: { contentType: "blog" } }),
     enabled: !!adminQ.data?.isAdmin,
   });
   const runsQ = useQuery({
@@ -49,7 +49,11 @@ function AdminPage() {
   const [category, setCategory] = useState("");
   const genMut = useMutation({
     mutationFn: () => genFn({ data: { topic, category: category || undefined } }),
-    onSuccess: () => { setTopic(""); qc.invalidateQueries({ queryKey: ["adminPosts"] }); },
+    onSuccess: (res) => {
+      setTopic("");
+      qc.invalidateQueries({ queryKey: ["adminPosts"] });
+      if (res?.post?.id) router.navigate({ to: "/cms/$id", params: { id: res.post.id } });
+    },
   });
   const scrapeMut = useMutation({
     mutationFn: async () => {
@@ -162,17 +166,13 @@ function AdminPage() {
           <div className="border border-ink/10">
             {(postsQ.data ?? []).map((p) => (
               <div key={p.id} className="grid grid-cols-12 gap-3 px-4 py-3 border-b border-ink/8 text-sm items-center">
-                <div className="col-span-6 font-medium text-ink truncate">{p.title}</div>
+                <div className="col-span-6 font-medium text-ink truncate">
+                  <Link to="/cms/$id" params={{ id: p.id }} className="hover:underline">{p.title}</Link>
+                </div>
                 <div className="col-span-2 text-xs uppercase tracking-wider text-muted-foreground">{p.status}</div>
-                <div className="col-span-2 text-xs text-muted-foreground">{p.source}</div>
+                <div className="col-span-2 text-xs text-muted-foreground truncate">/{p.slug}</div>
                 <div className="col-span-2 text-right">
-                  {p.status !== "published" && (
-                    <button
-                      onClick={() => saveFn({ data: { id: p.id, title: p.title, status: "published", content_markdown: "" } as any })
-                        .then(() => qc.invalidateQueries({ queryKey: ["adminPosts"] }))}
-                      className="text-xs uppercase tracking-widest text-ink hover:underline"
-                    >Publicar</button>
-                  )}
+                  <Link to="/cms/$id" params={{ id: p.id }} className="text-xs uppercase tracking-widest text-ink hover:underline">Editar</Link>
                 </div>
               </div>
             ))}

@@ -14,66 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      blog_posts: {
-        Row: {
-          author_id: string | null
-          category: string | null
-          content_markdown: string
-          cover_image_url: string | null
-          created_at: string
-          excerpt: string | null
-          faq: Json | null
-          id: string
-          meta_description: string | null
-          meta_title: string | null
-          published_at: string | null
-          slug: string
-          source: string
-          status: string
-          tags: string[]
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author_id?: string | null
-          category?: string | null
-          content_markdown?: string
-          cover_image_url?: string | null
-          created_at?: string
-          excerpt?: string | null
-          faq?: Json | null
-          id?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          published_at?: string | null
-          slug: string
-          source?: string
-          status?: string
-          tags?: string[]
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author_id?: string | null
-          category?: string | null
-          content_markdown?: string
-          cover_image_url?: string | null
-          created_at?: string
-          excerpt?: string | null
-          faq?: Json | null
-          id?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          published_at?: string | null
-          slug?: string
-          source?: string
-          status?: string
-          tags?: string[]
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       condominiums: {
         Row: {
           amenities: string[]
@@ -121,10 +61,10 @@ export type Database = {
       }
       content_generation_jobs: {
         Row: {
-          blog_post_id: string | null
           category: string | null
           created_at: string
           created_by: string | null
+          editorial_page_id: string | null
           error: string | null
           finished_at: string | null
           id: string
@@ -135,10 +75,10 @@ export type Database = {
           topic: string
         }
         Insert: {
-          blog_post_id?: string | null
           category?: string | null
           created_at?: string
           created_by?: string | null
+          editorial_page_id?: string | null
           error?: string | null
           finished_at?: string | null
           id?: string
@@ -149,10 +89,10 @@ export type Database = {
           topic: string
         }
         Update: {
-          blog_post_id?: string | null
           category?: string | null
           created_at?: string
           created_by?: string | null
+          editorial_page_id?: string | null
           error?: string | null
           finished_at?: string | null
           id?: string
@@ -164,10 +104,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "content_generation_jobs_blog_post_id_fkey"
-            columns: ["blog_post_id"]
+            foreignKeyName: "content_generation_jobs_editorial_page_id_fkey"
+            columns: ["editorial_page_id"]
             isOneToOne: false
-            referencedRelation: "blog_posts"
+            referencedRelation: "editorial_pages"
             referencedColumns: ["id"]
           },
         ]

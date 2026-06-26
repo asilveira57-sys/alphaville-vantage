@@ -1,66 +1,47 @@
-# Melhorias no Editor do CMS
+## Objetivo
 
-Vou aplicar 4 melhorias no editor de páginas (`/cms/novo` e `/cms/:id`).
+Unificar os "Posts" do painel admin com o CMS Editorial. Hoje o admin gera/lista posts em `blog_posts` com um editor simples; o CMS Editorial usa `editorial_pages` com TipTap, upload de imagem, selects relacionados e SEO por IA. Vamos mover o blog inteiro para o CMS Editorial (tipo `blog`) e remover a duplicidade.
 
-## 1. Editor visual estilo Word (com modo HTML)
+## O que muda
 
-Substituir o editor HTML cru atual por um editor rich-text (TipTap), com barra de ferramentas visual:
+### 1. Geração de artigo com IA passa a criar `editorial_pages`
+- `generatePostWithAI` em `src/lib/blog.functions.ts` é reescrita (ou substituída por `generateEditorialDraftWithAI` em `editorial.functions.ts`) para inserir em `editorial_pages` com:
+  - `content_type: "blog"`
+  - `status: "draft"`
+  - `html_content`: markdown convertido para HTML (parágrafos, H2/H3, listas) — ou pedimos diretamente HTML ao modelo.
+  - `meta_title`, `meta_description`, `focus_keyword` preenchidos pela mesma chamada.
+- O botão "Gerar rascunho" no admin continua existindo, mas após gerar redireciona direto para `/cms/$id` (edição no novo editor).
 
-- Negrito, itálico, sublinhado, riscado
-- H1, H2, H3, parágrafo
-- Listas (numerada / com marcadores)
-- Citação, alinhamento, linha horizontal
-- Link (inserir/editar/remover)
-- Imagem (com upload — ver item 2)
-- Desfazer/refazer
-- **Botão "</> HTML"** que alterna entre o modo visual e um `<textarea>` onde o usuário pode colar/editar HTML bruto. Ao voltar para o visual, o HTML é sanitizado e renderizado.
+### 2. Painel admin
+- A seção **Posts** do `admin.tsx` passa a listar `editorial_pages` com `content_type='blog'` (reusa `listEditorialPages`).
+- Cada linha vira link para `/cms/$id` (editar com TipTap, upload, etc.). Remove o botão "Publicar" inline — publicação acontece dentro do CMS (já existe lá).
+- Mantém o formulário "Gerar artigo com IA" no admin, agora apontando para o novo fluxo.
 
-O conteúdo continua salvo como HTML sanitizado no campo `content_html` (mesma estrutura atual, sem migração).
+### 3. Rotas públicas do blog
+- `src/routes/blog.tsx` (listagem) e `src/routes/blog.$slug.tsx` (detalhe) passam a ler de `editorial_pages` via `listPublishedByType({type:'blog'})` e `getEditorialBySlug` (que já existem).
+- Conteúdo renderizado via `<EditorialContent html={...}>` (já existe) em vez de markdown.
 
-## 2. Upload de imagens (sem precisar de URL)
+### 4. Migração de dados
+- Migration SQL que copia linhas de `blog_posts` para `editorial_pages`:
+  - `content_type='blog'`, `status` (draft/published/archived), `slug`, `title`, `excerpt`, `featured_image=cover_image_url`, `meta_title`, `meta_description`, `tags`, `published_at`, `author_id`.
+  - Converte `content_markdown` → HTML simples no SQL (usa `regexp_replace` para `## `, `### `, parágrafos) **ou** marca um campo temporário e fazemos a conversão num script — proposta: conversão simples no SQL é suficiente; usuário já pode reabrir e refinar no TipTap.
+- Após a migração: `DROP TABLE blog_posts CASCADE` (junto com `content_generation_jobs.blog_post_id` FK — recriar como `editorial_page_id`, ou simplesmente dropar a coluna).
 
-- Usar o bucket existente `editorial-images` (já criado, privado).
-- Tornar o bucket **público** (via `supabase--storage_update_bucket`) para que as imagens publicadas no site sejam visíveis.
-- Adicionar políticas RLS em `storage.objects` permitindo upload por usuários autenticados e leitura pública.
-- Criar componente `ImageUpload` reutilizável que:
-  - Aceita arrastar-e-soltar ou clicar para selecionar
-  - Faz upload para `editorial-images/{page-id-ou-tmp}/{uuid}.{ext}`
-  - Retorna a URL pública
-- Usar em 3 lugares:
-  - **Dentro do editor** (botão "Imagem" da toolbar → upload → insere `<img>`)
-  - **Imagem principal** (substitui o input de URL por um uploader; mantém URL como fallback)
-  - **Galeria** (uploader múltiplo; substitui o textarea de URLs)
+### 5. Limpeza
+- `src/lib/blog.functions.ts` reduzido (ou removido) — funções públicas `listPublishedPosts` e `getPostBySlug` deixam de ser usadas e podem ser apagadas.
+- `listAllPostsAdmin` e `upsertPost` (do blog) removidos.
 
-## 3. Selects para Bairro e Condomínio relacionados
+## Arquivos afetados
+- `src/lib/blog.functions.ts` — remover/limpar.
+- `src/lib/editorial.functions.ts` — adicionar `generateEditorialDraftWithAI({topic, category, content_type:'blog'})`.
+- `src/routes/_authenticated/admin.tsx` — listagem e botão IA usando editorial_pages; link direto para `/cms/$id`.
+- `src/routes/blog.tsx`, `src/routes/blog.$slug.tsx` — passar a usar editorial_pages.
+- Migration SQL: copia `blog_posts → editorial_pages` e dropa `blog_posts` (+ ajusta `content_generation_jobs`).
 
-- Criar server functions `listBairros()` e `listCondominios()` que retornam `{id, name, slug}` das páginas editoriais já cadastradas do tipo `bairro` e dos registros da tabela `condominiums`.
-- Substituir os inputs de texto livre por **Combobox com busca** (shadcn `Command` + `Popover`), evitando duplicatas por erro de digitação.
-- Salvar o slug do bairro e o UUID do condomínio (como hoje), mas escolhidos da lista.
+## Fora do escopo
+- Versionamento de conteúdo, agendamento, multi-autor.
+- Redesign das páginas públicas do blog.
 
-## 4. Geração automática de SEO com IA
-
-- Adicionar botão **"✨ Gerar SEO com IA"** acima dos campos de SEO no editor.
-- Cria server function `generateSeoMetadata` (autenticada) que:
-  - Recebe `{ title, content_html, type, neighborhood }`
-  - Chama Lovable AI Gateway (`google/gemini-3-flash-preview`) com prompt em PT-BR pedindo: `meta_title` (≤60 chars), `meta_description` (≤160 chars), `keywords` (5–8, separadas por vírgula), focado em SEO local de Alphaville/Tamboré/Barueri/Santana de Parnaíba quando aplicável.
-  - Usa `Output.object` com Zod para retorno estruturado.
-- Ao clicar, preenche os 3 campos automaticamente (o usuário pode editar depois).
-- Requer que título e algum conteúdo já estejam preenchidos; mostra toast se faltar.
-
-## Detalhes técnicos
-
-- **Pacotes novos**: `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`, `@tiptap/extension-underline`.
-- **Arquivos a alterar**:
-  - `src/components/html-editor.tsx` → substituído por editor TipTap com toggle HTML
-  - `src/components/image-upload.tsx` (novo)
-  - `src/components/related-select.tsx` (novo — combobox)
-  - `src/lib/editorial.functions.ts` → adicionar `listBairros`, `listCondominios`, `generateSeoMetadata`, `uploadEditorialImage`
-  - `src/routes/_authenticated/cms.$id.tsx` → integrar tudo
-- **Migração**: políticas RLS em `storage.objects` para o bucket `editorial-images`.
-- **Sem mudanças** no schema da tabela `editorial_pages` nem nas rotas públicas.
-
-## Fora do escopo desta entrega
-
-- Versionamento de conteúdo / histórico de edições
-- Tradução automática
-- Otimização de imagens (resize/webp) no upload — pode ser adicionada depois
+## Confirmações antes de implementar
+1. Posso **dropar a tabela `blog_posts`** após copiar os dados para `editorial_pages`? (recomendado para evitar duplicidade)
+2. A conversão markdown→HTML simples na migration é aceitável? (Você pode reabrir cada post no novo editor e ajustar se quiser.)
