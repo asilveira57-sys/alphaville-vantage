@@ -186,6 +186,32 @@ function CmsEditorPage() {
     },
   });
 
+  const seoMut = useMutation({
+    mutationFn: async () => {
+      return seoFn({
+        data: {
+          title: form.title,
+          excerpt: form.excerpt || null,
+          html_content: form.html_content || null,
+          content_type: form.content_type,
+          related_neighborhood: form.related_neighborhood || null,
+        },
+      });
+    },
+    onSuccess: (res: any) => {
+      setForm((f) => ({
+        ...f,
+        meta_title: res.meta_title || f.meta_title,
+        meta_description: res.meta_description || f.meta_description,
+        focus_keyword: res.focus_keyword || f.focus_keyword,
+        secondary_keywords: res.secondary_keywords?.length ? res.secondary_keywords : f.secondary_keywords,
+      }));
+    },
+  });
+
+  const bairroOpts = (bairrosQ.data ?? []).map((b) => ({ value: b.slug, label: b.title, hint: b.slug }));
+  const condoOpts = (condosQ.data ?? []).map((c) => ({ value: c.id, label: c.name, hint: c.region ?? undefined }));
+
   if (adminQ.isLoading) return <SiteLayout><div className="px-6 py-24 text-sm">Carregando…</div></SiteLayout>;
   if (!adminQ.data?.isAdmin) return <SiteLayout><div className="px-6 py-24 text-sm">Acesso restrito.</div></SiteLayout>;
   if (!isNew && pageQ.isLoading) return <SiteLayout><div className="px-6 py-24 text-sm">Carregando página…</div></SiteLayout>;
