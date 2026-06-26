@@ -312,14 +312,17 @@ function CmsEditorPage() {
               <Field label="Ordem de exibição">
                 <input type="number" value={form.display_order} onChange={(e) => set("display_order", Number(e.target.value))} className={inputCls} />
               </Field>
-              <Field label="Imagem principal (URL)">
-                <input value={form.featured_image} onChange={(e) => set("featured_image", e.target.value)} className={inputCls} placeholder="https://…" />
+              <Field label="Imagem principal">
+                <ImageUpload
+                  value={form.featured_image}
+                  onUploaded={(url) => set("featured_image", url)}
+                  folder="featured"
+                />
               </Field>
-              <Field label="Galeria (URLs, uma por linha)">
-                <textarea
-                  value={form.gallery_images.join("\n")}
-                  onChange={(e) => set("gallery_images", e.target.value.split("\n").map((s) => s.trim()).filter(Boolean))}
-                  rows={3} className={`${inputCls} font-mono text-xs`}
+              <Field label="Galeria de imagens">
+                <ImageGalleryUpload
+                  value={form.gallery_images}
+                  onChange={(urls) => set("gallery_images", urls)}
                 />
               </Field>
               <Field label="Tags (separadas por vírgula)">
@@ -330,10 +333,22 @@ function CmsEditorPage() {
                 />
               </Field>
               <Field label="Bairro relacionado">
-                <input value={form.related_neighborhood} onChange={(e) => set("related_neighborhood", e.target.value)} className={inputCls} />
+                <RelatedSelect
+                  value={form.related_neighborhood}
+                  onChange={(v) => set("related_neighborhood", v)}
+                  options={bairroOpts}
+                  loading={bairrosQ.isLoading}
+                  placeholder={bairroOpts.length ? "Selecionar bairro…" : "Nenhuma página de bairro cadastrada"}
+                />
               </Field>
-              <Field label="Condomínio relacionado (UUID)">
-                <input value={form.related_condominium} onChange={(e) => set("related_condominium", e.target.value)} className={`${inputCls} font-mono text-xs`} />
+              <Field label="Condomínio relacionado">
+                <RelatedSelect
+                  value={form.related_condominium}
+                  onChange={(v) => set("related_condominium", v)}
+                  options={condoOpts}
+                  loading={condosQ.isLoading}
+                  placeholder={condoOpts.length ? "Selecionar condomínio…" : "Nenhum condomínio cadastrado"}
+                />
               </Field>
             </div>
           </div>
