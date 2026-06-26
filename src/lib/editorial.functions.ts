@@ -259,10 +259,10 @@ export const listCondominioOptions = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { data, error } = await context.supabase
       .from("condominiums")
-      .select("id,name,neighborhood")
+      .select("id,name,region")
       .order("name", { ascending: true });
     if (error) throw new Error(error.message);
-    return (data ?? []) as { id: string; name: string; neighborhood: string | null }[];
+    return (data ?? []) as { id: string; name: string; region: string | null }[];
   });
 
 // ---------- AI SEO generation ----------
