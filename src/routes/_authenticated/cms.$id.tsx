@@ -5,8 +5,16 @@ import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
 import { HtmlEditor } from "@/components/html-editor";
 import { EditorialContent } from "@/components/editorial-content";
+import { ImageUpload, ImageGalleryUpload } from "@/components/image-upload";
+import { RelatedSelect } from "@/components/related-select";
 import { checkIsAdmin } from "@/lib/admin.functions";
-import { getEditorialByIdAdmin, upsertEditorialPage } from "@/lib/editorial.functions";
+import {
+  getEditorialByIdAdmin,
+  upsertEditorialPage,
+  listBairroOptions,
+  listCondominioOptions,
+  generateSeoMetadata,
+} from "@/lib/editorial.functions";
 import { hasH1, hasInternalLink, wordCount } from "@/lib/sanitize-html";
 
 export const Route = createFileRoute("/_authenticated/cms/$id")({
@@ -60,12 +68,25 @@ function CmsEditorPage() {
   const checkFn = useServerFn(checkIsAdmin);
   const getFn = useServerFn(getEditorialByIdAdmin);
   const upsertFn = useServerFn(upsertEditorialPage);
+  const bairrosFn = useServerFn(listBairroOptions);
+  const condosFn = useServerFn(listCondominioOptions);
+  const seoFn = useServerFn(generateSeoMetadata);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const pageQ = useQuery({
     queryKey: ["cms", id],
     queryFn: () => getFn({ data: { id } }),
     enabled: !isNew && !!adminQ.data?.isAdmin,
+  });
+  const bairrosQ = useQuery({
+    queryKey: ["cms-bairros"],
+    queryFn: () => bairrosFn(),
+    enabled: !!adminQ.data?.isAdmin,
+  });
+  const condosQ = useQuery({
+    queryKey: ["cms-condos"],
+    queryFn: () => condosFn(),
+    enabled: !!adminQ.data?.isAdmin,
   });
 
   const [form, setForm] = useState<FormState>(EMPTY);
@@ -164,6 +185,32 @@ function CmsEditorPage() {
       }
     },
   });
+
+  const seoMut = useMutation({
+    mutationFn: async () => {
+      return seoFn({
+        data: {
+          title: form.title,
+          excerpt: form.excerpt || null,
+          html_content: form.html_content || null,
+          content_type: form.content_type,
+          related_neighborhood: form.related_neighborhood || null,
+        },
+      });
+    },
+    onSuccess: (res: any) => {
+      setForm((f) => ({
+        ...f,
+        meta_title: res.meta_title || f.meta_title,
+        meta_description: res.meta_description || f.meta_description,
+        focus_keyword: res.focus_keyword || f.focus_keyword,
+        secondary_keywords: res.secondary_keywords?.length ? res.secondary_keywords : f.secondary_keywords,
+      }));
+    },
+  });
+
+  const bairroOpts = (bairrosQ.data ?? []).map((b) => ({ value: b.slug, label: b.title, hint: b.slug }));
+  const condoOpts = (condosQ.data ?? []).map((c) => ({ value: c.id, label: c.name, hint: c.region ?? undefined }));
 
   if (adminQ.isLoading) return <SiteLayout><div className="px-6 py-24 text-sm">Carregando…</div></SiteLayout>;
   if (!adminQ.data?.isAdmin) return <SiteLayout><div className="px-6 py-24 text-sm">Acesso restrito.</div></SiteLayout>;
@@ -265,14 +312,17 @@ function CmsEditorPage() {
               <Field label="Ordem de exibição">
                 <input type="number" value={form.display_order} onChange={(e) => set("display_order", Number(e.target.value))} className={inputCls} />
               </Field>
-              <Field label="Imagem principal (URL)">
-                <input value={form.featured_image} onChange={(e) => set("featured_image", e.target.value)} className={inputCls} placeholder="https://…" />
+              <Field label="Imagem principal">
+                <ImageUpload
+                  value={form.featured_image}
+                  onUploaded={(url) => set("featured_image", url)}
+                  folder="featured"
+                />
               </Field>
-              <Field label="Galeria (URLs, uma por linha)">
-                <textarea
-                  value={form.gallery_images.join("\n")}
-                  onChange={(e) => set("gallery_images", e.target.value.split("\n").map((s) => s.trim()).filter(Boolean))}
-                  rows={3} className={`${inputCls} font-mono text-xs`}
+              <Field label="Galeria de imagens">
+                <ImageGalleryUpload
+                  value={form.gallery_images}
+                  onChange={(urls) => set("gallery_images", urls)}
                 />
               </Field>
               <Field label="Tags (separadas por vírgula)">
@@ -283,52 +333,86 @@ function CmsEditorPage() {
                 />
               </Field>
               <Field label="Bairro relacionado">
-                <input value={form.related_neighborhood} onChange={(e) => set("related_neighborhood", e.target.value)} className={inputCls} />
+                <RelatedSelect
+                  value={form.related_neighborhood}
+                  onChange={(v) => set("related_neighborhood", v)}
+                  options={bairroOpts}
+                  loading={bairrosQ.isLoading}
+                  placeholder={bairroOpts.length ? "Selecionar bairro…" : "Nenhuma página de bairro cadastrada"}
+                />
               </Field>
-              <Field label="Condomínio relacionado (UUID)">
-                <input value={form.related_condominium} onChange={(e) => set("related_condominium", e.target.value)} className={`${inputCls} font-mono text-xs`} />
+              <Field label="Condomínio relacionado">
+                <RelatedSelect
+                  value={form.related_condominium}
+                  onChange={(v) => set("related_condominium", v)}
+                  options={condoOpts}
+                  loading={condosQ.isLoading}
+                  placeholder={condoOpts.length ? "Selecionar condomínio…" : "Nenhum condomínio cadastrado"}
+                />
               </Field>
             </div>
           </div>
         )}
 
         {tab === "seo" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl">
-            <Field label="Meta title">
-              <input value={form.meta_title} onChange={(e) => set("meta_title", e.target.value)} className={inputCls} maxLength={70} />
-              <small className="text-[11px] text-muted-foreground">{form.meta_title.length}/60 ideal</small>
-            </Field>
-            <Field label="Meta description">
-              <textarea value={form.meta_description} onChange={(e) => set("meta_description", e.target.value)} rows={3} className={inputCls} maxLength={180} />
-              <small className="text-[11px] text-muted-foreground">{form.meta_description.length}/155 ideal</small>
-            </Field>
-            <Field label="Focus keyword">
-              <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
-            </Field>
-            <Field label="Palavras-chave secundárias (vírgula)">
-              <input
-                value={form.secondary_keywords.join(", ")}
-                onChange={(e) => set("secondary_keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Canonical URL">
-              <input value={form.canonical_url} onChange={(e) => set("canonical_url", e.target.value)} className={inputCls} placeholder="https://…" />
-            </Field>
-            <Field label="Schema.org type">
-              <select value={form.schema_type} onChange={(e) => set("schema_type", e.target.value as any)} className={inputCls}>
-                <option>Article</option><option>BlogPosting</option><option>Place</option><option>Residence</option><option>LocalBusiness</option>
-              </select>
-            </Field>
-            <Field label="OG title">
-              <input value={form.og_title} onChange={(e) => set("og_title", e.target.value)} className={inputCls} />
-            </Field>
-            <Field label="OG description">
-              <textarea value={form.og_description} onChange={(e) => set("og_description", e.target.value)} rows={3} className={inputCls} />
-            </Field>
-            <Field label="OG image (URL)">
-              <input value={form.og_image} onChange={(e) => set("og_image", e.target.value)} className={inputCls} />
-            </Field>
+          <div className="space-y-4 max-w-4xl">
+            <div className="border border-ink/15 p-4 bg-ink/[0.02] flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <h3 className="text-sm font-medium text-ink">Geração automática de SEO</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">A IA usa o título, resumo e conteúdo para sugerir meta title, description e palavras-chave.</p>
+                {seoMut.error && <p className="text-xs text-red-600 mt-1">{(seoMut.error as Error).message}</p>}
+              </div>
+              <button
+                type="button"
+                onClick={() => seoMut.mutate()}
+                disabled={seoMut.isPending || !form.title}
+                className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-50 whitespace-nowrap"
+              >
+                {seoMut.isPending ? "Gerando…" : "✨ Gerar SEO com IA"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Field label="Meta title">
+                <input value={form.meta_title} onChange={(e) => set("meta_title", e.target.value)} className={inputCls} maxLength={70} />
+                <small className="text-[11px] text-muted-foreground">{form.meta_title.length}/60 ideal</small>
+              </Field>
+              <Field label="Meta description">
+                <textarea value={form.meta_description} onChange={(e) => set("meta_description", e.target.value)} rows={3} className={inputCls} maxLength={180} />
+                <small className="text-[11px] text-muted-foreground">{form.meta_description.length}/155 ideal</small>
+              </Field>
+              <Field label="Focus keyword">
+                <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
+              </Field>
+              <Field label="Palavras-chave secundárias (vírgula)">
+                <input
+                  value={form.secondary_keywords.join(", ")}
+                  onChange={(e) => set("secondary_keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Canonical URL">
+                <input value={form.canonical_url} onChange={(e) => set("canonical_url", e.target.value)} className={inputCls} placeholder="https://…" />
+              </Field>
+              <Field label="Schema.org type">
+                <select value={form.schema_type} onChange={(e) => set("schema_type", e.target.value as any)} className={inputCls}>
+                  <option>Article</option><option>BlogPosting</option><option>Place</option><option>Residence</option><option>LocalBusiness</option>
+                </select>
+              </Field>
+              <Field label="OG title">
+                <input value={form.og_title} onChange={(e) => set("og_title", e.target.value)} className={inputCls} />
+              </Field>
+              <Field label="OG description">
+                <textarea value={form.og_description} onChange={(e) => set("og_description", e.target.value)} rows={3} className={inputCls} />
+              </Field>
+              <Field label="OG image">
+                <ImageUpload
+                  value={form.og_image}
+                  onUploaded={(url) => set("og_image", url)}
+                  folder="og"
+                />
+              </Field>
+            </div>
           </div>
         )}
       </div>

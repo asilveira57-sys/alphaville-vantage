@@ -127,7 +127,7 @@ const upsertSchema = z.object({
   content_type: z.enum(CONTENT_TYPES),
   excerpt: z.string().optional().nullable(),
   html_content: z.string().default(""),
-  featured_image: z.string().url().optional().nullable().or(z.literal("")),
+  featured_image: z.string().optional().nullable(),
   gallery_images: z.array(z.string()).default([]),
   status: z.enum(STATUSES).default("draft"),
   is_featured: z.boolean().default(false),
@@ -236,4 +236,114 @@ export const listPublishedSlugsForSitemap = createServerFn({ method: "GET" })
       .select("slug,content_type,updated_at").eq("status", "published");
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+// ---------- Selects for related neighborhood/condominium ----------
+
+export const listBairroOptions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("editorial_pages")
+      .select("slug,title")
+      .eq("content_type", "bairro")
+      .order("title", { ascending: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as { slug: string; title: string }[];
+  });
+
+export const listCondominioOptions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("condominiums")
+      .select("id,name,region")
+      .order("name", { ascending: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as { id: string; name: string; region: string | null }[];
+  });
+
+// ---------- AI SEO generation ----------
+
+const seoInput = z.object({
+  title: z.string().min(2),
+  excerpt: z.string().optional().nullable(),
+  html_content: z.string().optional().nullable(),
+  content_type: z.enum(CONTENT_TYPES),
+  related_neighborhood: z.string().optional().nullable(),
+});
+
+export const generateSeoMetadata = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => seoInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY ausente");
+
+    const plain = (data.html_content || "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 6000);
+
+    const contextLine = data.related_neighborhood
+      ? `Bairro/região: ${data.related_neighborhood}.`
+      : "Foco regional: Alphaville, Tamboré, Barueri e Santana de Parnaíba (SP).";
+
+    const sys = `Você é especialista em SEO local imobiliário de alto padrão em Alphaville (SP).
+Gere metadados SEO em português do Brasil, naturais, persuasivos e otimizados para busca local.
+Responda APENAS com um objeto JSON válido nas chaves: meta_title, meta_description, focus_keyword, secondary_keywords.
+- meta_title: máximo 60 caracteres, com palavra-chave principal e localidade quando fizer sentido.
+- meta_description: 140 a 160 caracteres, com chamada para ação suave.
+- focus_keyword: 1 frase curta (2 a 5 palavras), a principal.
+- secondary_keywords: array de 5 a 8 palavras-chave de cauda longa relevantes.`;
+
+    const user = `Tipo de página: ${data.content_type}. ${contextLine}
+Título: ${data.title}
+Resumo: ${data.excerpt ?? "(sem resumo)"}
+Trecho do conteúdo:
+${plain || "(vazio)"}`;
+
+    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: sys },
+          { role: "user", content: user },
+        ],
+        response_format: { type: "json_object" },
+      }),
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => "");
+      if (resp.status === 429) throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
+      if (resp.status === 402) throw new Error("Créditos de IA esgotados. Adicione créditos no workspace.");
+      throw new Error(`Falha na geração de SEO (${resp.status}): ${text.slice(0, 200)}`);
+    }
+
+    const json = await resp.json();
+    const content = json?.choices?.[0]?.message?.content ?? "{}";
+    let parsed: any = {};
+    try { parsed = JSON.parse(content); } catch { parsed = {}; }
+
+    const meta_title = String(parsed.meta_title ?? "").slice(0, 70);
+    const meta_description = String(parsed.meta_description ?? "").slice(0, 180);
+    const focus_keyword = String(parsed.focus_keyword ?? "").slice(0, 100);
+    let secondary_keywords: string[] = [];
+    if (Array.isArray(parsed.secondary_keywords)) {
+      secondary_keywords = parsed.secondary_keywords.map((k: unknown) => String(k)).filter(Boolean).slice(0, 10);
+    } else if (typeof parsed.secondary_keywords === "string") {
+      secondary_keywords = parsed.secondary_keywords.split(",").map((s: string) => s.trim()).filter(Boolean);
+    }
+
+    return { meta_title, meta_description, focus_keyword, secondary_keywords };
   });
