@@ -162,17 +162,13 @@ function AdminPage() {
           <div className="border border-ink/10">
             {(postsQ.data ?? []).map((p) => (
               <div key={p.id} className="grid grid-cols-12 gap-3 px-4 py-3 border-b border-ink/8 text-sm items-center">
-                <div className="col-span-6 font-medium text-ink truncate">{p.title}</div>
+                <div className="col-span-6 font-medium text-ink truncate">
+                  <Link to="/cms/$id" params={{ id: p.id }} className="hover:underline">{p.title}</Link>
+                </div>
                 <div className="col-span-2 text-xs uppercase tracking-wider text-muted-foreground">{p.status}</div>
-                <div className="col-span-2 text-xs text-muted-foreground">{p.source}</div>
+                <div className="col-span-2 text-xs text-muted-foreground truncate">/{p.slug}</div>
                 <div className="col-span-2 text-right">
-                  {p.status !== "published" && (
-                    <button
-                      onClick={() => saveFn({ data: { id: p.id, title: p.title, status: "published", content_markdown: "" } as any })
-                        .then(() => qc.invalidateQueries({ queryKey: ["adminPosts"] }))}
-                      className="text-xs uppercase tracking-widest text-ink hover:underline"
-                    >Publicar</button>
-                  )}
+                  <Link to="/cms/$id" params={{ id: p.id }} className="text-xs uppercase tracking-widest text-ink hover:underline">Editar</Link>
                 </div>
               </div>
             ))}
