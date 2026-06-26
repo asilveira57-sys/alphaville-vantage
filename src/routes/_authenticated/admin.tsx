@@ -21,11 +21,10 @@ function AdminPage() {
   const qc = useQueryClient();
   const checkFn = useServerFn(checkIsAdmin);
   const grantFn = useServerFn(grantSelfAdminIfFirst);
-  const postsFn = useServerFn(listAllPostsAdmin);
+  const postsFn = useServerFn(listEditorialPages);
   const runsFn = useServerFn(listScraperRuns);
   const genFn = useServerFn(generatePostWithAI);
   const scrapeFn = useServerFn(runScraper);
-  const saveFn = useServerFn(upsertPost);
   const reprocessFn = useServerFn(reprocessProperties);
   const auditFn = useServerFn(getScrapAudit);
   const seoFn = useServerFn(regenerateSeo);
@@ -33,7 +32,7 @@ function AdminPage() {
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
-    queryKey: ["adminPosts"], queryFn: () => postsFn(),
+    queryKey: ["adminPosts"], queryFn: () => postsFn({ data: { contentType: "blog" } }),
     enabled: !!adminQ.data?.isAdmin,
   });
   const runsQ = useQuery({
