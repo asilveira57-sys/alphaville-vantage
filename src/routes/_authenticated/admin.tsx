@@ -49,7 +49,11 @@ function AdminPage() {
   const [category, setCategory] = useState("");
   const genMut = useMutation({
     mutationFn: () => genFn({ data: { topic, category: category || undefined } }),
-    onSuccess: () => { setTopic(""); qc.invalidateQueries({ queryKey: ["adminPosts"] }); },
+    onSuccess: (res) => {
+      setTopic("");
+      qc.invalidateQueries({ queryKey: ["adminPosts"] });
+      if (res?.post?.id) router.navigate({ to: "/cms/$id", params: { id: res.post.id } });
+    },
   });
   const scrapeMut = useMutation({
     mutationFn: async () => {
