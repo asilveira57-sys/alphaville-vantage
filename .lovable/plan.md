@@ -1,94 +1,66 @@
+# Melhorias no Editor do CMS
 
-# CMS Editorial — SA Imóveis Alphaville
+Vou aplicar 4 melhorias no editor de páginas (`/cms/novo` e `/cms/:id`).
 
-Módulo único e escalável para gerenciar todo conteúdo editorial do site (condomínios, bairros, cidade, guias, blog, institucional) com SEO completo por página.
+## 1. Editor visual estilo Word (com modo HTML)
 
-## 1. Banco de dados
+Substituir o editor HTML cru atual por um editor rich-text (TipTap), com barra de ferramentas visual:
 
-Nova tabela `public.editorial_pages` (unificada para todos os tipos):
+- Negrito, itálico, sublinhado, riscado
+- H1, H2, H3, parágrafo
+- Listas (numerada / com marcadores)
+- Citação, alinhamento, linha horizontal
+- Link (inserir/editar/remover)
+- Imagem (com upload — ver item 2)
+- Desfazer/refazer
+- **Botão "</> HTML"** que alterna entre o modo visual e um `<textarea>` onde o usuário pode colar/editar HTML bruto. Ao voltar para o visual, o HTML é sanitizado e renderizado.
 
-```
-id, title, slug (unique), content_type (enum: condominio|bairro|cidade|guia|blog|institucional),
-excerpt, html_content, featured_image, gallery_images (text[]),
-status (draft|published|archived), is_featured, display_order,
-tags (text[]), related_neighborhood, related_condominium (uuid → condominiums.id, nullable),
-meta_title, meta_description, focus_keyword, secondary_keywords (text[]),
-canonical_url, og_title, og_description, og_image,
-schema_type (Article|BlogPosting|Place|Residence|LocalBusiness),
-author_id, created_at, updated_at, published_at
-```
+O conteúdo continua salvo como HTML sanitizado no campo `content_html` (mesma estrutura atual, sem migração).
 
-RLS:
-- `anon` + `authenticated`: SELECT onde `status = 'published'`
-- `admin` (via `has_role`): full CRUD + leitura de rascunhos
+## 2. Upload de imagens (sem precisar de URL)
 
-Índices: slug, (content_type, status, published_at), GIN em tags.
+- Usar o bucket existente `editorial-images` (já criado, privado).
+- Tornar o bucket **público** (via `supabase--storage_update_bucket`) para que as imagens publicadas no site sejam visíveis.
+- Adicionar políticas RLS em `storage.objects` permitindo upload por usuários autenticados e leitura pública.
+- Criar componente `ImageUpload` reutilizável que:
+  - Aceita arrastar-e-soltar ou clicar para selecionar
+  - Faz upload para `editorial-images/{page-id-ou-tmp}/{uuid}.{ext}`
+  - Retorna a URL pública
+- Usar em 3 lugares:
+  - **Dentro do editor** (botão "Imagem" da toolbar → upload → insere `<img>`)
+  - **Imagem principal** (substitui o input de URL por um uploader; mantém URL como fallback)
+  - **Galeria** (uploader múltiplo; substitui o textarea de URLs)
 
-Mantemos `condominiums` e `blog_posts` existentes (não removemos para não quebrar `/imoveis` link ao condomínio). A `editorial_pages` é a fonte de conteúdo das **páginas editoriais**. O link de imóvel→condomínio continua via `condominiums.id`, mas a página pública `/condominios/[slug]` passa a ler de `editorial_pages` (com `content_type='condominio'` e mesmo slug).
+## 3. Selects para Bairro e Condomínio relacionados
 
-## 2. Rotas públicas (TanStack)
+- Criar server functions `listBairros()` e `listCondominios()` que retornam `{id, name, slug}` das páginas editoriais já cadastradas do tipo `bairro` e dos registros da tabela `condominiums`.
+- Substituir os inputs de texto livre por **Combobox com busca** (shadcn `Command` + `Popover`), evitando duplicatas por erro de digitação.
+- Salvar o slug do bairro e o UUID do condomínio (como hoje), mas escolhidos da lista.
 
-- `/condominios` — listagem dinâmica (cards = editorial_pages tipo condominio, published)
-- `/condominios/$slug` — página individual
-- `/bairros` — listagem
-- `/bairros/$slug` — página individual
-- `/blog` — listagem (continua usando blog_posts existente, mas adapta link dos cards editoriais novos)
-- `/blog/$slug` — individual (já existe — `blog.$slug.tsx`)
-- Páginas existentes `/alphaville`, `/guia-*` ganham seção "Veja também" puxando de editorial_pages
-- 404 amigável quando slug não existe ou não publicado
+## 4. Geração automática de SEO com IA
 
-Renomeação: rota atual `condominio.$slug.tsx` (singular) → criar `condominios.$slug.tsx` (plural, conforme spec) e redirecionar singular para plural.
+- Adicionar botão **"✨ Gerar SEO com IA"** acima dos campos de SEO no editor.
+- Cria server function `generateSeoMetadata` (autenticada) que:
+  - Recebe `{ title, content_html, type, neighborhood }`
+  - Chama Lovable AI Gateway (`google/gemini-3-flash-preview`) com prompt em PT-BR pedindo: `meta_title` (≤60 chars), `meta_description` (≤160 chars), `keywords` (5–8, separadas por vírgula), focado em SEO local de Alphaville/Tamboré/Barueri/Santana de Parnaíba quando aplicável.
+  - Usa `Output.object` com Zod para retorno estruturado.
+- Ao clicar, preenche os 3 campos automaticamente (o usuário pode editar depois).
+- Requer que título e algum conteúdo já estejam preenchidos; mostra toast se faltar.
 
-Cards atuais em `/condominios` viram `<Link>` reais para `/condominios/$slug` (Residencial 1, 10, Tamboré 11, Gênesis, Alphaville Zero, Edifícios Verticais).
+## Detalhes técnicos
 
-SEO por página: `head()` lê loader data e injeta meta title/description/canonical/OG + JSON-LD do `schema_type`.
+- **Pacotes novos**: `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`, `@tiptap/extension-underline`.
+- **Arquivos a alterar**:
+  - `src/components/html-editor.tsx` → substituído por editor TipTap com toggle HTML
+  - `src/components/image-upload.tsx` (novo)
+  - `src/components/related-select.tsx` (novo — combobox)
+  - `src/lib/editorial.functions.ts` → adicionar `listBairros`, `listCondominios`, `generateSeoMetadata`, `uploadEditorialImage`
+  - `src/routes/_authenticated/cms.$id.tsx` → integrar tudo
+- **Migração**: políticas RLS em `storage.objects` para o bucket `editorial-images`.
+- **Sem mudanças** no schema da tabela `editorial_pages` nem nas rotas públicas.
 
-## 3. Admin (`/_authenticated/cms`)
+## Fora do escopo desta entrega
 
-- **Listagem** `/cms`: tabela com busca (título), filtros (tipo, status, tag), badges de status, indicador de SEO (5 checks), ações: editar, visualizar, publicar/despublicar, duplicar, excluir.
-- **Editor** `/cms/$id`:
-  - Campos: título, slug auto-editável, tipo, resumo, imagem principal (upload bucket `editorial-images`), galeria, status, destaque, ordem, tags, condomínio/bairro relacionado.
-  - Editor rico: **TipTap** (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-link`, `@tiptap/extension-image`) com toolbar (H1/H2/H3, bold, italic, listas, link, imagem, code).
-  - Sanitização: **DOMPurify** no render do front (allowlist de tags/attrs; bloqueia script, on*, iframe).
-  - Aba SEO: meta title/description, focus keyword, secondary keywords (chips), canonical, OG title/desc/image, schema_type.
-  - Indicador SEO ao vivo: meta title preenchido, meta description preenchida, slug, H1 presente no HTML, ≥600 palavras, ≥1 link interno (`href` começando com `/`).
-- **Novo** `/cms/novo`: mesmo editor, modo criação.
-
-## 4. Seeds iniciais
-
-Inserir via migração 6 páginas com `content_type='condominio'`, status='published', conteúdo placeholder editorial básico + meta SEO:
-- residencial-1, residencial-10, tambore-11, genesis, alphaville-zero, edificios-verticais
-
-## 5. Sitemap
-
-`sitemap[.]xml.ts` passa a incluir todas as `editorial_pages` publicadas.
-
-## 6. Dependências a instalar
-
-`@tiptap/react @tiptap/starter-kit @tiptap/extension-link @tiptap/extension-image isomorphic-dompurify`
-
-## 7. Server functions (em `src/lib/editorial.functions.ts`)
-
-- `listEditorialPages({ contentType?, status?, search?, tag? })` — admin (auth)
-- `getEditorialPageBySlug(slug)` — público (anon, RLS filtra)
-- `listPublishedByType(type, { featured?, limit? })` — público
-- `upsertEditorialPage(input)` — admin
-- `deleteEditorialPage(id)` — admin
-- `duplicateEditorialPage(id)` — admin
-- `togglePublish(id)` — admin
-
-## 8. Header/Nav
-
-Adicionar link "Bairros" no menu (Condomínios e Blog já existem). Item "CMS" no menu admin.
-
-## Notas técnicas
-
-- HTML do editor é sanitizado **no render** (defesa em profundidade), não na escrita.
-- Slug auto-gerado a partir do título (lowercase, sem acento, hífens). Editável e único.
-- Upload de imagens reutiliza bucket `editorial-images` (já existe) via signed URL.
-- Schema.org gerado dinamicamente no `head()` da rota pública conforme `schema_type`.
-- Identidade visual atual preservada: reuso de tokens, `site-header`, `Card`, etc.
-
----
-
-Após aprovação: rodo a migração (você revisa antes), instalo as deps, crio as rotas, o admin e os seeds em sequência.
+- Versionamento de conteúdo / histórico de edições
+- Tradução automática
+- Otimização de imagens (resize/webp) no upload — pode ser adicionada depois
