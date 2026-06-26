@@ -127,7 +127,7 @@ const upsertSchema = z.object({
   content_type: z.enum(CONTENT_TYPES),
   excerpt: z.string().optional().nullable(),
   html_content: z.string().default(""),
-  featured_image: z.string().url().optional().nullable().or(z.literal("")),
+  featured_image: z.string().optional().nullable(),
   gallery_images: z.array(z.string()).default([]),
   status: z.enum(STATUSES).default("draft"),
   is_featured: z.boolean().default(false),
