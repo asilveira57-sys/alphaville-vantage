@@ -51,12 +51,12 @@ function BlogIndex() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
           {posts.map((p) => (
             <Link key={p.id} to="/blog/$slug" params={{ slug: p.slug }} className="group">
-              {p.cover_image_url && (
+              {p.featured_image && (
                 <div className="aspect-[4/3] overflow-hidden bg-ink/5 mb-4">
-                  <img src={p.cover_image_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
+                  <img src={p.featured_image} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
                 </div>
               )}
-              <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">{p.category ?? "Editorial"}</p>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">{p.tags?.[0] ?? "Editorial"}</p>
               <h2 className="font-serif text-xl text-ink leading-snug mb-2 group-hover:underline underline-offset-4">{p.title}</h2>
               {p.excerpt && <p className="text-sm text-muted-foreground leading-relaxed">{p.excerpt}</p>}
             </Link>
