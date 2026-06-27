@@ -21,6 +21,110 @@ const slugify = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 110);
 
+const titleCase = (s: string) =>
+  s.toLowerCase().replace(/\b([a-zà-ÿ])/g, (m) => m.toUpperCase());
+
+/**
+ * Garante guia editorial para o bairro. Se não existir guia/bairro com slug equivalente,
+ * cria rascunho com estrutura padrão (História, Mobilidade, Serviços, Qualidade de Vida).
+ * Retorna o slug usado (para vincular a outros conteúdos).
+ */
+async function ensureBairroGuia(
+  admin: any,
+  neighborhood: string | null | undefined,
+  city: string | null | undefined,
+): Promise<string | null> {
+  if (!neighborhood) return null;
+  const baseSlug = slugify(neighborhood + (city ? `-${city}` : ""));
+  if (!baseSlug) return null;
+  const { data: existing } = await admin
+    .from("editorial_pages")
+    .select("slug")
+    .in("content_type", ["bairro", "guia"])
+    .ilike("title", neighborhood)
+    .maybeSingle();
+  if (existing) return existing.slug;
+  const title = titleCase(neighborhood) + (city ? ` (${titleCase(city)})` : "");
+  const html = `
+<p>Guia gerado automaticamente. Edite no CMS para complementar com fotos, dados e curiosidades.</p>
+<h2 id="historia">História</h2><p>Conteúdo a ser preenchido.</p>
+<h2 id="mobilidade">Mobilidade</h2><p>Conteúdo a ser preenchido.</p>
+<h2 id="servicos">Serviços</h2><p>Conteúdo a ser preenchido.</p>
+<h2 id="qualidade-de-vida">Qualidade de Vida</h2><p>Conteúdo a ser preenchido.</p>`.trim();
+  const { error } = await admin.from("editorial_pages").insert({
+    slug: baseSlug,
+    title,
+    content_type: "guia",
+    status: "draft",
+    html_content: html,
+    excerpt: `Guia do bairro ${titleCase(neighborhood)}${city ? ` em ${titleCase(city)}` : ""}.`,
+    tags: [titleCase(neighborhood), city ? titleCase(city) : null].filter(Boolean),
+    meta_title: `${titleCase(neighborhood)} — Guia do bairro`,
+    meta_description: `Tudo sobre ${titleCase(neighborhood)}: história, mobilidade, serviços e qualidade de vida.`,
+  });
+  if (error && !/duplicate key/i.test(error.message)) {
+    console.error("ensureBairroGuia failed", error.message);
+    return null;
+  }
+  return baseSlug;
+}
+
+/**
+ * Garante registro em condominiums + editorial_pages (condominio) para o nome.
+ * Retorna { condominiumId, slug } para vincular ao imóvel.
+ */
+async function ensureCondominio(
+  admin: any,
+  condoName: string | null | undefined,
+  neighborhood: string | null | undefined,
+  city: string | null | undefined,
+  bairroSlug: string | null,
+  coverImage: string | null,
+): Promise<{ id: string; slug: string } | null> {
+  if (!condoName) return null;
+  const slug = slugify(condoName);
+  if (!slug) return null;
+  // Garante linha em condominiums
+  let { data: condo } = await admin
+    .from("condominiums").select("id,slug").eq("slug", slug).maybeSingle();
+  if (!condo) {
+    const region = [neighborhood, city].filter((s): s is string => !!s).map(titleCase).join(" — ") || null;
+    const { data: inserted, error } = await admin.from("condominiums").insert({
+      slug, name: titleCase(condoName), region,
+      cover_image_url: coverImage, status: "active",
+    }).select("id,slug").single();
+    if (error) {
+      console.error("ensureCondominio insert failed", error.message);
+      return null;
+    }
+    condo = inserted;
+  }
+  // Garante editorial_pages condominio
+  const { data: page } = await admin
+    .from("editorial_pages").select("id")
+    .eq("content_type", "condominio").eq("slug", slug).maybeSingle();
+  if (!page) {
+    const html = `
+<p>Página gerada automaticamente. Edite no CMS para complementar com descrição, infraestrutura, fotos e diferenciais.</p>
+<h2 id="sobre">Sobre o condomínio</h2><p>Conteúdo a ser preenchido.</p>
+<h2 id="infraestrutura">Infraestrutura e lazer</h2><p>Conteúdo a ser preenchido.</p>
+<h2 id="localizacao">Localização</h2><p>${neighborhood ? titleCase(neighborhood) : ""}${city ? `, ${titleCase(city)}` : ""}.</p>`.trim();
+    await admin.from("editorial_pages").insert({
+      slug, title: titleCase(condoName), content_type: "condominio",
+      status: "draft", html_content: html,
+      excerpt: `Conheça o condomínio ${titleCase(condoName)}${neighborhood ? ` em ${titleCase(neighborhood)}` : ""}.`,
+      tags: [titleCase(condoName), neighborhood ? titleCase(neighborhood) : null, city ? titleCase(city) : null].filter(Boolean),
+      related_neighborhood: bairroSlug,
+      related_condominium: condo.id,
+      featured_image: coverImage,
+      meta_title: `${titleCase(condoName)} — ${neighborhood ? titleCase(neighborhood) : "Condomínio"}`,
+      meta_description: `${titleCase(condoName)}: infraestrutura, localização e imóveis disponíveis${neighborhood ? ` em ${titleCase(neighborhood)}` : ""}.`,
+    });
+  }
+  return { id: condo.id, slug: condo.slug };
+}
+
+
 async function politeFetch(url: string): Promise<Response | null> {
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
@@ -408,6 +512,23 @@ export const runScraper = createServerFn({ method: "POST" })
 
           if (upsertErr) throw new Error(upsertErr.message);
           upserted++;
+
+          // Auto-vincular bairro (guia) e condomínio (registro + página).
+          try {
+            const nb = seoSrc.neighborhood ?? null;
+            const ci = seoSrc.city ?? null;
+            const cn = seoSrc.condominium_name ?? null;
+            const cover = images[0] ?? null;
+            const bairroSlug = await ensureBairroGuia(supabaseAdmin, nb, ci);
+            const condo = await ensureCondominio(supabaseAdmin, cn, nb, ci, bairroSlug, cover);
+            if (condo) {
+              await supabaseAdmin.from("properties")
+                .update({ condominium_id: condo.id })
+                .eq("external_ref", item.ref);
+            }
+          } catch (linkErr) {
+            console.error("Auto-link bairro/condomínio falhou", item.url, linkErr instanceof Error ? linkErr.message : String(linkErr));
+          }
         } catch (e) {
           console.error("Crawler property failed", item.url, e instanceof Error ? e.message : String(e));
           errors++;
