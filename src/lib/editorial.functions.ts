@@ -246,23 +246,31 @@ export const listBairroOptions = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { data, error } = await context.supabase
       .from("editorial_pages")
-      .select("slug,title")
-      .eq("content_type", "bairro")
+      .select("slug,title,content_type")
+      .in("content_type", ["bairro", "guia"])
       .order("title", { ascending: true });
     if (error) throw new Error(error.message);
-    return (data ?? []) as { slug: string; title: string }[];
+    return (data ?? []).map((r: any) => ({
+      slug: r.slug,
+      title: r.content_type === "guia" ? `${r.title} (guia)` : r.title,
+    })) as { slug: string; title: string }[];
   });
 
 export const listCondominioOptions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase
-      .from("condominiums")
-      .select("id,name,region")
-      .order("name", { ascending: true });
-    if (error) throw new Error(error.message);
-    return (data ?? []) as { id: string; name: string; region: string | null }[];
+    const [condos, pages] = await Promise.all([
+      context.supabase.from("condominiums").select("id,name,region").order("name", { ascending: true }),
+      context.supabase.from("editorial_pages").select("id,title,related_neighborhood").eq("content_type", "condominio").order("title", { ascending: true }),
+    ]);
+    if (condos.error) throw new Error(condos.error.message);
+    if (pages.error) throw new Error(pages.error.message);
+    const fromTable = (condos.data ?? []) as { id: string; name: string; region: string | null }[];
+    const fromPages = (pages.data ?? []).map((p: any) => ({
+      id: p.id, name: p.title, region: p.related_neighborhood ?? null,
+    }));
+    return [...fromTable, ...fromPages];
   });
 
 // ---------- AI SEO generation ----------
