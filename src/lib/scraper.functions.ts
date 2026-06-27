@@ -512,6 +512,23 @@ export const runScraper = createServerFn({ method: "POST" })
 
           if (upsertErr) throw new Error(upsertErr.message);
           upserted++;
+
+          // Auto-vincular bairro (guia) e condomínio (registro + página).
+          try {
+            const nb = seoSrc.neighborhood ?? null;
+            const ci = seoSrc.city ?? null;
+            const cn = seoSrc.condominium_name ?? null;
+            const cover = images[0] ?? null;
+            const bairroSlug = await ensureBairroGuia(supabaseAdmin, nb, ci);
+            const condo = await ensureCondominio(supabaseAdmin, cn, nb, ci, bairroSlug, cover);
+            if (condo) {
+              await supabaseAdmin.from("properties")
+                .update({ condominium_id: condo.id })
+                .eq("external_ref", item.ref);
+            }
+          } catch (linkErr) {
+            console.error("Auto-link bairro/condomínio falhou", item.url, linkErr instanceof Error ? linkErr.message : String(linkErr));
+          }
         } catch (e) {
           console.error("Crawler property failed", item.url, e instanceof Error ? e.message : String(e));
           errors++;
