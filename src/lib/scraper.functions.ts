@@ -88,7 +88,7 @@ async function ensureCondominio(
   let { data: condo } = await admin
     .from("condominiums").select("id,slug").eq("slug", slug).maybeSingle();
   if (!condo) {
-    const region = [neighborhood, city].filter(Boolean).map(titleCase).join(" — ") || null;
+    const region = [neighborhood, city].filter((s): s is string => !!s).map(titleCase).join(" — ") || null;
     const { data: inserted, error } = await admin.from("condominiums").insert({
       slug, name: titleCase(condoName), region,
       cover_image_url: coverImage, status: "active",
