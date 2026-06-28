@@ -307,21 +307,55 @@ function inferPurpose(url: string, html: string): "rent" | "sale" | "both" | nul
   return null;
 }
 
+type DryRunPreview = {
+  url: string;
+  ref: string;
+  title: string;
+  slug: string;
+  property_type: string | null;
+  purpose: "rent" | "sale" | "both" | null;
+  city: string | null;
+  neighborhood: string | null;
+  condominium_name: string | null;
+  bedrooms: number | null;
+  area: number | null;
+  price_sale: number | null;
+  price_rent: number | null;
+  images_count: number;
+  review_status: string;
+  audit_status: string;
+  audit_issues: string[];
+  existing: boolean;
+  would_create_bairro_guia: boolean;
+  would_create_condominio: boolean;
+  warnings: string[];
+};
+
 export const runScraper = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((input: { dryRun?: boolean; limit?: number } | undefined) => input ?? {})
+  .handler(async ({ context, data }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId, _role: "admin",
     });
     if (!isAdmin) throw new Error("Forbidden");
 
+    const dryRun = !!data?.dryRun;
+    const dryLimit = Math.max(1, Math.min(50, data?.limit ?? 10));
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const t0 = Date.now();
+    const previews: DryRunPreview[] = [];
 
-    const { data: run, error: runErr } = await supabaseAdmin.from("scraper_runs").insert({
-      status: "running", triggered_by: context.userId,
-    }).select().single();
-    if (runErr) throw new Error(runErr.message);
+    let run: { id: string } | null = null;
+    if (!dryRun) {
+      const { data: r, error: runErr } = await supabaseAdmin.from("scraper_runs").insert({
+        status: "running", triggered_by: context.userId,
+      }).select().single();
+      if (runErr) throw new Error(runErr.message);
+      run = r;
+    }
+
 
     let pages = 0;
     let upserted = 0;
