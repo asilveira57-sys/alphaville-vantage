@@ -33,6 +33,7 @@ import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
 import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
+import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
@@ -165,6 +166,11 @@ const BairrosIndexRoute = BairrosIndexRouteImport.update({
   path: '/bairros/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeioAmbienteFaunaRoute = MeioAmbienteFaunaRouteImport.update({
+  id: '/fauna',
+  path: '/fauna',
+  getParentRoute: () => MeioAmbienteRoute,
+} as any)
 const ImoveisSlugRoute = ImoveisSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/bairros/': typeof BairrosIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
@@ -287,6 +294,7 @@ export interface FileRoutesByTo {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/bairros': typeof BairrosIndexRoute
   '/condominios': typeof CondominiosIndexRoute
   '/guia': typeof GuiaIndexRoute
@@ -326,6 +334,7 @@ export interface FileRoutesById {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/bairros/': typeof BairrosIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
@@ -365,6 +374,7 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
+    | '/meio-ambiente/fauna'
     | '/bairros/'
     | '/condominios/'
     | '/guia/'
@@ -398,6 +408,7 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
+    | '/meio-ambiente/fauna'
     | '/bairros'
     | '/condominios'
     | '/guia'
@@ -436,6 +447,7 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
+    | '/meio-ambiente/fauna'
     | '/bairros/'
     | '/condominios/'
     | '/guia/'
@@ -644,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BairrosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/meio-ambiente/fauna': {
+      id: '/meio-ambiente/fauna'
+      path: '/fauna'
+      fullPath: '/meio-ambiente/fauna'
+      preLoaderRoute: typeof MeioAmbienteFaunaRouteImport
+      parentRoute: typeof MeioAmbienteRoute
+    }
     '/imoveis/$slug': {
       id: '/imoveis/$slug'
       path: '/$slug'
@@ -806,10 +825,12 @@ const ImoveisRouteWithChildren =
   ImoveisRoute._addFileChildren(ImoveisRouteChildren)
 
 interface MeioAmbienteRouteChildren {
+  MeioAmbienteFaunaRoute: typeof MeioAmbienteFaunaRoute
   MeioAmbienteIndexRoute: typeof MeioAmbienteIndexRoute
 }
 
 const MeioAmbienteRouteChildren: MeioAmbienteRouteChildren = {
+  MeioAmbienteFaunaRoute: MeioAmbienteFaunaRoute,
   MeioAmbienteIndexRoute: MeioAmbienteIndexRoute,
 }
 
