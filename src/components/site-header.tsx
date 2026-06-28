@@ -8,7 +8,7 @@ const NAV = [
   { label: "Alphaville", to: "/alphaville" },
   { label: "Bairros", to: "/bairros" },
   { label: "Condomínios", to: "/condominios" },
-  { label: "Guia", to: "/guia-alphaville" },
+  { label: "Guia", to: "/guia" },
   { label: "Mercado", to: "/mercado-imobiliario" },
   { label: "Blog", to: "/blog" },
 ] as const;
