@@ -209,12 +209,21 @@ function AdminPage() {
                 {reprocessMut.isPending ? "Reprocessando…" : "Reprocessar todos"}
               </button>
               <button
+                onClick={() => dryRunMut.mutate()}
+                disabled={dryRunMut.isPending || scrapeMut.isPending}
+                className="border border-ink/20 text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/5 disabled:opacity-50"
+                title="Coleta as próximas URLs e mostra como seriam cadastradas, sem gravar nada."
+              >
+                {dryRunMut.isPending ? "Simulando…" : "Simular (dry-run)"}
+              </button>
+              <button
                 onClick={() => scrapeMut.mutate()}
                 disabled={scrapeMut.isPending}
                 className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-50"
               >
                 {scrapeMut.isPending ? "Rodando…" : "Rodar agora"}
               </button>
+
             </div>
           </div>
           <p className="text-xs text-muted-foreground mb-3">
