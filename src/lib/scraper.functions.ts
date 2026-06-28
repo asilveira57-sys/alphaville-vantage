@@ -646,25 +646,34 @@ export const runScraper = createServerFn({ method: "POST" })
 
       }
 
-      await supabaseAdmin.from("scraper_runs").update({
-        status: "success",
-        pages_crawled: pages,
-        properties_upserted: upserted,
-        finished_at: new Date().toISOString(),
-        error: errors ? `${errors} URLs com falha` : null,
-      }).eq("id", run.id);
+      if (run) {
+        await supabaseAdmin.from("scraper_runs").update({
+          status: "success",
+          pages_crawled: pages,
+          properties_upserted: upserted,
+          finished_at: new Date().toISOString(),
+          error: errors ? `${errors} URLs com falha` : null,
+        }).eq("id", run.id);
+      }
 
-      return { runId: run.id, pages, upserted, discovered, errors, budgetReached: Date.now() - t0 > RUN_BUDGET_MS };
+      return {
+        dryRun, runId: run?.id ?? null, pages, upserted, discovered, errors,
+        budgetReached: Date.now() - t0 > RUN_BUDGET_MS,
+        previews: dryRun ? previews : [],
+      };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      await supabaseAdmin.from("scraper_runs").update({
-        status: "error", error: msg,
-        pages_crawled: pages, properties_upserted: upserted,
-        finished_at: new Date().toISOString(),
-      }).eq("id", run.id);
+      if (run) {
+        await supabaseAdmin.from("scraper_runs").update({
+          status: "error", error: msg,
+          pages_crawled: pages, properties_upserted: upserted,
+          finished_at: new Date().toISOString(),
+        }).eq("id", run.id);
+      }
       throw new Error(msg);
     }
   });
+
 
 export const listScraperRuns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
