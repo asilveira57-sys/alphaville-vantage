@@ -27,6 +27,7 @@ export const Route = createFileRoute("/guia-tambore")({
           { eyebrow: "Mercado", title: "Valorização e liquidez", lead: "Por que o Tamboré tem o m² mais disputado." },
         ]}
       />
+      <GuiaCrossNav currentTo="/guia-tambore" />
     </SectionPage>
   ),
 });
