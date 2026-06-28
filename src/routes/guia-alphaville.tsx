@@ -30,6 +30,7 @@ export const Route = createFileRoute("/guia-alphaville")({
           { eyebrow: "Saúde", title: "Hospitais e clínicas de referência", lead: "Rede médica que atende a região." },
         ]}
       />
+      <GuiaCrossNav currentTo="/guia-alphaville" />
     </SectionPage>
   ),
 });
