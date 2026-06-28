@@ -21,9 +21,9 @@ export const Route = createFileRoute("/meio-ambiente/")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "Fauna", title: "Animais silvestres da região", lead: "Espécies que ainda habitam os fragmentos de Mata Atlântica." },
-          { eyebrow: "Áreas", title: "Áreas de preservação", lead: "Reservas, APPs e a importância dos cinturões verdes." },
-          { eyebrow: "Lazer", title: "Parques e trilhas", lead: "Onde se conectar com a natureza na região." },
+          { eyebrow: "Fauna", title: "Animais silvestres da região", lead: "Espécies que ainda habitam os fragmentos de Mata Atlântica.", to: "/meio-ambiente/fauna" },
+          { eyebrow: "Áreas", title: "Áreas de preservação", lead: "Reservas, APPs e a importância dos cinturões verdes.", to: "/meio-ambiente/areas" },
+          { eyebrow: "Lazer", title: "Parques e trilhas", lead: "Onde se conectar com a natureza na região.", to: "/meio-ambiente/lazer" },
         ]}
       />
     </SectionPage>
