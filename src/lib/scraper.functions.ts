@@ -307,21 +307,55 @@ function inferPurpose(url: string, html: string): "rent" | "sale" | "both" | nul
   return null;
 }
 
+type DryRunPreview = {
+  url: string;
+  ref: string;
+  title: string;
+  slug: string;
+  property_type: string | null;
+  purpose: "rent" | "sale" | "both" | null;
+  city: string | null;
+  neighborhood: string | null;
+  condominium_name: string | null;
+  bedrooms: number | null;
+  area: number | null;
+  price_sale: number | null;
+  price_rent: number | null;
+  images_count: number;
+  review_status: string;
+  audit_status: string;
+  audit_issues: string[];
+  existing: boolean;
+  would_create_bairro_guia: boolean;
+  would_create_condominio: boolean;
+  warnings: string[];
+};
+
 export const runScraper = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((input: { dryRun?: boolean; limit?: number } | undefined) => input ?? {})
+  .handler(async ({ context, data }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId, _role: "admin",
     });
     if (!isAdmin) throw new Error("Forbidden");
 
+    const dryRun = !!data?.dryRun;
+    const dryLimit = Math.max(1, Math.min(50, data?.limit ?? 10));
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const t0 = Date.now();
+    const previews: DryRunPreview[] = [];
 
-    const { data: run, error: runErr } = await supabaseAdmin.from("scraper_runs").insert({
-      status: "running", triggered_by: context.userId,
-    }).select().single();
-    if (runErr) throw new Error(runErr.message);
+    let run: { id: string } | null = null;
+    if (!dryRun) {
+      const { data: r, error: runErr } = await supabaseAdmin.from("scraper_runs").insert({
+        status: "running", triggered_by: context.userId,
+      }).select().single();
+      if (runErr) throw new Error(runErr.message);
+      run = r;
+    }
+
 
     let pages = 0;
     let upserted = 0;
@@ -367,8 +401,10 @@ export const runScraper = createServerFn({ method: "POST" })
         });
 
       // 3) Processa respeitando rate-limit e o orçamento de tempo
-      for (const item of queue) {
+      const effectiveQueue = dryRun ? queue.slice(0, dryLimit) : queue;
+      for (const item of effectiveQueue) {
         if (Date.now() - t0 > RUN_BUDGET_MS) break;
+
 
         await sleep(REQUEST_DELAY_MS);
         const res = await politeFetch(item.url);
@@ -381,7 +417,22 @@ export const runScraper = createServerFn({ method: "POST" })
           const title = extractPropertyTitle(html, item.url);
           const description = pickMeta(html, "og:description") ?? "";
           const images = extractImages(html, item.url);
-          if (images.length === 0) { errors++; continue; }
+          if (images.length === 0) {
+            errors++;
+            if (dryRun) {
+              previews.push({
+                url: item.url, ref: item.ref, title, slug: slugify(title),
+                property_type: null, purpose: null, city: null, neighborhood: null,
+                condominium_name: null, bedrooms: null, area: null,
+                price_sale: null, price_rent: null, images_count: 0,
+                review_status: "needs_review", audit_status: "error", audit_issues: ["sem-imagens"],
+                existing: !!item.lastSeen, would_create_bairro_guia: false, would_create_condominio: false,
+                warnings: ["Nenhuma imagem encontrada — imóvel seria ignorado"],
+              });
+            }
+            continue;
+          }
+
           const purpose = inferPurpose(item.url, html);
           const pathParts = item.ref.split("/").filter(Boolean);
           const refTail = pathParts.at(-1) ?? "";
@@ -415,6 +466,65 @@ export const runScraper = createServerFn({ method: "POST" })
             price_sale: parsed.price_sale,
             price_rent: parsed.price_rent,
           });
+
+          if (dryRun) {
+            // Auditoria leve sem gravar nada
+            const seoSrcPreview: SeoSource = {
+              property_type: propertyType, purpose: finalPurpose ?? null,
+              city: parsed.city, state: parsed.state, neighborhood: parsed.neighborhood,
+              condominium_name: parsed.condominium_name,
+              bedrooms: parsed.bedrooms, suites: parsed.suites, bathrooms: parsed.bathrooms,
+              lavabos: parsed.lavabos, parking: parsed.parking,
+              parking_covered: parsed.parking_covered, parking_uncovered: parsed.parking_uncovered,
+              area_useful: parsed.area_useful, area_built: parsed.area_built, area_total: parsed.area_total,
+              price_sale: parsed.price_sale, price_rent: parsed.price_rent,
+              condo_fee: parsed.condo_fee, iptu: parsed.iptu,
+              furnished: parsed.furnished, is_launch: parsed.is_launch,
+              accepts_exchange: parsed.accepts_exchange,
+              description, internal_code: parsed.internal_code,
+            };
+            const audit = auditProperty({ ...seoSrcPreview, descricao_seo: buildSeoBody(seoSrcPreview, null) });
+            const warnings: string[] = [];
+            if (!parsed.price_sale && !parsed.price_rent) warnings.push("Sem preço (venda/locação)");
+            if (!parsed.neighborhood) warnings.push("Sem bairro");
+            if (!parsed.city) warnings.push("Sem cidade");
+            if (!propertyType) warnings.push("Sem tipo de imóvel");
+
+            let wouldCreateBairro = false;
+            if (parsed.neighborhood) {
+              const { data: b } = await supabaseAdmin.from("editorial_pages")
+                .select("slug").in("content_type", ["bairro", "guia"])
+                .ilike("title", parsed.neighborhood).maybeSingle();
+              wouldCreateBairro = !b;
+            }
+            let wouldCreateCondo = false;
+            if (parsed.condominium_name) {
+              const cslug = slugify(parsed.condominium_name);
+              const { data: c } = await supabaseAdmin.from("condominiums")
+                .select("id").eq("slug", cslug).maybeSingle();
+              wouldCreateCondo = !c;
+            }
+
+            previews.push({
+              url: item.url, ref: item.ref, title, slug: slugify(title),
+              property_type: propertyType, purpose: finalPurpose ?? null,
+              city: parsed.city, neighborhood: parsed.neighborhood,
+              condominium_name: parsed.condominium_name,
+              bedrooms: parsed.bedrooms,
+              area: parsed.area_useful ?? parsed.area_built ?? parsed.area_total,
+              price_sale: parsed.price_sale, price_rent: parsed.price_rent,
+              images_count: images.length,
+              review_status, audit_status: audit.status, audit_issues: audit.issues,
+              existing: !!item.lastSeen,
+              would_create_bairro_guia: wouldCreateBairro,
+              would_create_condominio: wouldCreateCondo,
+              warnings,
+            });
+            upserted++; // contador "simulado"
+            continue;
+          }
+
+
 
           // IMPORTANTE: preserva manual_overrides existentes — não sobrescreve
           // dados editados manualmente no admin.
@@ -536,25 +646,34 @@ export const runScraper = createServerFn({ method: "POST" })
 
       }
 
-      await supabaseAdmin.from("scraper_runs").update({
-        status: "success",
-        pages_crawled: pages,
-        properties_upserted: upserted,
-        finished_at: new Date().toISOString(),
-        error: errors ? `${errors} URLs com falha` : null,
-      }).eq("id", run.id);
+      if (run) {
+        await supabaseAdmin.from("scraper_runs").update({
+          status: "success",
+          pages_crawled: pages,
+          properties_upserted: upserted,
+          finished_at: new Date().toISOString(),
+          error: errors ? `${errors} URLs com falha` : null,
+        }).eq("id", run.id);
+      }
 
-      return { runId: run.id, pages, upserted, discovered, errors, budgetReached: Date.now() - t0 > RUN_BUDGET_MS };
+      return {
+        dryRun, runId: run?.id ?? null, pages, upserted, discovered, errors,
+        budgetReached: Date.now() - t0 > RUN_BUDGET_MS,
+        previews: dryRun ? previews : [],
+      };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      await supabaseAdmin.from("scraper_runs").update({
-        status: "error", error: msg,
-        pages_crawled: pages, properties_upserted: upserted,
-        finished_at: new Date().toISOString(),
-      }).eq("id", run.id);
+      if (run) {
+        await supabaseAdmin.from("scraper_runs").update({
+          status: "error", error: msg,
+          pages_crawled: pages, properties_upserted: upserted,
+          finished_at: new Date().toISOString(),
+        }).eq("id", run.id);
+      }
       throw new Error(msg);
     }
   });
+
 
 export const listScraperRuns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
