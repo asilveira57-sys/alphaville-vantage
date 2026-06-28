@@ -467,6 +467,65 @@ export const runScraper = createServerFn({ method: "POST" })
             price_rent: parsed.price_rent,
           });
 
+          if (dryRun) {
+            // Auditoria leve sem gravar nada
+            const seoSrcPreview: SeoSource = {
+              property_type: propertyType, purpose: finalPurpose ?? null,
+              city: parsed.city, state: parsed.state, neighborhood: parsed.neighborhood,
+              condominium_name: parsed.condominium_name,
+              bedrooms: parsed.bedrooms, suites: parsed.suites, bathrooms: parsed.bathrooms,
+              lavabos: parsed.lavabos, parking: parsed.parking,
+              parking_covered: parsed.parking_covered, parking_uncovered: parsed.parking_uncovered,
+              area_useful: parsed.area_useful, area_built: parsed.area_built, area_total: parsed.area_total,
+              price_sale: parsed.price_sale, price_rent: parsed.price_rent,
+              condo_fee: parsed.condo_fee, iptu: parsed.iptu,
+              furnished: parsed.furnished, is_launch: parsed.is_launch,
+              accepts_exchange: parsed.accepts_exchange,
+              description, internal_code: parsed.internal_code,
+            };
+            const audit = auditProperty({ ...seoSrcPreview, descricao_seo: buildSeoBody(seoSrcPreview, null) });
+            const warnings: string[] = [];
+            if (!parsed.price_sale && !parsed.price_rent) warnings.push("Sem preço (venda/locação)");
+            if (!parsed.neighborhood) warnings.push("Sem bairro");
+            if (!parsed.city) warnings.push("Sem cidade");
+            if (!propertyType) warnings.push("Sem tipo de imóvel");
+
+            let wouldCreateBairro = false;
+            if (parsed.neighborhood) {
+              const { data: b } = await supabaseAdmin.from("editorial_pages")
+                .select("slug").in("content_type", ["bairro", "guia"])
+                .ilike("title", parsed.neighborhood).maybeSingle();
+              wouldCreateBairro = !b;
+            }
+            let wouldCreateCondo = false;
+            if (parsed.condominium_name) {
+              const cslug = slugify(parsed.condominium_name);
+              const { data: c } = await supabaseAdmin.from("condominiums")
+                .select("id").eq("slug", cslug).maybeSingle();
+              wouldCreateCondo = !c;
+            }
+
+            previews.push({
+              url: item.url, ref: item.ref, title, slug: slugify(title),
+              property_type: propertyType, purpose: finalPurpose ?? null,
+              city: parsed.city, neighborhood: parsed.neighborhood,
+              condominium_name: parsed.condominium_name,
+              bedrooms: parsed.bedrooms,
+              area: parsed.area_useful ?? parsed.area_built ?? parsed.area_total,
+              price_sale: parsed.price_sale, price_rent: parsed.price_rent,
+              images_count: images.length,
+              review_status, audit_status: audit.status, audit_issues: audit.issues,
+              existing: !!item.lastSeen,
+              would_create_bairro_guia: wouldCreateBairro,
+              would_create_condominio: wouldCreateCondo,
+              warnings,
+            });
+            upserted++; // contador "simulado"
+            continue;
+          }
+
+
+
           // IMPORTANTE: preserva manual_overrides existentes — não sobrescreve
           // dados editados manualmente no admin.
           const { data: existing } = await supabaseAdmin
