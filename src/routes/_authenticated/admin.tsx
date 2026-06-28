@@ -57,7 +57,7 @@ function AdminPage() {
   });
   const scrapeMut = useMutation({
     mutationFn: async () => {
-      const scrape = await scrapeFn();
+      const scrape = await scrapeFn({ data: { dryRun: false } });
       // Reaplica a versão mais recente do motor SEO em TODOS os imóveis
       // (inclusive os já cadastrados antes da última atualização das regras).
       const seo = await seoFn({ data: { all: true, useAI: seoUseAI } });
@@ -68,6 +68,10 @@ function AdminPage() {
       qc.invalidateQueries({ queryKey: ["scrapAudit"] });
     },
   });
+  const dryRunMut = useMutation({
+    mutationFn: () => scrapeFn({ data: { dryRun: true, limit: 10 } }),
+  });
+
   const reprocessMut = useMutation({
     mutationFn: () => reprocessFn({ data: { all: true } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["scrapAudit"] }),
