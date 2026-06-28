@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionPage, ComingSoonGrid } from "@/components/section-page";
+import { GuiaCrossNav } from "@/components/guia-cross-nav";
 
 export const Route = createFileRoute("/guia-tambore")({
   head: () => ({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/guia-tambore")({
           { eyebrow: "Mercado", title: "Valorização e liquidez", lead: "Por que o Tamboré tem o m² mais disputado." },
         ]}
       />
+      <GuiaCrossNav currentTo="/guia-tambore" />
     </SectionPage>
   ),
 });

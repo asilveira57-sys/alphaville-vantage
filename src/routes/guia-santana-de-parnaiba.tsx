@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionPage, ComingSoonGrid } from "@/components/section-page";
+import { GuiaCrossNav } from "@/components/guia-cross-nav";
 
 export const Route = createFileRoute("/guia-santana-de-parnaiba")({
   head: () => ({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/guia-santana-de-parnaiba")({
           { eyebrow: "Gastronomia", title: "Restaurantes premiados", lead: "Da culinária tradicional aos novos endereços autorais." },
         ]}
       />
+      <GuiaCrossNav currentTo="/guia-santana-de-parnaiba" />
     </SectionPage>
   ),
 });
