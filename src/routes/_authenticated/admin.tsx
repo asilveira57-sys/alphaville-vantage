@@ -266,7 +266,47 @@ function AdminPage() {
             <p className="text-xs text-emerald-700 mb-3">
               SEO regerado: {seoMut.data.processed} · Atualizados: {seoMut.data.updated} · IA: {seoMut.data.withAI ? "sim" : "não"}
             </p>
+          {dryRunMut.error && <p className="text-xs text-red-600 mb-3">{(dryRunMut.error as Error).message}</p>}
+          {dryRunMut.data && (
+            <div className="border border-amber-400/40 bg-amber-50/40 p-4 mb-4">
+              <p className="text-xs uppercase tracking-widest text-amber-900 mb-2">
+                Simulação · {dryRunMut.data.previews.length} URLs analisadas · Descobertos: {dryRunMut.data.discovered} · Nada foi gravado
+              </p>
+              <div className="space-y-2 max-h-96 overflow-auto">
+                {dryRunMut.data.previews.map((p) => (
+                  <div key={p.ref} className="text-xs border-b border-amber-900/10 pb-2">
+                    <div className="font-medium text-ink truncate">{p.title}</div>
+                    <div className="text-muted-foreground truncate">{p.url}</div>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                      <span>{p.property_type ?? "—"} · {p.purpose ?? "—"}</span>
+                      <span>{p.neighborhood ?? "—"}{p.city ? `, ${p.city}` : ""}</span>
+                      {p.condominium_name && <span>🏢 {p.condominium_name}</span>}
+                      {p.bedrooms != null && <span>{p.bedrooms} dorm</span>}
+                      {p.area != null && <span>{p.area} m²</span>}
+                      {p.price_sale != null && <span>venda R$ {p.price_sale.toLocaleString("pt-BR")}</span>}
+                      {p.price_rent != null && <span>aluguel R$ {p.price_rent.toLocaleString("pt-BR")}</span>}
+                      <span>{p.images_count} fotos</span>
+                      <span className={p.existing ? "text-muted-foreground" : "text-emerald-700"}>
+                        {p.existing ? "já cadastrado" : "novo"}
+                      </span>
+                      {p.would_create_bairro_guia && <span className="text-blue-700">+ guia bairro</span>}
+                      {p.would_create_condominio && <span className="text-blue-700">+ condomínio</span>}
+                      <span className={
+                        p.audit_status === "ok" ? "text-emerald-700"
+                          : p.audit_status === "review" ? "text-amber-700" : "text-red-600"
+                      }>audit: {p.audit_status}</span>
+                    </div>
+                    {(p.warnings.length > 0 || p.audit_issues.length > 0) && (
+                      <div className="text-amber-800 mt-1">
+                        ⚠ {[...p.warnings, ...p.audit_issues].join(" · ")}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
+
           <div className="border border-ink/10">
             {(runsQ.data ?? []).map((r) => (
               <div key={r.id} className="grid grid-cols-12 gap-3 px-4 py-2 border-b border-ink/8 text-xs items-center">
