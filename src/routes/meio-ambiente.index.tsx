@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionPage, ComingSoonGrid } from "@/components/section-page";
 
-export const Route = createFileRoute("/meio-ambiente")({
+export const Route = createFileRoute("/meio-ambiente/")({
   head: () => ({
     meta: [
       { title: "Meio ambiente em Alphaville — S.A Imóveis Alphaville" },
