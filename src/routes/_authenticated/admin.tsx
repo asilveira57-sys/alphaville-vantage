@@ -266,7 +266,9 @@ function AdminPage() {
             <p className="text-xs text-emerald-700 mb-3">
               SEO regerado: {seoMut.data.processed} · Atualizados: {seoMut.data.updated} · IA: {seoMut.data.withAI ? "sim" : "não"}
             </p>
+          )}
           {dryRunMut.error && <p className="text-xs text-red-600 mb-3">{(dryRunMut.error as Error).message}</p>}
+
           {dryRunMut.data && (
             <div className="border border-amber-400/40 bg-amber-50/40 p-4 mb-4">
               <p className="text-xs uppercase tracking-widest text-amber-900 mb-2">
