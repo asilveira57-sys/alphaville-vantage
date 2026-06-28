@@ -417,7 +417,22 @@ export const runScraper = createServerFn({ method: "POST" })
           const title = extractPropertyTitle(html, item.url);
           const description = pickMeta(html, "og:description") ?? "";
           const images = extractImages(html, item.url);
-          if (images.length === 0) { errors++; continue; }
+          if (images.length === 0) {
+            errors++;
+            if (dryRun) {
+              previews.push({
+                url: item.url, ref: item.ref, title, slug: slugify(title),
+                property_type: null, purpose: null, city: null, neighborhood: null,
+                condominium_name: null, bedrooms: null, area: null,
+                price_sale: null, price_rent: null, images_count: 0,
+                review_status: "needs_review", audit_status: "error", audit_issues: ["sem-imagens"],
+                existing: !!item.lastSeen, would_create_bairro_guia: false, would_create_condominio: false,
+                warnings: ["Nenhuma imagem encontrada — imóvel seria ignorado"],
+              });
+            }
+            continue;
+          }
+
           const purpose = inferPurpose(item.url, html);
           const pathParts = item.ref.split("/").filter(Boolean);
           const refTail = pathParts.at(-1) ?? "";
