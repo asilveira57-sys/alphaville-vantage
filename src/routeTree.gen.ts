@@ -28,10 +28,14 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AlphavilleRouteImport } from './routes/alphaville'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MeioAmbienteIndexRouteImport } from './routes/meio-ambiente.index'
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
 import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
+import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
+import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
+import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
@@ -139,6 +143,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeioAmbienteIndexRoute = MeioAmbienteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MeioAmbienteRoute,
+} as any)
 const ImoveisIndexRoute = ImoveisIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -158,6 +167,21 @@ const BairrosIndexRoute = BairrosIndexRouteImport.update({
   id: '/bairros/',
   path: '/bairros/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MeioAmbienteLazerRoute = MeioAmbienteLazerRouteImport.update({
+  id: '/lazer',
+  path: '/lazer',
+  getParentRoute: () => MeioAmbienteRoute,
+} as any)
+const MeioAmbienteFaunaRoute = MeioAmbienteFaunaRouteImport.update({
+  id: '/fauna',
+  path: '/fauna',
+  getParentRoute: () => MeioAmbienteRoute,
+} as any)
+const MeioAmbienteAreasRoute = MeioAmbienteAreasRouteImport.update({
+  id: '/areas',
+  path: '/areas',
+  getParentRoute: () => MeioAmbienteRoute,
 } as any)
 const ImoveisSlugRoute = ImoveisSlugRouteImport.update({
   id: '/$slug',
@@ -236,7 +260,7 @@ export interface FileRoutesByFullPath {
   '/historia': typeof HistoriaRoute
   '/imoveis': typeof ImoveisRouteWithChildren
   '/investimentos': typeof InvestimentosRoute
-  '/meio-ambiente': typeof MeioAmbienteRoute
+  '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -248,10 +272,14 @@ export interface FileRoutesByFullPath {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
+  '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
+  '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros/': typeof BairrosIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
+  '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
@@ -270,7 +298,6 @@ export interface FileRoutesByTo {
   '/guia-tambore': typeof GuiaTamboreRoute
   '/historia': typeof HistoriaRoute
   '/investimentos': typeof InvestimentosRoute
-  '/meio-ambiente': typeof MeioAmbienteRoute
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -281,10 +308,14 @@ export interface FileRoutesByTo {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
+  '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
+  '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros': typeof BairrosIndexRoute
   '/condominios': typeof CondominiosIndexRoute
   '/guia': typeof GuiaIndexRoute
   '/imoveis': typeof ImoveisIndexRoute
+  '/meio-ambiente': typeof MeioAmbienteIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
@@ -307,7 +338,7 @@ export interface FileRoutesById {
   '/historia': typeof HistoriaRoute
   '/imoveis': typeof ImoveisRouteWithChildren
   '/investimentos': typeof InvestimentosRoute
-  '/meio-ambiente': typeof MeioAmbienteRoute
+  '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -319,10 +350,14 @@ export interface FileRoutesById {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
+  '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
+  '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
+  '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros/': typeof BairrosIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
+  '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
@@ -357,10 +392,14 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
+    | '/meio-ambiente/areas'
+    | '/meio-ambiente/fauna'
+    | '/meio-ambiente/lazer'
     | '/bairros/'
     | '/condominios/'
     | '/guia/'
     | '/imoveis/'
+    | '/meio-ambiente/'
     | '/audit/$id'
     | '/cms/$id'
     | '/cms/'
@@ -379,7 +418,6 @@ export interface FileRouteTypes {
     | '/guia-tambore'
     | '/historia'
     | '/investimentos'
-    | '/meio-ambiente'
     | '/mercado-imobiliario'
     | '/restaurantes'
     | '/sitemap.xml'
@@ -390,10 +428,14 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
+    | '/meio-ambiente/areas'
+    | '/meio-ambiente/fauna'
+    | '/meio-ambiente/lazer'
     | '/bairros'
     | '/condominios'
     | '/guia'
     | '/imoveis'
+    | '/meio-ambiente'
     | '/audit/$id'
     | '/cms/$id'
     | '/cms'
@@ -427,10 +469,14 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
+    | '/meio-ambiente/areas'
+    | '/meio-ambiente/fauna'
+    | '/meio-ambiente/lazer'
     | '/bairros/'
     | '/condominios/'
     | '/guia/'
     | '/imoveis/'
+    | '/meio-ambiente/'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
     | '/_authenticated/cms/'
@@ -453,7 +499,7 @@ export interface RootRouteChildren {
   HistoriaRoute: typeof HistoriaRoute
   ImoveisRoute: typeof ImoveisRouteWithChildren
   InvestimentosRoute: typeof InvestimentosRoute
-  MeioAmbienteRoute: typeof MeioAmbienteRoute
+  MeioAmbienteRoute: typeof MeioAmbienteRouteWithChildren
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
   RestaurantesRoute: typeof RestaurantesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -599,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/meio-ambiente/': {
+      id: '/meio-ambiente/'
+      path: '/'
+      fullPath: '/meio-ambiente/'
+      preLoaderRoute: typeof MeioAmbienteIndexRouteImport
+      parentRoute: typeof MeioAmbienteRoute
+    }
     '/imoveis/': {
       id: '/imoveis/'
       path: '/'
@@ -626,6 +679,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/bairros/'
       preLoaderRoute: typeof BairrosIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/meio-ambiente/lazer': {
+      id: '/meio-ambiente/lazer'
+      path: '/lazer'
+      fullPath: '/meio-ambiente/lazer'
+      preLoaderRoute: typeof MeioAmbienteLazerRouteImport
+      parentRoute: typeof MeioAmbienteRoute
+    }
+    '/meio-ambiente/fauna': {
+      id: '/meio-ambiente/fauna'
+      path: '/fauna'
+      fullPath: '/meio-ambiente/fauna'
+      preLoaderRoute: typeof MeioAmbienteFaunaRouteImport
+      parentRoute: typeof MeioAmbienteRoute
+    }
+    '/meio-ambiente/areas': {
+      id: '/meio-ambiente/areas'
+      path: '/areas'
+      fullPath: '/meio-ambiente/areas'
+      preLoaderRoute: typeof MeioAmbienteAreasRouteImport
+      parentRoute: typeof MeioAmbienteRoute
     }
     '/imoveis/$slug': {
       id: '/imoveis/$slug'
@@ -788,6 +862,24 @@ const ImoveisRouteChildren: ImoveisRouteChildren = {
 const ImoveisRouteWithChildren =
   ImoveisRoute._addFileChildren(ImoveisRouteChildren)
 
+interface MeioAmbienteRouteChildren {
+  MeioAmbienteAreasRoute: typeof MeioAmbienteAreasRoute
+  MeioAmbienteFaunaRoute: typeof MeioAmbienteFaunaRoute
+  MeioAmbienteLazerRoute: typeof MeioAmbienteLazerRoute
+  MeioAmbienteIndexRoute: typeof MeioAmbienteIndexRoute
+}
+
+const MeioAmbienteRouteChildren: MeioAmbienteRouteChildren = {
+  MeioAmbienteAreasRoute: MeioAmbienteAreasRoute,
+  MeioAmbienteFaunaRoute: MeioAmbienteFaunaRoute,
+  MeioAmbienteLazerRoute: MeioAmbienteLazerRoute,
+  MeioAmbienteIndexRoute: MeioAmbienteIndexRoute,
+}
+
+const MeioAmbienteRouteWithChildren = MeioAmbienteRoute._addFileChildren(
+  MeioAmbienteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -804,7 +896,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoriaRoute: HistoriaRoute,
   ImoveisRoute: ImoveisRouteWithChildren,
   InvestimentosRoute: InvestimentosRoute,
-  MeioAmbienteRoute: MeioAmbienteRoute,
+  MeioAmbienteRoute: MeioAmbienteRouteWithChildren,
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
   RestaurantesRoute: RestaurantesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

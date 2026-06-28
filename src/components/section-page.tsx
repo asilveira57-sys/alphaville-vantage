@@ -80,25 +80,36 @@ export function InstitutionalBlock() {
 }
 
 interface ComingSoonGridProps {
-  items: { eyebrow: string; title: string; lead: string }[];
+  items: { eyebrow: string; title: string; lead: string; to?: string }[];
 }
 
 export function ComingSoonGrid({ items }: ComingSoonGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-      {items.map((item, i) => (
-        <article key={i} className="border-t border-ink/10 pt-6">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">
-            {item.eyebrow}
-          </p>
-          <h3 className="font-serif text-2xl font-medium leading-snug mb-3 text-balance">
-            {item.title}
-          </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
-            {item.lead}
-          </p>
-        </article>
-      ))}
+      {items.map((item, i) => {
+        const inner = (
+          <>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">
+              {item.eyebrow}
+            </p>
+            <h3 className="font-serif text-2xl font-medium leading-snug mb-3 text-balance group-hover:underline">
+              {item.title}
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
+              {item.lead}
+            </p>
+          </>
+        );
+        return item.to ? (
+          <Link key={i} to={item.to} className="group block border-t border-ink/10 pt-6">
+            {inner}
+          </Link>
+        ) : (
+          <article key={i} className="group border-t border-ink/10 pt-6">
+            {inner}
+          </article>
+        );
+      })}
     </div>
   );
 }
