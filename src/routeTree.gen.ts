@@ -33,6 +33,7 @@ import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
 import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
+import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
 import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
@@ -167,6 +168,11 @@ const BairrosIndexRoute = BairrosIndexRouteImport.update({
   path: '/bairros/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeioAmbienteLazerRoute = MeioAmbienteLazerRouteImport.update({
+  id: '/lazer',
+  path: '/lazer',
+  getParentRoute: () => MeioAmbienteRoute,
+} as any)
 const MeioAmbienteFaunaRoute = MeioAmbienteFaunaRouteImport.update({
   id: '/fauna',
   path: '/fauna',
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
+  '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros/': typeof BairrosIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
+  '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros': typeof BairrosIndexRoute
   '/condominios': typeof CondominiosIndexRoute
   '/guia': typeof GuiaIndexRoute
@@ -344,6 +352,7 @@ export interface FileRoutesById {
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
+  '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros/': typeof BairrosIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
@@ -385,6 +394,7 @@ export interface FileRouteTypes {
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
+    | '/meio-ambiente/lazer'
     | '/bairros/'
     | '/condominios/'
     | '/guia/'
@@ -420,6 +430,7 @@ export interface FileRouteTypes {
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
+    | '/meio-ambiente/lazer'
     | '/bairros'
     | '/condominios'
     | '/guia'
@@ -460,6 +471,7 @@ export interface FileRouteTypes {
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
+    | '/meio-ambiente/lazer'
     | '/bairros/'
     | '/condominios/'
     | '/guia/'
@@ -668,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BairrosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/meio-ambiente/lazer': {
+      id: '/meio-ambiente/lazer'
+      path: '/lazer'
+      fullPath: '/meio-ambiente/lazer'
+      preLoaderRoute: typeof MeioAmbienteLazerRouteImport
+      parentRoute: typeof MeioAmbienteRoute
+    }
     '/meio-ambiente/fauna': {
       id: '/meio-ambiente/fauna'
       path: '/fauna'
@@ -846,12 +865,14 @@ const ImoveisRouteWithChildren =
 interface MeioAmbienteRouteChildren {
   MeioAmbienteAreasRoute: typeof MeioAmbienteAreasRoute
   MeioAmbienteFaunaRoute: typeof MeioAmbienteFaunaRoute
+  MeioAmbienteLazerRoute: typeof MeioAmbienteLazerRoute
   MeioAmbienteIndexRoute: typeof MeioAmbienteIndexRoute
 }
 
 const MeioAmbienteRouteChildren: MeioAmbienteRouteChildren = {
   MeioAmbienteAreasRoute: MeioAmbienteAreasRoute,
   MeioAmbienteFaunaRoute: MeioAmbienteFaunaRoute,
+  MeioAmbienteLazerRoute: MeioAmbienteLazerRoute,
   MeioAmbienteIndexRoute: MeioAmbienteIndexRoute,
 }
 
