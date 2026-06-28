@@ -27,6 +27,7 @@ export const Route = createFileRoute("/guia-barueri")({
           { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Eixos de acesso e o futuro do transporte." },
         ]}
       />
+      <GuiaCrossNav currentTo="/guia-barueri" />
     </SectionPage>
   ),
 });
