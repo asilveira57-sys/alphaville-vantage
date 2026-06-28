@@ -27,6 +27,7 @@ export const Route = createFileRoute("/guia-santana-de-parnaiba")({
           { eyebrow: "Gastronomia", title: "Restaurantes premiados", lead: "Da culinária tradicional aos novos endereços autorais." },
         ]}
       />
+      <GuiaCrossNav currentTo="/guia-santana-de-parnaiba" />
     </SectionPage>
   ),
 });
