@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionPage, ComingSoonGrid } from "@/components/section-page";
+import { GuiaCrossNav } from "@/components/guia-cross-nav";
 
 export const Route = createFileRoute("/guia-tambore")({
   head: () => ({
