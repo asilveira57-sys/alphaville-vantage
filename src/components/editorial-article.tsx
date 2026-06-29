@@ -19,8 +19,9 @@ export function EditorialArticle({ eyebrow, title, lead, parent, html, related }
         <div className="max-w-4xl mx-auto">
           <nav aria-label="Trilha" className="mb-8">
             <ol className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              <li><Link to="/" className="hover:text-ink">Início</Link></li>
-              <li className="flex items-center gap-2"><span aria-hidden>/</span><Link to={parent.to} className="hover:text-ink">{parent.label}</Link></li>
+              <li><Link to="/" className="hover:text-ink transition-colors">Início</Link></li>
+              <li className="flex items-center gap-2"><span aria-hidden>/</span><Link to="/blog" className="hover:text-ink transition-colors">Blog</Link></li>
+              <li className="flex items-center gap-2"><span aria-hidden>/</span><Link to={parent.to} className="hover:text-ink transition-colors">{parent.label}</Link></li>
               <li className="flex items-center gap-2"><span aria-hidden>/</span><span className="text-ink">{title}</span></li>
             </ol>
           </nav>
