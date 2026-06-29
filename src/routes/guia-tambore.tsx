@@ -22,9 +22,9 @@ export const Route = createFileRoute("/guia-tambore")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "Residenciais", title: "Tamboré 1 ao 11", lead: "Diferenças, perfis e dinâmica de preços." },
-          { eyebrow: "Clubes", title: "Estrutura esportiva e social", lead: "Golfe, equitação, tênis e clubes familiares." },
-          { eyebrow: "Mercado", title: "Valorização e liquidez", lead: "Por que o Tamboré tem o m² mais disputado." },
+          { eyebrow: "Residenciais", title: "Tamboré 1 ao 11", lead: "Diferenças, perfis e dinâmica de preços.", to: "/artigos/tambore-residenciais" },
+          { eyebrow: "Clubes", title: "Estrutura esportiva e social", lead: "Golfe, equitação, tênis e clubes familiares.", to: "/artigos/tambore-clubes" },
+          { eyebrow: "Mercado", title: "Valorização e liquidez", lead: "Por que o Tamboré tem o m² mais disputado.", to: "/artigos/tambore-mercado" },
         ]}
       />
       <GuiaCrossNav currentTo="/guia-tambore" />
