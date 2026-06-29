@@ -22,9 +22,9 @@ export const Route = createFileRoute("/guia-barueri")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "Economia", title: "Benefícios fiscais de Barueri", lead: "Por que empresas escolhem se instalar na cidade." },
-          { eyebrow: "Empresas", title: "Grandes corporações instaladas", lead: "Panorama do mercado de trabalho local." },
-          { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Eixos de acesso e o futuro do transporte." },
+          { eyebrow: "Economia", title: "Benefícios fiscais de Barueri", lead: "Por que empresas escolhem se instalar na cidade.", to: "/artigos/barueri-beneficios-fiscais" },
+          { eyebrow: "Empresas", title: "Grandes corporações instaladas", lead: "Panorama do mercado de trabalho local.", to: "/artigos/barueri-corporacoes" },
+          { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Eixos de acesso e o futuro do transporte.", to: "/artigos/barueri-mobilidade" },
         ]}
       />
       <GuiaCrossNav currentTo="/guia-barueri" />
