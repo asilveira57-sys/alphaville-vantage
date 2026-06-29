@@ -22,12 +22,12 @@ export const Route = createFileRoute("/guia-alphaville")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "Residenciais", title: "Os primeiros condomínios", lead: "Como surgiram os Residenciais 1, 2 e 3 e por que continuam icônicos." },
-          { eyebrow: "Educação", title: "Principais escolas particulares", lead: "Da educação infantil ao ensino médio bilíngue." },
-          { eyebrow: "Gastronomia", title: "Restaurantes do Calçadão", lead: "Da culinária autoral às pizzarias clássicas." },
-          { eyebrow: "Lazer", title: "Parques e clubes", lead: "Estrutura esportiva, áreas verdes e centros sociais." },
-          { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Acessos, fluxo e o futuro da mobilidade local." },
-          { eyebrow: "Saúde", title: "Hospitais e clínicas de referência", lead: "Rede médica que atende a região." },
+          { eyebrow: "Residenciais", title: "Os primeiros condomínios", lead: "Como surgiram os Residenciais 1, 2 e 3 e por que continuam icônicos.", to: "/artigos/alphaville-residenciais-pioneiros" },
+          { eyebrow: "Educação", title: "Principais escolas particulares", lead: "Da educação infantil ao ensino médio bilíngue.", to: "/artigos/alphaville-escolas" },
+          { eyebrow: "Gastronomia", title: "Restaurantes do Calçadão", lead: "Da culinária autoral às pizzarias clássicas.", to: "/artigos/alphaville-calcadao" },
+          { eyebrow: "Lazer", title: "Parques e clubes", lead: "Estrutura esportiva, áreas verdes e centros sociais.", to: "/artigos/alphaville-parques-clubes" },
+          { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Acessos, fluxo e o futuro da mobilidade local.", to: "/artigos/alphaville-mobilidade" },
+          { eyebrow: "Saúde", title: "Hospitais e clínicas de referência", lead: "Rede médica que atende a região.", to: "/artigos/alphaville-saude" },
         ]}
       />
       <GuiaCrossNav currentTo="/guia-alphaville" />

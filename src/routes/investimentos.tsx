@@ -21,9 +21,9 @@ export const Route = createFileRoute("/investimentos")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "Renda", title: "Locação de alto padrão", lead: "Cenário, ticket médio e retorno por bairro." },
-          { eyebrow: "Capital", title: "Estratégias de valorização", lead: "Quais regiões estão em ciclo de alta." },
-          { eyebrow: "Corporativo", title: "Galpões e salas comerciais", lead: "Investimento no eixo Castelo Branco." },
+          { eyebrow: "Renda", title: "Locação de alto padrão", lead: "Cenário, ticket médio e retorno por bairro.", to: "/artigos/investimento-renda" },
+          { eyebrow: "Capital", title: "Estratégias de valorização", lead: "Quais regiões estão em ciclo de alta.", to: "/artigos/investimento-capital" },
+          { eyebrow: "Corporativo", title: "Galpões e salas comerciais", lead: "Investimento no eixo Castelo Branco.", to: "/artigos/investimento-corporativo" },
         ]}
       />
     </SectionPage>

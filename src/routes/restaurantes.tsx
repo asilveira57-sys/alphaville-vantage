@@ -21,10 +21,10 @@ export const Route = createFileRoute("/restaurantes")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "Alta cozinha", title: "Melhores restaurantes", lead: "Os endereços de referência para ocasiões especiais." },
-          { eyebrow: "Italiano", title: "Melhores pizzarias", lead: "Da napolitana clássica à autoral." },
-          { eyebrow: "Casual", title: "Melhores hamburguerias", lead: "Do smash burger à carta gourmet." },
-          { eyebrow: "Mercado", title: "Supermercados e empórios", lead: "Onde fazer compras especiais." },
+          { eyebrow: "Alta cozinha", title: "Melhores restaurantes", lead: "Os endereços de referência para ocasiões especiais.", to: "/artigos/restaurantes-alta-cozinha" },
+          { eyebrow: "Italiano", title: "Melhores pizzarias", lead: "Da napolitana clássica à autoral.", to: "/artigos/restaurantes-pizzarias" },
+          { eyebrow: "Casual", title: "Melhores hamburguerias", lead: "Do smash burger à carta gourmet.", to: "/artigos/restaurantes-hamburguerias" },
+          { eyebrow: "Mercado", title: "Supermercados e empórios", lead: "Onde fazer compras especiais.", to: "/artigos/restaurantes-mercados" },
         ]}
       />
     </SectionPage>

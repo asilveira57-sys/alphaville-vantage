@@ -41,6 +41,7 @@ import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
+import { Route as ArtigosSlugRouteImport } from './routes/artigos.$slug'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -208,6 +209,11 @@ const BairrosSlugRoute = BairrosSlugRouteImport.update({
   path: '/bairros/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArtigosSlugRoute = ArtigosSlugRouteImport.update({
+  id: '/artigos/$slug',
+  path: '/artigos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCmsRoute = AuthenticatedCmsRouteImport.update({
   id: '/cms',
   path: '/cms',
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/cms': typeof AuthenticatedCmsRouteWithChildren
+  '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
+  '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
@@ -345,6 +353,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
+  '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
@@ -387,6 +396,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/audit'
     | '/cms'
+    | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
@@ -423,6 +433,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/audit'
+    | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
@@ -464,6 +475,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/cms'
+    | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
@@ -503,6 +515,7 @@ export interface RootRouteChildren {
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
   RestaurantesRoute: typeof RestaurantesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
@@ -736,6 +749,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BairrosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/artigos/$slug': {
+      id: '/artigos/$slug'
+      path: '/artigos/$slug'
+      fullPath: '/artigos/$slug'
+      preLoaderRoute: typeof ArtigosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/cms': {
       id: '/_authenticated/cms'
       path: '/cms'
@@ -900,6 +920,7 @@ const rootRouteChildren: RootRouteChildren = {
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
   RestaurantesRoute: RestaurantesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,
   BairrosIndexRoute: BairrosIndexRoute,

@@ -22,9 +22,9 @@ export const Route = createFileRoute("/guia-santana-de-parnaiba")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "História", title: "Centro histórico tombado", lead: "Casarões coloniais, igrejas e o legado bandeirante." },
-          { eyebrow: "Condomínios", title: "Novos residenciais", lead: "Onde Santana cresce e por que atrai novos moradores." },
-          { eyebrow: "Gastronomia", title: "Restaurantes premiados", lead: "Da culinária tradicional aos novos endereços autorais." },
+          { eyebrow: "História", title: "Centro histórico tombado", lead: "Casarões coloniais, igrejas e o legado bandeirante.", to: "/artigos/santana-centro-historico" },
+          { eyebrow: "Condomínios", title: "Novos residenciais", lead: "Onde Santana cresce e por que atrai novos moradores.", to: "/artigos/santana-residenciais" },
+          { eyebrow: "Gastronomia", title: "Restaurantes premiados", lead: "Da culinária tradicional aos novos endereços autorais.", to: "/artigos/santana-restaurantes" },
         ]}
       />
       <GuiaCrossNav currentTo="/guia-santana-de-parnaiba" />
