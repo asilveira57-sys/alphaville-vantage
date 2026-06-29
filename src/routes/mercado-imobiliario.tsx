@@ -21,9 +21,9 @@ export const Route = createFileRoute("/mercado-imobiliario")({
     >
       <ComingSoonGrid
         items={[
-          { eyebrow: "Valorização", title: "Condomínios mais valorizados", lead: "Ranking editorial baseado em dados de transação." },
-          { eyebrow: "Locação", title: "Locação de alto padrão", lead: "Cenário, tickets e perfis de inquilino." },
-          { eyebrow: "Corporativo", title: "Mercado corporativo", lead: "Salas comerciais, galpões e o eixo Castelo Branco." },
+          { eyebrow: "Valorização", title: "Condomínios mais valorizados", lead: "Ranking editorial baseado em dados de transação.", to: "/artigos/mercado-condominios-valorizados" },
+          { eyebrow: "Locação", title: "Locação de alto padrão", lead: "Cenário, tickets e perfis de inquilino.", to: "/artigos/mercado-locacao" },
+          { eyebrow: "Corporativo", title: "Mercado corporativo", lead: "Salas comerciais, galpões e o eixo Castelo Branco.", to: "/artigos/mercado-corporativo" },
         ]}
       />
     </SectionPage>
