@@ -114,7 +114,7 @@ const REGIONS = [
 
 
 function HomePage() {
-  const { properties, posts } = Route.useLoaderData();
+  const { properties, posts } = Route.useLoaderData() as { properties: FeaturedProperty[]; posts: FeaturedPost[] };
   return (
     <SiteLayout>
       {/* Hero */}
