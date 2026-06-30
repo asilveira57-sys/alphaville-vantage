@@ -103,11 +103,6 @@ const REGIONS = [
   { label: "S. Parnaíba", to: "/guia-santana-de-parnaiba" as const, image: santanaImg, alt: "Casario colonial de Santana de Parnaíba." },
 ];
 
-const PROPERTIES = [
-  { name: "Tamboré 10", code: "Cód. SA-2041", price: "Sob consulta", image: prop1, alt: "Casa moderna de alto padrão no Residencial Tamboré 10." },
-  { name: "Ed. Legacy Alphaville", code: "Cód. SA-9923", price: "R$ 4.200.000", image: prop2, alt: "Sala ampla com pé-direito duplo em apartamento Legacy Alphaville." },
-  { name: "Residencial 2", code: "Cód. SA-1150", price: "R$ 8.900.000", image: prop3, alt: "Piscina e jardim de mansão no Residencial 2 de Alphaville." },
-];
 
 function HomePage() {
   return (
