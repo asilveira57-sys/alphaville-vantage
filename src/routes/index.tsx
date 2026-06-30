@@ -21,6 +21,15 @@ type FeaturedProperty = {
   image: string | null;
 };
 
+type FeaturedPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  featured_image: string | null;
+  tags: string[] | null;
+};
+
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) && !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
 
@@ -47,6 +56,23 @@ async function fetchFeatured(): Promise<FeaturedProperty[]> {
     } as FeaturedProperty;
   });
   return rows.filter((p) => p.image).slice(0, 6);
+}
+
+async function fetchLatestPosts(): Promise<FeaturedPost[]> {
+  const { data, error } = await supabase
+    .from("editorial_pages")
+    .select("id,slug,title,excerpt,featured_image,tags,published_at")
+    .eq("status", "published")
+    .eq("content_type", "blog")
+    .order("published_at", { ascending: false })
+    .limit(3);
+  if (error) return [];
+  return (data ?? []) as FeaturedPost[];
+}
+
+async function loadHome() {
+  const [properties, posts] = await Promise.all([fetchFeatured(), fetchLatestPosts()]);
+  return { properties, posts };
 }
 
 export const Route = createFileRoute("/")({
