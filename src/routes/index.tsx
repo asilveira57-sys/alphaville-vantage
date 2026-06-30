@@ -95,7 +95,7 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
-  loader: () => fetchFeatured(),
+  loader: () => loadHome(),
   component: HomePage,
 });
 
