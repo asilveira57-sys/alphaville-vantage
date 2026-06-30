@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
+import { supabase } from "@/integrations/supabase/client";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
@@ -10,9 +11,43 @@ import santanaImg from "@/assets/region-santana.jpg";
 import interiorImg from "@/assets/article-interior.jpg";
 import gardenImg from "@/assets/article-garden.jpg";
 import clubhouseImg from "@/assets/article-clubhouse.jpg";
-import prop1 from "@/assets/property-1.jpg";
-import prop2 from "@/assets/property-2.jpg";
-import prop3 from "@/assets/property-3.jpg";
+
+type FeaturedProperty = {
+  slug: string;
+  title: string;
+  internal_code: string | null;
+  price_sale: number | null;
+  price_rent: number | null;
+  image: string | null;
+};
+
+const isUsableImg = (u: string) =>
+  /^https?:\/\//.test(u) && !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
+
+const fmtPriceBR = (n: number | null) =>
+  n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
+
+async function fetchFeatured(): Promise<FeaturedProperty[]> {
+  const { data, error } = await supabase
+    .from("properties")
+    .select("slug,title,internal_code,price_sale,price_rent,images,last_seen_at")
+    .eq("status", "active")
+    .order("last_seen_at", { ascending: false })
+    .limit(24);
+  if (error) return [];
+  const rows = (data ?? []).map((p) => {
+    const imgs = Array.isArray(p.images) ? (p.images as string[]).filter(isUsableImg) : [];
+    return {
+      slug: p.slug,
+      title: p.title,
+      internal_code: p.internal_code,
+      price_sale: p.price_sale,
+      price_rent: p.price_rent,
+      image: imgs[0] ?? null,
+    } as FeaturedProperty;
+  });
+  return rows.filter((p) => p.image).slice(0, 6);
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
