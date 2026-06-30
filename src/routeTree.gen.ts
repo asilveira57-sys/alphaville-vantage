@@ -23,6 +23,7 @@ import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as GuiaRouteImport } from './routes/guia'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as EmpresasRouteImport } from './routes/empresas'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AlphavilleRouteImport } from './routes/alphaville'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -120,6 +121,11 @@ const EmpresasRoute = EmpresasRouteImport.update({
   path: '/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -160,9 +166,9 @@ const CondominiosIndexRoute = CondominiosIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
 } as any)
 const BairrosIndexRoute = BairrosIndexRouteImport.update({
   id: '/bairros/',
@@ -200,9 +206,9 @@ const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/blog/$slug',
-  path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const BairrosSlugRoute = BairrosSlugRouteImport.update({
   id: '/bairros/$slug',
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -335,6 +342,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -378,6 +386,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alphaville'
     | '/auth'
+    | '/blog'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -457,6 +466,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/alphaville'
     | '/auth'
+    | '/blog'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -500,6 +510,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AlphavilleRoute: typeof AlphavilleRoute
   AuthRoute: typeof AuthRoute
+  BlogRoute: typeof BlogRouteWithChildren
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
   GuiaRoute: typeof GuiaRouteWithChildren
@@ -516,10 +527,8 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
-  BlogSlugRoute: typeof BlogSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
-  BlogIndexRoute: typeof BlogIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
 }
@@ -624,6 +633,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -682,10 +698,10 @@ declare module '@tanstack/react-router' {
     }
     '/blog/': {
       id: '/blog/'
-      path: '/blog'
+      path: '/'
       fullPath: '/blog/'
       preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/bairros/': {
       id: '/bairros/'
@@ -738,10 +754,10 @@ declare module '@tanstack/react-router' {
     }
     '/blog/$slug': {
       id: '/blog/$slug'
-      path: '/blog/$slug'
+      path: '/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/bairros/$slug': {
       id: '/bairros/$slug'
@@ -848,6 +864,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 interface GuiaRouteChildren {
   GuiaSlugRoute: typeof GuiaSlugRoute
   GuiaIndexRoute: typeof GuiaIndexRoute
@@ -896,6 +924,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AlphavilleRoute: AlphavilleRoute,
   AuthRoute: AuthRoute,
+  BlogRoute: BlogRouteWithChildren,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
   GuiaRoute: GuiaRouteWithChildren,
@@ -912,13 +941,21 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
-  BlogSlugRoute: BlogSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,
   BairrosIndexRoute: BairrosIndexRoute,
-  BlogIndexRoute: BlogIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
