@@ -23,7 +23,6 @@ import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as GuiaRouteImport } from './routes/guia'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as EmpresasRouteImport } from './routes/empresas'
-import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AlphavilleRouteImport } from './routes/alphaville'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -32,6 +31,7 @@ import { Route as MeioAmbienteIndexRouteImport } from './routes/meio-ambiente.in
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
 import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
@@ -120,11 +120,6 @@ const EmpresasRoute = EmpresasRouteImport.update({
   path: '/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -164,6 +159,11 @@ const CondominiosIndexRoute = CondominiosIndexRouteImport.update({
   path: '/condominios/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BairrosIndexRoute = BairrosIndexRouteImport.update({
   id: '/bairros/',
   path: '/bairros/',
@@ -200,9 +200,9 @@ const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BlogRoute,
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BairrosSlugRoute = BairrosSlugRouteImport.update({
   id: '/bairros/$slug',
@@ -255,7 +255,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -283,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros/': typeof BairrosIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
@@ -296,7 +296,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
@@ -320,6 +319,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros': typeof BairrosIndexRoute
+  '/blog': typeof BlogIndexRoute
   '/condominios': typeof CondominiosIndexRoute
   '/guia': typeof GuiaIndexRoute
   '/imoveis': typeof ImoveisIndexRoute
@@ -335,7 +335,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/alphaville': typeof AlphavilleRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRouteWithChildren
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -363,6 +362,7 @@ export interface FileRoutesById {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/bairros/': typeof BairrosIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
@@ -378,7 +378,6 @@ export interface FileRouteTypes {
     | '/'
     | '/alphaville'
     | '/auth'
-    | '/blog'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -406,6 +405,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/bairros/'
+    | '/blog/'
     | '/condominios/'
     | '/guia/'
     | '/imoveis/'
@@ -419,7 +419,6 @@ export interface FileRouteTypes {
     | '/'
     | '/alphaville'
     | '/auth'
-    | '/blog'
     | '/empresas'
     | '/escolas'
     | '/guia-alphaville'
@@ -443,6 +442,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/bairros'
+    | '/blog'
     | '/condominios'
     | '/guia'
     | '/imoveis'
@@ -457,7 +457,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/alphaville'
     | '/auth'
-    | '/blog'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -485,6 +484,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/bairros/'
+    | '/blog/'
     | '/condominios/'
     | '/guia/'
     | '/imoveis/'
@@ -500,7 +500,6 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AlphavilleRoute: typeof AlphavilleRoute
   AuthRoute: typeof AuthRoute
-  BlogRoute: typeof BlogRouteWithChildren
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
   GuiaRoute: typeof GuiaRouteWithChildren
@@ -517,8 +516,10 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
 }
@@ -623,13 +624,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -686,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CondominiosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bairros/': {
       id: '/bairros/'
       path: '/bairros'
@@ -737,10 +738,10 @@ declare module '@tanstack/react-router' {
     }
     '/blog/$slug': {
       id: '/blog/$slug'
-      path: '/$slug'
+      path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof BlogRoute
+      parentRoute: typeof rootRouteImport
     }
     '/bairros/$slug': {
       id: '/bairros/$slug'
@@ -847,16 +848,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface BlogRouteChildren {
-  BlogSlugRoute: typeof BlogSlugRoute
-}
-
-const BlogRouteChildren: BlogRouteChildren = {
-  BlogSlugRoute: BlogSlugRoute,
-}
-
-const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
-
 interface GuiaRouteChildren {
   GuiaSlugRoute: typeof GuiaSlugRoute
   GuiaIndexRoute: typeof GuiaIndexRoute
@@ -905,7 +896,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AlphavilleRoute: AlphavilleRoute,
   AuthRoute: AuthRoute,
-  BlogRoute: BlogRouteWithChildren,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
   GuiaRoute: GuiaRouteWithChildren,
@@ -922,21 +912,13 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,
   BairrosIndexRoute: BairrosIndexRoute,
+  BlogIndexRoute: BlogIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

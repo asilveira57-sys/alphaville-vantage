@@ -8,7 +8,7 @@ const postsQO = queryOptions({
   queryFn: () => listPublishedPosts(),
 });
 
-export const Route = createFileRoute("/blog")({
+export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: [
       { title: "Blog — S.A Imóveis Alphaville" },
