@@ -188,25 +188,39 @@ function HomePage() {
             </Link>
           </div>
           <div className="flex gap-8 overflow-x-auto pb-4 no-scrollbar">
-            {PROPERTIES.map((p) => (
-              <article key={p.name} className="flex-shrink-0 w-80">
-                <img
-                  src={p.image}
-                  alt={p.alt}
-                  loading="lazy"
-                  width={768}
-                  height={1024}
-                  className="w-full aspect-[3/4] object-cover bg-muted mb-4"
-                />
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-widest">{p.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{p.code}</p>
+            {properties.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Em breve novos imóveis em destaque.</p>
+            ) : properties.map((p) => {
+              const sale = fmtPriceBR(p.price_sale);
+              const rent = fmtPriceBR(p.price_rent);
+              const price = sale ?? rent ?? "Sob consulta";
+              return (
+                <Link
+                  key={p.slug}
+                  to="/imoveis/$slug"
+                  params={{ slug: p.slug }}
+                  className="group flex-shrink-0 w-80"
+                >
+                  <img
+                    src={p.image!}
+                    alt={p.title}
+                    loading="lazy"
+                    width={768}
+                    height={1024}
+                    className="w-full aspect-[3/4] object-cover bg-muted mb-4 group-hover:opacity-90 transition-opacity"
+                  />
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium uppercase tracking-widest line-clamp-1">{p.title}</p>
+                      {p.internal_code && (
+                        <p className="text-xs text-muted-foreground mt-1">Cód. {p.internal_code}</p>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium whitespace-nowrap">{price}</p>
                   </div>
-                  <p className="text-sm font-medium">{p.price}</p>
-                </div>
-              </article>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
