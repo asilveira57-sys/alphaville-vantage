@@ -164,8 +164,34 @@ function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {ARTICLES.map((a) => (
-              <article key={a.title} className="group">
+            {(posts.length > 0
+              ? posts.map((p) => ({
+                  to: "/blog/$slug" as const,
+                  params: { slug: p.slug },
+                  eyebrow: p.tags?.[0] ?? "Editorial",
+                  title: p.title,
+                  lead: p.excerpt ?? "",
+                  image: p.featured_image ?? interiorImg,
+                  alt: p.title,
+                  external: false as const,
+                }))
+              : FALLBACK_ARTICLES.map((a) => ({
+                  to: "/blog" as const,
+                  params: undefined,
+                  eyebrow: a.eyebrow,
+                  title: a.title,
+                  lead: a.lead,
+                  image: a.image,
+                  alt: a.alt,
+                  external: false as const,
+                }))
+            ).map((a) => (
+              <Link
+                key={a.title}
+                to={a.to}
+                {...(a.params ? { params: a.params } : {})}
+                className="group block"
+              >
                 <img
                   src={a.image}
                   alt={a.alt}
@@ -178,8 +204,8 @@ function HomePage() {
                 <h3 className="font-serif text-xl font-medium mb-3 text-balance group-hover:underline decoration-ink/30 underline-offset-4">
                   {a.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{a.lead}</p>
-              </article>
+                {a.lead && <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{a.lead}</p>}
+              </Link>
             ))}
           </div>
         </div>
