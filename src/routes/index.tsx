@@ -21,6 +21,15 @@ type FeaturedProperty = {
   image: string | null;
 };
 
+type FeaturedPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  featured_image: string | null;
+  tags: string[] | null;
+};
+
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) && !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
 
@@ -49,6 +58,23 @@ async function fetchFeatured(): Promise<FeaturedProperty[]> {
   return rows.filter((p) => p.image).slice(0, 6);
 }
 
+async function fetchLatestPosts(): Promise<FeaturedPost[]> {
+  const { data, error } = await supabase
+    .from("editorial_pages")
+    .select("id,slug,title,excerpt,featured_image,tags,published_at")
+    .eq("status", "published")
+    .eq("content_type", "blog")
+    .order("published_at", { ascending: false })
+    .limit(3);
+  if (error) return [];
+  return (data ?? []) as FeaturedPost[];
+}
+
+async function loadHome() {
+  const [properties, posts] = await Promise.all([fetchFeatured(), fetchLatestPosts()]);
+  return { properties, posts };
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -69,32 +95,14 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
-  loader: () => fetchFeatured(),
+  loader: () => loadHome(),
   component: HomePage,
 });
 
-const ARTICLES = [
-  {
-    eyebrow: "Mercado",
-    title: "Tendências de valorização no Tamboré",
-    lead: "Entenda os fatores que impulsionaram o crescimento de dois dígitos no último semestre.",
-    image: interiorImg,
-    alt: "Sala de estar minimalista em apartamento de alto padrão em Tamboré.",
-  },
-  {
-    eyebrow: "História",
-    title: "50 anos de Alphaville: de fazenda a metrópole",
-    lead: "Uma retrospectiva sobre o projeto urbanístico que mudou Barueri para sempre.",
-    image: gardenImg,
-    alt: "Jardim arborizado em condomínio fechado de Alphaville.",
-  },
-  {
-    eyebrow: "Guia",
-    title: "A nova cena gastronômica de Santana de Parnaíba",
-    lead: "Onde a tradição colonial encontra a sofisticação da culinária contemporânea.",
-    image: clubhouseImg,
-    alt: "Clube de golfe contemporâneo na região de Alphaville.",
-  },
+const FALLBACK_ARTICLES = [
+  { eyebrow: "Mercado", title: "Tendências de valorização no Tamboré", lead: "Entenda os fatores que impulsionaram o crescimento de dois dígitos no último semestre.", image: interiorImg, alt: "Sala de estar minimalista em apartamento de alto padrão em Tamboré." },
+  { eyebrow: "História", title: "50 anos de Alphaville: de fazenda a metrópole", lead: "Uma retrospectiva sobre o projeto urbanístico que mudou Barueri para sempre.", image: gardenImg, alt: "Jardim arborizado em condomínio fechado de Alphaville." },
+  { eyebrow: "Guia", title: "A nova cena gastronômica de Santana de Parnaíba", lead: "Onde a tradição colonial encontra a sofisticação da culinária contemporânea.", image: clubhouseImg, alt: "Clube de golfe contemporâneo na região de Alphaville." },
 ] as const;
 
 const REGIONS = [
@@ -106,7 +114,7 @@ const REGIONS = [
 
 
 function HomePage() {
-  const properties = Route.useLoaderData() as FeaturedProperty[];
+  const { properties, posts } = Route.useLoaderData() as { properties: FeaturedProperty[]; posts: FeaturedPost[] };
   return (
     <SiteLayout>
       {/* Hero */}
@@ -156,8 +164,34 @@ function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {ARTICLES.map((a) => (
-              <article key={a.title} className="group">
+            {(posts.length > 0
+              ? posts.map((p) => ({
+                  to: "/blog/$slug" as const,
+                  params: { slug: p.slug },
+                  eyebrow: p.tags?.[0] ?? "Editorial",
+                  title: p.title,
+                  lead: p.excerpt ?? "",
+                  image: p.featured_image ?? interiorImg,
+                  alt: p.title,
+                  external: false as const,
+                }))
+              : FALLBACK_ARTICLES.map((a) => ({
+                  to: "/blog" as const,
+                  params: undefined,
+                  eyebrow: a.eyebrow,
+                  title: a.title,
+                  lead: a.lead,
+                  image: a.image,
+                  alt: a.alt,
+                  external: false as const,
+                }))
+            ).map((a) => (
+              <Link
+                key={a.title}
+                to={a.to}
+                {...(a.params ? { params: a.params } : {})}
+                className="group block"
+              >
                 <img
                   src={a.image}
                   alt={a.alt}
@@ -170,8 +204,8 @@ function HomePage() {
                 <h3 className="font-serif text-xl font-medium mb-3 text-balance group-hover:underline decoration-ink/30 underline-offset-4">
                   {a.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{a.lead}</p>
-              </article>
+                {a.lead && <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{a.lead}</p>}
+              </Link>
             ))}
           </div>
         </div>
