@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { MessageCircle } from "lucide-react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
+import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 
 type PropertyRow = {
   id: string;
