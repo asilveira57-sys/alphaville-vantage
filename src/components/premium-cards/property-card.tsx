@@ -1,6 +1,5 @@
 import * as React from "react";
 import { BedDouble, Car, Ruler } from "lucide-react";
-import * as React from "react";
 import { PremiumCard } from "@/components/premium-card";
 
 const fmt = (n: number | null | undefined) =>

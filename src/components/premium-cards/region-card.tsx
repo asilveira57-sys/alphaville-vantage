@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Building2, Diamond, Landmark, MapPin } from "lucide-react";
-import * as React from "react";
 import { PremiumCard } from "@/components/premium-card";
 
 const ICONS: Record<string, React.ReactNode> = {
