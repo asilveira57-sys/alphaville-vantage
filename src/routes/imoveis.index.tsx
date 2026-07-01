@@ -109,90 +109,30 @@ export const Route = createFileRoute("/imoveis/")({
   component: ImoveisPage,
 });
 
-const fmtPrice = (n: number | null) =>
-  n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
-
-function whatsappLink(p: PropertyRow) {
-  const url = typeof window !== "undefined"
-    ? `${window.location.origin}/imoveis/${p.slug}`
-    : `/imoveis/${p.slug}`;
-  const ref = p.internal_code ?? p.slug;
-  const text = `Olá! Tenho interesse no imóvel "${p.title}" (cód. ${ref}) — ${url}.`;
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-}
-
 function PropertyCard({ p }: { p: PropertyRow }) {
   const img = p.images[0];
-  const sale = fmtPrice(p.price_sale);
-  const rent = fmtPrice(p.price_rent);
   const totalParking = (p.parking_covered ?? 0) + (p.parking_uncovered ?? 0) || p.parking || 0;
   const area = p.area_useful ?? p.area_built ?? p.area_total;
-  const specs = [
-    p.bedrooms && `${p.bedrooms} dorm.`,
-    p.suites && `${p.suites} suítes`,
-    totalParking ? `${totalParking} vagas` : null,
-    area && `${Number(area)}m²`,
-  ].filter(Boolean);
-
   return (
-    <div className="group flex flex-col bg-card border border-ink/10 hover:border-brand-yellow hover:shadow-lg transition overflow-hidden">
-      <Link to="/imoveis/$slug" params={{ slug: p.slug }} className="block">
-        <div className="relative aspect-[4/3] bg-ink/5 overflow-hidden">
-          {img ? (
-            <img
-              src={img}
-              alt={p.title}
-              loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-muted-foreground">
-              Sem imagem
-            </div>
-          )}
-          {(sale || rent) && (
-            <div className="absolute top-0 left-0 right-0 bg-brand-dark/85 text-white px-4 py-2 text-[11px] tracking-wider font-semibold flex flex-wrap gap-x-4">
-              {sale && <span>VENDA · <span className="text-brand-yellow">{sale}</span></span>}
-              {rent && <span>ALUGAR · <span className="text-brand-yellow">{rent}</span></span>}
-            </div>
-          )}
-        </div>
-
-        <div className="p-5">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
-            {p.property_type ?? "Imóvel"}
-            {p.neighborhood ? ` · ${p.neighborhood}` : p.city ? ` · ${p.city}` : ""}
-          </p>
-          <h3 className="font-serif text-xl leading-snug mb-3 text-balance line-clamp-2">
-            {p.title}
-          </h3>
-          {specs.length > 0 && (
-            <p className="text-xs text-muted-foreground">{specs.join(" · ")}</p>
-          )}
-        </div>
-      </Link>
-
-      <div className="mt-auto grid grid-cols-2 gap-px bg-ink/10">
-        <Link
-          to="/imoveis/$slug"
-          params={{ slug: p.slug }}
-          className="bg-brand-yellow text-brand-dark text-center py-3 text-[11px] font-bold uppercase tracking-widest hover:brightness-95"
-        >
-          Ver imóvel
-        </Link>
-        <a
-          href={whatsappLink(p)}
-          target="_blank"
-          rel="noreferrer"
-          className="bg-[#25D366] text-white text-center py-3 text-[11px] font-bold uppercase tracking-widest hover:brightness-95 inline-flex items-center justify-center gap-2"
-          aria-label="Falar no WhatsApp sobre este imóvel"
-        >
-          <MessageCircle className="h-4 w-4" /> WhatsApp
-        </a>
-      </div>
-    </div>
+    <PremiumPropertyCard
+      slug={p.slug}
+      title={p.title}
+      image={img}
+      region={p.region ?? p.city}
+      neighborhood={p.neighborhood}
+      city={p.city}
+      propertyType={p.property_type}
+      priceSale={p.price_sale}
+      priceRent={p.price_rent}
+      bedrooms={p.bedrooms}
+      suites={p.suites}
+      parking={totalParking || null}
+      area={area}
+      internalCode={p.internal_code}
+    />
   );
 }
+
 
 function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
   let out = items;
