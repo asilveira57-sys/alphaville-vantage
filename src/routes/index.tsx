@@ -106,10 +106,10 @@ const FALLBACK_ARTICLES = [
 ] as const;
 
 const REGIONS = [
-  { label: "Alphaville", to: "/guia-alphaville" as const, image: alphavilleImg, alt: "Vista aérea de Alphaville em preto e branco." },
-  { label: "Tamboré", to: "/guia-tambore" as const, image: tamboreImg, alt: "Arquitetura contemporânea em Tamboré." },
-  { label: "Barueri", to: "/guia-barueri" as const, image: barueriImg, alt: "Skyline corporativo de Barueri." },
-  { label: "S. Parnaíba", to: "/guia-santana-de-parnaiba" as const, image: santanaImg, alt: "Casario colonial de Santana de Parnaíba." },
+  { slug: "alphaville", label: "Alphaville", to: "/guia-alphaville", image: alphavilleImg, description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
+  { slug: "tambore", label: "Tamboré", to: "/guia-tambore", image: tamboreImg, description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
+  { slug: "barueri", label: "Barueri", to: "/guia-barueri", image: barueriImg, description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
+  { slug: "santana", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
 ];
 
 
