@@ -39,8 +39,10 @@ function BairrosPage() {
     >
       {items.length === 0 ? (
         <ComingSoonGrid items={[
-          { eyebrow: "Em breve", title: "Alphaville", lead: "Em construção." },
-          { eyebrow: "Em breve", title: "Tamboré", lead: "Em construção." },
+          { eyebrow: "Guia Regional", title: "Alphaville", lead: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil.", to: "/guia-alphaville" },
+          { eyebrow: "Guia Regional", title: "Tamboré", lead: "Residenciais de luxo, clubes, escolas e mercado em valorização.", to: "/guia-tambore" },
+          { eyebrow: "Guia Regional", title: "Barueri", lead: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade.", to: "/guia-barueri" },
+          { eyebrow: "Guia Regional", title: "Santana de Parnaíba", lead: "Centro histórico tombado, gastronomia e novos condomínios.", to: "/guia-santana-de-parnaiba" },
         ]} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
