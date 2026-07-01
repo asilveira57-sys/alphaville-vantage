@@ -2,12 +2,29 @@ import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
+import { InstitutionalBlock } from "@/components/section-page";
+import { resolveImage } from "@/lib/image-fallbacks";
 import { getPostBySlug } from "@/lib/blog.functions";
 
 const postQO = (slug: string) => queryOptions({
   queryKey: ["post", slug],
   queryFn: () => getPostBySlug({ data: { slug } }),
 });
+
+function estimateReadMinutes(html: string | null | undefined) {
+  if (!html) return null;
+  const text = html.replace(/<[^>]+>/g, " ").trim();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  if (words === 0) return null;
+  return Math.max(1, Math.round(words / 220));
+}
+
+function fmtDate(d?: string | null) {
+  if (!d) return null;
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return null;
+  return dt.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+}
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params, context }) => {
@@ -32,7 +49,9 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   component: PostPage,
   errorComponent: ({ error }) => (
-    <SiteLayout><div className="max-w-2xl mx-auto px-6 py-24 text-sm text-red-600">{error.message}</div></SiteLayout>
+    <SiteLayout>
+      <div className="max-w-2xl mx-auto px-6 py-24 text-sm text-red-600">{error.message}</div>
+    </SiteLayout>
   ),
   notFoundComponent: () => (
     <SiteLayout>
@@ -46,18 +65,82 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function PostPage() {
   const { post } = Route.useLoaderData();
+  const cover = resolveImage(post.featured_image, { type: "post", seed: post.slug });
+  const category = post.tags?.[0] ?? "Editorial";
+  const date = fmtDate(post.published_at);
+  const readMin = estimateReadMinutes(post.html_content);
+
   return (
     <SiteLayout>
-      <article className="max-w-3xl mx-auto px-6 py-16">
-        <Link to="/blog" className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground hover:text-ink">← Blog</Link>
-        <p className="mt-8 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">{post.tags?.[0] ?? "Editorial"}</p>
-        <h1 className="font-serif text-5xl text-ink leading-[1.05] mt-3 mb-6">{post.title}</h1>
-        {post.excerpt && <p className="text-lg text-muted-foreground leading-relaxed mb-12">{post.excerpt}</p>}
-        {post.featured_image && (
-          <img src={post.featured_image} alt={post.title} className="w-full mb-12" />
-        )}
-        <EditorialContent html={post.html_content ?? ""} />
+      {/* Cover with overlay */}
+      <header className="relative isolate bg-navy-deep text-canvas">
+        <img
+          src={cover}
+          alt={post.title}
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,14,28,0.35)_0%,rgba(8,14,28,0.75)_60%,rgba(8,14,28,0.95)_100%)]"
+        />
+        <div className="relative max-w-4xl mx-auto px-6 pt-24 pb-20 md:pt-32 md:pb-28">
+          <Link to="/blog" className="text-[10px] uppercase tracking-[0.3em] text-gold hover:text-gold-soft">
+            ← Central Editorial
+          </Link>
+          <span className="mt-8 inline-flex items-center rounded-full bg-navy/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold ring-1 ring-gold/30 backdrop-blur">
+            {category}
+          </span>
+          <h1 className="mt-5 font-serif text-4xl md:text-6xl font-medium leading-[1.05] text-balance">
+            {post.title}
+          </h1>
+          {post.excerpt && (
+            <p className="mt-6 text-lg md:text-xl text-canvas/80 leading-relaxed max-w-[62ch]">
+              {post.excerpt}
+            </p>
+          )}
+          {(date || readMin) && (
+            <p className="mt-8 text-[11px] uppercase tracking-[0.22em] text-canvas/60">
+              {[date, readMin ? `${readMin} min de leitura` : null].filter(Boolean).join(" · ")}
+            </p>
+          )}
+        </div>
+      </header>
+
+      {/* Body */}
+      <article className="bg-canvas px-6 py-16 md:py-24">
+        <div className="max-w-2xl mx-auto">
+          <EditorialContent html={post.html_content ?? ""} />
+        </div>
       </article>
+
+      {/* CTA premium */}
+      <section className="bg-navy-deep text-canvas px-6 py-16 md:py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-4">S.A Imóveis Alphaville</p>
+          <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4 text-balance">
+            Encontre o imóvel certo em Alphaville e região
+          </h2>
+          <p className="text-canvas/70 mb-8 max-w-[52ch] mx-auto leading-relaxed">
+            Curadoria de imóveis residenciais e comerciais em Alphaville, Tamboré, Barueri e Santana de Parnaíba.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              to="/imoveis"
+              className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-navy-deep transition hover:bg-gold-soft"
+            >
+              Ver imóveis →
+            </Link>
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-canvas transition hover:border-gold hover:text-gold"
+            >
+              Mais matérias
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <InstitutionalBlock />
     </SiteLayout>
   );
 }

@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
+import { PremiumPostCard } from "@/components/premium-cards/post-card";
+import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
@@ -106,10 +109,10 @@ const FALLBACK_ARTICLES = [
 ] as const;
 
 const REGIONS = [
-  { label: "Alphaville", to: "/guia-alphaville" as const, image: alphavilleImg, alt: "Vista aérea de Alphaville em preto e branco." },
-  { label: "Tamboré", to: "/guia-tambore" as const, image: tamboreImg, alt: "Arquitetura contemporânea em Tamboré." },
-  { label: "Barueri", to: "/guia-barueri" as const, image: barueriImg, alt: "Skyline corporativo de Barueri." },
-  { label: "S. Parnaíba", to: "/guia-santana-de-parnaiba" as const, image: santanaImg, alt: "Casario colonial de Santana de Parnaíba." },
+  { slug: "alphaville", label: "Alphaville", to: "/guia-alphaville", image: alphavilleImg, description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
+  { slug: "tambore", label: "Tamboré", to: "/guia-tambore", image: tamboreImg, description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
+  { slug: "barueri", label: "Barueri", to: "/guia-barueri", image: barueriImg, description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
+  { slug: "santana", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
 ];
 
 
@@ -155,146 +158,106 @@ function HomePage() {
       </section>
 
       {/* Articles */}
-      <section className="py-24 bg-muted/50 border-y border-ink/8 px-6">
+      <section className="py-24 bg-navy-deep text-canvas px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-12 border-b border-ink/8 pb-4">
-            <h2 className="font-serif text-2xl font-medium">Perspectivas Recentes</h2>
-            <Link to="/blog" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">
-              Ver todos
+          <div className="flex justify-between items-end mb-12 border-b border-white/10 pb-4 gap-4 flex-wrap">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-3">Editorial</p>
+              <h2 className="font-serif text-3xl md:text-4xl font-medium">Perspectivas Recentes</h2>
+            </div>
+            <Link to="/blog" className="text-[11px] uppercase tracking-[0.22em] text-gold hover:text-gold-soft">
+              Ver todas →
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {(posts.length > 0
-              ? posts.map((p) => ({
-                  to: "/blog/$slug" as const,
-                  params: { slug: p.slug },
-                  eyebrow: p.tags?.[0] ?? "Editorial",
-                  title: p.title,
-                  lead: p.excerpt ?? "",
-                  image: p.featured_image ?? interiorImg,
-                  alt: p.title,
-                  external: false as const,
-                }))
-              : FALLBACK_ARTICLES.map((a) => ({
-                  to: "/blog" as const,
-                  params: undefined,
-                  eyebrow: a.eyebrow,
-                  title: a.title,
-                  lead: a.lead,
-                  image: a.image,
-                  alt: a.alt,
-                  external: false as const,
-                }))
-            ).map((a) => (
-              <Link
-                key={a.title}
-                to={a.to}
-                {...(a.params ? { params: a.params } : {})}
-                className="group block"
-              >
-                <img
-                  src={a.image}
-                  alt={a.alt}
-                  loading="lazy"
-                  width={1024}
-                  height={768}
-                  className="w-full aspect-[4/3] object-cover mb-6 bg-muted"
-                />
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">{a.eyebrow}</p>
-                <h3 className="font-serif text-xl font-medium mb-3 text-balance group-hover:underline decoration-ink/30 underline-offset-4">
-                  {a.title}
-                </h3>
-                {a.lead && <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{a.lead}</p>}
-              </Link>
-            ))}
+              ? posts.map((p) => (
+                  <PremiumPostCard
+                    key={p.id}
+                    to="/blog/$slug"
+                    params={{ slug: p.slug }}
+                    title={p.title}
+                    excerpt={p.excerpt}
+                    image={p.featured_image}
+                    eyebrow={p.tags?.[0] ?? "Editorial"}
+                  />
+                ))
+              : FALLBACK_ARTICLES.map((a) => (
+                  <PremiumPostCard
+                    key={a.title}
+                    to="/blog"
+                    title={a.title}
+                    excerpt={a.lead}
+                    image={a.image}
+                    eyebrow={a.eyebrow}
+                  />
+                ))
+            )}
           </div>
         </div>
       </section>
 
       {/* Properties */}
-      <section className="py-24 px-6 overflow-hidden">
+      <section className="py-24 bg-canvas px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-6 mb-12">
-            <h2 className="font-serif text-2xl font-medium whitespace-nowrap">Curadoria S.A</h2>
-            <div className="h-px w-full bg-ink/8" />
-            <Link to="/imoveis" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink whitespace-nowrap">
-              Portfólio
+          <div className="flex items-end justify-between mb-12 gap-4 flex-wrap">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-3">Curadoria S.A</p>
+              <h2 className="font-serif text-3xl md:text-4xl font-medium text-ink">Imóveis em destaque</h2>
+            </div>
+            <Link to="/imoveis" className="text-[11px] uppercase tracking-[0.22em] text-ink/70 hover:text-ink">
+              Ver portfólio completo →
             </Link>
           </div>
-          <div className="flex gap-8 overflow-x-auto pb-4 no-scrollbar">
-            {properties.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Em breve novos imóveis em destaque.</p>
-            ) : properties.map((p) => {
-              const sale = fmtPriceBR(p.price_sale);
-              const rent = fmtPriceBR(p.price_rent);
-              const price = sale ?? rent ?? "Sob consulta";
-              return (
-                <Link
-                  key={p.slug}
-                  to="/imoveis/$slug"
-                  params={{ slug: p.slug }}
-                  className="group flex-shrink-0 w-80"
-                >
-                  <img
-                    src={p.image!}
-                    alt={p.title}
-                    loading="lazy"
-                    width={768}
-                    height={1024}
-                    className="w-full aspect-[3/4] object-cover bg-muted mb-4 group-hover:opacity-90 transition-opacity"
+          {properties.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Em breve novos imóveis em destaque.</p>
+          ) : (
+            <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory">
+              {properties.map((p) => (
+                <div key={p.slug} className="flex-shrink-0 w-72 md:w-80 snap-start">
+                  <PremiumPropertyCard
+                    slug={p.slug}
+                    title={p.title}
+                    image={p.image}
+                    priceSale={p.price_sale}
+                    priceRent={p.price_rent}
+                    internalCode={p.internal_code}
                   />
-                  <div className="flex justify-between items-start gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium uppercase tracking-widest line-clamp-1">{p.title}</p>
-                      {p.internal_code && (
-                        <p className="text-xs text-muted-foreground mt-1">Cód. {p.internal_code}</p>
-                      )}
-                    </div>
-                    <p className="text-sm font-medium whitespace-nowrap">{price}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Regions */}
-      <section className="py-24 bg-ink text-canvas px-6">
+      <section className="py-24 bg-navy-deep text-canvas px-6">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-[52ch] mb-16">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-3">Guias Regionais</p>
             <h2 className="font-serif text-4xl md:text-5xl font-medium mb-6 leading-tight">
               Territórios de autoridade
             </h2>
-            <p className="text-canvas/60 leading-relaxed">
+            <p className="text-canvas/65 leading-relaxed">
               Nossa expertise local traduzida em guias detalhados sobre cada cidade e seus
               ecossistemas de vida e investimento.
             </p>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {REGIONS.map((r) => (
-              <Link
+              <PremiumRegionCard
                 key={r.to}
                 to={r.to}
-                className="group relative aspect-[4/5] overflow-hidden bg-canvas/5"
-              >
-                <img
-                  src={r.image}
-                  alt={r.alt}
-                  loading="lazy"
-                  width={1024}
-                  height={1280}
-                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
-                <div className="absolute bottom-6 left-6">
-                  <span className="text-xs uppercase tracking-[0.2em] font-medium">{r.label}</span>
-                </div>
-              </Link>
+                slug={r.slug}
+                title={r.label}
+                description={r.description}
+                image={r.image}
+              />
             ))}
           </div>
         </div>
       </section>
+
 
       <InstitutionalBlock />
     </SiteLayout>

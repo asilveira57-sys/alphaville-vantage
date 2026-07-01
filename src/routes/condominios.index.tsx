@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { SectionPage, ComingSoonGrid } from "@/components/section-page";
+import { SiteLayout } from "@/components/site-layout";
+import { InstitutionalBlock } from "@/components/section-page";
+import { PremiumCondoCard } from "@/components/premium-cards/condo-card";
 import { listPublishedByType } from "@/lib/editorial.functions";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
@@ -24,7 +26,9 @@ export const Route = createFileRoute("/condominios/")({
   }),
   component: CondosPage,
   errorComponent: ({ error }) => (
-    <SectionPage eyebrow="Erro" title="Não foi possível carregar" lead={error.message} breadcrumbs={[{ label: "Condomínios" }]}><div /></SectionPage>
+    <SiteLayout>
+      <div className="max-w-2xl mx-auto px-6 py-24 text-sm text-red-600">{error.message}</div>
+    </SiteLayout>
   ),
   notFoundComponent: () => <div />,
 });
@@ -33,37 +37,42 @@ function CondosPage() {
   const { data: items } = useSuspenseQuery(condosQO);
 
   return (
-    <SectionPage
-      eyebrow="Catálogo"
-      title="Condomínios da região"
-      lead="Um guia editorial dos residenciais de Alphaville, Tamboré e Santana de Parnaíba. Cada condomínio com sua história, perfil, infraestrutura e dinâmica de valorização."
-      breadcrumbs={[{ label: "Condomínios" }]}
-    >
-      {items.length === 0 ? (
-        <ComingSoonGrid
-          items={[
-            { eyebrow: "Histórico", title: "Residencial 1", lead: "O primeiro condomínio de Alphaville." },
-            { eyebrow: "Clássico", title: "Residencial 10", lead: "O maior em área verde por unidade." },
-          ]}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-          {items.map((c) => (
-            <Link key={c.id} to="/condominios/$slug" params={{ slug: c.slug }} className="group block border-t border-ink/10 pt-6">
-              {c.featured_image && (
-                <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-4">
-                  <img src={c.featured_image} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                </div>
-              )}
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">{c.related_neighborhood ?? "Condomínio"}</p>
-              <h3 className="font-serif text-2xl font-medium leading-snug mb-3 text-balance group-hover:underline">{c.title}</h3>
-              {c.excerpt && (
-                <p className="text-sm text-muted-foreground leading-relaxed text-pretty line-clamp-3">{c.excerpt}</p>
-              )}
-            </Link>
-          ))}
+    <SiteLayout>
+      <section className="bg-navy-deep text-canvas px-6 pt-20 pb-16">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-4">Catálogo</p>
+          <h1 className="font-serif text-4xl md:text-6xl font-medium leading-[1.05] max-w-[24ch] text-balance">
+            Condomínios da região de Alphaville
+          </h1>
+          <p className="mt-6 text-base md:text-lg text-canvas/70 max-w-[62ch] leading-relaxed">
+            Um guia editorial dos residenciais de Alphaville, Tamboré e Santana de Parnaíba —
+            história, perfil, infraestrutura e dinâmica de valorização.
+          </p>
         </div>
-      )}
-    </SectionPage>
+      </section>
+
+      <section className="bg-navy-deep px-6 pb-24">
+        <div className="max-w-7xl mx-auto">
+          {items.length === 0 ? (
+            <p className="text-canvas/70 text-sm">Novos dossiês de condomínios em breve.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {items.map((c) => (
+                <PremiumCondoCard
+                  key={c.id}
+                  slug={c.slug}
+                  title={c.title}
+                  image={c.featured_image}
+                  neighborhood={c.related_neighborhood}
+                  excerpt={c.excerpt}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <InstitutionalBlock />
+    </SiteLayout>
   );
 }

@@ -44,6 +44,16 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-navy-soft: var(--navy-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-slate-blue: var(--slate-blue);
+
+  --shadow-premium: 0 10px 30px -12px rgba(8, 14, 28, 0.45), 0 2px 6px -2px rgba(8, 14, 28, 0.25);
+  --shadow-premium-hover: 0 24px 48px -18px rgba(8, 14, 28, 0.55), 0 6px 14px -4px rgba(8, 14, 28, 0.3);
 }
 
 :root {
@@ -53,6 +63,13 @@
   --brand-yellow: oklch(0.86 0.18 92);
   --brand-dark: oklch(0.16 0 0);
   --brand-ink-soft: oklch(0.24 0.005 270);
+
+  --navy: oklch(0.24 0.045 255);
+  --navy-deep: oklch(0.16 0.04 258);
+  --navy-soft: oklch(0.32 0.04 252);
+  --gold: oklch(0.78 0.13 82);
+  --gold-soft: oklch(0.86 0.09 85);
+  --slate-blue: oklch(0.68 0.02 250);
 
   --canvas: oklch(0.985 0 0);
   --ink: oklch(0.18 0.005 270);
