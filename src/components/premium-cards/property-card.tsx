@@ -1,4 +1,6 @@
+import * as React from "react";
 import { BedDouble, Car, Ruler } from "lucide-react";
+import * as React from "react";
 import { PremiumCard } from "@/components/premium-card";
 
 const fmt = (n: number | null | undefined) =>
@@ -40,7 +42,7 @@ export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
     </>
   );
 
-  const specs: { icon: JSX.Element; label: string }[] = [];
+  const specs: { icon: React.ReactNode; label: string }[] = [];
   if (p.bedrooms) specs.push({ icon: <BedDouble className="h-3.5 w-3.5" />, label: `${p.bedrooms} ${p.bedrooms === 1 ? "dorm" : "dorms"}` });
   if (p.parking) specs.push({ icon: <Car className="h-3.5 w-3.5" />, label: `${p.parking} vagas` });
   if (p.area) specs.push({ icon: <Ruler className="h-3.5 w-3.5" />, label: `${Math.round(p.area)} m²` });
