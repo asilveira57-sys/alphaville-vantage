@@ -6,7 +6,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-brand-dark text-white/80">
       <div className="max-w-7xl mx-auto px-6 pt-20 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
           <div className="md:col-span-1">
             <Link to="/" className="inline-block mb-6">
               <img
