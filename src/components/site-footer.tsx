@@ -6,7 +6,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-brand-dark text-white/80">
       <div className="max-w-7xl mx-auto px-6 pt-20 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
           <div className="md:col-span-1">
             <Link to="/" className="inline-block mb-6">
               <img
@@ -35,6 +35,15 @@ export function SiteFooter() {
               <li><Link to="/historia" className="hover:text-brand-yellow">História</Link></li>
               <li><Link to="/meio-ambiente" className="hover:text-brand-yellow">Meio ambiente</Link></li>
               <li><Link to="/condominios" className="hover:text-brand-yellow">Condomínios</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-brand-yellow mb-5 font-semibold">
+              Legal
+            </p>
+            <ul className="space-y-3 text-sm">
+              <li><Link to="/politica-de-cookies" className="hover:text-brand-yellow">Política de Cookies</Link></li>
             </ul>
           </div>
 
