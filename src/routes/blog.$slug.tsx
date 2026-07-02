@@ -77,6 +77,10 @@ function PostPage() {
         <img
           src={cover}
           alt={post.title}
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover opacity-60"
         />
         <div
