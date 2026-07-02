@@ -63,7 +63,10 @@ export function PremiumCard(props: PremiumCardProps) {
       <img
         src={src}
         alt={imageAlt}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        sizes={sizes}
+        {...(priority ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
       />
       <div
