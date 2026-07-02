@@ -50,8 +50,12 @@ export function SiteHeader() {
             <img
               src={logoAsset.url}
               alt="S.A Imóveis Alphaville"
+              width={180}
+              height={48}
               className="h-12 w-auto brightness-0 invert"
               loading="eager"
+              decoding="async"
+              fetchPriority="high"
             />
             <span className="sr-only">S.A Imóveis Alphaville</span>
           </Link>
