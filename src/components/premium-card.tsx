@@ -17,6 +17,10 @@ type BaseProps = {
   fallback?: { type?: FallbackKind; region?: string | null; seed?: string | null };
   footer?: ReactNode;
   badges?: ReactNode;
+  /** Marks the LCP/above-the-fold card so the browser fetches it eagerly. */
+  priority?: boolean;
+  /** Responsive `sizes` hint — defaults to a 1/2/3-column grid heuristic. */
+  sizes?: string;
 };
 
 type LinkedProps = BaseProps & {
