@@ -150,6 +150,10 @@ function HomePage() {
                 alt="Residência contemporânea em concreto aparente em Alphaville, fotografia preto e branco."
                 width={1080}
                 height={1440}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                sizes="(max-width: 1024px) 100vw, 42vw"
                 className="w-full aspect-[3/4] object-cover bg-muted"
               />
             </div>
