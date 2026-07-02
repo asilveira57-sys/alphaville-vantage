@@ -44,6 +44,8 @@ export function PremiumCard(props: PremiumCardProps) {
   const {
     image, imageAlt, eyebrow, title, description, icon, cta = "Explorar",
     aspectRatio = "tall", className, fallback, footer, badges,
+    priority = false,
+    sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
   } = props;
   const src = resolveImage(image, fallback ?? {});
 
