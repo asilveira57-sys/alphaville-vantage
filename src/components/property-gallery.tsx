@@ -64,6 +64,9 @@ export function PropertyGallery({ images, title }: Props) {
                   src={src}
                   alt={`${title} — imagem ${i + 1}`}
                   loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  sizes="(max-width: 1024px) 100vw, 960px"
+                  {...(i === 0 ? { fetchPriority: "high" as const } : {})}
                   className="w-full aspect-[16/10] object-contain bg-brand-dark"
                 />
               </div>
