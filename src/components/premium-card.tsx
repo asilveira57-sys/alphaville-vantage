@@ -17,6 +17,10 @@ type BaseProps = {
   fallback?: { type?: FallbackKind; region?: string | null; seed?: string | null };
   footer?: ReactNode;
   badges?: ReactNode;
+  /** Marks the LCP/above-the-fold card so the browser fetches it eagerly. */
+  priority?: boolean;
+  /** Responsive `sizes` hint — defaults to a 1/2/3-column grid heuristic. */
+  sizes?: string;
 };
 
 type LinkedProps = BaseProps & {
@@ -40,6 +44,8 @@ export function PremiumCard(props: PremiumCardProps) {
   const {
     image, imageAlt, eyebrow, title, description, icon, cta = "Explorar",
     aspectRatio = "tall", className, fallback, footer, badges,
+    priority = false,
+    sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
   } = props;
   const src = resolveImage(image, fallback ?? {});
 
@@ -57,7 +63,10 @@ export function PremiumCard(props: PremiumCardProps) {
       <img
         src={src}
         alt={imageAlt}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        sizes={sizes}
+        {...(priority ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
       />
       <div

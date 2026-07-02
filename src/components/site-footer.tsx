@@ -12,6 +12,10 @@ export function SiteFooter() {
               <img
                 src={logoAsset.url}
                 alt="S.A Imóveis Alphaville"
+                width={200}
+                height={56}
+                loading="lazy"
+                decoding="async"
                 className="h-14 w-auto brightness-0 invert"
               />
             </Link>

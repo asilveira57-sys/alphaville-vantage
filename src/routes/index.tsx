@@ -96,7 +96,10 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "/" },
       { property: "og:image", content: heroImg },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [
+      { rel: "canonical", href: "/" },
+      { rel: "preload", as: "image", href: heroImg, fetchpriority: "high" },
+    ],
   }),
   loader: () => loadHome(),
   component: HomePage,
@@ -150,6 +153,10 @@ function HomePage() {
                 alt="Residência contemporânea em concreto aparente em Alphaville, fotografia preto e branco."
                 width={1080}
                 height={1440}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                sizes="(max-width: 1024px) 100vw, 42vw"
                 className="w-full aspect-[3/4] object-cover bg-muted"
               />
             </div>

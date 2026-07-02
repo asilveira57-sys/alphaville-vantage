@@ -25,7 +25,8 @@ export const Route = createFileRoute("/api/public/editorial-image/$")({
         return new Response(data, {
           headers: {
             "Content-Type": mime,
-            "Cache-Control": "public, max-age=31536000, immutable",
+            "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable, stale-while-revalidate=86400",
+            "Vary": "Accept",
           },
         });
       },
