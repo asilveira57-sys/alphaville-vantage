@@ -40,6 +40,15 @@ export function SiteFooter() {
 
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-brand-yellow mb-5 font-semibold">
+              Legal
+            </p>
+            <ul className="space-y-3 text-sm">
+              <li><Link to="/politica-de-cookies" className="hover:text-brand-yellow">Política de Cookies</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-brand-yellow mb-5 font-semibold">
               Guias da região
             </p>
             <ul className="space-y-3 text-sm">
