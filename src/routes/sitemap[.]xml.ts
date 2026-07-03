@@ -33,6 +33,20 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/meio-ambiente", changefreq: "monthly", priority: "0.6" },
           { path: "/investimentos", changefreq: "weekly", priority: "0.8" },
           { path: "/imoveis", changefreq: "daily", priority: "0.9" },
+          { path: "/quem-somos", changefreq: "monthly", priority: "0.7" },
+          { path: "/como-trabalhamos", changefreq: "monthly", priority: "0.7" },
+          { path: "/servicos", changefreq: "monthly", priority: "0.8" },
+          { path: "/areas-de-atuacao", changefreq: "monthly", priority: "0.7" },
+          { path: "/perguntas-frequentes", changefreq: "monthly", priority: "0.7" },
+          { path: "/contato", changefreq: "monthly", priority: "0.8" },
+          { path: "/transparencia", changefreq: "yearly", priority: "0.5" },
+          { path: "/politica-de-atendimento", changefreq: "yearly", priority: "0.5" },
+          { path: "/politica-de-privacidade", changefreq: "yearly", priority: "0.4" },
+          { path: "/politica-de-cookies", changefreq: "yearly", priority: "0.4" },
+          { path: "/lgpd", changefreq: "yearly", priority: "0.4" },
+          { path: "/termos-de-uso", changefreq: "yearly", priority: "0.4" },
+          { path: "/aviso-legal", changefreq: "yearly", priority: "0.4" },
+          { path: "/mapa-do-site", changefreq: "monthly", priority: "0.5" },
         ];
 
         // Dynamic: imóveis ativos

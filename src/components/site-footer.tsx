@@ -27,14 +27,17 @@ export function SiteFooter() {
 
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-brand-yellow mb-5 font-semibold">
-              Editorial
+              Institucional
             </p>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/blog" className="hover:text-brand-yellow">Blog</Link></li>
-              <li><Link to="/mercado-imobiliario" className="hover:text-brand-yellow">Mercado imobiliário</Link></li>
-              <li><Link to="/historia" className="hover:text-brand-yellow">História</Link></li>
-              <li><Link to="/meio-ambiente" className="hover:text-brand-yellow">Meio ambiente</Link></li>
-              <li><Link to="/condominios" className="hover:text-brand-yellow">Condomínios</Link></li>
+              <li><Link to="/quem-somos" className="hover:text-brand-yellow">Quem somos</Link></li>
+              <li><Link to="/historia" className="hover:text-brand-yellow">Nossa história</Link></li>
+              <li><Link to="/como-trabalhamos" className="hover:text-brand-yellow">Como trabalhamos</Link></li>
+              <li><Link to="/servicos" className="hover:text-brand-yellow">Serviços</Link></li>
+              <li><Link to="/areas-de-atuacao" className="hover:text-brand-yellow">Áreas de atuação</Link></li>
+              <li><Link to="/transparencia" className="hover:text-brand-yellow">Transparência</Link></li>
+              <li><Link to="/perguntas-frequentes" className="hover:text-brand-yellow">FAQ</Link></li>
+              <li><Link to="/contato" className="hover:text-brand-yellow">Contato</Link></li>
             </ul>
           </div>
 
@@ -43,7 +46,13 @@ export function SiteFooter() {
               Legal
             </p>
             <ul className="space-y-3 text-sm">
+              <li><Link to="/politica-de-privacidade" className="hover:text-brand-yellow">Política de Privacidade</Link></li>
               <li><Link to="/politica-de-cookies" className="hover:text-brand-yellow">Política de Cookies</Link></li>
+              <li><Link to="/lgpd" className="hover:text-brand-yellow">LGPD</Link></li>
+              <li><Link to="/termos-de-uso" className="hover:text-brand-yellow">Termos de Uso</Link></li>
+              <li><Link to="/aviso-legal" className="hover:text-brand-yellow">Aviso Legal</Link></li>
+              <li><Link to="/politica-de-atendimento" className="hover:text-brand-yellow">Política de Atendimento</Link></li>
+              <li><Link to="/mapa-do-site" className="hover:text-brand-yellow">Mapa do site</Link></li>
             </ul>
           </div>
 
