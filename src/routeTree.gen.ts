@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RestaurantesRouteImport } from './routes/restaurantes'
+import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
 import { Route as MercadoImobiliarioRouteImport } from './routes/mercado-imobiliario'
 import { Route as MeioAmbienteRouteImport } from './routes/meio-ambiente'
@@ -60,6 +61,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const RestaurantesRoute = RestaurantesRouteImport.update({
   id: '/restaurantes',
   path: '/restaurantes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuemSomosRoute = QuemSomosRouteImport.update({
+  id: '/quem-somos',
+  path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliticaDeCookiesRoute = PoliticaDeCookiesRouteImport.update({
@@ -281,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -320,6 +327,7 @@ export interface FileRoutesByTo {
   '/investimentos': typeof InvestimentosRoute
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -364,6 +372,7 @@ export interface FileRoutesById {
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente'
     | '/mercado-imobiliario'
     | '/politica-de-cookies'
+    | '/quem-somos'
     | '/restaurantes'
     | '/sitemap.xml'
     | '/admin'
@@ -448,6 +458,7 @@ export interface FileRouteTypes {
     | '/investimentos'
     | '/mercado-imobiliario'
     | '/politica-de-cookies'
+    | '/quem-somos'
     | '/restaurantes'
     | '/sitemap.xml'
     | '/admin'
@@ -491,6 +502,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente'
     | '/mercado-imobiliario'
     | '/politica-de-cookies'
+    | '/quem-somos'
     | '/restaurantes'
     | '/sitemap.xml'
     | '/_authenticated/admin'
@@ -536,6 +548,7 @@ export interface RootRouteChildren {
   MeioAmbienteRoute: typeof MeioAmbienteRouteWithChildren
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
   PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
+  QuemSomosRoute: typeof QuemSomosRoute
   RestaurantesRoute: typeof RestaurantesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ArtigosSlugRoute: typeof ArtigosSlugRoute
@@ -560,6 +573,13 @@ declare module '@tanstack/react-router' {
       path: '/restaurantes'
       fullPath: '/restaurantes'
       preLoaderRoute: typeof RestaurantesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quem-somos': {
+      id: '/quem-somos'
+      path: '/quem-somos'
+      fullPath: '/quem-somos'
+      preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/politica-de-cookies': {
@@ -958,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   MeioAmbienteRoute: MeioAmbienteRouteWithChildren,
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
   PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
+  QuemSomosRoute: QuemSomosRoute,
   RestaurantesRoute: RestaurantesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ArtigosSlugRoute: ArtigosSlugRoute,
@@ -970,13 +991,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
