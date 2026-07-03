@@ -76,23 +76,23 @@ function CookiesPolicyPage() {
           </article>
 
           <article>
-            <h2 className="font-serif text-2xl mb-4">2. Como utilizamos cookies?</h2>
-            <p className="text-ink/85 leading-relaxed mb-4">
-              O portal editorial da S.A Imóveis Alphaville utiliza cookies de forma responsável,
-              limitada aos propósitos abaixo:
-            </p>
+            <h2 className="font-serif text-2xl mb-4">2. Categorias de cookies que utilizamos</h2>
             <ul className="list-disc list-inside space-y-2 text-ink/85 leading-relaxed">
               <li>
-                <strong>Funcionais:</strong> garantir que o site carregue corretamente e respeite
-                preferências básicas do visitante.
+                <strong>Essenciais:</strong> necessários para o funcionamento do site, autenticação
+                e segurança. Não podem ser desativados sem comprometer a navegação.
               </li>
               <li>
-                <strong>Desempenho:</strong> medir métricas de performance e identificar erros de
-                carregamento, como parte do monitoramento de qualidade.
+                <strong>Analíticos:</strong> medem uso agregado (páginas mais acessadas, origem do
+                tráfego, desempenho) para melhorarmos a experiência.
               </li>
               <li>
-                <strong>Segurança:</strong> proteger sessões autenticadas e evitar acessos não
-                autorizados em áreas administrativas.
+                <strong>Marketing:</strong> quando aplicáveis, ajudam a mensurar campanhas e
+                comunicações. Não vendemos dados a terceiros para publicidade.
+              </li>
+              <li>
+                <strong>Preferências:</strong> lembram escolhas do visitante, como filtros,
+                idioma e configurações de exibição.
               </li>
             </ul>
           </article>

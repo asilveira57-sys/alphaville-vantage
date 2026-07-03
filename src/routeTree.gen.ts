@@ -9,12 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TransparenciaRouteImport } from './routes/transparencia'
+import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RestaurantesRouteImport } from './routes/restaurantes'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
+import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
+import { Route as PoliticaDeAtendimentoRouteImport } from './routes/politica-de-atendimento'
+import { Route as PerguntasFrequentesRouteImport } from './routes/perguntas-frequentes'
 import { Route as MercadoImobiliarioRouteImport } from './routes/mercado-imobiliario'
 import { Route as MeioAmbienteRouteImport } from './routes/meio-ambiente'
+import { Route as MapaDoSiteRouteImport } from './routes/mapa-do-site'
+import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as InvestimentosRouteImport } from './routes/investimentos'
 import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as HistoriaRouteImport } from './routes/historia'
@@ -25,8 +33,12 @@ import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as GuiaRouteImport } from './routes/guia'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as EmpresasRouteImport } from './routes/empresas'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as ComoTrabalhamosRouteImport } from './routes/como-trabalhamos'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AreasDeAtuacaoRouteImport } from './routes/areas-de-atuacao'
 import { Route as AlphavilleRouteImport } from './routes/alphaville'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -53,9 +65,24 @@ import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 
+const TransparenciaRoute = TransparenciaRouteImport.update({
+  id: '/transparencia',
+  path: '/transparencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosDeUsoRoute = TermosDeUsoRouteImport.update({
+  id: '/termos-de-uso',
+  path: '/termos-de-uso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicosRoute = ServicosRouteImport.update({
+  id: '/servicos',
+  path: '/servicos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RestaurantesRoute = RestaurantesRouteImport.update({
@@ -68,9 +95,24 @@ const QuemSomosRoute = QuemSomosRouteImport.update({
   path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
+  id: '/politica-de-privacidade',
+  path: '/politica-de-privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PoliticaDeCookiesRoute = PoliticaDeCookiesRouteImport.update({
   id: '/politica-de-cookies',
   path: '/politica-de-cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDeAtendimentoRoute = PoliticaDeAtendimentoRouteImport.update({
+  id: '/politica-de-atendimento',
+  path: '/politica-de-atendimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerguntasFrequentesRoute = PerguntasFrequentesRouteImport.update({
+  id: '/perguntas-frequentes',
+  path: '/perguntas-frequentes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MercadoImobiliarioRoute = MercadoImobiliarioRouteImport.update({
@@ -81,6 +123,16 @@ const MercadoImobiliarioRoute = MercadoImobiliarioRouteImport.update({
 const MeioAmbienteRoute = MeioAmbienteRouteImport.update({
   id: '/meio-ambiente',
   path: '/meio-ambiente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaDoSiteRoute = MapaDoSiteRouteImport.update({
+  id: '/mapa-do-site',
+  path: '/mapa-do-site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LgpdRoute = LgpdRouteImport.update({
+  id: '/lgpd',
+  path: '/lgpd',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvestimentosRoute = InvestimentosRouteImport.update({
@@ -133,14 +185,34 @@ const EmpresasRoute = EmpresasRouteImport.update({
   path: '/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComoTrabalhamosRoute = ComoTrabalhamosRouteImport.update({
+  id: '/como-trabalhamos',
+  path: '/como-trabalhamos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogRoute = BlogRouteImport.update({
   id: '/blog',
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AvisoLegalRoute = AvisoLegalRouteImport.update({
+  id: '/aviso-legal',
+  path: '/aviso-legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasDeAtuacaoRoute = AreasDeAtuacaoRouteImport.update({
+  id: '/areas-de-atuacao',
+  path: '/areas-de-atuacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlphavilleRoute = AlphavilleRouteImport.update({
@@ -272,8 +344,12 @@ const ApiPublicEditorialImageSplatRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
+  '/areas-de-atuacao': typeof AreasDeAtuacaoRoute
   '/auth': typeof AuthRoute
+  '/aviso-legal': typeof AvisoLegalRoute
   '/blog': typeof BlogRouteWithChildren
+  '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/contato': typeof ContatoRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -284,12 +360,20 @@ export interface FileRoutesByFullPath {
   '/historia': typeof HistoriaRoute
   '/imoveis': typeof ImoveisRouteWithChildren
   '/investimentos': typeof InvestimentosRoute
+  '/lgpd': typeof LgpdRoute
+  '/mapa-do-site': typeof MapaDoSiteRoute
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/perguntas-frequentes': typeof PerguntasFrequentesRoute
+  '/politica-de-atendimento': typeof PoliticaDeAtendimentoRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
+  '/servicos': typeof ServicosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos-de-uso': typeof TermosDeUsoRoute
+  '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -316,7 +400,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
+  '/areas-de-atuacao': typeof AreasDeAtuacaoRoute
   '/auth': typeof AuthRoute
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/contato': typeof ContatoRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
@@ -325,11 +413,19 @@ export interface FileRoutesByTo {
   '/guia-tambore': typeof GuiaTamboreRoute
   '/historia': typeof HistoriaRoute
   '/investimentos': typeof InvestimentosRoute
+  '/lgpd': typeof LgpdRoute
+  '/mapa-do-site': typeof MapaDoSiteRoute
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/perguntas-frequentes': typeof PerguntasFrequentesRoute
+  '/politica-de-atendimento': typeof PoliticaDeAtendimentoRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
+  '/servicos': typeof ServicosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos-de-uso': typeof TermosDeUsoRoute
+  '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -357,8 +453,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/alphaville': typeof AlphavilleRoute
+  '/areas-de-atuacao': typeof AreasDeAtuacaoRoute
   '/auth': typeof AuthRoute
+  '/aviso-legal': typeof AvisoLegalRoute
   '/blog': typeof BlogRouteWithChildren
+  '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/contato': typeof ContatoRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -369,12 +469,20 @@ export interface FileRoutesById {
   '/historia': typeof HistoriaRoute
   '/imoveis': typeof ImoveisRouteWithChildren
   '/investimentos': typeof InvestimentosRoute
+  '/lgpd': typeof LgpdRoute
+  '/mapa-do-site': typeof MapaDoSiteRoute
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/perguntas-frequentes': typeof PerguntasFrequentesRoute
+  '/politica-de-atendimento': typeof PoliticaDeAtendimentoRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
+  '/servicos': typeof ServicosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos-de-uso': typeof TermosDeUsoRoute
+  '/transparencia': typeof TransparenciaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -403,8 +511,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alphaville'
+    | '/areas-de-atuacao'
     | '/auth'
+    | '/aviso-legal'
     | '/blog'
+    | '/como-trabalhamos'
+    | '/contato'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -415,12 +527,20 @@ export interface FileRouteTypes {
     | '/historia'
     | '/imoveis'
     | '/investimentos'
+    | '/lgpd'
+    | '/mapa-do-site'
     | '/meio-ambiente'
     | '/mercado-imobiliario'
+    | '/perguntas-frequentes'
+    | '/politica-de-atendimento'
     | '/politica-de-cookies'
+    | '/politica-de-privacidade'
     | '/quem-somos'
     | '/restaurantes'
+    | '/servicos'
     | '/sitemap.xml'
+    | '/termos-de-uso'
+    | '/transparencia'
     | '/admin'
     | '/audit'
     | '/cms'
@@ -447,7 +567,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/alphaville'
+    | '/areas-de-atuacao'
     | '/auth'
+    | '/aviso-legal'
+    | '/como-trabalhamos'
+    | '/contato'
     | '/empresas'
     | '/escolas'
     | '/guia-alphaville'
@@ -456,11 +580,19 @@ export interface FileRouteTypes {
     | '/guia-tambore'
     | '/historia'
     | '/investimentos'
+    | '/lgpd'
+    | '/mapa-do-site'
     | '/mercado-imobiliario'
+    | '/perguntas-frequentes'
+    | '/politica-de-atendimento'
     | '/politica-de-cookies'
+    | '/politica-de-privacidade'
     | '/quem-somos'
     | '/restaurantes'
+    | '/servicos'
     | '/sitemap.xml'
+    | '/termos-de-uso'
+    | '/transparencia'
     | '/admin'
     | '/audit'
     | '/artigos/$slug'
@@ -487,8 +619,12 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/alphaville'
+    | '/areas-de-atuacao'
     | '/auth'
+    | '/aviso-legal'
     | '/blog'
+    | '/como-trabalhamos'
+    | '/contato'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -499,12 +635,20 @@ export interface FileRouteTypes {
     | '/historia'
     | '/imoveis'
     | '/investimentos'
+    | '/lgpd'
+    | '/mapa-do-site'
     | '/meio-ambiente'
     | '/mercado-imobiliario'
+    | '/perguntas-frequentes'
+    | '/politica-de-atendimento'
     | '/politica-de-cookies'
+    | '/politica-de-privacidade'
     | '/quem-somos'
     | '/restaurantes'
+    | '/servicos'
     | '/sitemap.xml'
+    | '/termos-de-uso'
+    | '/transparencia'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/cms'
@@ -533,8 +677,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AlphavilleRoute: typeof AlphavilleRoute
+  AreasDeAtuacaoRoute: typeof AreasDeAtuacaoRoute
   AuthRoute: typeof AuthRoute
+  AvisoLegalRoute: typeof AvisoLegalRoute
   BlogRoute: typeof BlogRouteWithChildren
+  ComoTrabalhamosRoute: typeof ComoTrabalhamosRoute
+  ContatoRoute: typeof ContatoRoute
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
   GuiaRoute: typeof GuiaRouteWithChildren
@@ -545,12 +693,20 @@ export interface RootRouteChildren {
   HistoriaRoute: typeof HistoriaRoute
   ImoveisRoute: typeof ImoveisRouteWithChildren
   InvestimentosRoute: typeof InvestimentosRoute
+  LgpdRoute: typeof LgpdRoute
+  MapaDoSiteRoute: typeof MapaDoSiteRoute
   MeioAmbienteRoute: typeof MeioAmbienteRouteWithChildren
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
+  PerguntasFrequentesRoute: typeof PerguntasFrequentesRoute
+  PoliticaDeAtendimentoRoute: typeof PoliticaDeAtendimentoRoute
   PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
+  PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
   QuemSomosRoute: typeof QuemSomosRoute
   RestaurantesRoute: typeof RestaurantesRoute
+  ServicosRoute: typeof ServicosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermosDeUsoRoute: typeof TermosDeUsoRoute
+  TransparenciaRoute: typeof TransparenciaRoute
   ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
@@ -561,11 +717,32 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/transparencia': {
+      id: '/transparencia'
+      path: '/transparencia'
+      fullPath: '/transparencia'
+      preLoaderRoute: typeof TransparenciaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos-de-uso': {
+      id: '/termos-de-uso'
+      path: '/termos-de-uso'
+      fullPath: '/termos-de-uso'
+      preLoaderRoute: typeof TermosDeUsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servicos': {
+      id: '/servicos'
+      path: '/servicos'
+      fullPath: '/servicos'
+      preLoaderRoute: typeof ServicosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/restaurantes': {
@@ -582,11 +759,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/politica-de-privacidade': {
+      id: '/politica-de-privacidade'
+      path: '/politica-de-privacidade'
+      fullPath: '/politica-de-privacidade'
+      preLoaderRoute: typeof PoliticaDePrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/politica-de-cookies': {
       id: '/politica-de-cookies'
       path: '/politica-de-cookies'
       fullPath: '/politica-de-cookies'
       preLoaderRoute: typeof PoliticaDeCookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-atendimento': {
+      id: '/politica-de-atendimento'
+      path: '/politica-de-atendimento'
+      fullPath: '/politica-de-atendimento'
+      preLoaderRoute: typeof PoliticaDeAtendimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perguntas-frequentes': {
+      id: '/perguntas-frequentes'
+      path: '/perguntas-frequentes'
+      fullPath: '/perguntas-frequentes'
+      preLoaderRoute: typeof PerguntasFrequentesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mercado-imobiliario': {
@@ -601,6 +799,20 @@ declare module '@tanstack/react-router' {
       path: '/meio-ambiente'
       fullPath: '/meio-ambiente'
       preLoaderRoute: typeof MeioAmbienteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa-do-site': {
+      id: '/mapa-do-site'
+      path: '/mapa-do-site'
+      fullPath: '/mapa-do-site'
+      preLoaderRoute: typeof MapaDoSiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lgpd': {
+      id: '/lgpd'
+      path: '/lgpd'
+      fullPath: '/lgpd'
+      preLoaderRoute: typeof LgpdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/investimentos': {
@@ -673,6 +885,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/como-trabalhamos': {
+      id: '/como-trabalhamos'
+      path: '/como-trabalhamos'
+      fullPath: '/como-trabalhamos'
+      preLoaderRoute: typeof ComoTrabalhamosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog': {
       id: '/blog'
       path: '/blog'
@@ -680,11 +906,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aviso-legal': {
+      id: '/aviso-legal'
+      path: '/aviso-legal'
+      fullPath: '/aviso-legal'
+      preLoaderRoute: typeof AvisoLegalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas-de-atuacao': {
+      id: '/areas-de-atuacao'
+      path: '/areas-de-atuacao'
+      fullPath: '/areas-de-atuacao'
+      preLoaderRoute: typeof AreasDeAtuacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alphaville': {
@@ -963,8 +1203,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AlphavilleRoute: AlphavilleRoute,
+  AreasDeAtuacaoRoute: AreasDeAtuacaoRoute,
   AuthRoute: AuthRoute,
+  AvisoLegalRoute: AvisoLegalRoute,
   BlogRoute: BlogRouteWithChildren,
+  ComoTrabalhamosRoute: ComoTrabalhamosRoute,
+  ContatoRoute: ContatoRoute,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
   GuiaRoute: GuiaRouteWithChildren,
@@ -975,12 +1219,20 @@ const rootRouteChildren: RootRouteChildren = {
   HistoriaRoute: HistoriaRoute,
   ImoveisRoute: ImoveisRouteWithChildren,
   InvestimentosRoute: InvestimentosRoute,
+  LgpdRoute: LgpdRoute,
+  MapaDoSiteRoute: MapaDoSiteRoute,
   MeioAmbienteRoute: MeioAmbienteRouteWithChildren,
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
+  PerguntasFrequentesRoute: PerguntasFrequentesRoute,
+  PoliticaDeAtendimentoRoute: PoliticaDeAtendimentoRoute,
   PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
+  PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
   QuemSomosRoute: QuemSomosRoute,
   RestaurantesRoute: RestaurantesRoute,
+  ServicosRoute: ServicosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermosDeUsoRoute: TermosDeUsoRoute,
+  TransparenciaRoute: TransparenciaRoute,
   ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,
