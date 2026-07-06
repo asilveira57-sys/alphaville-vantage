@@ -61,8 +61,10 @@ import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cm
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
+import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
+import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 
 const TransparenciaRoute = TransparenciaRouteImport.update({
@@ -324,6 +326,12 @@ const AuthenticatedCmsIndexRoute = AuthenticatedCmsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedCmsRoute,
 } as any)
+const ApiPublicIndexnowKeyDottxtRoute =
+  ApiPublicIndexnowKeyDottxtRouteImport.update({
+    id: '/api/public/indexnow-key.txt',
+    path: '/api/public/indexnow-key.txt',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedCmsIdRoute = AuthenticatedCmsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -334,6 +342,12 @@ const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedAuditRoute,
 } as any)
+const ApiPublicHooksSeoMonthlyRefreshRoute =
+  ApiPublicHooksSeoMonthlyRefreshRouteImport.update({
+    id: '/api/public/hooks/seo-monthly-refresh',
+    path: '/api/public/hooks/seo-monthly-refresh',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicEditorialImageSplatRoute =
   ApiPublicEditorialImageSplatRouteImport.update({
     id: '/api/public/editorial-image/$',
@@ -394,8 +408,10 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -445,8 +461,10 @@ export interface FileRoutesByTo {
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -503,8 +521,10 @@ export interface FileRoutesById {
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -561,8 +581,10 @@ export interface FileRouteTypes {
     | '/meio-ambiente/'
     | '/audit/$id'
     | '/cms/$id'
+    | '/api/public/indexnow-key.txt'
     | '/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/seo-monthly-refresh'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -612,8 +634,10 @@ export interface FileRouteTypes {
     | '/meio-ambiente'
     | '/audit/$id'
     | '/cms/$id'
+    | '/api/public/indexnow-key.txt'
     | '/cms'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/seo-monthly-refresh'
   id:
     | '__root__'
     | '/'
@@ -669,8 +693,10 @@ export interface FileRouteTypes {
     | '/meio-ambiente/'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
+    | '/api/public/indexnow-key.txt'
     | '/_authenticated/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/seo-monthly-refresh'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -712,7 +738,9 @@ export interface RootRouteChildren {
   CondominiosSlugRoute: typeof CondominiosSlugRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
+  ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
+  ApiPublicHooksSeoMonthlyRefreshRoute: typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1081,6 +1109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsIndexRouteImport
       parentRoute: typeof AuthenticatedCmsRoute
     }
+    '/api/public/indexnow-key.txt': {
+      id: '/api/public/indexnow-key.txt'
+      path: '/api/public/indexnow-key.txt'
+      fullPath: '/api/public/indexnow-key.txt'
+      preLoaderRoute: typeof ApiPublicIndexnowKeyDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/cms/$id': {
       id: '/_authenticated/cms/$id'
       path: '/$id'
@@ -1094,6 +1129,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/audit/$id'
       preLoaderRoute: typeof AuthenticatedAuditIdRouteImport
       parentRoute: typeof AuthenticatedAuditRoute
+    }
+    '/api/public/hooks/seo-monthly-refresh': {
+      id: '/api/public/hooks/seo-monthly-refresh'
+      path: '/api/public/hooks/seo-monthly-refresh'
+      fullPath: '/api/public/hooks/seo-monthly-refresh'
+      preLoaderRoute: typeof ApiPublicHooksSeoMonthlyRefreshRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/editorial-image/$': {
       id: '/api/public/editorial-image/$'
@@ -1238,18 +1280,10 @@ const rootRouteChildren: RootRouteChildren = {
   CondominiosSlugRoute: CondominiosSlugRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
+  ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
+  ApiPublicHooksSeoMonthlyRefreshRoute: ApiPublicHooksSeoMonthlyRefreshRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
