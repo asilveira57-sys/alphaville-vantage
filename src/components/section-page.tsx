@@ -15,25 +15,76 @@ interface SectionPageProps {
   children?: ReactNode;
 }
 
+const SITE_URL = "https://alphaville-vantage.lovable.app";
+
+function buildBreadcrumbJsonLd(breadcrumbs: BreadcrumbItem[]) {
+  const items = [
+    { "@type": "ListItem", position: 1, name: "Início", item: `${SITE_URL}/` },
+    ...breadcrumbs.map((b, i) => {
+      const entry: Record<string, unknown> = {
+        "@type": "ListItem",
+        position: i + 2,
+        name: b.label,
+      };
+      if (b.to) entry.item = `${SITE_URL}${b.to}`;
+      return entry;
+    }),
+  ];
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items,
+  };
+}
+
 export function SectionPage({ eyebrow, title, lead, breadcrumbs, children }: SectionPageProps) {
   return (
     <SiteLayout>
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBreadcrumbJsonLd(breadcrumbs)) }}
+        />
+      )}
       <section className="px-6 pt-16 md:pt-24 pb-12 border-b border-ink/8">
         <div className="max-w-7xl mx-auto">
-          {breadcrumbs && (
+          {breadcrumbs && breadcrumbs.length > 0 && (
             <nav aria-label="Trilha de navegação" className="mb-8">
-              <ol className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                <li>
-                  <Link to="/" className="hover:text-ink">Início</Link>
+              <ol
+                className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground"
+                itemScope
+                itemType="https://schema.org/BreadcrumbList"
+              >
+                <li
+                  itemProp="itemListElement"
+                  itemScope
+                  itemType="https://schema.org/ListItem"
+                >
+                  <Link to="/" className="hover:text-ink" itemProp="item">
+                    <span itemProp="name">Início</span>
+                  </Link>
+                  <meta itemProp="position" content="1" />
                 </li>
                 {breadcrumbs.map((b, i) => (
-                  <li key={i} className="flex items-center gap-2">
+                  <li
+                    key={i}
+                    className="flex items-center gap-2"
+                    itemProp="itemListElement"
+                    itemScope
+                    itemType="https://schema.org/ListItem"
+                  >
                     <span aria-hidden>/</span>
                     {b.to ? (
-                      <Link to={b.to} className="hover:text-ink">{b.label}</Link>
+                      <Link to={b.to} className="hover:text-ink" itemProp="item">
+                        <span itemProp="name">{b.label}</span>
+                      </Link>
                     ) : (
-                      <span className="text-ink">{b.label}</span>
+                      <span className="text-ink" itemProp="name" aria-current="page">
+                        {b.label}
+                      </span>
                     )}
+                    <meta itemProp="position" content={String(i + 2)} />
                   </li>
                 ))}
               </ol>
