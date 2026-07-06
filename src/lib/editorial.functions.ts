@@ -167,6 +167,15 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw new Error(error.message);
+    if (row?.status === "published") {
+      const base = row.content_type === "condominio" ? "/condominios"
+        : row.content_type === "bairro" ? "/bairros"
+        : row.content_type === "blog" ? "/blog" : null;
+      if (base) {
+        const { autoNotifyPublish } = await import("./seo.functions");
+        autoNotifyPublish([`${base}/${row.slug}`]).catch(() => {});
+      }
+    }
     return row;
   });
 
@@ -186,7 +195,7 @@ export const togglePublishEditorial = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { data: row } = await context.supabase
-      .from("editorial_pages").select("status").eq("id", data.id).maybeSingle();
+      .from("editorial_pages").select("status,slug,content_type").eq("id", data.id).maybeSingle();
     if (!row) throw new Error("Página não encontrada");
     const next = row.status === "published" ? "draft" : "published";
     const { error } = await context.supabase.from("editorial_pages").update({
@@ -194,6 +203,15 @@ export const togglePublishEditorial = createServerFn({ method: "POST" })
       published_at: next === "published" ? new Date().toISOString() : null,
     }).eq("id", data.id);
     if (error) throw new Error(error.message);
+    if (next === "published") {
+      const base = row.content_type === "condominio" ? "/condominios"
+        : row.content_type === "bairro" ? "/bairros"
+        : row.content_type === "blog" ? "/blog" : null;
+      if (base) {
+        const { autoNotifyPublish } = await import("./seo.functions");
+        autoNotifyPublish([`${base}/${row.slug}`]).catch(() => {});
+      }
+    }
     return { status: next };
   });
 
