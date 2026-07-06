@@ -59,10 +59,13 @@ import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
 import { Route as ArtigosSlugRouteImport } from './routes/artigos.$slug'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
+import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
+import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 
 const TransparenciaRoute = TransparenciaRouteImport.update({
@@ -314,6 +317,11 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
+  id: '/admin-seo',
+  path: '/admin-seo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -324,6 +332,12 @@ const AuthenticatedCmsIndexRoute = AuthenticatedCmsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedCmsRoute,
 } as any)
+const ApiPublicIndexnowKeyDottxtRoute =
+  ApiPublicIndexnowKeyDottxtRouteImport.update({
+    id: '/api/public/indexnow-key.txt',
+    path: '/api/public/indexnow-key.txt',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedCmsIdRoute = AuthenticatedCmsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -334,6 +348,12 @@ const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedAuditRoute,
 } as any)
+const ApiPublicHooksSeoMonthlyRefreshRoute =
+  ApiPublicHooksSeoMonthlyRefreshRouteImport.update({
+    id: '/api/public/hooks/seo-monthly-refresh',
+    path: '/api/public/hooks/seo-monthly-refresh',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicEditorialImageSplatRoute =
   ApiPublicEditorialImageSplatRouteImport.update({
     id: '/api/public/editorial-image/$',
@@ -375,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/cms': typeof AuthenticatedCmsRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -394,8 +415,10 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -427,6 +450,7 @@ export interface FileRoutesByTo {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
@@ -445,8 +469,10 @@ export interface FileRoutesByTo {
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -484,6 +510,7 @@ export interface FileRoutesById {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -503,8 +530,10 @@ export interface FileRoutesById {
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -542,6 +571,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/admin'
+    | '/admin-seo'
     | '/audit'
     | '/cms'
     | '/artigos/$slug'
@@ -561,8 +591,10 @@ export interface FileRouteTypes {
     | '/meio-ambiente/'
     | '/audit/$id'
     | '/cms/$id'
+    | '/api/public/indexnow-key.txt'
     | '/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/seo-monthly-refresh'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -594,6 +626,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/admin'
+    | '/admin-seo'
     | '/audit'
     | '/artigos/$slug'
     | '/bairros/$slug'
@@ -612,8 +645,10 @@ export interface FileRouteTypes {
     | '/meio-ambiente'
     | '/audit/$id'
     | '/cms/$id'
+    | '/api/public/indexnow-key.txt'
     | '/cms'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/seo-monthly-refresh'
   id:
     | '__root__'
     | '/'
@@ -650,6 +685,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-seo'
     | '/_authenticated/audit'
     | '/_authenticated/cms'
     | '/artigos/$slug'
@@ -669,8 +705,10 @@ export interface FileRouteTypes {
     | '/meio-ambiente/'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
+    | '/api/public/indexnow-key.txt'
     | '/_authenticated/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/seo-monthly-refresh'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -712,7 +750,9 @@ export interface RootRouteChildren {
   CondominiosSlugRoute: typeof CondominiosSlugRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
+  ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
+  ApiPublicHooksSeoMonthlyRefreshRoute: typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1067,6 +1107,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-seo': {
+      id: '/_authenticated/admin-seo'
+      path: '/admin-seo'
+      fullPath: '/admin-seo'
+      preLoaderRoute: typeof AuthenticatedAdminSeoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -1081,6 +1128,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsIndexRouteImport
       parentRoute: typeof AuthenticatedCmsRoute
     }
+    '/api/public/indexnow-key.txt': {
+      id: '/api/public/indexnow-key.txt'
+      path: '/api/public/indexnow-key.txt'
+      fullPath: '/api/public/indexnow-key.txt'
+      preLoaderRoute: typeof ApiPublicIndexnowKeyDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/cms/$id': {
       id: '/_authenticated/cms/$id'
       path: '/$id'
@@ -1094,6 +1148,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/audit/$id'
       preLoaderRoute: typeof AuthenticatedAuditIdRouteImport
       parentRoute: typeof AuthenticatedAuditRoute
+    }
+    '/api/public/hooks/seo-monthly-refresh': {
+      id: '/api/public/hooks/seo-monthly-refresh'
+      path: '/api/public/hooks/seo-monthly-refresh'
+      fullPath: '/api/public/hooks/seo-monthly-refresh'
+      preLoaderRoute: typeof ApiPublicHooksSeoMonthlyRefreshRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/editorial-image/$': {
       id: '/api/public/editorial-image/$'
@@ -1131,12 +1192,14 @@ const AuthenticatedCmsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRouteWithChildren
   AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRouteWithChildren,
   AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,
 }
@@ -1238,7 +1301,9 @@ const rootRouteChildren: RootRouteChildren = {
   CondominiosSlugRoute: CondominiosSlugRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
+  ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
+  ApiPublicHooksSeoMonthlyRefreshRoute: ApiPublicHooksSeoMonthlyRefreshRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

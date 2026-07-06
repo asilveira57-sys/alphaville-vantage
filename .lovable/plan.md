@@ -1,109 +1,89 @@
+## Contexto rápido
 
-# Redesign Visual Premium — S.A Imóveis Alphaville
+O `/sitemap.xml` já é gerado dinamicamente por rota de servidor (consulta `properties`, `editorial_pages` e rotas fixas). Não precisa "regenerar arquivo". O trabalho é dar **visibilidade + controle + notificação a buscadores**.
 
-Objetivo: transformar a aparência de "blog WordPress" em portal imobiliário premium, com identidade azul-marinho profundo + dourado discreto, cards com imagem obrigatória, hover elevado e hierarquia editorial forte.
+---
 
-## 1. Sistema de Design (tokens)
+## O que será construído
 
-Editar `src/styles.css`:
-- Nova paleta escura como acento premium (não substitui o tema editorial claro atual, coexiste):
-  - `--navy: oklch(0.20 0.04 250)` — azul-marinho profundo
-  - `--navy-deep: oklch(0.14 0.04 255)` — fundo hero escuro
-  - `--gold: oklch(0.78 0.13 82)` — dourado discreto
-  - `--gold-soft: oklch(0.86 0.09 85)`
-  - `--slate-blue: oklch(0.62 0.02 250)` — texto secundário sobre escuro
-- Gradientes utilitários: `--gradient-card-overlay`, `--gradient-navy`, `--shadow-premium`, `--shadow-premium-hover`.
-- Tokens mapeados via `@theme inline` para gerar utilitários `bg-navy`, `text-gold`, etc.
-- Fonte: manter Cormorant Garamond (serif) + Inter, ajustando pesos e tracking.
+### 1. Nova aba SEO no /admin
+Nova rota `/_authenticated/admin/seo` (link no painel atual). Quatro blocos:
 
-## 2. Componente base
+**a) Visão geral do sitemap**
+- Cards com contagem por tipo: Institucionais, Imóveis ativos, Posts, Condomínios, Bairros — total.
+- Data/hora do último purge de cache e da última notificação IndexNow.
+- Link para abrir `/sitemap.xml` em nova aba.
+- Botão **"Regenerar agora"** → purga cache + dispara IndexNow em lote das top URLs.
 
-Criar `src/components/premium-card.tsx` — base reutilizável:
-- Props: `image`, `imageAlt`, `eyebrow`, `title`, `description`, `to`/`href`, `params`, `icon`, `cta`, `variant` (dark/light), `aspectRatio`.
-- Estrutura: `<Link>` com imagem + overlay gradient escuro + badge superior (eyebrow) + ícone circular dourado opcional no canto superior direito + título grande + descrição + CTA "EXPLORAR →" com seta circular dourada.
-- Interações: hover translate-y-1, shadow-premium-hover, zoom sutil da imagem (scale 1.03), transição 250ms, foco acessível com ring dourado.
-- Fallback: se `image` ausente → usa `getFallbackImage(category, region)`.
+**b) Lista navegável de URLs indexáveis**
+- Tabela paginada com: URL, tipo (institucional/imóvel/blog/condomínio/bairro), `lastmod`, status, botões "abrir" e "notificar IndexNow individual".
+- Filtro por tipo e busca por slug.
 
-## 3. Variantes especializadas
+**c) Auditoria SEO por página**
+- Varre `editorial_pages` e `properties` procurando:
+  - title ausente ou > 60 chars
+  - meta description ausente ou > 160 chars
+  - slug duplicado
+  - canonical/OG faltando
+  - imagem de capa ausente
+- Tabela agrupada por severidade (erro/aviso) com link para editar no CMS.
 
-Todas em `src/components/premium-cards/`:
-- `PremiumRegionCard` — usada em `bairros.index.tsx` e homepage Regiões. Ícone temático por região.
-- `PremiumPostCard` — usada em `blog.index.tsx` e "Perspectivas Recentes" da home. Sem ícone; badge = tag/categoria; mostra data + tempo de leitura.
-- `PremiumPropertyCard` — usada em `imoveis.index.tsx` e "Curadoria S.A" da home. Preço em destaque, badges (Venda/Locação/Alto padrão), quartos/suítes/vagas/m² com ícones lucide.
-- `PremiumCondoCard` — usada em `condominios.index.tsx`. Nome + cidade + resumo + "Ver guia".
+**d) Histórico de execuções**
+- Últimas notificações IndexNow (URL, status HTTP, timestamp) e execuções do cron mensal.
 
-## 4. Sistema de fallback de imagens
+### 2. IndexNow automático na publicação
+Toda vez que `editorial_pages.status` mudar para `published` ou `properties.status` mudar para `active` (ou o `updated_at` de um item já publicado mudar):
+- Purge do cache do sitemap (via header ou timestamp em tabela `seo_state`).
+- Chamada ao IndexNow (Bing/Yandex) notificando a URL específica.
 
-Criar `src/lib/image-fallbacks.ts`:
-- Mapa por região (alphaville, tambore, barueri, santana) usando imagens já existentes em `src/assets/`.
-- Mapa por tipo (property, condo, post, region).
-- Função `getFallbackImage({ type, region, seed })` retorna URL determinística.
-- Garantia: nenhum card renderiza sem imagem — o componente PremiumCard já injeta fallback antes de renderizar.
+Implementado através de:
+- Server function `notifyIndexNow(urls[])` chamada pelos fluxos existentes de publicação (CMS save, scraper upsert).
+- Chave IndexNow gerada automaticamente (`generate_secret`) e servida em `public/{key}.txt` via rota estática.
 
-## 5. Blog editorial premium
+### 3. Cron mensal
+Job `pg_cron` no dia 1º às 3h chamando `POST /api/public/hooks/seo-monthly-refresh`:
+- Purga cache do sitemap.
+- Envia lote IndexNow com todas as URLs ativas.
+- Registra execução em `seo_runs`.
+Rota protegida por `apikey` header (anon key), como o padrão de cron do projeto.
 
-Reformular `src/routes/blog.index.tsx`:
-- Hero editorial: 1 post em destaque grande (aspect 16/9, sobre fundo navy) + 2 secundários ao lado.
-- Seção "Guias Regionais" (4 PremiumRegionCards linkando para /guia-*).
-- Seção "Mercado Imobiliário" (filtra tags relacionadas).
-- Grid de "Posts Recentes" com PremiumPostCard.
-- Título de seção editorial forte (serif, uppercase eyebrow dourado).
+---
 
-Reformular `src/routes/blog.$slug.tsx`:
-- Capa grande full-width com overlay + título sobreposto, badge de categoria, data e tempo estimado de leitura (calc por word count).
-- Largura de leitura confortável (max-w-2xl) com `EditorialContent`.
-- Bloco CTA premium no final.
-- Seção "Leia também" com 3 PremiumPostCards.
+## Detalhes técnicos
 
-## 6. Páginas de listagem
+**Novas tabelas (migração):**
+- `seo_state` — 1 linha: `sitemap_purged_at`, `indexnow_last_run_at`.
+- `seo_runs` — histórico: `id, kind ('indexnow' | 'monthly' | 'purge'), urls_count, http_status, error, created_at`.
+- GRANTs para `authenticated` e `service_role`; RLS restrita a admins (`has_role`).
 
-- `bairros.index.tsx` — substitui grid atual por PremiumRegionCards com fundo navy (a home dark section serve de referência visual).
-- `imoveis.index.tsx` — grid de PremiumPropertyCards, filtros mantidos.
-- `condominios.index.tsx` — grid de PremiumCondoCards.
+**Novos arquivos:**
+- `src/routes/_authenticated/admin.seo.tsx` — UI da central.
+- `src/lib/seo.functions.ts` — `getSeoOverview`, `listIndexableUrls`, `runSeoAudit`, `purgeSitemapCache`, `triggerIndexNow`, `listSeoRuns` (todas com `requireSupabaseAuth` + checagem admin).
+- `src/lib/indexnow.server.ts` — cliente HTTP para `api.indexnow.org`.
+- `src/routes/api/public/hooks/seo-monthly-refresh.ts` — endpoint do cron.
+- `src/routes/api/public/{INDEXNOW_KEY}[.]txt.ts` — arquivo de verificação IndexNow (splat lê da env).
 
-## 7. Home
+**Cache do sitemap:**
+- A rota `/sitemap.xml` passa a ler `seo_state.sitemap_purged_at` e usar como `lastmod` global; o header `Cache-Control` cai para `max-age=300` + `stale-while-revalidate=3600` para reagir rápido ao purge sem hammering.
 
-`src/routes/index.tsx`:
-- Seção "Perspectivas Recentes" → PremiumPostCard.
-- Seção "Curadoria S.A" → PremiumPropertyCard (mantém carrossel horizontal).
-- Seção "Territórios de autoridade" (já escura) → PremiumRegionCard com novo tratamento (ícone dourado, CTA seta).
+**Secret:**
+- `INDEXNOW_KEY` — gerado via `generate_secret` (32 chars, hex). Sem ação do usuário.
 
-## 8. Botões
+**Integração com fluxos existentes:**
+- No handler de save do CMS (`editorial.functions.ts`) e no scraper (`scraper.functions.ts`), após sucesso de publish/upsert, chamar `notifyIndexNow([url])` sem bloquear a resposta (fire-and-forget com log).
 
-Criar variante `premium` no `Button` shadcn (`src/components/ui/button.tsx`):
-- `bg-navy text-canvas hover:bg-navy-deep` com borda dourada sutil e sombra premium.
-- Variante `gold`: `bg-gold text-navy-deep` para CTAs primários.
-- Ícone seta com translate-x no hover.
+---
 
-## 9. Responsividade & performance
+## Fora de escopo desta fase
+- Editor visual de robots.txt e meta defaults (pode virar fase 2).
+- Integração com Google Search Console API (Google descontinuou ping e exige OAuth por propriedade).
+- Análise Semrush/backlinks (já existe ferramenta separada).
 
-- Todos os grids: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` (regiões) / `lg:grid-cols-4` (posts/imóveis).
-- `loading="lazy"`, `width`/`height` explícitos, `object-cover`.
-- `min-w-0` e `truncate` onde necessário.
+---
 
-## 10. Escopo fora deste plano
-
-- Não altera CMS/admin (`_authenticated/*`).
-- Não altera lógica de dados / server functions.
-- Não altera SEO estrutural (H1, meta, JSON-LD permanecem).
-- Não instala novas libs de animação — usa transitions Tailwind.
-
-## Arquivos a criar
-- `src/components/premium-card.tsx`
-- `src/components/premium-cards/region-card.tsx`
-- `src/components/premium-cards/post-card.tsx`
-- `src/components/premium-cards/property-card.tsx`
-- `src/components/premium-cards/condo-card.tsx`
-- `src/lib/image-fallbacks.ts`
-
-## Arquivos a editar
-- `src/styles.css` (tokens + gradientes)
-- `src/components/ui/button.tsx` (variantes premium/gold)
-- `src/routes/index.tsx`
-- `src/routes/blog.index.tsx`
-- `src/routes/blog.$slug.tsx`
-- `src/routes/bairros.index.tsx`
-- `src/routes/imoveis.index.tsx`
-- `src/routes/condominios.index.tsx`
-
-Ao final: teste visual desktop + mobile via preview.
+## Entregável
+Ao final você terá uma aba SEO em `/admin/seo` onde:
+- Vê tudo que está no sitemap.
+- Aperta um botão e força atualização + notifica Bing na hora.
+- O sistema faz isso sozinho a cada publicação e todo dia 1º do mês.
+- Roda auditoria de meta tags para achar páginas com SEO incompleto.
