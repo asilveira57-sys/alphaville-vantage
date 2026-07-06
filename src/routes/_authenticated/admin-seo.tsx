@@ -8,7 +8,7 @@ import {
   purgeSitemapCache, triggerIndexNow, regenerateAndNotify, listSeoRuns,
 } from "@/lib/seo.functions";
 
-export const Route = createFileRoute("/_authenticated/admin/seo")({
+export const Route = createFileRoute("/_authenticated/admin-seo")({
   head: () => ({
     meta: [
       { title: "SEO — Painel Admin" },
