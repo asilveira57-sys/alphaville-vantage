@@ -458,6 +458,57 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_runs: {
+        Row: {
+          created_at: string
+          error: string | null
+          http_status: number | null
+          id: string
+          kind: string
+          triggered_by: string
+          urls_count: number
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          http_status?: number | null
+          id?: string
+          kind: string
+          triggered_by?: string
+          urls_count?: number
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          http_status?: number | null
+          id?: string
+          kind?: string
+          triggered_by?: string
+          urls_count?: number
+        }
+        Relationships: []
+      }
+      seo_state: {
+        Row: {
+          id: boolean
+          indexnow_last_run_at: string | null
+          sitemap_purged_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          indexnow_last_run_at?: string | null
+          sitemap_purged_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          indexnow_last_run_at?: string | null
+          sitemap_purged_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
