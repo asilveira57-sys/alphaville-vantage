@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Building2, GraduationCap, Route as RouteIcon, UtensilsCrossed, Stethoscope, TrendingUp } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
+import { PremiumCard } from "@/components/premium-card";
+import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { resolveImage } from "@/lib/image-fallbacks";
 import { supabase } from "@/integrations/supabase/client";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
