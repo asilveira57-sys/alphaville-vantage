@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, GraduationCap, Route as RouteIcon, UtensilsCrossed, Stethoscope, TrendingUp } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
