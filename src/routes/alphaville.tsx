@@ -69,7 +69,7 @@ function AlphavillePage() {
     eyebrow: string;
     title: string;
     description: string;
-    icon: React.ReactNode;
+    icon: ReactNode;
     fallback: { type: "region" | "condo" | "post"; seed: string };
   }> = [
     { to: "/condominios", eyebrow: "Residenciais", title: "Condomínios de Alphaville", description: "Dos icônicos Residenciais 1, 2 e 3 aos lançamentos verticais — perfis distintos de arquitetura, lazer e público.", icon: <Building2 className="h-5 w-5" strokeWidth={1.8} />, fallback: { type: "condo", seed: "alphaville-condominios" } },
