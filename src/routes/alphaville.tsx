@@ -1,6 +1,11 @@
+import type { ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Building2, GraduationCap, Route as RouteIcon, UtensilsCrossed, Stethoscope, TrendingUp } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
+import { PremiumCard } from "@/components/premium-card";
+import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { resolveImage } from "@/lib/image-fallbacks";
 import { supabase } from "@/integrations/supabase/client";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
@@ -57,87 +62,137 @@ export const Route = createFileRoute("/alphaville")({
 
 function AlphavillePage() {
   const { total, sale, rent, featured } = Route.useLoaderData();
+  const heroImg = resolveImage(null, { type: "region", region: "alphaville" });
+
+  const topics: Array<{
+    to: string;
+    eyebrow: string;
+    title: string;
+    description: string;
+    icon: ReactNode;
+    fallback: { type: "region" | "condo" | "post"; seed: string };
+  }> = [
+    { to: "/condominios", eyebrow: "Residenciais", title: "Condomínios de Alphaville", description: "Dos icônicos Residenciais 1, 2 e 3 aos lançamentos verticais — perfis distintos de arquitetura, lazer e público.", icon: <Building2 className="h-5 w-5" strokeWidth={1.8} />, fallback: { type: "condo", seed: "alphaville-condominios" } },
+    { to: "/escolas", eyebrow: "Educação", title: "Escolas e faculdades", description: "Algumas das principais escolas particulares do país — bilíngues, internacionais e tradicionais.", icon: <GraduationCap className="h-5 w-5" strokeWidth={1.8} />, fallback: { type: "post", seed: "alphaville-escolas" } },
+    { to: "/guia-alphaville", eyebrow: "Mobilidade", title: "Acessos e deslocamento", description: "Ligação direta com Castelo Branco e Rodoanel, ciclovias internas e integração com o centro empresarial.", icon: <RouteIcon className="h-5 w-5" strokeWidth={1.8} />, fallback: { type: "region", seed: "alphaville-mobilidade" } },
+    { to: "/restaurantes", eyebrow: "Gastronomia", title: "Restaurantes e lazer", description: "Calçadão, shoppings e dezenas de restaurantes consolidados. Polo de gastronomia autoral e redes premium.", icon: <UtensilsCrossed className="h-5 w-5" strokeWidth={1.8} />, fallback: { type: "post", seed: "alphaville-gastronomia" } },
+    { to: "/guia-alphaville", eyebrow: "Saúde", title: "Hospitais e clínicas", description: "Referência regional em pronto-atendimento, diagnóstico por imagem e cirurgia eletiva.", icon: <Stethoscope className="h-5 w-5" strokeWidth={1.8} />, fallback: { type: "post", seed: "alphaville-saude" } },
+    { to: "/mercado-imobiliario", eyebrow: "Mercado", title: "Mercado imobiliário", description: "Um dos metros quadrados mais valorizados da Grande São Paulo, com liquidez consistente em venda e locação.", icon: <TrendingUp className="h-5 w-5" strokeWidth={1.8} />, fallback: { type: "region", seed: "alphaville-mercado" } },
+  ];
 
   return (
     <SiteLayout>
-      <section className="px-6 pt-16 md:pt-24 pb-12 border-b border-ink/8">
-        <div className="max-w-7xl mx-auto">
-          <nav aria-label="Trilha" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              <li><Link to="/" className="hover:text-ink">Início</Link></li>
-              <li className="flex items-center gap-2"><span aria-hidden>/</span><span className="text-ink">Alphaville</span></li>
-            </ol>
-          </nav>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-6">Bairro · Barueri · São Paulo</p>
-          <h1 className="font-serif text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-balance max-w-[22ch]">
-            Alphaville: o primeiro grande complexo de condomínios fechados do Brasil
-          </h1>
-          <p className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-[60ch] text-pretty">
-            Concebido nos anos 1970 pela Construtora Albuquerque Takaoka, Alphaville inaugurou um novo
-            padrão de viver no Brasil — segurança, áreas verdes preservadas, infraestrutura completa e
-            uma cultura própria de bairro planejado. Hoje reúne dezenas de residenciais, escolas
-            referenciadas, um centro empresarial relevante e uma das maiores concentrações de
-            consumo de alto padrão do estado.
-          </p>
+      {/* HERO */}
+      <section className="relative isolate overflow-hidden bg-navy-deep text-canvas">
+        <img
+          src={heroImg}
+          alt="Alphaville — vista aérea"
+          className="absolute inset-0 h-full w-full object-cover opacity-45"
+          loading="eager"
+          fetchPriority="high"
+        />
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,14,28,0.55)_0%,rgba(8,14,28,0.75)_60%,rgba(8,14,28,0.95)_100%)]" />
+        <div className="relative px-6 pt-16 md:pt-24 pb-20 md:pb-28">
+          <div className="max-w-7xl mx-auto">
+            <nav aria-label="Trilha" className="mb-8">
+              <ol className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-canvas/60">
+                <li><Link to="/" className="hover:text-gold">Início</Link></li>
+                <li className="flex items-center gap-2"><span aria-hidden>/</span><span className="text-gold">Alphaville</span></li>
+              </ol>
+            </nav>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-gold mb-6">Bairro · Barueri · São Paulo</p>
+            <h1 className="font-serif text-4xl md:text-6xl font-medium leading-[1.05] tracking-tight text-balance max-w-[24ch] drop-shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+              Alphaville: o primeiro grande complexo de condomínios fechados do Brasil
+            </h1>
+            <p className="mt-8 text-lg text-canvas/80 leading-relaxed max-w-[62ch] text-pretty">
+              Concebido nos anos 1970 pela Construtora Albuquerque Takaoka, Alphaville inaugurou um novo
+              padrão de viver no Brasil — segurança, áreas verdes preservadas, infraestrutura completa e
+              uma cultura própria de bairro planejado.
+            </p>
 
-          <div className="mt-12 grid grid-cols-3 gap-6 max-w-2xl border-t border-ink/10 pt-8">
-            <Stat label="Imóveis ativos" value={total} />
-            <Stat label="À venda" value={sale} />
-            <Stat label="Para alugar" value={rent} />
-          </div>
+            <div className="mt-12 grid grid-cols-3 gap-6 max-w-2xl border-t border-white/15 pt-8">
+              <Stat label="Imóveis ativos" value={total} />
+              <Stat label="À venda" value={sale} />
+              <Stat label="Para alugar" value={rent} />
+            </div>
 
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              to="/imoveis"
-              search={{ neighborhood: "Alphaville", purpose: "", type: "", city: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "" }}
-              className="inline-flex items-center gap-2 bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest hover:brightness-95 transition"
-            >
-              Ver imóveis em Alphaville
-            </Link>
-            <Link to="/condominios" className="inline-flex items-center gap-2 border border-ink/20 px-5 py-3 text-xs font-bold uppercase tracking-widest hover:bg-ink/5 transition">
-              Condomínios da região
-            </Link>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Link
+                to="/imoveis"
+                search={{ neighborhood: "Alphaville", purpose: "", type: "", city: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "" }}
+                className="inline-flex items-center gap-2 bg-gold text-navy-deep px-6 py-3.5 text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_10px_30px_-12px_rgba(203,161,53,0.6)] transition"
+              >
+                Ver imóveis em Alphaville
+              </Link>
+              <Link to="/condominios" className="inline-flex items-center gap-2 border border-canvas/30 text-canvas px-6 py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-canvas/10 transition">
+                Condomínios da região
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-20 border-b border-ink/8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
-          <Block title="Condomínios" lead="Dos icônicos Residenciais 1, 2 e 3 aos lançamentos verticais, Alphaville organiza a vida em residenciais fechados com perfis distintos de público, lazer e arquitetura." />
-          <Block title="Educação" lead="Concentra algumas das principais escolas particulares do país — bilíngues, internacionais e tradicionais — atendendo da educação infantil ao ensino médio." />
-          <Block title="Mobilidade" lead="Acesso direto à Castelo Branco e ao Rodoanel, com integração crescente ao centro empresarial. Boa malha de ciclovias internas aos condomínios." />
-          <Block title="Gastronomia & lazer" lead="Calçadão, shoppings e dezenas de restaurantes consolidados. Polo de gastronomia autoral, redes premium e clubes esportivos." />
-          <Block title="Saúde" lead="Hospitais e clínicas de referência regional, com serviços completos de pronto-atendimento, diagnóstico e cirurgia eletiva." />
-          <Block title="Mercado" lead="Um dos metros quadrados mais valorizados da Grande São Paulo. Liquidez consistente em venda e locação para alto padrão residencial e comercial." />
+      {/* TOPICS — premium cards */}
+      <section className="px-6 py-20 md:py-24 bg-canvas">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-12 gap-6 flex-wrap">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-3">O que faz de Alphaville, Alphaville</p>
+              <h2 className="font-serif text-3xl md:text-4xl text-ink max-w-[22ch]">Explore os pilares do bairro</h2>
+            </div>
+            <Link to="/guia-alphaville" className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink">Guia completo →</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {topics.map((t) => (
+              <PremiumCard
+                key={t.title}
+                to={t.to as never}
+                image={null}
+                imageAlt={t.title}
+                eyebrow={t.eyebrow}
+                title={t.title}
+                description={t.description}
+                icon={t.icon}
+                cta="Explorar"
+                aspectRatio="tall"
+                fallback={t.fallback}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
       {featured.length > 0 && (
-        <section className="px-6 py-20 border-b border-ink/8">
+        <section className="px-6 py-20 md:py-24 bg-ink/[0.02] border-t border-ink/8">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-baseline justify-between mb-10">
-              <h2 className="font-serif text-3xl md:text-4xl">Imóveis em Alphaville</h2>
+            <div className="flex items-end justify-between mb-12 gap-6 flex-wrap">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-3">Selecionados pela redação</p>
+                <h2 className="font-serif text-3xl md:text-4xl text-ink">Imóveis em Alphaville</h2>
+              </div>
               <Link
                 to="/imoveis"
                 search={{ neighborhood: "Alphaville", purpose: "", type: "", city: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "" }}
-                className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink"
+                className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink"
               >
                 Ver todos →
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {featured.map((p: typeof featured[number]) => (
-                <Link key={p.id} to="/imoveis/$slug" params={{ slug: p.slug }} className="group block">
-                  <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-4">
-                    {p.images[0] && <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />}
-                  </div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{p.property_type ?? "Imóvel"}</p>
-                  <h3 className="font-serif text-lg leading-snug mb-2 text-balance group-hover:underline">{p.seo_title?.replace(/\s*\|\s*S\.A.*$/i, "") ?? p.title}</h3>
-                  <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4">
-                    {p.price_sale && <span>{fmtPrice(p.price_sale)}</span>}
-                    {p.price_rent && <span>{fmtPrice(p.price_rent)}/mês</span>}
-                  </div>
-                </Link>
+                <PremiumPropertyCard
+                  key={p.id}
+                  slug={p.slug}
+                  title={p.seo_title?.replace(/\s*\|\s*S\.A.*$/i, "") ?? p.title}
+                  image={p.images[0] ?? null}
+                  neighborhood="Alphaville"
+                  region="alphaville"
+                  propertyType={p.property_type}
+                  priceSale={p.price_sale}
+                  priceRent={p.price_rent}
+                  bedrooms={p.bedrooms}
+                  area={p.area_useful ?? p.area_built ?? p.area_total}
+                />
               ))}
             </div>
           </div>
@@ -152,17 +207,8 @@ function AlphavillePage() {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <div className="font-serif text-3xl text-ink">{value}</div>
-      <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">{label}</div>
+      <div className="font-serif text-3xl md:text-4xl text-gold">{value}</div>
+      <div className="text-[10px] uppercase tracking-[0.2em] text-canvas/60 mt-1">{label}</div>
     </div>
-  );
-}
-
-function Block({ title, lead }: { title: string; lead: string }) {
-  return (
-    <article className="border-t border-ink/10 pt-6">
-      <h3 className="font-serif text-2xl mb-3">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{lead}</p>
-    </article>
   );
 }
