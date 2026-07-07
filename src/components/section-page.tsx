@@ -152,9 +152,9 @@ export function ComingSoonGrid({ items }: ComingSoonGridProps) {
           </>
         );
         return item.to ? (
-          <Link key={i} to={item.to} className="group block border-t border-ink/10 pt-6">
+          <a key={i} href={item.to} className="group block border-t border-ink/10 pt-6">
             {inner}
-          </Link>
+          </a>
         ) : (
           <article key={i} className="group border-t border-ink/10 pt-6">
             {inner}
