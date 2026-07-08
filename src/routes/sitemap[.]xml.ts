@@ -23,6 +23,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/guia-tambore", changefreq: "weekly", priority: "0.8" },
           { path: "/guia-barueri", changefreq: "weekly", priority: "0.8" },
           { path: "/guia-santana-de-parnaiba", changefreq: "weekly", priority: "0.8" },
+          { path: "/guia-de-ruas-alphaville", changefreq: "weekly", priority: "0.85" },
           { path: "/condominios", changefreq: "weekly", priority: "0.8" },
           { path: "/bairros", changefreq: "weekly", priority: "0.8" },
           { path: "/escolas", changefreq: "monthly", priority: "0.7" },
@@ -71,6 +72,17 @@ export const Route = createFileRoute("/sitemap.xml")({
           if (!base) continue;
           entries.push({ path: `${base}/${e.slug}`, lastmod: e.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
         }
+
+        // Dynamic: guias de ruas publicados
+        const { data: streets } = await supabase
+          .from("street_guides")
+          .select("slug,updated_at")
+          .eq("status", "published");
+        for (const s of streets ?? []) {
+          entries.push({ path: `/guia-de-ruas-alphaville/${s.slug}`, lastmod: s.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
+        }
+
+
 
 
         const urls = entries.map((e) =>

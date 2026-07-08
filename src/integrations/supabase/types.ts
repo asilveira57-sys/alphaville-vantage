@@ -509,6 +509,117 @@ export type Database = {
         }
         Relationships: []
       }
+      street_guides: {
+        Row: {
+          canonical_override: string | null
+          city: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          faq: Json
+          h1: string | null
+          hub_section: string | null
+          id: string
+          intro_text: string | null
+          latitude: number | null
+          long_description: string | null
+          longitude: number | null
+          meta_description: string | null
+          name: string
+          nearby_points: Json
+          neighborhood: string | null
+          og_image: string | null
+          profile_tags: string[]
+          published_at: string | null
+          region: string | null
+          related_condo_ids: string[]
+          related_property_ids: string[]
+          related_regions: string[]
+          related_street_ids: string[]
+          search_radius_km: number | null
+          seo_priority: number
+          seo_title: string | null
+          short_description: string | null
+          slug: string
+          sources: Json
+          status: Database["public"]["Enums"]["street_guide_status"]
+          updated_at: string
+          via_type: Database["public"]["Enums"]["street_via_type"]
+        }
+        Insert: {
+          canonical_override?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          faq?: Json
+          h1?: string | null
+          hub_section?: string | null
+          id?: string
+          intro_text?: string | null
+          latitude?: number | null
+          long_description?: string | null
+          longitude?: number | null
+          meta_description?: string | null
+          name: string
+          nearby_points?: Json
+          neighborhood?: string | null
+          og_image?: string | null
+          profile_tags?: string[]
+          published_at?: string | null
+          region?: string | null
+          related_condo_ids?: string[]
+          related_property_ids?: string[]
+          related_regions?: string[]
+          related_street_ids?: string[]
+          search_radius_km?: number | null
+          seo_priority?: number
+          seo_title?: string | null
+          short_description?: string | null
+          slug: string
+          sources?: Json
+          status?: Database["public"]["Enums"]["street_guide_status"]
+          updated_at?: string
+          via_type?: Database["public"]["Enums"]["street_via_type"]
+        }
+        Update: {
+          canonical_override?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          faq?: Json
+          h1?: string | null
+          hub_section?: string | null
+          id?: string
+          intro_text?: string | null
+          latitude?: number | null
+          long_description?: string | null
+          longitude?: number | null
+          meta_description?: string | null
+          name?: string
+          nearby_points?: Json
+          neighborhood?: string | null
+          og_image?: string | null
+          profile_tags?: string[]
+          published_at?: string | null
+          region?: string | null
+          related_condo_ids?: string[]
+          related_property_ids?: string[]
+          related_regions?: string[]
+          related_street_ids?: string[]
+          search_radius_km?: number | null
+          seo_priority?: number
+          seo_title?: string | null
+          short_description?: string | null
+          slug?: string
+          sources?: Json
+          status?: Database["public"]["Enums"]["street_guide_status"]
+          updated_at?: string
+          via_type?: Database["public"]["Enums"]["street_via_type"]
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -542,9 +653,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      street_guide_is_publishable: {
+        Args: { g: Database["public"]["Tables"]["street_guides"]["Row"] }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "editor" | "user"
+      street_guide_status: "draft" | "published" | "hidden"
+      street_via_type:
+        | "alameda"
+        | "avenida"
+        | "rua"
+        | "regiao"
+        | "calcada"
+        | "centro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -673,6 +796,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "user"],
+      street_guide_status: ["draft", "published", "hidden"],
+      street_via_type: [
+        "alameda",
+        "avenida",
+        "rua",
+        "regiao",
+        "calcada",
+        "centro",
+      ],
     },
   },
 } as const

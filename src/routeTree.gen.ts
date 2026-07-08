@@ -28,6 +28,7 @@ import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as GuiaTamboreRouteImport } from './routes/guia-tambore'
 import { Route as GuiaSantanaDeParnaibaRouteImport } from './routes/guia-santana-de-parnaiba'
+import { Route as GuiaDeRuasAlphavilleRouteImport } from './routes/guia-de-ruas-alphaville'
 import { Route as GuiaBarueriRouteImport } from './routes/guia-barueri'
 import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as GuiaRouteImport } from './routes/guia'
@@ -45,6 +46,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MeioAmbienteIndexRouteImport } from './routes/meio-ambiente.index'
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
+import { Route as GuiaDeRuasAlphavilleIndexRouteImport } from './routes/guia-de-ruas-alphaville.index'
 import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
@@ -53,6 +55,7 @@ import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fa
 import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
+import { Route as GuiaDeRuasAlphavilleSlugRouteImport } from './routes/guia-de-ruas-alphaville.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
@@ -163,6 +166,11 @@ const GuiaSantanaDeParnaibaRoute = GuiaSantanaDeParnaibaRouteImport.update({
   path: '/guia-santana-de-parnaiba',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuiaDeRuasAlphavilleRoute = GuiaDeRuasAlphavilleRouteImport.update({
+  id: '/guia-de-ruas-alphaville',
+  path: '/guia-de-ruas-alphaville',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuiaBarueriRoute = GuiaBarueriRouteImport.update({
   id: '/guia-barueri',
   path: '/guia-barueri',
@@ -247,6 +255,12 @@ const GuiaIndexRoute = GuiaIndexRouteImport.update({
   path: '/',
   getParentRoute: () => GuiaRoute,
 } as any)
+const GuiaDeRuasAlphavilleIndexRoute =
+  GuiaDeRuasAlphavilleIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => GuiaDeRuasAlphavilleRoute,
+  } as any)
 const CondominiosIndexRoute = CondominiosIndexRouteImport.update({
   id: '/condominios/',
   path: '/condominios/',
@@ -287,6 +301,12 @@ const GuiaSlugRoute = GuiaSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => GuiaRoute,
 } as any)
+const GuiaDeRuasAlphavilleSlugRoute =
+  GuiaDeRuasAlphavilleSlugRouteImport.update({
+    id: '/$slug',
+    path: '/$slug',
+    getParentRoute: () => GuiaDeRuasAlphavilleRoute,
+  } as any)
 const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
   id: '/condominios/$slug',
   path: '/condominios/$slug',
@@ -375,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-de-ruas-alphaville': typeof GuiaDeRuasAlphavilleRouteWithChildren
   '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
   '/guia-tambore': typeof GuiaTamboreRoute
   '/historia': typeof HistoriaRoute
@@ -402,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
@@ -410,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
+  '/guia-de-ruas-alphaville/': typeof GuiaDeRuasAlphavilleIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
@@ -456,6 +479,7 @@ export interface FileRoutesByTo {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
@@ -464,6 +488,7 @@ export interface FileRoutesByTo {
   '/bairros': typeof BairrosIndexRoute
   '/blog': typeof BlogIndexRoute
   '/condominios': typeof CondominiosIndexRoute
+  '/guia-de-ruas-alphaville': typeof GuiaDeRuasAlphavilleIndexRoute
   '/guia': typeof GuiaIndexRoute
   '/imoveis': typeof ImoveisIndexRoute
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
@@ -490,6 +515,7 @@ export interface FileRoutesById {
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-de-ruas-alphaville': typeof GuiaDeRuasAlphavilleRouteWithChildren
   '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
   '/guia-tambore': typeof GuiaTamboreRoute
   '/historia': typeof HistoriaRoute
@@ -517,6 +543,7 @@ export interface FileRoutesById {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
@@ -525,6 +552,7 @@ export interface FileRoutesById {
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
+  '/guia-de-ruas-alphaville/': typeof GuiaDeRuasAlphavilleIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
@@ -551,6 +579,7 @@ export interface FileRouteTypes {
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
+    | '/guia-de-ruas-alphaville'
     | '/guia-santana-de-parnaiba'
     | '/guia-tambore'
     | '/historia'
@@ -578,6 +607,7 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
@@ -586,6 +616,7 @@ export interface FileRouteTypes {
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
+    | '/guia-de-ruas-alphaville/'
     | '/guia/'
     | '/imoveis/'
     | '/meio-ambiente/'
@@ -632,6 +663,7 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
@@ -640,6 +672,7 @@ export interface FileRouteTypes {
     | '/bairros'
     | '/blog'
     | '/condominios'
+    | '/guia-de-ruas-alphaville'
     | '/guia'
     | '/imoveis'
     | '/meio-ambiente'
@@ -665,6 +698,7 @@ export interface FileRouteTypes {
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
+    | '/guia-de-ruas-alphaville'
     | '/guia-santana-de-parnaiba'
     | '/guia-tambore'
     | '/historia'
@@ -692,6 +726,7 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
@@ -700,6 +735,7 @@ export interface FileRouteTypes {
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
+    | '/guia-de-ruas-alphaville/'
     | '/guia/'
     | '/imoveis/'
     | '/meio-ambiente/'
@@ -726,6 +762,7 @@ export interface RootRouteChildren {
   GuiaRoute: typeof GuiaRouteWithChildren
   GuiaAlphavilleRoute: typeof GuiaAlphavilleRoute
   GuiaBarueriRoute: typeof GuiaBarueriRoute
+  GuiaDeRuasAlphavilleRoute: typeof GuiaDeRuasAlphavilleRouteWithChildren
   GuiaSantanaDeParnaibaRoute: typeof GuiaSantanaDeParnaibaRoute
   GuiaTamboreRoute: typeof GuiaTamboreRoute
   HistoriaRoute: typeof HistoriaRoute
@@ -890,6 +927,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuiaSantanaDeParnaibaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guia-de-ruas-alphaville': {
+      id: '/guia-de-ruas-alphaville'
+      path: '/guia-de-ruas-alphaville'
+      fullPath: '/guia-de-ruas-alphaville'
+      preLoaderRoute: typeof GuiaDeRuasAlphavilleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guia-barueri': {
       id: '/guia-barueri'
       path: '/guia-barueri'
@@ -1009,6 +1053,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuiaIndexRouteImport
       parentRoute: typeof GuiaRoute
     }
+    '/guia-de-ruas-alphaville/': {
+      id: '/guia-de-ruas-alphaville/'
+      path: '/'
+      fullPath: '/guia-de-ruas-alphaville/'
+      preLoaderRoute: typeof GuiaDeRuasAlphavilleIndexRouteImport
+      parentRoute: typeof GuiaDeRuasAlphavilleRoute
+    }
     '/condominios/': {
       id: '/condominios/'
       path: '/condominios'
@@ -1064,6 +1115,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/guia/$slug'
       preLoaderRoute: typeof GuiaSlugRouteImport
       parentRoute: typeof GuiaRoute
+    }
+    '/guia-de-ruas-alphaville/$slug': {
+      id: '/guia-de-ruas-alphaville/$slug'
+      path: '/$slug'
+      fullPath: '/guia-de-ruas-alphaville/$slug'
+      preLoaderRoute: typeof GuiaDeRuasAlphavilleSlugRouteImport
+      parentRoute: typeof GuiaDeRuasAlphavilleRoute
     }
     '/condominios/$slug': {
       id: '/condominios/$slug'
@@ -1231,6 +1289,19 @@ const GuiaRouteChildren: GuiaRouteChildren = {
 
 const GuiaRouteWithChildren = GuiaRoute._addFileChildren(GuiaRouteChildren)
 
+interface GuiaDeRuasAlphavilleRouteChildren {
+  GuiaDeRuasAlphavilleSlugRoute: typeof GuiaDeRuasAlphavilleSlugRoute
+  GuiaDeRuasAlphavilleIndexRoute: typeof GuiaDeRuasAlphavilleIndexRoute
+}
+
+const GuiaDeRuasAlphavilleRouteChildren: GuiaDeRuasAlphavilleRouteChildren = {
+  GuiaDeRuasAlphavilleSlugRoute: GuiaDeRuasAlphavilleSlugRoute,
+  GuiaDeRuasAlphavilleIndexRoute: GuiaDeRuasAlphavilleIndexRoute,
+}
+
+const GuiaDeRuasAlphavilleRouteWithChildren =
+  GuiaDeRuasAlphavilleRoute._addFileChildren(GuiaDeRuasAlphavilleRouteChildren)
+
 interface ImoveisRouteChildren {
   ImoveisSlugRoute: typeof ImoveisSlugRoute
   ImoveisIndexRoute: typeof ImoveisIndexRoute
@@ -1277,6 +1348,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuiaRoute: GuiaRouteWithChildren,
   GuiaAlphavilleRoute: GuiaAlphavilleRoute,
   GuiaBarueriRoute: GuiaBarueriRoute,
+  GuiaDeRuasAlphavilleRoute: GuiaDeRuasAlphavilleRouteWithChildren,
   GuiaSantanaDeParnaibaRoute: GuiaSantanaDeParnaibaRoute,
   GuiaTamboreRoute: GuiaTamboreRoute,
   HistoriaRoute: HistoriaRoute,
@@ -1308,13 +1380,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
