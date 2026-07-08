@@ -264,7 +264,7 @@ export const upsertStreetGuide = createServerFn({ method: "POST" })
     if (!data.id) delete payload.id;
     const { data: row, error } = await context.supabase
       .from("street_guides")
-      .upsert(payload as never, { onConflict: "id" })
+      .upsert(payload as any, { onConflict: "id" })
       .select()
       .single();
     if (error) throw new Error(error.message);
