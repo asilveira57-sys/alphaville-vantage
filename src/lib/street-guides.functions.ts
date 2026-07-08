@@ -296,7 +296,7 @@ export const toggleStreetGuideStatus = createServerFn({ method: "POST" })
     const patch: Record<string, unknown> = { status: data.status };
     if (data.status === "published") patch.published_at = new Date().toISOString();
     const { data: row, error } = await context.supabase
-      .from("street_guides").update(patch).eq("id", data.id).select("slug,status").single();
+      .from("street_guides").update(patch as any).eq("id", data.id).select("slug,status").single();
     if (error) throw new Error(error.message);
     if (row?.status === "published") {
       const { autoNotifyPublish } = await import("./seo.functions");
