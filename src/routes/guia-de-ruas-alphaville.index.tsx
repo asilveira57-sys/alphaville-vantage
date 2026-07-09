@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
+import { PremiumCard } from "@/components/premium-card";
 import { listPublishedStreetGuides, type StreetGuideListItem } from "@/lib/street-guides.functions";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
