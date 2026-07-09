@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { SiteLayout } from "./site-layout";
+import { PremiumCard } from "./premium-card";
+import type { FallbackKind } from "@/lib/image-fallbacks";
 
 export interface BreadcrumbItem {
   label: string;
