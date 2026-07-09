@@ -133,33 +133,59 @@ export function InstitutionalBlock() {
 }
 
 interface ComingSoonGridProps {
-  items: { eyebrow: string; title: string; lead: string; to?: string }[];
+  items: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    to?: string;
+    image?: string | null;
+    icon?: ReactNode;
+    fallback?: { type?: FallbackKind; region?: string | null; seed?: string | null };
+  }[];
 }
 
 export function ComingSoonGrid({ items }: ComingSoonGridProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
       {items.map((item, i) => {
-        const inner = (
-          <>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">
-              {item.eyebrow}
-            </p>
-            <h3 className="font-serif text-2xl font-medium leading-snug mb-3 text-balance group-hover:underline">
-              {item.title}
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
-              {item.lead}
-            </p>
-          </>
-        );
-        return item.to ? (
-          <a key={i} href={item.to} className="group block border-t border-ink/10 pt-6">
-            {inner}
-          </a>
-        ) : (
-          <article key={i} className="group border-t border-ink/10 pt-6">
-            {inner}
+        const fallback = item.fallback ?? { type: "post" as FallbackKind, seed: item.title };
+        if (item.to) {
+          return (
+            <PremiumCard
+              key={i}
+              to={item.to as never}
+              image={item.image ?? null}
+              imageAlt={item.title}
+              eyebrow={item.eyebrow}
+              title={item.title}
+              description={item.lead}
+              icon={item.icon}
+              cta="Explorar"
+              aspectRatio="tall"
+              fallback={fallback}
+            />
+          );
+        }
+        return (
+          <article
+            key={i}
+            className="group relative isolate overflow-hidden rounded-2xl bg-navy-deep text-canvas shadow-premium ring-1 ring-white/5 aspect-[4/5]"
+          >
+            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,17,35,0.35)_0%,rgba(8,14,28,0.95)_100%)]" />
+            <div className="absolute inset-x-0 top-0 p-5">
+              <span className="inline-flex items-center rounded-full bg-navy/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold ring-1 ring-gold/30 backdrop-blur">
+                {item.eyebrow}
+              </span>
+            </div>
+            <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+              <h3 className="font-serif text-2xl md:text-3xl leading-[1.1] text-canvas text-balance">
+                {item.title}
+              </h3>
+              <p className="mt-3 text-sm text-canvas/75 leading-relaxed line-clamp-3 max-w-[46ch]">
+                {item.lead}
+              </p>
+              <p className="mt-4 text-[10px] uppercase tracking-[0.22em] text-gold">Em breve</p>
+            </div>
           </article>
         );
       })}
