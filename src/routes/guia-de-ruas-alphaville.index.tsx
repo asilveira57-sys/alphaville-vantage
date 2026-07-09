@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
+import { PremiumCard } from "@/components/premium-card";
 import { listPublishedStreetGuides, type StreetGuideListItem } from "@/lib/street-guides.functions";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
@@ -116,22 +117,17 @@ function StreetCard({ guide }: { guide: StreetGuideListItem }) {
     : "Rua";
   const local = [guide.neighborhood, guide.city].filter(Boolean).join(" · ");
   return (
-    <Link
-      to="/guia-de-ruas-alphaville/$slug"
-      params={{ slug: guide.slug }}
-      className="group block border-t border-ink/10 pt-6"
-    >
-      <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">
-        {viaLabel}{local ? ` · ${local}` : ""}
-      </p>
-      <h3 className="font-serif text-2xl font-medium leading-snug mb-3 text-balance group-hover:underline">
-        {guide.name}
-      </h3>
-      {guide.short_description && (
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-          {guide.short_description}
-        </p>
-      )}
-    </Link>
+    <PremiumCard
+      to={"/guia-de-ruas-alphaville/$slug" as never}
+      params={{ slug: guide.slug } as never}
+      image={null}
+      imageAlt={guide.name}
+      eyebrow={`${viaLabel}${local ? ` · ${local}` : ""}`}
+      title={guide.name}
+      description={guide.short_description ?? undefined}
+      cta="Ver guia"
+      aspectRatio="tall"
+      fallback={{ type: "region", region: guide.neighborhood ?? guide.city, seed: guide.slug }}
+    />
   );
 }
