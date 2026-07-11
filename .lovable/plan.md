@@ -1,119 +1,108 @@
+# Módulo: Guia de Ruas e Avenidas de Alphaville (`/ruas`)
 
-# Fase: SEO Local por Ruas, Avenidas e Alamedas
+Este é um módulo de porte muito grande (banco + normalização + admin + páginas públicas + SEO técnico + relatórios + analytics). Vou executar em 10 fases sequenciais, cada uma validada antes de avançar.
 
-Módulo completo de "Guia de Ruas de Alphaville" — páginas SEO locais conectadas aos imóveis cadastrados, com CRUD administrativo, regras de qualidade e schema estruturado.
+## Decisão importante antes de começar
 
-## 1. Modelo de dados (Lovable Cloud)
+Já existe no projeto o módulo **`street_guides`** em `/guia-de-ruas-alphaville` (fase anterior desta mesma conversa), com:
+- tabela `street_guides` + trigger de qualidade
+- server functions públicas
+- hub `/guia-de-ruas-alphaville` + página individual `/$slug`
+- entrada no sitemap
 
-Nova tabela `street_guides` com:
+O que você está pedindo agora é **um módulo mais completo e diferente**, em `/ruas`, com:
+- vinculação automática de imóveis por normalização de endereço (não existe hoje)
+- tabelas `streets`, `street_aliases`, `property_streets`, `seo_redirects` (novas)
+- painel admin completo (CRUD + revisão de correspondências + relatórios)
+- busca interna estendida, analytics, sitemap próprio
 
-- Identificação: `slug` (único), `name`, `via_type` (alameda / avenida / rua / região / calçada), `city`, `region`, `neighborhood`
-- Conteúdo editorial: `short_description`, `long_description`, `profile_tags` (array: residencial, comercial, corporativa, mista, próxima-a-condomínios, etc.), `nearby_points` (JSONB estruturado), `intro_text`, `faq` (JSONB `[{q, a}]`), `sources` (JSONB)
-- SEO: `seo_title`, `meta_description`, `h1`, `og_image`, `canonical_override`, `seo_priority` (0-100), `display_order`
-- Relacionamentos: `related_condo_ids` (uuid[]), `related_property_ids` (uuid[]), `related_street_ids` (uuid[]), `related_regions` (text[])
-- Geo opcional: `latitude`, `longitude`, `search_radius_km`
-- Publicação: `status` (`draft` | `published` | `hidden`), `published_at`, `updated_at`, `created_at`, `created_by`
-- Regra de qualidade (função `is_publishable(street_guides)`): exige name + city/region + short + long + h1 + seo_title + meta_description + ≥1 relacionamento. Trigger bloqueia `status='published'` se falhar.
+**Como quer proceder?**
+- **Opção A (recomendada)**: aposentar `street_guides` / `/guia-de-ruas-alphaville`, criar redirect 301 para o novo `/ruas`, e concentrar tudo no módulo novo. Menos duplicação, um único lugar para SEO local por rua.
+- **Opção B**: manter os dois. `guia-de-ruas-alphaville` continua como conteúdo editorial curado; `/ruas` vira o índice automático baseado em imóveis. Mais complexidade, risco de conteúdo duplicado e canibalização de SEO.
+- **Opção C**: migrar dados de `street_guides` para `streets` e desligar o módulo antigo (mesma URL nova, mas preserva conteúdo já escrito).
 
-RLS: leitura pública apenas para `status='published'`; leitura/escrita completa para admin (via `has_role`).
+Assumindo **Opção A** como default no plano abaixo. Confirme ou troque.
 
-Tabela auxiliar `street_suggestions` (opcional): agrega ruas recorrentes extraídas de `properties.address` para sugerir novas páginas ao admin (sem publicar automaticamente).
+---
 
-## 2. Rotas públicas
+## Fase 1 — Banco de dados e normalização
+- Migração criando `streets`, `street_aliases`, `property_streets`, `seo_redirects` (todas com GRANTs + RLS + policies conforme padrão do projeto).
+- Índices em `slug`, `normalized_name`, `neighborhood_id`, `city`, `postal_code`, `property_streets.property_id`, `property_streets.street_id`.
+- Função `public.normalize_street_text(text)` (unaccent + lower + expansão de abreviações Al./Av./R./Rod./Estr./Pça./Trav.).
+- Trigger em `properties` (INSERT/UPDATE de endereço) chamando `public.match_property_streets(property_id)` que preenche `property_streets` com `match_type` e `match_confidence`.
+- Extensão `unaccent` habilitada.
+- Se Opção A/C: migração de dados de `street_guides` para `streets`.
 
-- `src/routes/guia-de-ruas-alphaville.tsx` (layout `<Outlet/>`)
-- `src/routes/guia-de-ruas-alphaville.index.tsx` — hub com 8 blocos:
-  1. Principais alamedas comerciais
-  2. Avenidas de acesso e ligação
-  3. Ruas próximas a condomínios residenciais
-  4. Próximas ao Centro Comercial Alphaville
-  5. Próximas ao Tamboré
-  6. Próximas a Santana de Parnaíba
-  7. Próximas a Barueri
-  8. Próximas à Aldeia da Serra
-- `src/routes/guia-de-ruas-alphaville.$slug.tsx` — página individual, com:
-  - Hero premium (nome + tipo + região + imagem/mapa)
-  - Breadcrumbs
-  - Resumo da localização, perfil da região, quem busca imóveis ali
-  - Pontos de referência (renderização condicional só se houver dados)
-  - Tipos de imóveis (derivado dos imóveis relacionados)
-  - **Bloco dinâmico "Imóveis próximos à [rua]"** com cascata:
-    1. Imóveis na própria rua (match em `properties.address` / `neighborhood` / `condo_id` / relação manual)
-    2. Fallback: mesma região/bairro
-    3. Fallback: bloco institucional com CTA (nunca vazio)
-  - Filtros locais (comprar/alugar/tipo/faixa de valor/dorm/vagas/área) — usam `PropertyFilters` reaproveitado, escopo à página
-  - Links internos obrigatórios (guias, categorias, condomínios próximos, outras ruas)
-  - FAQ dinâmico (perguntas padrão + FAQ manual)
-  - CTA final consultivo (Ver imóveis / Falar / WhatsApp)
+## Fase 2 — Vinculação automática
+- Server function `rematchAllProperties` (admin) para backfill.
+- Cascata de matching: nome oficial → normalizado → alias → CEP → bairro+cidade → manual.
+- Registrar confiança 100/90/80/70/<70.
+- Fila "Imóveis sem rua identificada" (view/consulta admin).
 
-Server functions em `src/lib/street-guides.functions.ts`:
-- `listPublishedStreetGuides` (público, publishable client)
-- `getStreetGuideBySlug` (público)
-- `listStreetGuidesForAdmin`, `upsertStreetGuide`, `deleteStreetGuide` (admin, `requireSupabaseAuth` + `has_role('admin')`)
-- `findPropertiesNearStreet(streetId)` (público) — aplica cascata acima
-- `suggestStreetsFromProperties` (admin) — extração de ruas recorrentes
+## Fase 3 — Painel administrativo
+- Menu **SEO Local > Ruas** em `admin.tsx`.
+- Rotas `_authenticated/admin-ruas.tsx` (lista + filtros + indicadores) e `_authenticated/admin-ruas.$id.tsx` (editor por abas: Conteúdo, SEO, Localização, Apelidos, Relacionamentos, FAQ, Imóveis vinculados, Revisão).
+- Ações: publicar/rascunho/arquivar/duplicar/destacar; validação `is_publishable`.
+- Painel "Correspondências aguardando revisão" com botões Confirmar / Criar nova rua / Ignorar.
 
-## 3. Head, schema e sitemap
+## Fase 4 — Página principal `/ruas`
+- Hero + busca com autocomplete (nome, alias, bairro, CEP, condomínio).
+- Ruas em destaque (cards `PremiumCard`), navegação alfabética A–Z, filtros (cidade, bairro, tipo, perfil, com imóveis).
+- Blocos: Comerciais, Residenciais, Próximas a condomínios, Próximas a centros empresariais, Com salas/apartamentos/casas, Locação/Venda.
+- Padrão visual premium (navy-deep + gold, mesmo padrão do restante do site).
 
-Cada página individual:
-- `title`, `description`, `og:*`, `canonical` self-referente
-- JSON-LD: `Article` + `BreadcrumbList` + `FAQPage` + `Place` (com `containedInPlace` = cidade) + `RealEstateAgent` quando aplicável
+## Fase 5 — Página individual `/ruas/$slug`
+- Breadcrumb Cidade > Bairro > Rua.
+- Hero com imagem própria (ou fallback institucional inteligente por região).
+- Resumo da localização, seções editoriais condicionais (só renderiza se houver conteúdo).
+- Bloco **Imóveis disponíveis** com filtros (venda/locação, tipo, preço, área, dorms, vagas) + paginação/lazy.
+- Fallback quando não há imóveis: formulário de interesse + imóveis em ruas próximas + mesmo bairro.
+- Condomínios relacionados, pontos próximos (só se cadastrados manualmente — não inventar), mapa, ruas próximas, bairros, blog relacionado, FAQ dinâmica, formulário de atendimento.
 
-Sitemap (`src/routes/sitemap[.]xml.ts`): adicionar `/guia-de-ruas-alphaville` + loop por `street_guides` publicadas.
+## Fase 6 — SEO técnico
+- `head()` por rota: title, meta, canonical self-referente, OG/Twitter.
+- JSON-LD: BreadcrumbList, Place, RealEstateAgent, ItemList (imóveis), FAQPage, ImageObject, LocalBusiness quando aplicável.
+- Sitemap dedicado `/sitemap-ruas.xml` + inclusão no `sitemap.xml` principal.
+- Redirects 301 via tabela `seo_redirects` (middleware no server).
 
-`autoNotifyPublish` já existente em editorial: replicar no `upsertStreetGuide` para invalidar cache + IndexNow ao publicar/atualizar.
+## Fase 7 — Links internos
+- Página de imóvel: exibir Rua/Bairro/Cidade/Condomínio como links.
+- Página de bairro: seção "Principais ruas".
+- Página de condomínio: rua + ruas próximas.
+- Blog: campo para relacionar ruas.
 
-## 4. Admin — "SEO Local por Ruas"
+## Fase 8 — Relatórios e analytics
+- Relatórios admin: Ruas (imóveis, condomínios, views, leads, status SEO); Imóveis sem correspondência; Páginas fracas; Conversão.
+- Eventos analytics: view, clique em imóvel/condomínio, filtro, busca, mapa, WhatsApp, telefone, form, navegação para rua próxima.
 
-Novo item em `admin.tsx`:
-- `src/routes/_authenticated/admin-seo-ruas.tsx` — lista com filtros (status/cidade/tipo), busca, ações rápidas (publicar/rascunho/ocultar), badge de qualidade (mostrando quais campos faltam para publicar)
-- `src/routes/_authenticated/admin-seo-ruas.$id.tsx` — editor completo:
-  - Aba Conteúdo: nome, slug (auto-gerado, editável), via_type, cidade, região, descrições, perfil (multi-select), pontos próximos (repeater)
-  - Aba SEO: title, meta, H1, intro, og_image (upload via bucket `editorial-images`), prioridade, ordem
-  - Aba Relacionamentos: condomínios (multi-select via `related-select`), imóveis (multi-select), outras ruas, regiões
-  - Aba FAQ: repeater `[{q,a}]`
-  - Aba Sugestões: preview das perguntas padrão renderizadas
-  - Rodapé: status + botão Publicar (desabilitado se `is_publishable` = false, com lista de pendências)
+## Fase 9 — Revisão visual e responsividade
+- Auditoria dos componentes novos em desktop/tablet/celular.
+- Lazy-load de imagens, WebP, paginação, cache de queries.
+- Acessibilidade (alt, contraste, teclado, labels, headings, breadcrumb acessível).
 
-Sugestão automática: aba separada listando ruas frequentes extraídas de `properties`, cada uma com "Criar rascunho".
+## Fase 10 — Auditoria final
+- Rotas, slugs, redirects, links quebrados, canonical, schema, sitemap, performance, formulários, permissões admin.
+- Popular as 23 ruas prioritárias como **rascunho** (nunca publicar automaticamente sem conteúdo).
 
-## 5. Busca interna
+---
 
-Estender a busca existente para retornar, ao pesquisar por nome de rua:
-- Página guia da rua (se existir)
-- Imóveis com `address ILIKE %rua%`
-- Condomínios relacionados
-- Posts editoriais que citam a rua
+## Detalhes técnicos-chave
 
-## 6. Priorização inicial (rollout de conteúdo)
-
-Nenhuma página publicada automaticamente. Após implementação, criar 15–30 rascunhos vazios com nome+slug+cidade das ruas listadas (Rio Negro, Araguaia, Madeira, Mamoré, Yojiro Takaoka, Marcos Penteado, Alphaville, Sagitário, Copacabana, Grajaú, América, Ásia, Europa, África, Oceania, Calçada das Orquídeas, Centro Comercial, Tamboré, Aldeia da Serra) — o admin completa o conteúdo antes de publicar.
-
-## 7. Design
-
-Reaproveitar `PremiumCard`, `PremiumPropertyCard`, tokens `navy-deep`/`gold`/`canvas`, tipografia serif — mesmo padrão da página `/alphaville` recém-redesenhada. Nada de aparência de blog automático.
-
-## Detalhes técnicos
-
-- Migração única com: `CREATE TABLE public.street_guides`, GRANTs (`SELECT` para `anon` e `authenticated`; `ALL` para `service_role` + `INSERT/UPDATE/DELETE` para `authenticated`), RLS, políticas (`SELECT` público em published; ALL para admin via `has_role`), função `is_publishable`, trigger de validação de publicação, trigger `set_updated_at`.
-- Server fns públicas usam server publishable client (não `supabaseAdmin`) para respeitar RLS.
-- Loader das rotas públicas via `ensureQueryData` + `useSuspenseQuery` (padrão do projeto).
-- Filtros locais na página da rua: search params validados (mesmo padrão de `/imoveis`).
-- Novo `og:image` só em rotas leaf (nunca `__root`).
-- Sitemap: incluir apenas `status='published'`.
+- **Stack**: TanStack Start + Supabase (Lovable Cloud). Server fns em `src/lib/streets.functions.ts`; helpers em `src/lib/streets.server.ts`.
+- **Client**: público via publishable client (RLS `TO anon` só nas colunas seguras). Admin via `requireSupabaseAuth` + `has_role('admin')`.
+- **Normalização em SQL** (não em JS) para ficar disponível ao trigger e à busca; função `IMMUTABLE` para permitir índice funcional.
+- **Sem invenção de dados**: pontos próximos, distâncias, história etc. só aparecem se preenchidos no admin.
+- **Design**: reaproveitar `PremiumCard`, `PremiumPropertyCard`, tokens `navy-deep`/`gold`, tipografia serif — mesmo padrão premium do resto do site.
 
 ## Fora de escopo desta fase
+- Integração real com Google Maps API (usa mapa estático/embed simples; API keys ficam para depois).
+- IA para gerar conteúdo automático (gera sugestão como rascunho, mas nada é publicado sem revisão manual).
+- PostGIS / cálculo de distância real por lat/lng (schema prevê os campos; matching desta fase usa texto normalizado + CEP + bairro).
 
-- Geolocalização real com PostGIS / cálculo de distância por lat/lng (o schema prevê os campos, mas a busca "próximos" desta fase usa relacionamento manual + match textual de endereço/bairro/condomínio; PostGIS entra em fase posterior se necessário).
-- Geração automática de descrições via IA (o admin escreve; podemos adicionar assistente na próxima fase).
-- Mapa interativo embarcado (usa imagem estática nesta fase; embed do Google Maps fica para depois).
+---
 
-## Entrega em etapas
+## Confirme antes de eu começar
 
-Para não ficar gigantesco em um único turno, sugiro dividir em 3 PRs sequenciais:
-
-1. **PR1 — Fundação**: migração + server functions + rotas públicas (hub + página individual) + schema/sitemap. Sem admin ainda; publicação manual via SQL de teste.
-2. **PR2 — Admin**: lista + editor completo + upload de capa + validação de qualidade + botão publicar/rascunho + IndexNow.
-3. **PR3 — Sugestões e busca**: aba de sugestões automáticas a partir de `properties` + integração com busca interna do site.
-
-Confirme se quer que eu siga por essa divisão (começando pelo PR1) ou se prefere outro ordenamento.
+1. **Opção A, B ou C** para o módulo `street_guides` existente?
+2. Posso prosseguir **Fase 1 primeiro** (migração + normalização + trigger), parar para você validar, e só então avançar? (recomendado — cada fase é grande)
+3. Quer que eu já **desligue `/guia-de-ruas-alphaville` do menu** enquanto o novo módulo não estiver pronto, ou mantenho no ar até a Fase 5 concluir?
