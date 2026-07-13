@@ -83,6 +83,17 @@ export const Route = createFileRoute("/sitemap.xml")({
           entries.push({ path: `/guia-de-ruas-alphaville/${s.slug}`, lastmod: s.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
         }
 
+        // Dynamic: streets (novo módulo /ruas)
+        const { data: ruas } = await supabase
+          .from("streets")
+          .select("slug,updated_at")
+          .eq("status", "published")
+          .eq("active", true);
+        for (const r of ruas ?? []) {
+          entries.push({ path: `/ruas/${r.slug}`, lastmod: r.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
+        }
+
+
 
 
 
