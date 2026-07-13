@@ -16,48 +16,65 @@ export type Database = {
     Tables: {
       condominiums: {
         Row: {
+          address: string | null
           amenities: string[]
           cover_image_url: string | null
           created_at: string
           description: string | null
           id: string
           name: string
+          postal_code: string | null
           region: string | null
           slug: string
           status: string
+          street_id: string | null
           units_count: number | null
           updated_at: string
           year_built: number | null
         }
         Insert: {
+          address?: string | null
           amenities?: string[]
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name: string
+          postal_code?: string | null
           region?: string | null
           slug: string
           status?: string
+          street_id?: string | null
           units_count?: number | null
           updated_at?: string
           year_built?: number | null
         }
         Update: {
+          address?: string | null
           amenities?: string[]
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name?: string
+          postal_code?: string | null
           region?: string | null
           slug?: string
           status?: string
+          street_id?: string | null
           units_count?: number | null
           updated_at?: string
           year_built?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "condominiums_street_id_fkey"
+            columns: ["street_id"]
+            isOneToOne: false
+            referencedRelation: "streets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_generation_jobs: {
         Row: {
@@ -264,6 +281,8 @@ export type Database = {
       properties: {
         Row: {
           accepts_exchange: boolean | null
+          address: string | null
+          address_number: string | null
           area_built: number | null
           area_total: number | null
           area_useful: number | null
@@ -294,6 +313,7 @@ export type Database = {
           parking: number | null
           parking_covered: number | null
           parking_uncovered: number | null
+          postal_code: string | null
           price_rent: number | null
           price_sale: number | null
           property_type: string | null
@@ -309,12 +329,17 @@ export type Database = {
           source_url: string | null
           state: string | null
           status: string
+          street_id: string | null
+          street_match_confidence: number | null
+          street_match_type: string | null
           suites: number | null
           title: string
           updated_at: string
         }
         Insert: {
           accepts_exchange?: boolean | null
+          address?: string | null
+          address_number?: string | null
           area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
@@ -345,6 +370,7 @@ export type Database = {
           parking?: number | null
           parking_covered?: number | null
           parking_uncovered?: number | null
+          postal_code?: string | null
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
@@ -360,12 +386,17 @@ export type Database = {
           source_url?: string | null
           state?: string | null
           status?: string
+          street_id?: string | null
+          street_match_confidence?: number | null
+          street_match_type?: string | null
           suites?: number | null
           title: string
           updated_at?: string
         }
         Update: {
           accepts_exchange?: boolean | null
+          address?: string | null
+          address_number?: string | null
           area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
@@ -396,6 +427,7 @@ export type Database = {
           parking?: number | null
           parking_covered?: number | null
           parking_uncovered?: number | null
+          postal_code?: string | null
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
@@ -411,6 +443,9 @@ export type Database = {
           source_url?: string | null
           state?: string | null
           status?: string
+          street_id?: string | null
+          street_match_confidence?: number | null
+          street_match_type?: string | null
           suites?: number | null
           title?: string
           updated_at?: string
@@ -421,6 +456,58 @@ export type Database = {
             columns: ["condominium_id"]
             isOneToOne: false
             referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_street_id_fkey"
+            columns: ["street_id"]
+            isOneToOne: false
+            referencedRelation: "streets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_streets: {
+        Row: {
+          created_at: string
+          id: string
+          manually_confirmed: boolean
+          match_confidence: number
+          match_type: string
+          property_id: string
+          street_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manually_confirmed?: boolean
+          match_confidence?: number
+          match_type: string
+          property_id: string
+          street_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manually_confirmed?: boolean
+          match_confidence?: number
+          match_type?: string
+          property_id?: string
+          street_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_streets_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_streets_street_id_fkey"
+            columns: ["street_id"]
+            isOneToOne: false
+            referencedRelation: "streets"
             referencedColumns: ["id"]
           },
         ]
@@ -455,6 +542,33 @@ export type Database = {
           started_at?: string
           status?: string
           triggered_by?: string | null
+        }
+        Relationships: []
+      }
+      seo_redirects: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          new_url: string
+          old_url: string
+          redirect_type: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          new_url: string
+          old_url: string
+          redirect_type?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          new_url?: string
+          old_url?: string
+          redirect_type?: number
         }
         Relationships: []
       }
@@ -508,6 +622,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      street_aliases: {
+        Row: {
+          alias: string
+          created_at: string
+          id: string
+          normalized_alias: string
+          street_id: string
+        }
+        Insert: {
+          alias: string
+          created_at?: string
+          id?: string
+          normalized_alias: string
+          street_id: string
+        }
+        Update: {
+          alias?: string
+          created_at?: string
+          id?: string
+          normalized_alias?: string
+          street_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "street_aliases_street_id_fkey"
+            columns: ["street_id"]
+            isOneToOne: false
+            referencedRelation: "streets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       street_guides: {
         Row: {
@@ -620,6 +766,168 @@ export type Database = {
         }
         Relationships: []
       }
+      streets: {
+        Row: {
+          access_information: string | null
+          active: boolean
+          canonical_url: string | null
+          city: string | null
+          commercial_profile: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          faq: Json
+          featured: boolean
+          gallery_images: Json
+          h1: string | null
+          hero_image: string | null
+          history: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          manually_reviewed: boolean
+          map_embed: string | null
+          name: string
+          nearby_business_centers: Json
+          nearby_condominium_ids: string[]
+          nearby_hospitals: Json
+          nearby_landmarks: Json
+          nearby_neighborhoods: string[]
+          nearby_restaurants: Json
+          nearby_schools: Json
+          nearby_services: Json
+          nearby_shopping_centers: Json
+          nearby_street_ids: string[]
+          nearby_supermarkets: Json
+          neighborhood: string | null
+          official_name: string | null
+          parking_information: string | null
+          postal_code_end: string | null
+          postal_code_start: string | null
+          public_transport_information: string | null
+          published_at: string | null
+          real_estate_profile: string | null
+          residential_profile: string | null
+          seo_description: string | null
+          seo_keywords: string | null
+          seo_title: string | null
+          short_description: string | null
+          short_name: string | null
+          slug: string
+          state: string | null
+          status: string
+          street_type: string | null
+          traffic_information: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_information?: string | null
+          active?: boolean
+          canonical_url?: string | null
+          city?: string | null
+          commercial_profile?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          faq?: Json
+          featured?: boolean
+          gallery_images?: Json
+          h1?: string | null
+          hero_image?: string | null
+          history?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          manually_reviewed?: boolean
+          map_embed?: string | null
+          name: string
+          nearby_business_centers?: Json
+          nearby_condominium_ids?: string[]
+          nearby_hospitals?: Json
+          nearby_landmarks?: Json
+          nearby_neighborhoods?: string[]
+          nearby_restaurants?: Json
+          nearby_schools?: Json
+          nearby_services?: Json
+          nearby_shopping_centers?: Json
+          nearby_street_ids?: string[]
+          nearby_supermarkets?: Json
+          neighborhood?: string | null
+          official_name?: string | null
+          parking_information?: string | null
+          postal_code_end?: string | null
+          postal_code_start?: string | null
+          public_transport_information?: string | null
+          published_at?: string | null
+          real_estate_profile?: string | null
+          residential_profile?: string | null
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          short_name?: string | null
+          slug: string
+          state?: string | null
+          status?: string
+          street_type?: string | null
+          traffic_information?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_information?: string | null
+          active?: boolean
+          canonical_url?: string | null
+          city?: string | null
+          commercial_profile?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          faq?: Json
+          featured?: boolean
+          gallery_images?: Json
+          h1?: string | null
+          hero_image?: string | null
+          history?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          manually_reviewed?: boolean
+          map_embed?: string | null
+          name?: string
+          nearby_business_centers?: Json
+          nearby_condominium_ids?: string[]
+          nearby_hospitals?: Json
+          nearby_landmarks?: Json
+          nearby_neighborhoods?: string[]
+          nearby_restaurants?: Json
+          nearby_schools?: Json
+          nearby_services?: Json
+          nearby_shopping_centers?: Json
+          nearby_street_ids?: string[]
+          nearby_supermarkets?: Json
+          neighborhood?: string | null
+          official_name?: string | null
+          parking_information?: string | null
+          postal_code_end?: string | null
+          postal_code_start?: string | null
+          public_transport_information?: string | null
+          published_at?: string | null
+          real_estate_profile?: string | null
+          residential_profile?: string | null
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          short_name?: string | null
+          slug?: string
+          state?: string | null
+          status?: string
+          street_type?: string | null
+          traffic_information?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -653,10 +961,20 @@ export type Database = {
         }
         Returns: boolean
       }
+      match_property_streets: {
+        Args: { p_property_id: string }
+        Returns: undefined
+      }
+      normalize_street_text: { Args: { txt: string }; Returns: string }
       street_guide_is_publishable: {
         Args: { g: Database["public"]["Tables"]["street_guides"]["Row"] }
         Returns: boolean
       }
+      street_is_publishable: {
+        Args: { g: Database["public"]["Tables"]["streets"]["Row"] }
+        Returns: boolean
+      }
+      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "editor" | "user"
