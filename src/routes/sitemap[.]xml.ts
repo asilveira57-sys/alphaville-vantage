@@ -24,6 +24,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/guia-barueri", changefreq: "weekly", priority: "0.8" },
           { path: "/guia-santana-de-parnaiba", changefreq: "weekly", priority: "0.8" },
           { path: "/guia-de-ruas-alphaville", changefreq: "weekly", priority: "0.85" },
+          { path: "/ruas", changefreq: "weekly", priority: "0.85" },
           { path: "/condominios", changefreq: "weekly", priority: "0.8" },
           { path: "/bairros", changefreq: "weekly", priority: "0.8" },
           { path: "/escolas", changefreq: "monthly", priority: "0.7" },
