@@ -13,6 +13,7 @@ import { Route as TransparenciaRouteImport } from './routes/transparencia'
 import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicosRouteImport } from './routes/servicos'
+import { Route as RuasRouteImport } from './routes/ruas'
 import { Route as RestaurantesRouteImport } from './routes/restaurantes'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
@@ -43,6 +44,7 @@ import { Route as AreasDeAtuacaoRouteImport } from './routes/areas-de-atuacao'
 import { Route as AlphavilleRouteImport } from './routes/alphaville'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RuasIndexRouteImport } from './routes/ruas.index'
 import { Route as MeioAmbienteIndexRouteImport } from './routes/meio-ambiente.index'
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
@@ -50,6 +52,7 @@ import { Route as GuiaDeRuasAlphavilleIndexRouteImport } from './routes/guia-de-
 import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
+import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
 import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
@@ -89,6 +92,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RuasRoute = RuasRouteImport.update({
+  id: '/ruas',
+  path: '/ruas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RestaurantesRoute = RestaurantesRouteImport.update({
@@ -240,6 +248,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RuasIndexRoute = RuasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RuasRoute,
+} as any)
 const MeioAmbienteIndexRoute = MeioAmbienteIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -275,6 +288,11 @@ const BairrosIndexRoute = BairrosIndexRouteImport.update({
   id: '/bairros/',
   path: '/bairros/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const RuasSlugRoute = RuasSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => RuasRoute,
 } as any)
 const MeioAmbienteLazerRoute = MeioAmbienteLazerRouteImport.update({
   id: '/lazer',
@@ -411,6 +429,7 @@ export interface FileRoutesByFullPath {
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
+  '/ruas': typeof RuasRouteWithChildren
   '/servicos': typeof ServicosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
@@ -429,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
@@ -436,6 +456,7 @@ export interface FileRoutesByFullPath {
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
+  '/ruas/': typeof RuasIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -485,6 +506,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/ruas/$slug': typeof RuasSlugRoute
   '/bairros': typeof BairrosIndexRoute
   '/blog': typeof BlogIndexRoute
   '/condominios': typeof CondominiosIndexRoute
@@ -492,6 +514,7 @@ export interface FileRoutesByTo {
   '/guia': typeof GuiaIndexRoute
   '/imoveis': typeof ImoveisIndexRoute
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
+  '/ruas': typeof RuasIndexRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -531,6 +554,7 @@ export interface FileRoutesById {
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/quem-somos': typeof QuemSomosRoute
   '/restaurantes': typeof RestaurantesRoute
+  '/ruas': typeof RuasRouteWithChildren
   '/servicos': typeof ServicosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
@@ -549,6 +573,7 @@ export interface FileRoutesById {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
@@ -556,6 +581,7 @@ export interface FileRoutesById {
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
+  '/ruas/': typeof RuasIndexRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -595,6 +621,7 @@ export interface FileRouteTypes {
     | '/politica-de-privacidade'
     | '/quem-somos'
     | '/restaurantes'
+    | '/ruas'
     | '/servicos'
     | '/sitemap.xml'
     | '/termos-de-uso'
@@ -613,6 +640,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/ruas/$slug'
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
@@ -620,6 +648,7 @@ export interface FileRouteTypes {
     | '/guia/'
     | '/imoveis/'
     | '/meio-ambiente/'
+    | '/ruas/'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -669,6 +698,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/ruas/$slug'
     | '/bairros'
     | '/blog'
     | '/condominios'
@@ -676,6 +706,7 @@ export interface FileRouteTypes {
     | '/guia'
     | '/imoveis'
     | '/meio-ambiente'
+    | '/ruas'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -714,6 +745,7 @@ export interface FileRouteTypes {
     | '/politica-de-privacidade'
     | '/quem-somos'
     | '/restaurantes'
+    | '/ruas'
     | '/servicos'
     | '/sitemap.xml'
     | '/termos-de-uso'
@@ -732,6 +764,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/ruas/$slug'
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
@@ -739,6 +772,7 @@ export interface FileRouteTypes {
     | '/guia/'
     | '/imoveis/'
     | '/meio-ambiente/'
+    | '/ruas/'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -778,6 +812,7 @@ export interface RootRouteChildren {
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
   QuemSomosRoute: typeof QuemSomosRoute
   RestaurantesRoute: typeof RestaurantesRoute
+  RuasRoute: typeof RuasRouteWithChildren
   ServicosRoute: typeof ServicosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
@@ -820,6 +855,13 @@ declare module '@tanstack/react-router' {
       path: '/servicos'
       fullPath: '/servicos'
       preLoaderRoute: typeof ServicosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ruas': {
+      id: '/ruas'
+      path: '/ruas'
+      fullPath: '/ruas'
+      preLoaderRoute: typeof RuasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/restaurantes': {
@@ -1032,6 +1074,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ruas/': {
+      id: '/ruas/'
+      path: '/'
+      fullPath: '/ruas/'
+      preLoaderRoute: typeof RuasIndexRouteImport
+      parentRoute: typeof RuasRoute
+    }
     '/meio-ambiente/': {
       id: '/meio-ambiente/'
       path: '/'
@@ -1080,6 +1129,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/bairros/'
       preLoaderRoute: typeof BairrosIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/ruas/$slug': {
+      id: '/ruas/$slug'
+      path: '/$slug'
+      fullPath: '/ruas/$slug'
+      preLoaderRoute: typeof RuasSlugRouteImport
+      parentRoute: typeof RuasRoute
     }
     '/meio-ambiente/lazer': {
       id: '/meio-ambiente/lazer'
@@ -1333,6 +1389,18 @@ const MeioAmbienteRouteWithChildren = MeioAmbienteRoute._addFileChildren(
   MeioAmbienteRouteChildren,
 )
 
+interface RuasRouteChildren {
+  RuasSlugRoute: typeof RuasSlugRoute
+  RuasIndexRoute: typeof RuasIndexRoute
+}
+
+const RuasRouteChildren: RuasRouteChildren = {
+  RuasSlugRoute: RuasSlugRoute,
+  RuasIndexRoute: RuasIndexRoute,
+}
+
+const RuasRouteWithChildren = RuasRoute._addFileChildren(RuasRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -1364,6 +1432,7 @@ const rootRouteChildren: RootRouteChildren = {
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
   QuemSomosRoute: QuemSomosRoute,
   RestaurantesRoute: RestaurantesRoute,
+  RuasRoute: RuasRouteWithChildren,
   ServicosRoute: ServicosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
