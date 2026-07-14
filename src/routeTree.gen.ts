@@ -66,6 +66,7 @@ import { Route as ArtigosSlugRouteImport } from './routes/artigos.$slug'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
+import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
@@ -360,6 +361,11 @@ const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   path: '/admin-seo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRuasRoute = AuthenticatedAdminRuasRouteImport.update({
+  id: '/admin-ruas',
+  path: '/admin-ruas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -435,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-ruas': typeof AuthenticatedAdminRuasRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -494,6 +501,7 @@ export interface FileRoutesByTo {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-ruas': typeof AuthenticatedAdminRuasRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -560,6 +568,7 @@ export interface FileRoutesById {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRoute
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -627,6 +636,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/admin'
+    | '/admin-ruas'
     | '/admin-seo'
     | '/audit'
     | '/cms'
@@ -686,6 +696,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/admin'
+    | '/admin-ruas'
     | '/admin-seo'
     | '/audit'
     | '/artigos/$slug'
@@ -751,6 +762,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-ruas'
     | '/_authenticated/admin-seo'
     | '/_authenticated/audit'
     | '/_authenticated/cms'
@@ -1228,6 +1240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSeoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-ruas': {
+      id: '/_authenticated/admin-ruas'
+      path: '/admin-ruas'
+      fullPath: '/admin-ruas'
+      preLoaderRoute: typeof AuthenticatedAdminRuasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -1306,6 +1325,7 @@ const AuthenticatedCmsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRouteWithChildren
   AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
@@ -1313,6 +1333,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRouteWithChildren,
   AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,
@@ -1449,13 +1470,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
