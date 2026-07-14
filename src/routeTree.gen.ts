@@ -72,6 +72,7 @@ import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticat
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
+import { Route as AuthenticatedAdminRuasIdRouteImport } from './routes/_authenticated/admin-ruas.$id'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 
@@ -392,6 +393,12 @@ const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedAuditRoute,
 } as any)
+const AuthenticatedAdminRuasIdRoute =
+  AuthenticatedAdminRuasIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminRuasRoute,
+  } as any)
 const ApiPublicHooksSeoMonthlyRefreshRoute =
   ApiPublicHooksSeoMonthlyRefreshRouteImport.update({
     id: '/api/public/hooks/seo-monthly-refresh',
@@ -441,7 +448,7 @@ export interface FileRoutesByFullPath {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/admin-ruas': typeof AuthenticatedAdminRuasRoute
+  '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -464,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/ruas/': typeof RuasIndexRoute
+  '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -501,7 +509,7 @@ export interface FileRoutesByTo {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/admin-ruas': typeof AuthenticatedAdminRuasRoute
+  '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -523,6 +531,7 @@ export interface FileRoutesByTo {
   '/imoveis': typeof ImoveisIndexRoute
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
   '/ruas': typeof RuasIndexRoute
+  '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -568,7 +577,7 @@ export interface FileRoutesById {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRoute
+  '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -591,6 +600,7 @@ export interface FileRoutesById {
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/ruas/': typeof RuasIndexRoute
+  '/_authenticated/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -659,6 +669,7 @@ export interface FileRouteTypes {
     | '/imoveis/'
     | '/meio-ambiente/'
     | '/ruas/'
+    | '/admin-ruas/$id'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -718,6 +729,7 @@ export interface FileRouteTypes {
     | '/imoveis'
     | '/meio-ambiente'
     | '/ruas'
+    | '/admin-ruas/$id'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -785,6 +797,7 @@ export interface FileRouteTypes {
     | '/imoveis/'
     | '/meio-ambiente/'
     | '/ruas/'
+    | '/_authenticated/admin-ruas/$id'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -1282,6 +1295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditIdRouteImport
       parentRoute: typeof AuthenticatedAuditRoute
     }
+    '/_authenticated/admin-ruas/$id': {
+      id: '/_authenticated/admin-ruas/$id'
+      path: '/$id'
+      fullPath: '/admin-ruas/$id'
+      preLoaderRoute: typeof AuthenticatedAdminRuasIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRuasRoute
+    }
     '/api/public/hooks/seo-monthly-refresh': {
       id: '/api/public/hooks/seo-monthly-refresh'
       path: '/api/public/hooks/seo-monthly-refresh'
@@ -1298,6 +1318,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRuasRouteChildren {
+  AuthenticatedAdminRuasIdRoute: typeof AuthenticatedAdminRuasIdRoute
+}
+
+const AuthenticatedAdminRuasRouteChildren: AuthenticatedAdminRuasRouteChildren =
+  {
+    AuthenticatedAdminRuasIdRoute: AuthenticatedAdminRuasIdRoute,
+  }
+
+const AuthenticatedAdminRuasRouteWithChildren =
+  AuthenticatedAdminRuasRoute._addFileChildren(
+    AuthenticatedAdminRuasRouteChildren,
+  )
 
 interface AuthenticatedAuditRouteChildren {
   AuthenticatedAuditIdRoute: typeof AuthenticatedAuditIdRoute
@@ -1325,7 +1359,7 @@ const AuthenticatedCmsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRoute
+  AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRouteWithChildren
   AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
@@ -1333,7 +1367,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRoute,
+  AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRouteWithChildren,
   AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,
