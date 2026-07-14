@@ -134,6 +134,7 @@ function AdminPage() {
           <div className="flex items-center gap-4">
             <Link to="/cms" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">CMS Editorial →</Link>
             <Link to="/admin-seo" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Central SEO →</Link>
+            <Link to="/admin-ruas" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Ruas →</Link>
             <button onClick={signOut} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">Sair</button>
           </div>
         </div>
