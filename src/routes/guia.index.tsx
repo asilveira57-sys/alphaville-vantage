@@ -80,7 +80,19 @@ function GuiaIndex() {
           />
         ))}
       </div>
+
+      <div className="mt-20 pt-12 border-t border-ink/10 flex items-end justify-between gap-4 flex-wrap">
+        <div className="max-w-2xl">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Também na região</p>
+          <h2 className="font-serif text-2xl md:text-3xl text-ink">Guia de Ruas e Avenidas</h2>
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+            Encontre imóveis por endereço — ruas, alamedas e avenidas de Alphaville, Tamboré, Barueri e Santana de Parnaíba.
+          </p>
+        </div>
+        <Link to="/ruas" className="text-[11px] uppercase tracking-[0.2em] hover:underline">Abrir guia de ruas →</Link>
+      </div>
     </SectionPage>
+
   );
 }
 
