@@ -52,25 +52,40 @@ export const Route = createFileRoute("/ruas/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: s.canonical_url || url }],
-      scripts: [{
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Place",
-          name: s.name,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: s.name,
-            addressLocality: s.city,
-            addressRegion: s.state ?? "SP",
-            addressCountry: "BR",
-          },
-          ...(s.latitude && s.longitude ? {
-            geo: { "@type": "GeoCoordinates", latitude: s.latitude, longitude: s.longitude },
-          } : {}),
-        }),
-      }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Place",
+            name: s.name,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: s.name,
+              addressLocality: s.city,
+              addressRegion: s.state ?? "SP",
+              addressCountry: "BR",
+            },
+            ...(s.latitude && s.longitude ? {
+              geo: { "@type": "GeoCoordinates", latitude: s.latitude, longitude: s.longitude },
+            } : {}),
+          }),
+        },
+        ...(Array.isArray(s.faq) && s.faq.length > 0 ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: s.faq.map((f: any) => ({
+              "@type": "Question",
+              name: f.question,
+              acceptedAnswer: { "@type": "Answer", text: f.answer },
+            })),
+          }),
+        }] : []),
+      ],
     };
+
   },
   errorComponent: ({ error }) => (
     <SiteLayout><section className="px-6 py-24 max-w-3xl mx-auto"><p className="text-sm">{error.message}</p></section></SiteLayout>
