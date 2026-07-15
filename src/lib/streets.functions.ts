@@ -227,6 +227,91 @@ export const deleteStreet = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ---------- REPORTS (admin) ----------
+
+export type StreetsReport = {
+  totals: { total: number; draft: number; published: number; archived: number; featured: number };
+  properties: { linked: number; unlinked: number; total: number };
+  topStreets: Array<{ id: string; name: string; slug: string; status: string; city: string | null; neighborhood: string | null; property_count: number }>;
+  emptyPublished: Array<{ id: string; name: string; slug: string; city: string | null }>;
+  unlinkedProperties: Array<{ id: string; slug: string | null; title: string | null; address: string | null; neighborhood: string | null; city: string | null }>;
+  matchConfidence: { high: number; medium: number; low: number };
+};
+
+export const getStreetsReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<StreetsReport> => {
+    await assertAdmin(context);
+    const sb = context.supabase;
+
+    const [{ data: streets }, { data: propsAll }, { data: links }] = await Promise.all([
+      sb.from("streets").select("id,name,slug,status,featured,city,neighborhood"),
+      sb.from("properties").select("id,slug,title,address,neighborhood,city,street_id,status").eq("status", "active"),
+      sb.from("property_streets").select("street_id,property_id,match_confidence"),
+    ]);
+
+    const s = streets ?? [];
+    const p = propsAll ?? [];
+    const l = links ?? [];
+
+    const totals = {
+      total: s.length,
+      draft: s.filter((x: any) => x.status === "draft").length,
+      published: s.filter((x: any) => x.status === "published").length,
+      archived: s.filter((x: any) => x.status === "archived").length,
+      featured: s.filter((x: any) => x.featured).length,
+    };
+
+    const countsByStreet = new Map<string, number>();
+    for (const link of l) countsByStreet.set(link.street_id, (countsByStreet.get(link.street_id) ?? 0) + 1);
+
+    const topStreets = s
+      .map((row: any) => ({ ...row, property_count: countsByStreet.get(row.id) ?? 0 }))
+      .sort((a: any, b: any) => b.property_count - a.property_count)
+      .slice(0, 15);
+
+    const emptyPublished = s
+      .filter((row: any) => row.status === "published" && (countsByStreet.get(row.id) ?? 0) === 0)
+      .slice(0, 20)
+      .map((row: any) => ({ id: row.id, name: row.name, slug: row.slug, city: row.city }));
+
+    const linkedIds = new Set(l.map((x: any) => x.property_id));
+    const unlinked = p.filter((row: any) => !row.street_id && !linkedIds.has(row.id));
+    const unlinkedProperties = unlinked.slice(0, 30).map((row: any) => ({
+      id: row.id, slug: row.slug, title: row.title, address: row.address, neighborhood: row.neighborhood, city: row.city,
+    }));
+
+    const matchConfidence = {
+      high: l.filter((x: any) => (x.match_confidence ?? 0) >= 90).length,
+      medium: l.filter((x: any) => (x.match_confidence ?? 0) >= 75 && (x.match_confidence ?? 0) < 90).length,
+      low: l.filter((x: any) => (x.match_confidence ?? 0) < 75).length,
+    };
+
+    return {
+      totals,
+      properties: { linked: linkedIds.size, unlinked: unlinked.length, total: p.length },
+      topStreets,
+      emptyPublished,
+      unlinkedProperties,
+      matchConfidence,
+    };
+  });
+
+// Rematch all properties (backfill)
+export const rematchAllProperties = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data: rows, error } = await context.supabase.from("properties").select("id").eq("status", "active");
+    if (error) throw new Error(error.message);
+    let ok = 0, fail = 0;
+    for (const r of rows ?? []) {
+      const { error: e } = await context.supabase.rpc("match_property_streets", { p_property_id: r.id });
+      if (e) fail++; else ok++;
+    }
+    return { processed: ok, failed: fail, total: (rows ?? []).length };
+  });
+
 // Sitemap helper
 export const listPublishedStreetSlugsForSitemap = createServerFn({ method: "GET" })
   .handler(async () => {
