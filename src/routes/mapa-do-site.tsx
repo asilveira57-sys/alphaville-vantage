@@ -33,6 +33,7 @@ const SECTIONS: { title: string; links: { to: string; label: string }[] }[] = [
       { to: "/guia-tambore", label: "Guia Tamboré" },
       { to: "/guia-barueri", label: "Guia Barueri" },
       { to: "/guia-santana-de-parnaiba", label: "Guia Santana de Parnaíba" },
+      { to: "/ruas", label: "Guia de ruas e avenidas" },
     ],
   },
   {
