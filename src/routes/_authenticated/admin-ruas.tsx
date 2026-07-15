@@ -55,7 +55,10 @@ function AdminRuas() {
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">SEO Local</p>
             <h1 className="font-serif text-4xl text-ink">Ruas e avenidas</h1>
           </div>
-          <Link to="/admin" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">← Painel</Link>
+          <div className="flex gap-4">
+            <Link to="/admin-ruas/relatorios" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">Relatórios →</Link>
+            <Link to="/admin" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-ink">← Painel</Link>
+          </div>
         </div>
 
         <section className="border border-ink/10 p-5">

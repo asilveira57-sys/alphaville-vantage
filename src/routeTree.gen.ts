@@ -72,6 +72,7 @@ import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticat
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
+import { Route as AuthenticatedAdminRuasRelatoriosRouteImport } from './routes/_authenticated/admin-ruas.relatorios'
 import { Route as AuthenticatedAdminRuasIdRouteImport } from './routes/_authenticated/admin-ruas.$id'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
@@ -393,6 +394,12 @@ const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedAuditRoute,
 } as any)
+const AuthenticatedAdminRuasRelatoriosRoute =
+  AuthenticatedAdminRuasRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => AuthenticatedAdminRuasRoute,
+  } as any)
 const AuthenticatedAdminRuasIdRoute =
   AuthenticatedAdminRuasIdRouteImport.update({
     id: '/$id',
@@ -472,6 +479,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/ruas/': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
+  '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -532,6 +540,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
   '/ruas': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
+  '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -601,6 +610,7 @@ export interface FileRoutesById {
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/ruas/': typeof RuasIndexRoute
   '/_authenticated/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
+  '/_authenticated/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
@@ -670,6 +680,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/'
     | '/ruas/'
     | '/admin-ruas/$id'
+    | '/admin-ruas/relatorios'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -730,6 +741,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente'
     | '/ruas'
     | '/admin-ruas/$id'
+    | '/admin-ruas/relatorios'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -798,6 +810,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/'
     | '/ruas/'
     | '/_authenticated/admin-ruas/$id'
+    | '/_authenticated/admin-ruas/relatorios'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
     | '/api/public/indexnow-key.txt'
@@ -1295,6 +1308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditIdRouteImport
       parentRoute: typeof AuthenticatedAuditRoute
     }
+    '/_authenticated/admin-ruas/relatorios': {
+      id: '/_authenticated/admin-ruas/relatorios'
+      path: '/relatorios'
+      fullPath: '/admin-ruas/relatorios'
+      preLoaderRoute: typeof AuthenticatedAdminRuasRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedAdminRuasRoute
+    }
     '/_authenticated/admin-ruas/$id': {
       id: '/_authenticated/admin-ruas/$id'
       path: '/$id'
@@ -1321,11 +1341,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRuasRouteChildren {
   AuthenticatedAdminRuasIdRoute: typeof AuthenticatedAdminRuasIdRoute
+  AuthenticatedAdminRuasRelatoriosRoute: typeof AuthenticatedAdminRuasRelatoriosRoute
 }
 
 const AuthenticatedAdminRuasRouteChildren: AuthenticatedAdminRuasRouteChildren =
   {
     AuthenticatedAdminRuasIdRoute: AuthenticatedAdminRuasIdRoute,
+    AuthenticatedAdminRuasRelatoriosRoute:
+      AuthenticatedAdminRuasRelatoriosRoute,
   }
 
 const AuthenticatedAdminRuasRouteWithChildren =
