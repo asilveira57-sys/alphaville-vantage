@@ -65,6 +65,7 @@ export function SiteFooter() {
               <li><Link to="/guia-tambore" className="hover:text-brand-yellow">Tamboré</Link></li>
               <li><Link to="/guia-barueri" className="hover:text-brand-yellow">Barueri</Link></li>
               <li><Link to="/guia-santana-de-parnaiba" className="hover:text-brand-yellow">Santana de Parnaíba</Link></li>
+              <li><Link to="/ruas" className="hover:text-brand-yellow">Guia de ruas e avenidas</Link></li>
             </ul>
           </div>
 
