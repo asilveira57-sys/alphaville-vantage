@@ -354,7 +354,7 @@ function CmsEditorPage() {
                     <EditorialContent html={form.html_content} />
                   </div>
                 ) : (
-                  <HtmlEditor value={form.html_content} onChange={(v) => set("html_content", v)} />
+                  <HtmlEditor value={form.html_content} onChange={(v) => set("html_content", v)} documentKey={id} />
                 )}
               </Field>
             </div>
