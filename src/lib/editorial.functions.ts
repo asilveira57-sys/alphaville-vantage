@@ -409,7 +409,7 @@ export const searchInternalLinks = createServerFn({ method: "POST" })
       context.supabase
         .from("properties")
         .select("slug,title")
-        .eq("is_active", true)
+        .eq("status", "active")
         .ilike("title", `%${q}%`)
         .limit(8),
       context.supabase
