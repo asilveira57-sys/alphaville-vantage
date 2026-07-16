@@ -145,3 +145,154 @@
     display: none;
   }
 }
+
+/* ============================================================
+ * Editorial content — used by both public pages and CMS preview
+ * Keeps the editor WYSIWYG-accurate with the published article.
+ * ============================================================ */
+.editorial {
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.editorial > * + * { margin-top: 1.1em; }
+.editorial h1, .editorial h2, .editorial h3, .editorial h4 {
+  font-family: var(--font-serif);
+  color: var(--color-ink);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.editorial h1 { font-size: clamp(2rem, 4vw, 2.75rem); margin-top: 2em; }
+.editorial h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); margin-top: 2em; padding-top: 0.25em; border-top: 1px solid color-mix(in oklab, var(--color-ink) 8%, transparent); }
+.editorial h3 { font-size: 1.375rem; margin-top: 1.6em; }
+.editorial h4 { font-size: 1.125rem; margin-top: 1.4em; font-weight: 600; }
+.editorial p { color: color-mix(in oklab, var(--color-ink) 88%, transparent); }
+.editorial strong { color: var(--color-ink); font-weight: 700; }
+.editorial em { font-style: italic; }
+.editorial u { text-decoration: underline; text-underline-offset: 3px; }
+.editorial a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 0.2s;
+}
+.editorial a:hover { color: var(--color-gold); }
+.editorial ul, .editorial ol { padding-left: 1.5em; }
+.editorial ul { list-style: disc; }
+.editorial ol { list-style: decimal; }
+.editorial li { margin-top: 0.4em; }
+.editorial li > p { margin: 0; }
+.editorial ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+.editorial ul[data-type="taskList"] li { display: flex; gap: 0.5em; align-items: flex-start; }
+.editorial ul[data-type="taskList"] li > label { margin-top: 0.25em; }
+.editorial blockquote {
+  border-left: 3px solid var(--color-gold);
+  padding: 0.25em 0 0.25em 1.25em;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: color-mix(in oklab, var(--color-ink) 75%, transparent);
+}
+.editorial hr {
+  border: 0;
+  height: 1px;
+  background: color-mix(in oklab, var(--color-ink) 12%, transparent);
+  margin: 2.5em auto;
+  width: 40%;
+}
+.editorial code {
+  background: color-mix(in oklab, var(--color-ink) 6%, transparent);
+  padding: 0.15em 0.4em;
+  font-size: 0.9em;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  border-radius: 3px;
+}
+.editorial pre {
+  background: color-mix(in oklab, var(--color-ink) 92%, transparent);
+  color: var(--color-canvas);
+  padding: 1em 1.25em;
+  overflow-x: auto;
+  font-size: 0.9em;
+  border-radius: 4px;
+}
+.editorial pre code { background: transparent; padding: 0; color: inherit; }
+.editorial img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5em auto;
+}
+.editorial figure { margin: 2em 0; }
+.editorial figure img { margin: 0 auto; }
+.editorial figcaption {
+  margin-top: 0.75em;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}
+.editorial table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.75em 0;
+  font-size: 0.95rem;
+}
+.editorial table th,
+.editorial table td {
+  border: 1px solid color-mix(in oklab, var(--color-ink) 12%, transparent);
+  padding: 0.65em 0.9em;
+  text-align: left;
+  vertical-align: top;
+}
+.editorial table th {
+  background: color-mix(in oklab, var(--color-ink) 5%, transparent);
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+.editorial table tr:nth-child(even) td {
+  background: color-mix(in oklab, var(--color-ink) 2%, transparent);
+}
+
+/* ============================================================
+ * TipTap editor chrome (ProseMirror)
+ * ============================================================ */
+.ProseMirror {
+  outline: none;
+  min-height: 480px;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-muted-foreground);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  overflow: hidden;
+}
+.ProseMirror td, .ProseMirror th {
+  border: 1px solid color-mix(in oklab, var(--color-ink) 20%, transparent);
+  padding: 0.5em 0.75em;
+  position: relative;
+  min-width: 3em;
+}
+.ProseMirror th { background: color-mix(in oklab, var(--color-ink) 5%, transparent); font-weight: 600; }
+.ProseMirror .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--color-gold) 20%, transparent);
+  pointer-events: none;
+}
+.ProseMirror .tableWrapper { overflow-x: auto; margin: 1em 0; }
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid var(--color-gold);
+}
+
