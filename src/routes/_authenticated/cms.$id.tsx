@@ -296,7 +296,8 @@ function CmsEditorPage() {
             <Link to="/cms" className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground hover:text-ink">← CMS</Link>
             <h1 className="font-serif text-3xl text-ink mt-2">{isNew ? "Nova página" : "Editar página"}</h1>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-3 items-center">
+            <AutoSaveIndicator state={saveState} enabled={autosaveEnabled} status={form.status} />
             <button onClick={() => setPreview((p) => !p)} className="text-xs uppercase tracking-widest border border-ink/20 px-4 py-2 hover:bg-ink/5">
               {preview ? "Editor" : "Pré-visualizar"}
             </button>
@@ -308,6 +309,7 @@ function CmsEditorPage() {
               {saveMut.isPending ? "Salvando…" : "Salvar"}
             </button>
           </div>
+
         </div>
 
         {saveMut.error && <p className="text-xs text-red-600">{(saveMut.error as Error).message}</p>}
