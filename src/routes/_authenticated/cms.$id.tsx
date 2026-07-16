@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useRouter, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
 import { HtmlEditor } from "@/components/html-editor";
 import { EditorialContent } from "@/components/editorial-content";
 import { ImageUpload, ImageGalleryUpload } from "@/components/image-upload";
 import { RelatedSelect } from "@/components/related-select";
+import { useAutosave } from "@/components/editor/use-autosave";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import {
   getEditorialByIdAdmin,
@@ -16,6 +17,7 @@ import {
   generateSeoMetadata,
 } from "@/lib/editorial.functions";
 import { hasH1, hasInternalLink, wordCount } from "@/lib/sanitize-html";
+
 
 export const Route = createFileRoute("/_authenticated/cms/$id")({
   head: () => ({ meta: [{ title: "Editar página — CMS" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -186,6 +188,76 @@ function CmsEditorPage() {
     },
   });
 
+  // -------- Session storage snapshot (recovery from accidental reload) --------
+  const snapKey = `cms:snapshot:${id}`;
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    if (isNew || !pageQ.data) return;
+    try {
+      const raw = sessionStorage.getItem(snapKey);
+      if (!raw) { restoredRef.current = true; return; }
+      const snap = JSON.parse(raw) as FormState;
+      // Only restore if snapshot content differs from what we just loaded from DB
+      if (snap.html_content && snap.html_content !== form.html_content) {
+        if (window.confirm("Encontramos alterações não salvas desta página. Deseja restaurá-las?")) {
+          setForm(snap);
+        } else {
+          sessionStorage.removeItem(snapKey);
+        }
+      }
+    } catch { /* ignore */ }
+    restoredRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageQ.data, isNew]);
+
+  useEffect(() => {
+    if (isNew || !form.id) return;
+    try { sessionStorage.setItem(snapKey, JSON.stringify(form)); } catch { /* quota */ }
+  }, [form, isNew, snapKey]);
+
+  // -------- Auto-save (debounced) --------
+  const autoSave = useCallback(async (f: FormState) => {
+    if (!f.id || !f.title) return;
+    await upsertFn({
+      data: {
+        id: f.id,
+        title: f.title,
+        slug: f.slug || slugify(f.title),
+        content_type: f.content_type,
+        excerpt: f.excerpt || null,
+        html_content: f.html_content,
+        featured_image: f.featured_image || null,
+        gallery_images: f.gallery_images,
+        status: f.status,
+        is_featured: f.is_featured,
+        display_order: f.display_order,
+        tags: f.tags,
+        related_neighborhood: f.related_neighborhood || null,
+        related_condominium: f.related_condominium || null,
+        meta_title: f.meta_title || null,
+        meta_description: f.meta_description || null,
+        focus_keyword: f.focus_keyword || null,
+        secondary_keywords: f.secondary_keywords,
+        canonical_url: f.canonical_url || null,
+        og_title: f.og_title || null,
+        og_description: f.og_description || null,
+        og_image: f.og_image || null,
+        schema_type: f.schema_type,
+      } as any,
+    });
+    try { sessionStorage.removeItem(snapKey); } catch { /* ignore */ }
+  }, [upsertFn, snapKey]);
+
+  const autosaveEnabled = !isNew && !!form.id && form.status !== "published";
+  const { state: saveState } = useAutosave({
+    data: form,
+    save: autoSave,
+    enabled: autosaveEnabled,
+    debounceMs: 2000,
+  });
+
+
   const seoMut = useMutation({
     mutationFn: async () => {
       return seoFn({
@@ -224,7 +296,8 @@ function CmsEditorPage() {
             <Link to="/cms" className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground hover:text-ink">← CMS</Link>
             <h1 className="font-serif text-3xl text-ink mt-2">{isNew ? "Nova página" : "Editar página"}</h1>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-3 items-center">
+            <AutoSaveIndicator state={saveState} enabled={autosaveEnabled} status={form.status} />
             <button onClick={() => setPreview((p) => !p)} className="text-xs uppercase tracking-widest border border-ink/20 px-4 py-2 hover:bg-ink/5">
               {preview ? "Editor" : "Pré-visualizar"}
             </button>
@@ -236,6 +309,7 @@ function CmsEditorPage() {
               {saveMut.isPending ? "Salvando…" : "Salvar"}
             </button>
           </div>
+
         </div>
 
         {saveMut.error && <p className="text-xs text-red-600">{(saveMut.error as Error).message}</p>}
@@ -280,7 +354,7 @@ function CmsEditorPage() {
                     <EditorialContent html={form.html_content} />
                   </div>
                 ) : (
-                  <HtmlEditor value={form.html_content} onChange={(v) => set("html_content", v)} />
+                  <HtmlEditor value={form.html_content} onChange={(v) => set("html_content", v)} documentKey={id} />
                 )}
               </Field>
             </div>
@@ -429,4 +503,30 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {children}
     </label>
   );
+}
+
+function AutoSaveIndicator({
+  state,
+  enabled,
+  status,
+}: {
+  state: import("@/components/editor/use-autosave").SaveState;
+  enabled: boolean;
+  status: string;
+}) {
+  if (!enabled) {
+    return (
+      <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
+        {status === "published" ? "Auto-save pausado (publicado)" : "Auto-save desativado"}
+      </span>
+    );
+  }
+  if (state.kind === "saving") return <span className="text-[11px] uppercase tracking-widest text-amber-700">Salvando…</span>;
+  if (state.kind === "dirty") return <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Alterações pendentes…</span>;
+  if (state.kind === "saved") {
+    const t = new Date(state.at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    return <span className="text-[11px] uppercase tracking-widest text-emerald-700">✓ Salvo às {t}</span>;
+  }
+  if (state.kind === "error") return <span className="text-[11px] uppercase tracking-widest text-red-600" title={state.message}>Erro ao salvar</span>;
+  return <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Pronto</span>;
 }
