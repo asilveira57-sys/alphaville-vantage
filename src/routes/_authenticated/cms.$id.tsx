@@ -504,3 +504,29 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
+
+function AutoSaveIndicator({
+  state,
+  enabled,
+  status,
+}: {
+  state: import("@/components/editor/use-autosave").SaveState;
+  enabled: boolean;
+  status: string;
+}) {
+  if (!enabled) {
+    return (
+      <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
+        {status === "published" ? "Auto-save pausado (publicado)" : "Auto-save desativado"}
+      </span>
+    );
+  }
+  if (state.kind === "saving") return <span className="text-[11px] uppercase tracking-widest text-amber-700">Salvando…</span>;
+  if (state.kind === "dirty") return <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Alterações pendentes…</span>;
+  if (state.kind === "saved") {
+    const t = new Date(state.at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    return <span className="text-[11px] uppercase tracking-widest text-emerald-700">✓ Salvo às {t}</span>;
+  }
+  if (state.kind === "error") return <span className="text-[11px] uppercase tracking-widest text-red-600" title={state.message}>Erro ao salvar</span>;
+  return <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Pronto</span>;
+}
