@@ -188,6 +188,76 @@ function CmsEditorPage() {
     },
   });
 
+  // -------- Session storage snapshot (recovery from accidental reload) --------
+  const snapKey = `cms:snapshot:${id}`;
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    if (isNew || !pageQ.data) return;
+    try {
+      const raw = sessionStorage.getItem(snapKey);
+      if (!raw) { restoredRef.current = true; return; }
+      const snap = JSON.parse(raw) as FormState;
+      // Only restore if snapshot content differs from what we just loaded from DB
+      if (snap.html_content && snap.html_content !== form.html_content) {
+        if (window.confirm("Encontramos alterações não salvas desta página. Deseja restaurá-las?")) {
+          setForm(snap);
+        } else {
+          sessionStorage.removeItem(snapKey);
+        }
+      }
+    } catch { /* ignore */ }
+    restoredRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageQ.data, isNew]);
+
+  useEffect(() => {
+    if (isNew || !form.id) return;
+    try { sessionStorage.setItem(snapKey, JSON.stringify(form)); } catch { /* quota */ }
+  }, [form, isNew, snapKey]);
+
+  // -------- Auto-save (debounced) --------
+  const autoSave = useCallback(async (f: FormState) => {
+    if (!f.id || !f.title) return;
+    await upsertFn({
+      data: {
+        id: f.id,
+        title: f.title,
+        slug: f.slug || slugify(f.title),
+        content_type: f.content_type,
+        excerpt: f.excerpt || null,
+        html_content: f.html_content,
+        featured_image: f.featured_image || null,
+        gallery_images: f.gallery_images,
+        status: f.status,
+        is_featured: f.is_featured,
+        display_order: f.display_order,
+        tags: f.tags,
+        related_neighborhood: f.related_neighborhood || null,
+        related_condominium: f.related_condominium || null,
+        meta_title: f.meta_title || null,
+        meta_description: f.meta_description || null,
+        focus_keyword: f.focus_keyword || null,
+        secondary_keywords: f.secondary_keywords,
+        canonical_url: f.canonical_url || null,
+        og_title: f.og_title || null,
+        og_description: f.og_description || null,
+        og_image: f.og_image || null,
+        schema_type: f.schema_type,
+      } as any,
+    });
+    try { sessionStorage.removeItem(snapKey); } catch { /* ignore */ }
+  }, [upsertFn, snapKey]);
+
+  const autosaveEnabled = !isNew && !!form.id && form.status !== "published";
+  const { state: saveState } = useAutosave({
+    data: form,
+    save: autoSave,
+    enabled: autosaveEnabled,
+    debounceMs: 2000,
+  });
+
+
   const seoMut = useMutation({
     mutationFn: async () => {
       return seoFn({
