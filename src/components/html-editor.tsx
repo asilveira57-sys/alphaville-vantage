@@ -3,44 +3,69 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
+import Placeholder from "@tiptap/extension-placeholder";
+import TextAlign from "@tiptap/extension-text-align";
+import Subscript from "@tiptap/extension-subscript";
+import Superscript from "@tiptap/extension-superscript";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableHeader from "@tiptap/extension-table-header";
+import TableCell from "@tiptap/extension-table-cell";
 import { useEffect, useRef, useState } from "react";
-import { uploadEditorialImageFile } from "./image-upload";
+import { LinkDialog } from "./editor/link-dialog";
+import { ImageDialog, type ImagePayload } from "./editor/image-dialog";
 
 type Props = {
   value: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  /** When this changes, the editor content is reset from `value`. Use the page id. */
+  documentKey?: string;
 };
 
-export function HtmlEditor({ value, onChange, placeholder }: Props) {
+export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props) {
   const [mode, setMode] = useState<"visual" | "html">("visual");
   const [htmlDraft, setHtmlDraft] = useState(value);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [imgOpen, setImgOpen] = useState(false);
+  const [imgInitial, setImgInitial] = useState<Partial<ImagePayload> | undefined>();
+  const lastKey = useRef(documentKey);
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+      StarterKit.configure({ heading: { levels: [1, 2, 3, 4] } }),
       Underline,
+      Subscript,
+      Superscript,
+      Placeholder.configure({ placeholder: placeholder ?? "Comece a escrever…" }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
       Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: "noopener" } }),
-      Image.configure({ inline: false, allowBase64: false }),
+      Image.configure({ inline: false, allowBase64: false, HTMLAttributes: { loading: "lazy" } }),
+      Table.configure({ resizable: true, HTMLAttributes: { class: "editorial-table" } }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value || "<p></p>",
     editorProps: {
-      attributes: {
-        class: "prose prose-sm max-w-none min-h-[420px] px-4 py-3 focus:outline-none",
-      },
+      attributes: { class: "editorial ProseMirror min-h-[480px] px-6 py-5 focus:outline-none" },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
 
-  // Keep editor in sync when value resets externally (e.g. loading a page)
+  // Reset content ONLY when the document key changes (switching pages),
+  // never on parent re-renders during typing.
   useEffect(() => {
     if (!editor) return;
-    if (mode === "visual" && value !== editor.getHTML()) {
+    if (lastKey.current !== documentKey) {
+      lastKey.current = documentKey;
       editor.commands.setContent(value || "<p></p>", { emitUpdate: false });
     }
-  }, [value, editor, mode]);
+  }, [documentKey, value, editor]);
 
   function toggleMode() {
     if (mode === "visual") {
@@ -53,49 +78,70 @@ export function HtmlEditor({ value, onChange, placeholder }: Props) {
     }
   }
 
-  async function handleImageUpload(file: File) {
-    if (!editor) return;
-    setUploading(true);
-    try {
-      const url = await uploadEditorialImageFile(file, "content");
-      editor.chain().focus().setImage({ src: url, alt: file.name }).run();
-    } catch (e) {
-      alert("Erro ao enviar imagem: " + (e as Error).message);
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
+  function openLinkDialog() {
+    setLinkOpen(true);
   }
 
-  function addLink() {
+  function applyLink(url: string) {
     if (!editor) return;
-    const prev = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("URL (interna /bairros/alphaville ou externa https://...)", prev ?? "");
-    if (url === null) return;
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    setLinkOpen(false);
   }
+
+  function unlink() {
+    editor?.chain().focus().extendMarkRange("link").unsetLink().run();
+  }
+
+  function openImageDialog(existing?: Partial<ImagePayload>) {
+    setImgInitial(existing);
+    setImgOpen(true);
+  }
+
+  function applyImage(p: ImagePayload) {
+    if (!editor) return;
+    // Insert as figure with caption when provided, otherwise standalone img.
+    if (p.caption) {
+      const html = `<figure><img src="${escapeAttr(p.src)}" alt="${escapeAttr(p.alt)}" loading="lazy" /><figcaption>${escapeText(p.caption)}</figcaption></figure><p></p>`;
+      editor.chain().focus().insertContent(html).run();
+    } else {
+      editor.chain().focus().setImage({ src: p.src, alt: p.alt }).run();
+    }
+    setImgOpen(false);
+  }
+
+  // Ctrl/Cmd+K to open link dialog
+  useEffect(() => {
+    if (!editor) return;
+    const el = editor.view.dom;
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        openLinkDialog();
+      }
+    };
+    el.addEventListener("keydown", handler);
+    return () => el.removeEventListener("keydown", handler);
+  }, [editor]);
+
+  const initialLinkUrl = editor?.getAttributes("link").href as string | undefined;
 
   return (
-    <div className="border border-ink/15">
+    <div className="border border-ink/15 bg-canvas">
       {mode === "visual" ? (
         <>
           <Toolbar
             editor={editor}
-            onImage={() => fileRef.current?.click()}
-            onLink={addLink}
+            onLink={openLinkDialog}
+            onImage={() => openImageDialog()}
             onToggleHtml={toggleMode}
-            uploading={uploading}
           />
           <EditorContent editor={editor} />
+          {editor?.isActive("table") && <TableSubmenu editor={editor} />}
         </>
       ) : (
         <>
-          <div className="flex items-center justify-between border-b border-ink/10 px-2 py-2 bg-ink/[0.02]">
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground px-2">Modo HTML — cole/edite código</span>
+          <div className="flex items-center justify-between border-b border-ink/10 px-3 py-2 bg-ink/[0.02]">
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Modo HTML — cole/edite código</span>
             <button type="button" onClick={toggleMode}
               className="px-2.5 py-1 text-xs font-mono uppercase tracking-wider border border-ink/15 hover:bg-ink hover:text-canvas">
               Voltar ao editor
@@ -105,73 +151,147 @@ export function HtmlEditor({ value, onChange, placeholder }: Props) {
             value={htmlDraft}
             onChange={(e) => setHtmlDraft(e.target.value)}
             placeholder={placeholder ?? "<p>Cole seu HTML aqui…</p>"}
-            className="w-full min-h-[420px] px-4 py-3 text-sm font-mono leading-relaxed bg-transparent focus:outline-none resize-y"
+            className="w-full min-h-[480px] px-4 py-3 text-sm font-mono leading-relaxed bg-transparent focus:outline-none resize-y"
           />
         </>
       )}
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleImageUpload(f); }}
+
+      <LinkDialog
+        open={linkOpen}
+        initialUrl={initialLinkUrl}
+        onClose={() => setLinkOpen(false)}
+        onSubmit={applyLink}
+        onUnlink={initialLinkUrl ? unlink : undefined}
+      />
+      <ImageDialog
+        open={imgOpen}
+        initial={imgInitial}
+        onClose={() => setImgOpen(false)}
+        onSubmit={applyImage}
       />
     </div>
   );
 }
 
-function Toolbar({ editor, onImage, onLink, onToggleHtml, uploading }: {
+// ---------------- Toolbar ----------------
+
+function Toolbar({
+  editor, onLink, onImage, onToggleHtml,
+}: {
   editor: Editor | null;
-  onImage: () => void;
   onLink: () => void;
+  onImage: () => void;
   onToggleHtml: () => void;
-  uploading: boolean;
 }) {
   if (!editor) return null;
+
+  const currentBlock = editor.isActive("heading", { level: 1 }) ? "h1"
+    : editor.isActive("heading", { level: 2 }) ? "h2"
+    : editor.isActive("heading", { level: 3 }) ? "h3"
+    : editor.isActive("heading", { level: 4 }) ? "h4"
+    : editor.isActive("blockquote") ? "quote"
+    : editor.isActive("codeBlock") ? "code"
+    : "p";
+
   const btn = (active: boolean) =>
-    `px-2.5 py-1 text-xs font-mono uppercase tracking-wider border border-ink/15 hover:bg-ink hover:text-canvas ${active ? "bg-ink text-canvas" : ""}`;
+    `px-2.5 py-1.5 text-xs font-mono uppercase tracking-wider border border-ink/15 hover:bg-ink hover:text-canvas transition ${active ? "bg-ink text-canvas" : ""}`;
+
+  function changeBlock(v: string) {
+    const chain = editor!.chain().focus();
+    if (v === "p") chain.setParagraph().run();
+    else if (v === "h1") chain.setHeading({ level: 1 }).run();
+    else if (v === "h2") chain.setHeading({ level: 2 }).run();
+    else if (v === "h3") chain.setHeading({ level: 3 }).run();
+    else if (v === "h4") chain.setHeading({ level: 4 }).run();
+    else if (v === "quote") chain.toggleBlockquote().run();
+    else if (v === "code") chain.toggleCodeBlock().run();
+  }
 
   return (
-    <div className="flex flex-wrap gap-1 border-b border-ink/10 px-2 py-2 bg-ink/[0.02]">
-      <button type="button" title="Parágrafo" onClick={() => editor.chain().focus().setParagraph().run()}
-        className={btn(editor.isActive("paragraph"))}>P</button>
-      <button type="button" title="Título 1" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={btn(editor.isActive("heading", { level: 1 }))}>H1</button>
-      <button type="button" title="Título 2" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={btn(editor.isActive("heading", { level: 2 }))}>H2</button>
-      <button type="button" title="Título 3" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={btn(editor.isActive("heading", { level: 3 }))}>H3</button>
-      <span className="w-px bg-ink/10 mx-1" />
-      <button type="button" title="Negrito" onClick={() => editor.chain().focus().toggleBold().run()}
-        className={btn(editor.isActive("bold"))}><strong>B</strong></button>
-      <button type="button" title="Itálico" onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={btn(editor.isActive("italic"))}><em>I</em></button>
-      <button type="button" title="Sublinhado" onClick={() => editor.chain().focus().toggleUnderline().run()}
-        className={btn(editor.isActive("underline"))}><span className="underline">U</span></button>
-      <button type="button" title="Riscado" onClick={() => editor.chain().focus().toggleStrike().run()}
-        className={btn(editor.isActive("strike"))}><s>S</s></button>
-      <span className="w-px bg-ink/10 mx-1" />
-      <button type="button" title="Lista" onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={btn(editor.isActive("bulletList"))}>•</button>
-      <button type="button" title="Lista numerada" onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={btn(editor.isActive("orderedList"))}>1.</button>
-      <button type="button" title="Citação" onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={btn(editor.isActive("blockquote"))}>"</button>
-      <button type="button" title="Linha" onClick={() => editor.chain().focus().setHorizontalRule().run()}
-        className={btn(false)}>—</button>
-      <span className="w-px bg-ink/10 mx-1" />
-      <button type="button" title="Link" onClick={onLink} className={btn(editor.isActive("link"))}>Link</button>
-      <button type="button" title="Imagem" onClick={onImage} className={btn(false)}>
-        {uploading ? "…" : "Img"}
-      </button>
-      <span className="w-px bg-ink/10 mx-1" />
-      <button type="button" title="Desfazer" onClick={() => editor.chain().focus().undo().run()} className={btn(false)}>↶</button>
-      <button type="button" title="Refazer" onClick={() => editor.chain().focus().redo().run()} className={btn(false)}>↷</button>
+    <div className="flex flex-wrap gap-1 border-b border-ink/10 px-2 py-2 bg-ink/[0.02] sticky top-0 z-10">
+      <select
+        value={currentBlock}
+        onChange={(e) => changeBlock(e.target.value)}
+        className="px-2 py-1 text-xs font-mono uppercase tracking-wider border border-ink/15 bg-canvas"
+        title="Estilo do bloco"
+      >
+        <option value="p">Parágrafo</option>
+        <option value="h1">Título 1</option>
+        <option value="h2">Título 2</option>
+        <option value="h3">Título 3</option>
+        <option value="h4">Título 4</option>
+        <option value="quote">Citação</option>
+        <option value="code">Bloco de código</option>
+      </select>
+
+      <Sep />
+
+      <button type="button" title="Negrito (Ctrl+B)" onClick={() => editor.chain().focus().toggleBold().run()} className={btn(editor.isActive("bold"))}><strong>B</strong></button>
+      <button type="button" title="Itálico (Ctrl+I)" onClick={() => editor.chain().focus().toggleItalic().run()} className={btn(editor.isActive("italic"))}><em>I</em></button>
+      <button type="button" title="Sublinhado (Ctrl+U)" onClick={() => editor.chain().focus().toggleUnderline().run()} className={btn(editor.isActive("underline"))}><span className="underline">U</span></button>
+      <button type="button" title="Riscado" onClick={() => editor.chain().focus().toggleStrike().run()} className={btn(editor.isActive("strike"))}><s>S</s></button>
+      <button type="button" title="Código inline" onClick={() => editor.chain().focus().toggleCode().run()} className={btn(editor.isActive("code"))}>&lt;/&gt;</button>
+      <button type="button" title="Sobrescrito" onClick={() => editor.chain().focus().toggleSuperscript().run()} className={btn(editor.isActive("superscript"))}>X²</button>
+      <button type="button" title="Subscrito" onClick={() => editor.chain().focus().toggleSubscript().run()} className={btn(editor.isActive("subscript"))}>X₂</button>
+      <button type="button" title="Limpar formatação" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} className={btn(false)}>Tx</button>
+
+      <Sep />
+
+      <button type="button" title="Lista" onClick={() => editor.chain().focus().toggleBulletList().run()} className={btn(editor.isActive("bulletList"))}>•</button>
+      <button type="button" title="Lista numerada" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={btn(editor.isActive("orderedList"))}>1.</button>
+      <button type="button" title="Checklist" onClick={() => editor.chain().focus().toggleTaskList().run()} className={btn(editor.isActive("taskList"))}>☑</button>
+
+      <Sep />
+
+      <button type="button" title="Alinhar à esquerda" onClick={() => editor.chain().focus().setTextAlign("left").run()} className={btn(editor.isActive({ textAlign: "left" }))}>⇤</button>
+      <button type="button" title="Centralizar" onClick={() => editor.chain().focus().setTextAlign("center").run()} className={btn(editor.isActive({ textAlign: "center" }))}>≡</button>
+      <button type="button" title="Alinhar à direita" onClick={() => editor.chain().focus().setTextAlign("right").run()} className={btn(editor.isActive({ textAlign: "right" }))}>⇥</button>
+
+      <Sep />
+
+      <button type="button" title="Link (Ctrl+K)" onClick={onLink} className={btn(editor.isActive("link"))}>Link</button>
+      <button type="button" title="Imagem" onClick={onImage} className={btn(false)}>Img</button>
+      <button type="button" title="Inserir tabela" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={btn(false)}>Tabela</button>
+      <button type="button" title="Linha horizontal" onClick={() => editor.chain().focus().setHorizontalRule().run()} className={btn(false)}>—</button>
+
+      <Sep />
+
+      <button type="button" title="Desfazer (Ctrl+Z)" onClick={() => editor.chain().focus().undo().run()} className={btn(false)}>↶</button>
+      <button type="button" title="Refazer (Ctrl+Y)" onClick={() => editor.chain().focus().redo().run()} className={btn(false)}>↷</button>
+
       <span className="flex-1" />
       <button type="button" title="Editar HTML" onClick={onToggleHtml}
-        className="px-2.5 py-1 text-xs font-mono uppercase tracking-wider border border-ink/15 hover:bg-ink hover:text-canvas">
+        className="px-2.5 py-1.5 text-xs font-mono uppercase tracking-wider border border-ink/15 hover:bg-ink hover:text-canvas">
         &lt;/&gt; HTML
       </button>
     </div>
   );
+}
+
+function TableSubmenu({ editor }: { editor: Editor }) {
+  const act = (fn: () => void) => (e: React.MouseEvent) => { e.preventDefault(); fn(); };
+  const b = "px-2 py-1 text-[11px] font-mono uppercase tracking-wider border border-ink/15 hover:bg-ink hover:text-canvas";
+  return (
+    <div className="flex flex-wrap gap-1 border-t border-ink/10 px-2 py-1.5 bg-ink/[0.02]">
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 py-1">Tabela</span>
+      <button type="button" onClick={act(() => editor.chain().focus().addRowBefore().run())} className={b}>+ linha ↑</button>
+      <button type="button" onClick={act(() => editor.chain().focus().addRowAfter().run())} className={b}>+ linha ↓</button>
+      <button type="button" onClick={act(() => editor.chain().focus().addColumnBefore().run())} className={b}>+ col ←</button>
+      <button type="button" onClick={act(() => editor.chain().focus().addColumnAfter().run())} className={b}>+ col →</button>
+      <button type="button" onClick={act(() => editor.chain().focus().deleteRow().run())} className={b}>− linha</button>
+      <button type="button" onClick={act(() => editor.chain().focus().deleteColumn().run())} className={b}>− col</button>
+      <button type="button" onClick={act(() => editor.chain().focus().toggleHeaderRow().run())} className={b}>Cabeçalho</button>
+      <button type="button" onClick={act(() => editor.chain().focus().mergeOrSplit().run())} className={b}>Mesclar/dividir</button>
+      <button type="button" onClick={act(() => editor.chain().focus().deleteTable().run())} className={`${b} text-red-600`}>Excluir tabela</button>
+    </div>
+  );
+}
+
+function Sep() { return <span className="w-px bg-ink/10 mx-1" />; }
+
+function escapeAttr(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function escapeText(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
