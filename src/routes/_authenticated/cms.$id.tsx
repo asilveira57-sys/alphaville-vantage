@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useRouter, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
 import { HtmlEditor } from "@/components/html-editor";
 import { EditorialContent } from "@/components/editorial-content";
 import { ImageUpload, ImageGalleryUpload } from "@/components/image-upload";
 import { RelatedSelect } from "@/components/related-select";
+import { useAutosave } from "@/components/editor/use-autosave";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import {
   getEditorialByIdAdmin,
@@ -16,6 +17,7 @@ import {
   generateSeoMetadata,
 } from "@/lib/editorial.functions";
 import { hasH1, hasInternalLink, wordCount } from "@/lib/sanitize-html";
+
 
 export const Route = createFileRoute("/_authenticated/cms/$id")({
   head: () => ({ meta: [{ title: "Editar página — CMS" }, { name: "robots", content: "noindex,nofollow" }] }),
