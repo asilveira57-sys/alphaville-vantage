@@ -373,3 +373,72 @@ ${plain || "(vazio)"}`;
 
     return { meta_title, meta_description, focus_keyword, secondary_keywords };
   });
+
+// ---------- Search for internal links (used by editor link dialog) ----------
+
+const STATIC_ROUTES = [
+  { title: "Página inicial", url: "/", kind: "site" },
+  { title: "Imóveis", url: "/imoveis", kind: "site" },
+  { title: "Condomínios", url: "/condominios", kind: "site" },
+  { title: "Bairros", url: "/bairros", kind: "site" },
+  { title: "Blog", url: "/blog", kind: "site" },
+  { title: "Guia local", url: "/guia", kind: "site" },
+  { title: "Guia de ruas", url: "/ruas", kind: "site" },
+  { title: "Contato", url: "/contato", kind: "site" },
+  { title: "Quem somos", url: "/quem-somos", kind: "site" },
+];
+
+export const searchInternalLinks = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ q: z.string().default("") }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const q = data.q.trim().toLowerCase();
+
+    const staticMatches = STATIC_ROUTES
+      .filter((r) => !q || r.title.toLowerCase().includes(q))
+      .slice(0, 8);
+
+    const [pages, props, condos] = await Promise.all([
+      context.supabase
+        .from("editorial_pages")
+        .select("slug,title,content_type")
+        .eq("status", "published")
+        .ilike("title", `%${q}%`)
+        .limit(10),
+      context.supabase
+        .from("properties")
+        .select("slug,title")
+        .eq("is_active", true)
+        .ilike("title", `%${q}%`)
+        .limit(8),
+      context.supabase
+        .from("condominiums")
+        .select("id,name")
+        .ilike("name", `%${q}%`)
+        .limit(8),
+    ]);
+
+    const pageResults = (pages.data ?? []).map((p: any) => {
+      const base = p.content_type === "condominio" ? "/condominios"
+        : p.content_type === "bairro" ? "/bairros"
+        : p.content_type === "blog" ? "/blog"
+        : p.content_type === "guia" ? "/guia"
+        : null;
+      return {
+        title: p.title,
+        url: base ? `${base}/${p.slug}` : `/artigos/${p.slug}`,
+        kind: p.content_type,
+      };
+    });
+
+    const propertyResults = (props.data ?? []).map((p: any) => ({
+      title: p.title, url: `/imoveis/${p.slug}`, kind: "imóvel",
+    }));
+
+    const condoResults = (condos.data ?? []).map((c: any) => ({
+      title: c.name, url: `/condominios/${c.id}`, kind: "condomínio",
+    }));
+
+    return [...staticMatches, ...pageResults, ...propertyResults, ...condoResults];
+  });
