@@ -1,108 +1,62 @@
-# Módulo: Guia de Ruas e Avenidas de Alphaville (`/ruas`)
+## Diagnóstico dos problemas atuais
 
-Este é um módulo de porte muito grande (banco + normalização + admin + páginas públicas + SEO técnico + relatórios + analytics). Vou executar em 10 fases sequenciais, cada uma validada antes de avançar.
+1. **"Não respeita h1/h2/h3, vira um bloco horroroso"** — o `EditorialContent` usa classes `prose prose-headings:...` do plugin `@tailwindcss/typography`, mas esse plugin **não está instalado** neste projeto (só existe `@tailwindcss/vite`). Resultado: nenhum estilo é aplicado, tudo cai no default do browser sem hierarquia. Isso afeta o blog, o preview do CMS e qualquer página que usa `EditorialContent`.
+2. **"Perde o texto enquanto digito, volta para o original"** — no `HtmlEditor` o `useEffect` sincroniza `value → editor` sempre que `value !== editor.getHTML()`. Como o TipTap normaliza HTML (aspas, espaços, tags vazias), o HTML devolvido nunca bate exatamente com o que o pai guardou, disparando `setContent` no meio da digitação e revertendo o cursor/conteúdo.
+3. **Faltam recursos** — inserir imagem com **alt**, link interno com autocomplete de rotas, **tabelas**, atalhos de teclado, e **auto-save**.
 
-## Decisão importante antes de começar
+## O que vou construir
 
-Já existe no projeto o módulo **`street_guides`** em `/guia-de-ruas-alphaville` (fase anterior desta mesma conversa), com:
-- tabela `street_guides` + trigger de qualidade
-- server functions públicas
-- hub `/guia-de-ruas-alphaville` + página individual `/$slug`
-- entrada no sitemap
+### 1. Corrigir a renderização do conteúdo (blog, guia, bairro, condomínio, preview)
+- Instalar `@tailwindcss/typography` e ativá-lo no `src/styles.css` via `@plugin "@tailwindcss/typography"` (padrão Tailwind v4).
+- Refinar `EditorialContent`: escala tipográfica premium (h1 serif grande, h2/h3 com pesos e espaçamento coerentes ao design atual), listas, blockquote, tabelas com bordas, imagens com legenda, links com sublinhado dourado.
+- Adicionar CSS específico para `<table>`, `<figure>`/`<figcaption>` e `<img alt>` para ficar consistente entre editor e página publicada (WYSIWYG real).
 
-O que você está pedindo agora é **um módulo mais completo e diferente**, em `/ruas`, com:
-- vinculação automática de imóveis por normalização de endereço (não existe hoje)
-- tabelas `streets`, `street_aliases`, `property_streets`, `seo_redirects` (novas)
-- painel admin completo (CRUD + revisão de correspondências + relatórios)
-- busca interna estendida, analytics, sitemap próprio
+### 2. Reescrever o `HtmlEditor` para nível WordPress
+Base continua TipTap, mas com extensões novas e barra reorganizada:
+- **Headings** H1/H2/H3/H4 + Parágrafo (dropdown).
+- **Formatação**: negrito, itálico, sublinhado, riscado, código inline, sobrescrito/subscrito, limpar formatação.
+- **Blocos**: listas, checklist, citação, separador, bloco de código.
+- **Links internos**: modal com busca por título nas páginas publicadas (`editorial_pages`, `properties`, `condominios`, `bairros`) via novo server function `searchInternalLinks`; também aceita URL externa; edita/remove link existente.
+- **Imagem com alt**: modal com upload (usa `uploadEditorialImageFile` já existente) + campo obrigatório de **texto alternativo** + legenda opcional. Insere como `<figure><img alt=""><figcaption></figcaption></figure>`. Permite reeditar alt clicando na imagem.
+- **Tabelas**: extensões `@tiptap/extension-table`, `table-row`, `table-header`, `table-cell`. Menu contextual: inserir/remover linha, coluna, cabeçalho, mesclar/dividir células.
+- **Alinhamento** (esquerda/centro/direita) para parágrafos e imagens.
+- **Atalhos** padrão (Ctrl+B, Ctrl+I, Ctrl+K para link, Ctrl+Z/Y).
+- **Modo HTML** mantido para colar código bruto.
+- **Correção do bug de "voltar ao original"**: a sincronização externa passa a ocorrer apenas quando o `id` da página muda (troca de documento) — não em cada keystroke. Um `ref` guarda o `id` atual; enquanto for o mesmo, o editor é a fonte da verdade.
 
-**Como quer proceder?**
-- **Opção A (recomendada)**: aposentar `street_guides` / `/guia-de-ruas-alphaville`, criar redirect 301 para o novo `/ruas`, e concentrar tudo no módulo novo. Menos duplicação, um único lugar para SEO local por rua.
-- **Opção B**: manter os dois. `guia-de-ruas-alphaville` continua como conteúdo editorial curado; `/ruas` vira o índice automático baseado em imóveis. Mais complexidade, risco de conteúdo duplicado e canibalização de SEO.
-- **Opção C**: migrar dados de `street_guides` para `streets` e desligar o módulo antigo (mesma URL nova, mas preserva conteúdo já escrito).
+### 3. Auto-save (WordPress-style)
+- Debounce de 2s após parar de digitar → salva rascunho via `upsertEditorialPage` já existente.
+- Indicador de estado no topo: "Salvando…", "Salvo às 14:32", "Erro — tentar novamente".
+- Salva também ao trocar de aba/fechar (`beforeunload` + `visibilitychange`).
+- Bloqueia auto-save enquanto `status = "published"` a menos que o usuário confirme (para não publicar mudanças sem revisão) — em rascunho salva livremente.
+- Botão manual "Salvar" continua disponível.
 
-Assumindo **Opção A** como default no plano abaixo. Confirme ou troque.
+### 4. Prevenção contra perda de conteúdo
+- Snapshot local em `sessionStorage` a cada mudança (chave por `id`), restaurado se a página recarregar antes do auto-save concluir.
 
----
+## Escopo técnico
 
-## Fase 1 — Banco de dados e normalização
-- Migração criando `streets`, `street_aliases`, `property_streets`, `seo_redirects` (todas com GRANTs + RLS + policies conforme padrão do projeto).
-- Índices em `slug`, `normalized_name`, `neighborhood_id`, `city`, `postal_code`, `property_streets.property_id`, `property_streets.street_id`.
-- Função `public.normalize_street_text(text)` (unaccent + lower + expansão de abreviações Al./Av./R./Rod./Estr./Pça./Trav.).
-- Trigger em `properties` (INSERT/UPDATE de endereço) chamando `public.match_property_streets(property_id)` que preenche `property_streets` com `match_type` e `match_confidence`.
-- Extensão `unaccent` habilitada.
-- Se Opção A/C: migração de dados de `street_guides` para `streets`.
+**Pacotes novos** (via `bun add`):
+- `@tailwindcss/typography`
+- `@tiptap/extension-table`, `@tiptap/extension-table-row`, `@tiptap/extension-table-header`, `@tiptap/extension-table-cell`
+- `@tiptap/extension-text-align`
+- `@tiptap/extension-task-list`, `@tiptap/extension-task-item`
+- `@tiptap/extension-subscript`, `@tiptap/extension-superscript`
+- `@tiptap/extension-placeholder`
 
-## Fase 2 — Vinculação automática
-- Server function `rematchAllProperties` (admin) para backfill.
-- Cascata de matching: nome oficial → normalizado → alias → CEP → bairro+cidade → manual.
-- Registrar confiança 100/90/80/70/<70.
-- Fila "Imóveis sem rua identificada" (view/consulta admin).
+**Arquivos alterados/criados**
+- `src/styles.css` — registrar plugin typography + estilos custom para tabela/figure.
+- `src/components/editorial-content.tsx` — nova escala tipográfica.
+- `src/components/html-editor.tsx` — reescrito.
+- `src/components/editor/` (novo) — `link-dialog.tsx`, `image-dialog.tsx`, `table-menu.tsx`, `toolbar.tsx`, `use-autosave.ts`.
+- `src/lib/editorial.functions.ts` — adicionar `searchInternalLinks` (busca em `editorial_pages` published + `properties` ativas + rotas fixas do site).
+- `src/routes/_authenticated/cms.$id.tsx` — integrar auto-save + indicador de estado + snapshot em sessionStorage.
 
-## Fase 3 — Painel administrativo
-- Menu **SEO Local > Ruas** em `admin.tsx`.
-- Rotas `_authenticated/admin-ruas.tsx` (lista + filtros + indicadores) e `_authenticated/admin-ruas.$id.tsx` (editor por abas: Conteúdo, SEO, Localização, Apelidos, Relacionamentos, FAQ, Imóveis vinculados, Revisão).
-- Ações: publicar/rascunho/arquivar/duplicar/destacar; validação `is_publishable`.
-- Painel "Correspondências aguardando revisão" com botões Confirmar / Criar nova rua / Ignorar.
+**Sem mudanças** em backend/RLS/tabelas — tudo já existe.
 
-## Fase 4 — Página principal `/ruas`
-- Hero + busca com autocomplete (nome, alias, bairro, CEP, condomínio).
-- Ruas em destaque (cards `PremiumCard`), navegação alfabética A–Z, filtros (cidade, bairro, tipo, perfil, com imóveis).
-- Blocos: Comerciais, Residenciais, Próximas a condomínios, Próximas a centros empresariais, Com salas/apartamentos/casas, Locação/Venda.
-- Padrão visual premium (navy-deep + gold, mesmo padrão do restante do site).
+## Fora de escopo (posso fazer depois se quiser)
+- Histórico de revisões (versionamento).
+- Colaboração multi-usuário em tempo real.
+- Blocos reutilizáveis / Gutenberg-style block library.
 
-## Fase 5 — Página individual `/ruas/$slug`
-- Breadcrumb Cidade > Bairro > Rua.
-- Hero com imagem própria (ou fallback institucional inteligente por região).
-- Resumo da localização, seções editoriais condicionais (só renderiza se houver conteúdo).
-- Bloco **Imóveis disponíveis** com filtros (venda/locação, tipo, preço, área, dorms, vagas) + paginação/lazy.
-- Fallback quando não há imóveis: formulário de interesse + imóveis em ruas próximas + mesmo bairro.
-- Condomínios relacionados, pontos próximos (só se cadastrados manualmente — não inventar), mapa, ruas próximas, bairros, blog relacionado, FAQ dinâmica, formulário de atendimento.
-
-## Fase 6 — SEO técnico
-- `head()` por rota: title, meta, canonical self-referente, OG/Twitter.
-- JSON-LD: BreadcrumbList, Place, RealEstateAgent, ItemList (imóveis), FAQPage, ImageObject, LocalBusiness quando aplicável.
-- Sitemap dedicado `/sitemap-ruas.xml` + inclusão no `sitemap.xml` principal.
-- Redirects 301 via tabela `seo_redirects` (middleware no server).
-
-## Fase 7 — Links internos
-- Página de imóvel: exibir Rua/Bairro/Cidade/Condomínio como links.
-- Página de bairro: seção "Principais ruas".
-- Página de condomínio: rua + ruas próximas.
-- Blog: campo para relacionar ruas.
-
-## Fase 8 — Relatórios e analytics
-- Relatórios admin: Ruas (imóveis, condomínios, views, leads, status SEO); Imóveis sem correspondência; Páginas fracas; Conversão.
-- Eventos analytics: view, clique em imóvel/condomínio, filtro, busca, mapa, WhatsApp, telefone, form, navegação para rua próxima.
-
-## Fase 9 — Revisão visual e responsividade
-- Auditoria dos componentes novos em desktop/tablet/celular.
-- Lazy-load de imagens, WebP, paginação, cache de queries.
-- Acessibilidade (alt, contraste, teclado, labels, headings, breadcrumb acessível).
-
-## Fase 10 — Auditoria final
-- Rotas, slugs, redirects, links quebrados, canonical, schema, sitemap, performance, formulários, permissões admin.
-- Popular as 23 ruas prioritárias como **rascunho** (nunca publicar automaticamente sem conteúdo).
-
----
-
-## Detalhes técnicos-chave
-
-- **Stack**: TanStack Start + Supabase (Lovable Cloud). Server fns em `src/lib/streets.functions.ts`; helpers em `src/lib/streets.server.ts`.
-- **Client**: público via publishable client (RLS `TO anon` só nas colunas seguras). Admin via `requireSupabaseAuth` + `has_role('admin')`.
-- **Normalização em SQL** (não em JS) para ficar disponível ao trigger e à busca; função `IMMUTABLE` para permitir índice funcional.
-- **Sem invenção de dados**: pontos próximos, distâncias, história etc. só aparecem se preenchidos no admin.
-- **Design**: reaproveitar `PremiumCard`, `PremiumPropertyCard`, tokens `navy-deep`/`gold`, tipografia serif — mesmo padrão premium do resto do site.
-
-## Fora de escopo desta fase
-- Integração real com Google Maps API (usa mapa estático/embed simples; API keys ficam para depois).
-- IA para gerar conteúdo automático (gera sugestão como rascunho, mas nada é publicado sem revisão manual).
-- PostGIS / cálculo de distância real por lat/lng (schema prevê os campos; matching desta fase usa texto normalizado + CEP + bairro).
-
----
-
-## Confirme antes de eu começar
-
-1. **Opção A, B ou C** para o módulo `street_guides` existente?
-2. Posso prosseguir **Fase 1 primeiro** (migração + normalização + trigger), parar para você validar, e só então avançar? (recomendado — cada fase é grande)
-3. Quer que eu já **desligue `/guia-de-ruas-alphaville` do menu** enquanto o novo módulo não estiver pronto, ou mantenho no ar até a Fase 5 concluir?
+Confirmando: sigo com este plano?
