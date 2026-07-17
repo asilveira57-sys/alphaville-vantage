@@ -278,18 +278,16 @@ export const listCondominioOptions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const [condos, pages] = await Promise.all([
-      context.supabase.from("condominiums").select("id,name,region").order("name", { ascending: true }),
-      context.supabase.from("editorial_pages").select("id,title,related_neighborhood").eq("content_type", "condominio").order("title", { ascending: true }),
-    ]);
-    if (condos.error) throw new Error(condos.error.message);
-    if (pages.error) throw new Error(pages.error.message);
-    const fromTable = (condos.data ?? []) as { id: string; name: string; region: string | null }[];
-    const fromPages = (pages.data ?? []).map((p: any) => ({
-      id: p.id, name: p.title, region: p.related_neighborhood ?? null,
-    }));
-    return [...fromTable, ...fromPages];
+    // IMPORTANT: related_condominium tem FK para condominiums.id.
+    // NÃO misturar com editorial_pages.id — quebra a constraint ao salvar.
+    const { data, error } = await context.supabase
+      .from("condominiums")
+      .select("id,name,region")
+      .order("name", { ascending: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as { id: string; name: string; region: string | null }[];
   });
+
 
 // ---------- AI SEO generation ----------
 
