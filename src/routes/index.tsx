@@ -91,7 +91,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Autoridade digital sobre Alphaville e região. Mercado imobiliário, condomínios, história e estilo de vida.",
+          "Portal editorial sobre Alphaville, Tamboré, Barueri e Santana de Parnaíba: mercado imobiliário, condomínios, história, gastronomia e cultura de alto padrão.",
       },
       { property: "og:url", content: "/" },
       { property: "og:image", content: heroImg },

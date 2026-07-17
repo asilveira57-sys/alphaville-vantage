@@ -82,12 +82,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "O portal editorial da S.A Imóveis Alphaville: história, mercado imobiliário, condomínios, gastronomia e cultura em Alphaville, Tamboré, Barueri e Santana de Parnaíba.",
+          "Portal editorial sobre Alphaville, Tamboré, Barueri e Santana de Parnaíba: mercado imobiliário, condomínios, história, gastronomia e cultura de alto padrão.",
       },
       { name: "author", content: "S.A Imóveis Alphaville" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "S.A Imóveis Alphaville" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "S.A Imóveis Alphaville — Portal Editorial Regional" },
+      { name: "twitter:title", content: "S.A Imóveis Alphaville — Portal Editorial Regional" },
+      { property: "og:description", content: "Portal editorial sobre Alphaville, Tamboré, Barueri e Santana de Parnaíba: mercado imobiliário, condomínios, história, gastronomia e cultura de alto padrão." },
+      { name: "twitter:description", content: "Portal editorial sobre Alphaville, Tamboré, Barueri e Santana de Parnaíba: mercado imobiliário, condomínios, história, gastronomia e cultura de alto padrão." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c5596796-0507-42bb-8c85-362db8cf1b75/id-preview-810af689--423bfacb-1903-41d0-956b-db8a8497dedd.lovable.app-1784294776987.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c5596796-0507-42bb-8c85-362db8cf1b75/id-preview-810af689--423bfacb-1903-41d0-956b-db8a8497dedd.lovable.app-1784294776987.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
