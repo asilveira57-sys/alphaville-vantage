@@ -297,3 +297,18 @@
   outline: 3px solid var(--color-gold);
 }
 
+
+/* ============================================================
+ * Editorial photography: default grayscale, color on hover/focus.
+ * Applied via <img class="photo-bw" /> or on any group parent.
+ * ============================================================ */
+@utility photo-bw {
+  filter: grayscale(100%);
+  transition: filter 0.5s ease, transform 0.5s ease;
+  &:hover,
+  &:focus,
+  .group:hover &,
+  .group:focus-within & {
+    filter: grayscale(0%);
+  }
+}
