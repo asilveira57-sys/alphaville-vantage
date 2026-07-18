@@ -30,11 +30,11 @@ export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
 
   const badges = (
     <>
-      <span className="rounded-full bg-gold px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-navy-deep">
+      <span className="rounded-none bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
         {label}
       </span>
       {p.priceSale && p.priceSale >= 3_000_000 ? (
-        <span className="rounded-full bg-navy/80 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-gold ring-1 ring-gold/40">
+        <span className="rounded-none bg-black/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#F2DA00] ring-1 ring-[#F2DA00]/40">
           Alto padrão
         </span>
       ) : null}
@@ -48,11 +48,16 @@ export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
 
   const footer = (
     <div className="flex flex-col gap-2">
-      <p className="font-serif text-2xl leading-none text-gold">{price}</p>
+      <p className="font-sans text-2xl md:text-[26px] font-extrabold tracking-tight leading-none text-white">
+        {price}
+      </p>
       {specs.length > 0 && (
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-canvas/75">
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
           {specs.map((s) => (
-            <span key={s.label} className="inline-flex items-center gap-1.5">
+            <span
+              key={s.label}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/90 ring-1 ring-white/15 backdrop-blur"
+            >
               {s.icon} {s.label}
             </span>
           ))}

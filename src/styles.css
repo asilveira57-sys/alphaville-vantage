@@ -12,7 +12,8 @@
  */
 
 @theme inline {
-  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-serif: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-display: "Playfair Display", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -62,9 +63,9 @@
   --radius: 0.125rem;
 
   --brand-red: oklch(0.46 0.18 27);
-  --brand-yellow: oklch(0.86 0.18 92);
-  --brand-dark: oklch(0.16 0 0);
-  --brand-ink-soft: oklch(0.24 0.005 270);
+  --brand-yellow: #F2DA00;
+  --brand-dark: #0D0D0D;
+  --brand-ink-soft: #1A1A1A;
 
   --navy: oklch(0.24 0.045 255);
   --navy-deep: oklch(0.16 0.04 258);
@@ -73,11 +74,11 @@
   --gold-soft: oklch(0.86 0.09 85);
   --slate-blue: oklch(0.68 0.02 250);
 
-  --canvas: oklch(0.985 0 0);
-  --ink: oklch(0.18 0.005 270);
+  --canvas: #EAEAE6;
+  --ink: #1A1A1A;
 
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.18 0.005 270);
+  --background: #EAEAE6;
+  --foreground: #1A1A1A;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.18 0.005 270);
   --popover: oklch(1 0 0);
@@ -296,3 +297,18 @@
   outline: 3px solid var(--color-gold);
 }
 
+
+/* ============================================================
+ * Editorial photography: default grayscale, color on hover/focus.
+ * Applied via <img class="photo-bw" /> or on any group parent.
+ * ============================================================ */
+@utility photo-bw {
+  filter: grayscale(100%);
+  transition: filter 0.5s ease, transform 0.5s ease;
+  &:hover,
+  &:focus,
+  .group:hover &,
+  .group:focus-within & {
+    filter: grayscale(0%);
+  }
+}

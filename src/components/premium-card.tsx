@@ -67,11 +67,11 @@ export function PremiumCard(props: PremiumCardProps) {
         decoding="async"
         sizes={sizes}
         {...(priority ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        className="photo-bw absolute inset-0 h-full w-full object-cover group-hover:scale-[1.04]"
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,17,35,0.15)_0%,rgba(10,17,35,0.55)_45%,rgba(8,14,28,0.95)_100%)]"
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.35)_45%,rgba(0,0,0,0.92)_100%)]"
       />
 
       {/* Top row: eyebrow badge + icon */}
