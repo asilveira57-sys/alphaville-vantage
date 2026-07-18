@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Search, Send, Quote } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +23,13 @@ type FeaturedProperty = {
   price_sale: number | null;
   price_rent: number | null;
   image: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  region: string | null;
+  bedrooms: number | null;
+  parking: number | null;
+  area: number | null;
+  property_type: string | null;
 };
 
 type FeaturedPost = {
@@ -33,16 +41,17 @@ type FeaturedPost = {
   tags: string[] | null;
 };
 
+type RegionCounts = Record<string, number>;
+
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) && !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
-
-const fmtPriceBR = (n: number | null) =>
-  n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
 
 async function fetchFeatured(): Promise<FeaturedProperty[]> {
   const { data, error } = await supabase
     .from("properties")
-    .select("slug,title,internal_code,price_sale,price_rent,images,last_seen_at")
+    .select(
+      "slug,title,internal_code,price_sale,price_rent,images,last_seen_at,neighborhood,city,region,bedrooms,parking,area,property_type",
+    )
     .eq("status", "active")
     .order("last_seen_at", { ascending: false })
     .limit(24);
@@ -56,9 +65,16 @@ async function fetchFeatured(): Promise<FeaturedProperty[]> {
       price_sale: p.price_sale,
       price_rent: p.price_rent,
       image: imgs[0] ?? null,
+      neighborhood: p.neighborhood,
+      city: p.city,
+      region: p.region,
+      bedrooms: p.bedrooms,
+      parking: p.parking,
+      area: p.area,
+      property_type: p.property_type,
     } as FeaturedProperty;
   });
-  return rows.filter((p) => p.image).slice(0, 6);
+  return rows.filter((p) => p.image).slice(0, 8);
 }
 
 async function fetchLatestPosts(): Promise<FeaturedPost[]> {
@@ -73,9 +89,30 @@ async function fetchLatestPosts(): Promise<FeaturedPost[]> {
   return (data ?? []) as FeaturedPost[];
 }
 
+async function fetchRegionCounts(): Promise<RegionCounts> {
+  const regions = ["alphaville", "tambore", "barueri", "santana"] as const;
+  const entries = await Promise.all(
+    regions.map(async (key) => {
+      const pattern =
+        key === "santana" ? "%santana%" : key === "tambore" ? "%tambor%" : `%${key}%`;
+      const { count } = await supabase
+        .from("properties")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "active")
+        .or(`region.ilike.${pattern},city.ilike.${pattern},neighborhood.ilike.${pattern}`);
+      return [key, count ?? 0] as const;
+    }),
+  );
+  return Object.fromEntries(entries);
+}
+
 async function loadHome() {
-  const [properties, posts] = await Promise.all([fetchFeatured(), fetchLatestPosts()]);
-  return { properties, posts };
+  const [properties, posts, regionCounts] = await Promise.all([
+    fetchFeatured(),
+    fetchLatestPosts(),
+    fetchRegionCounts(),
+  ]);
+  return { properties, posts, regionCounts };
 }
 
 export const Route = createFileRoute("/")({
@@ -118,61 +155,193 @@ const REGIONS = [
   { slug: "santana", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
 ];
 
+const STATS = [
+  { number: "15+", label: "Anos de expertise regional" },
+  { number: "2.500+", label: "Famílias atendidas em Alphaville e região" },
+  { number: "98%", label: "Índice de satisfação em pós-venda" },
+];
+
+const TESTIMONIALS = [
+  {
+    quote:
+      "A curadoria da S.A nos entregou muito mais que uma casa — nos apresentou o estilo de vida certo para nossa família em Alphaville.",
+    author: "Renata e Paulo M.",
+    role: "Alphaville Residencial 10",
+  },
+  {
+    quote:
+      "Consultoria séria, conhecimento profundo do bairro e negociação transparente do início ao fim. Referência absoluta na região.",
+    author: "Dr. Fernando A.",
+    role: "Investidor · Tamboré",
+  },
+  {
+    quote:
+      "Encontramos um imóvel raro em Santana de Parnaíba graças ao trabalho editorial e ao networking do time. Recomendo sem hesitar.",
+    author: "Camila R.",
+    role: "Compradora · Centro Histórico",
+  },
+];
 
 function HomePage() {
-  const { properties, posts } = Route.useLoaderData() as { properties: FeaturedProperty[]; posts: FeaturedPost[] };
+  const { properties, posts, regionCounts } = Route.useLoaderData() as {
+    properties: FeaturedProperty[];
+    posts: FeaturedPost[];
+    regionCounts: RegionCounts;
+  };
+
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="py-12 md:py-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            <div className="lg:col-span-7 flex flex-col justify-end">
-              <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-6">
+      {/* =============== HERO + BARRA DE BUSCA =============== */}
+      <section className="relative bg-[#EAEAE6]">
+        <div className="max-w-7xl mx-auto px-6 pt-12 md:pt-20 pb-32 md:pb-40">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
+            <div className="lg:col-span-7">
+              <p className="text-[11px] uppercase tracking-[0.28em] text-[#1A1A1A]/60 mb-6">
                 Destaque Editorial
               </p>
-              <h1 className="font-serif text-5xl md:text-7xl font-medium leading-[1] tracking-tight text-balance max-w-[20ch]">
+              <h1 className="font-display text-5xl md:text-7xl font-medium leading-[1.02] tracking-tight text-[#0D0D0D] text-balance max-w-[18ch]">
                 A evolução silenciosa da arquitetura em Alphaville
               </h1>
-              <p className="mt-8 text-muted-foreground text-lg leading-relaxed max-w-[52ch] text-pretty">
+              <p className="mt-8 text-[#1A1A1A]/75 text-lg leading-relaxed max-w-[52ch] text-pretty">
                 Uma análise profunda sobre como o design contemporâneo está redefinindo o
                 horizonte dos residenciais de alto padrão na região metropolitana de São Paulo.
               </p>
               <div className="mt-10">
                 <Link
                   to="/blog"
-                  className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-medium border-b border-ink pb-1 hover:text-muted-foreground"
+                  className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] font-medium border-b border-[#0D0D0D] pb-1 hover:text-[#0D0D0D]/60"
                 >
                   Ler reportagem
                 </Link>
               </div>
             </div>
             <div className="lg:col-span-5">
-              <img
-                src={heroImg}
-                alt="Residência contemporânea em concreto aparente em Alphaville, fotografia preto e branco."
-                width={1080}
-                height={1440}
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-                sizes="(max-width: 1024px) 100vw, 42vw"
-                className="w-full aspect-[3/4] object-cover bg-muted"
-              />
+              <div className="group overflow-hidden">
+                <img
+                  src={heroImg}
+                  alt="Residência contemporânea em concreto aparente em Alphaville."
+                  width={1080}
+                  height={1440}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  sizes="(max-width: 1024px) 100vw, 42vw"
+                  className="photo-bw w-full aspect-[3/4] object-cover bg-[#1A1A1A]/10"
+                />
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Barra de busca sobreposta */}
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-10 w-[min(100%,1120px)] px-6">
+          <form
+            action="/imoveis"
+            method="get"
+            className="bg-white shadow-[0_20px_60px_-20px_rgba(13,13,13,0.35)] ring-1 ring-black/5 grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr_auto] gap-0 divide-y md:divide-y-0 md:divide-x divide-black/10"
+          >
+            <label className="flex flex-col justify-center px-5 py-3">
+              <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
+                Modalidade
+              </span>
+              <select
+                name="modalidade"
+                className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] outline-none"
+                defaultValue=""
+              >
+                <option value="">Venda ou Aluguel</option>
+                <option value="venda">Venda</option>
+                <option value="aluguel">Aluguel</option>
+              </select>
+            </label>
+            <label className="flex flex-col justify-center px-5 py-3">
+              <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
+                Cidade
+              </span>
+              <select
+                name="cidade"
+                className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] outline-none"
+                defaultValue=""
+              >
+                <option value="">Todas as cidades</option>
+                <option>Barueri</option>
+                <option>Santana de Parnaíba</option>
+                <option>Osasco</option>
+              </select>
+            </label>
+            <label className="flex flex-col justify-center px-5 py-3">
+              <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
+                Bairro, endereço ou código
+              </span>
+              <input
+                type="search"
+                name="q"
+                placeholder="Ex.: Alphaville 10, Rua das Palmeiras, SA1234"
+                className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] placeholder:text-[#1A1A1A]/40 outline-none"
+              />
+            </label>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-8 py-4 md:py-0 text-[12px] font-bold uppercase tracking-[0.2em] hover:brightness-95 transition"
+            >
+              <Search className="h-4 w-4" strokeWidth={2.4} />
+              Pesquisar imóveis
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* =============== REGIÕES =============== */}
+      <section className="pt-28 md:pt-32 pb-20 md:pb-24 bg-[#EAEAE6] px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/60 mb-3">
+                Regiões
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-medium text-[#0D0D0D]">
+                Onde a S.A atua
+              </h2>
+            </div>
+            <Link
+              to="/bairros"
+              className="text-[11px] uppercase tracking-[0.22em] text-[#0D0D0D] border-b border-[#0D0D0D] pb-1 hover:text-[#0D0D0D]/60"
+            >
+              Ver todos os bairros →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {REGIONS.map((r) => (
+              <PremiumRegionCard
+                key={r.to}
+                to={r.to}
+                slug={r.slug}
+                title={r.label}
+                description={r.description}
+                image={r.image}
+                count={regionCounts[r.slug] ?? null}
+              />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Articles */}
-      <section className="py-24 bg-navy-deep text-canvas px-6">
+      {/* =============== PERSPECTIVAS RECENTES (BLOG) =============== */}
+      <section className="py-24 bg-[#0D0D0D] text-white px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-12 border-b border-white/10 pb-4 gap-4 flex-wrap">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-3">Editorial</p>
-              <h2 className="font-serif text-3xl md:text-4xl font-medium">Perspectivas Recentes</h2>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#F2DA00] mb-3">
+                Editorial
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-medium">
+                Perspectivas Recentes
+              </h2>
             </div>
-            <Link to="/blog" className="text-[11px] uppercase tracking-[0.22em] text-gold hover:text-gold-soft">
+            <Link
+              to="/blog"
+              className="text-[11px] uppercase tracking-[0.22em] text-[#F2DA00] hover:brightness-125"
+            >
               Ver todas →
             </Link>
           </div>
@@ -198,26 +367,32 @@ function HomePage() {
                     image={a.image}
                     eyebrow={a.eyebrow}
                   />
-                ))
-            )}
+                )))}
           </div>
         </div>
       </section>
 
-      {/* Properties */}
-      <section className="py-24 bg-canvas px-6 overflow-hidden">
+      {/* =============== IMÓVEIS EM DESTAQUE =============== */}
+      <section className="py-24 bg-[#EAEAE6] px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-end justify-between mb-12 gap-4 flex-wrap">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-3">Curadoria S.A</p>
-              <h2 className="font-serif text-3xl md:text-4xl font-medium text-ink">Imóveis em destaque</h2>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/60 mb-3">
+                Curadoria S.A
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-medium text-[#0D0D0D]">
+                Imóveis em destaque
+              </h2>
             </div>
-            <Link to="/imoveis" className="text-[11px] uppercase tracking-[0.22em] text-ink/70 hover:text-ink">
+            <Link
+              to="/imoveis"
+              className="text-[11px] uppercase tracking-[0.22em] text-[#0D0D0D] border-b border-[#0D0D0D] pb-1 hover:text-[#0D0D0D]/60"
+            >
               Ver portfólio completo →
             </Link>
           </div>
           {properties.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Em breve novos imóveis em destaque.</p>
+            <p className="text-sm text-[#1A1A1A]/60">Em breve novos imóveis em destaque.</p>
           ) : (
             <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory">
               {properties.map((p) => (
@@ -229,6 +404,13 @@ function HomePage() {
                     priceSale={p.price_sale}
                     priceRent={p.price_rent}
                     internalCode={p.internal_code}
+                    neighborhood={p.neighborhood}
+                    city={p.city}
+                    region={p.region}
+                    bedrooms={p.bedrooms}
+                    parking={p.parking}
+                    area={p.area}
+                    propertyType={p.property_type}
                   />
                 </div>
               ))}
@@ -237,15 +419,35 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Regions */}
-      <section className="py-24 bg-navy-deep text-canvas px-6">
+      {/* =============== NÚMEROS =============== */}
+      <section className="py-24 bg-[#EAEAE6] px-6 border-y border-[#0D0D0D]/10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-14">
+            {STATS.map((s) => (
+              <div key={s.label} className="flex flex-col">
+                <span className="font-display text-6xl md:text-7xl font-medium leading-none text-[#0D0D0D]">
+                  {s.number}
+                </span>
+                <span className="mt-4 text-[11px] uppercase tracking-[0.28em] font-semibold text-[#1A1A1A]/70 max-w-[26ch]">
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =============== TERRITÓRIOS DE AUTORIDADE (GUIAS) =============== */}
+      <section className="py-24 bg-[#0D0D0D] text-white px-6">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-[52ch] mb-16">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-3">Guias Regionais</p>
-            <h2 className="font-serif text-4xl md:text-5xl font-medium mb-6 leading-tight">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#F2DA00] mb-3">
+              Guias Regionais
+            </p>
+            <h2 className="font-display text-4xl md:text-5xl font-medium mb-6 leading-tight">
               Territórios de autoridade
             </h2>
-            <p className="text-canvas/65 leading-relaxed">
+            <p className="text-white/70 leading-relaxed">
               Nossa expertise local traduzida em guias detalhados sobre cada cidade e seus
               ecossistemas de vida e investimento.
             </p>
@@ -265,6 +467,75 @@ function HomePage() {
         </div>
       </section>
 
+      {/* =============== DEPOIMENTOS =============== */}
+      <section className="py-24 bg-[#EAEAE6] px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-14 max-w-[52ch]">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/60 mb-3">
+              Clientes S.A
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-medium text-[#0D0D0D]">
+              Histórias de quem confiou a nós sua decisão mais importante
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {TESTIMONIALS.map((t) => (
+              <figure
+                key={t.author}
+                className="bg-white p-8 md:p-10 shadow-[0_10px_40px_-24px_rgba(13,13,13,0.35)] ring-1 ring-black/5 flex flex-col"
+              >
+                <Quote className="h-6 w-6 text-[#F2DA00]" strokeWidth={2.2} />
+                <blockquote className="mt-6 font-display text-xl md:text-[22px] leading-snug text-[#0D0D0D] italic">
+                  “{t.quote}”
+                </blockquote>
+                <figcaption className="mt-8 pt-6 border-t border-[#0D0D0D]/10">
+                  <p className="text-sm font-semibold text-[#0D0D0D]">{t.author}</p>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-[#1A1A1A]/60 mt-1">
+                    {t.role}
+                  </p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =============== NEWSLETTER =============== */}
+      <section className="py-24 bg-[#0D0D0D] text-white px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#F2DA00] mb-4">
+            Newsletter S.A
+          </p>
+          <h2 className="font-display text-4xl md:text-5xl font-medium leading-[1.05] text-balance">
+            Receba as melhores oportunidades e análises do mercado de Alphaville
+          </h2>
+          <p className="mt-6 text-white/70 max-w-[52ch] mx-auto leading-relaxed">
+            Cadastre-se para receber nossas curadorias editoriais, novos imóveis e relatórios de
+            mercado direto no seu e-mail. Sem spam, apenas o que importa.
+          </p>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="mt-10 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
+          >
+            <label className="flex-1">
+              <span className="sr-only">Seu melhor e-mail</span>
+              <input
+                type="email"
+                required
+                placeholder="seu.melhor@email.com"
+                className="w-full bg-white/5 border border-white/15 text-white placeholder:text-white/40 px-5 py-4 text-sm outline-none focus:border-[#F2DA00] transition"
+              />
+            </label>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-8 py-4 text-[12px] font-bold uppercase tracking-[0.22em] hover:brightness-95 transition"
+            >
+              <Send className="h-4 w-4" strokeWidth={2.4} />
+              Inscrever
+            </button>
+          </form>
+        </div>
+      </section>
 
       <InstitutionalBlock />
     </SiteLayout>
