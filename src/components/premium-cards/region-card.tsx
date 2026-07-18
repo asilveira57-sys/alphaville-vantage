@@ -24,9 +24,17 @@ export type PremiumRegionCardProps = {
   title: string;
   description?: string;
   image?: string | null;
+  count?: number | null;
 };
 
-export function PremiumRegionCard({ to, slug, title, description, image }: PremiumRegionCardProps) {
+export function PremiumRegionCard({ to, slug, title, description, image, count }: PremiumRegionCardProps) {
+  const footer =
+    typeof count === "number" && count > 0 ? (
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F2DA00]">
+        +{count} imóveis disponíveis
+      </p>
+    ) : null;
+
   return (
     <PremiumCard
       to={to as never}
@@ -39,6 +47,7 @@ export function PremiumRegionCard({ to, slug, title, description, image }: Premi
       cta="Explorar guia"
       aspectRatio="tall"
       fallback={{ type: "region", region: slug }}
+      footer={footer}
     />
   );
 }
