@@ -173,12 +173,50 @@ function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
     });
   }
   if (s.q) {
-    const q = s.q.toLowerCase();
-    out = out.filter((p) =>
-      [p.title, p.condominium_name, p.neighborhood, p.seo_title, p.city]
-        .filter(Boolean)
-        .some((f) => (f as string).toLowerCase().includes(q)),
-    );
+    const normalize = (str: string) =>
+      str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    // Sinônimos de logradouro — colapsam para um marcador ignorado
+    const STREET_SYNONYMS: Record<string, string> = {
+      r: "__log__", rua: "__log__",
+      av: "__log__", avenida: "__log__", ave: "__log__",
+      al: "__log__", alameda: "__log__",
+      tv: "__log__", travessa: "__log__",
+      pc: "__log__", pca: "__log__", praca: "__log__",
+      rod: "__log__", rodovia: "__log__",
+      estr: "__log__", estrada: "__log__",
+      lgo: "__log__", largo: "__log__",
+      via: "__log__",
+    };
+    const STOP = new Set(["de", "da", "do", "das", "dos", "e"]);
+
+    const tokenize = (str: string) =>
+      normalize(str)
+        .split(" ")
+        .map((t) => STREET_SYNONYMS[t] ?? t)
+        .filter((t) => t && !STOP.has(t) && t !== "__log__");
+
+    const queryTokens = tokenize(s.q);
+
+    if (queryTokens.length > 0) {
+      out = out.filter((p) => {
+        const haystack = tokenize(
+          [p.title, p.condominium_name, p.neighborhood, p.seo_title, p.city, p.region]
+            .filter(Boolean)
+            .join(" "),
+        );
+        // Cada token da query precisa casar (substring bidirecional) com algum token do haystack
+        return queryTokens.every((qt) =>
+          haystack.some((ht) => ht.includes(qt) || qt.includes(ht)),
+        );
+      });
+    }
   }
   const sorted = [...out];
   if (s.sort === "price_asc") {
