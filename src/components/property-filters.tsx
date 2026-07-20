@@ -22,6 +22,7 @@ export type FilterState = {
   areaMin: number;
   sort: string;
   q: string;
+  page: number;
 };
 
 const TYPE_LABEL: Record<string, string> = {
