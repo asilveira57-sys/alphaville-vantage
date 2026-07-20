@@ -22,6 +22,7 @@ export type FilterState = {
   areaMin: number;
   sort: string;
   q: string;
+  page: number;
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -67,7 +68,7 @@ export function PropertyFilters({
   const navigate = useNavigate({ from: "/imoveis" });
 
   const update = (patch: Partial<FilterState>) => {
-    navigate({ search: (prev: FilterState) => ({ ...prev, ...patch }) });
+    navigate({ search: (prev: FilterState) => ({ ...prev, ...patch, page: 1 }) });
   };
 
   const clear = () =>
@@ -85,6 +86,7 @@ export function PropertyFilters({
         areaMin: 0,
         sort: "recent",
         q: "",
+        page: 1,
       },
     });
 
