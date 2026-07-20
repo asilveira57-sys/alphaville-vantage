@@ -85,7 +85,10 @@ const searchSchema = z.object({
   areaMin: fallback(z.number(), 0).default(0),
   sort: fallback(z.enum(["recent", "price_asc", "price_desc", "area_desc"]), "recent").default("recent"),
   q: fallback(z.string(), "").default(""),
+  page: fallback(z.number().int(), 1).default(1),
 });
+
+const PAGE_SIZE = 15;
 
 export const Route = createFileRoute("/imoveis/")({
   validateSearch: zodValidator(searchSchema),
