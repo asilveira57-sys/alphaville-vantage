@@ -241,9 +241,25 @@ function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
 function ImoveisPage() {
   const { items, options } = Route.useLoaderData();
   const search = Route.useSearch();
+  const navigate = Route.useNavigate();
 
   const filtered = useMemo(() => applyFilters(items, search), [items, search]);
   const total = items.length;
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(Math.max(1, search.page || 1), totalPages);
+  const startIdx = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(startIdx, startIdx + PAGE_SIZE);
+
+  const goToPage = (p: number) => {
+    navigate({
+      search: (prev) => ({ ...prev, page: p }),
+      resetScroll: false,
+    });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
     <SiteLayout>
@@ -269,14 +285,19 @@ function ImoveisPage() {
             <div className="text-center py-16 border border-dashed border-ink/15">
               <p className="font-serif text-2xl text-ink mb-2">Nenhum imóvel encontrado</p>
               <p className="text-sm text-muted-foreground mb-6">Tente remover algum filtro para ver mais opções.</p>
-              <Link to="/imoveis" search={{ purpose: "", type: "", city: "", neighborhood: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "" }} className="inline-block bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest">
+              <Link to="/imoveis" search={{ purpose: "", type: "", city: "", neighborhood: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "", page: 1 }} className="inline-block bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest">
                 Limpar filtros
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {filtered.map((p) => <PropertyCard key={p.id} p={p} />)}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {pageItems.map((p) => <PropertyCard key={p.id} p={p} />)}
+              </div>
+              {totalPages > 1 && (
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
+              )}
+            </>
           )}
         </div>
       </section>
@@ -285,3 +306,61 @@ function ImoveisPage() {
     </SiteLayout>
   );
 }
+
+function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (p: number) => void }) {
+  const pages: (number | "…")[] = [];
+  const push = (v: number | "…") => pages.push(v);
+  const window_ = 1;
+  for (let i = 1; i <= totalPages; i++) {
+    if (
+      i === 1 ||
+      i === totalPages ||
+      (i >= currentPage - window_ && i <= currentPage + window_)
+    ) {
+      push(i);
+    } else if (pages[pages.length - 1] !== "…") {
+      push("…");
+    }
+  }
+
+  return (
+    <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Paginação">
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-2 text-xs font-bold uppercase tracking-widest border border-ink/15 text-ink disabled:opacity-30 disabled:cursor-not-allowed hover:bg-ink hover:text-background transition-colors"
+      >
+        Anterior
+      </button>
+      {pages.map((p, i) =>
+        p === "…" ? (
+          <span key={`ellipsis-${i}`} className="px-2 text-sm text-muted-foreground">…</span>
+        ) : (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onPageChange(p)}
+            aria-current={p === currentPage ? "page" : undefined}
+            className={
+              p === currentPage
+                ? "min-w-[40px] px-3 py-2 text-xs font-bold bg-brand-yellow text-brand-dark"
+                : "min-w-[40px] px-3 py-2 text-xs font-medium border border-ink/15 text-ink hover:bg-ink hover:text-background transition-colors"
+            }
+          >
+            {p}
+          </button>
+        ),
+      )}
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-2 text-xs font-bold uppercase tracking-widest border border-ink/15 text-ink disabled:opacity-30 disabled:cursor-not-allowed hover:bg-ink hover:text-background transition-colors"
+      >
+        Próxima
+      </button>
+    </nav>
+  );
+}
+
