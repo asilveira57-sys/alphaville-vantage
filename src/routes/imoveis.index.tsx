@@ -253,7 +253,7 @@ function ImoveisPage() {
 
   const goToPage = (p: number) => {
     navigate({
-      search: (prev) => ({ ...prev, page: p }),
+      search: (prev: Record<string, unknown>) => ({ ...prev, page: p }),
       resetScroll: false,
     });
     if (typeof window !== "undefined") {
