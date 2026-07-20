@@ -109,8 +109,8 @@ function GuiaPage() {
       )}
 
       <section className="px-6 py-16 border-t border-ink/8">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-12">
-          {presentSections.length > 0 && (
+        {presentSections.length > 0 ? (
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-12">
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-4">Nesta página</p>
               <ul className="space-y-2 text-sm">
@@ -121,11 +121,15 @@ function GuiaPage() {
                 ))}
               </ul>
             </aside>
-          )}
-          <div className="min-w-0">
+            <div className="min-w-0">
+              <EditorialContent html={html} />
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-3xl mx-auto">
             <EditorialContent html={html} />
           </div>
-        </div>
+        )}
       </section>
 
       {related.length > 0 && (
