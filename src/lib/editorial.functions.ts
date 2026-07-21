@@ -20,6 +20,19 @@ const slugify = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 
+function isMeaningfullyEmptyHtml(html: string | null | undefined) {
+  const raw = html ?? "";
+  if (/<(img|iframe|video|audio|table)\b/i.test(raw)) return false;
+  const text = raw
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length === 0;
+}
+
 // ---------- PUBLIC ----------
 
 export const listPublishedByType = createServerFn({ method: "GET" })
@@ -152,10 +165,26 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const slug = (data.slug || slugify(data.title)).trim();
+    const sanitizedContent = sanitizeHtml(data.html_content);
+    let htmlContent = sanitizedContent;
+
+    // Safety net: never let a transient empty editor state erase an existing article.
+    if (data.id && isMeaningfullyEmptyHtml(sanitizedContent)) {
+      const { data: existing, error: existingError } = await context.supabase
+        .from("editorial_pages")
+        .select("html_content")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (existingError) throw new Error(existingError.message);
+      if (existing?.html_content && !isMeaningfullyEmptyHtml(existing.html_content)) {
+        htmlContent = existing.html_content;
+      }
+    }
+
     const payload: Record<string, unknown> = {
       ...data,
       slug,
-      html_content: sanitizeHtml(data.html_content),
+      html_content: htmlContent,
       featured_image: data.featured_image || null,
       author_id: context.userId,
       published_at: data.status === "published" ? new Date().toISOString() : null,

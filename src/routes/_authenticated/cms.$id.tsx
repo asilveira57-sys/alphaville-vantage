@@ -62,6 +62,47 @@ const slugify = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 
+function isMeaningfullyEmptyHtml(html: string | null | undefined) {
+  const raw = html ?? "";
+  if (/<(img|iframe|video|audio|table)\b/i.test(raw)) return false;
+  const text = raw
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length === 0;
+}
+
+function toFormState(p: any): FormState {
+  return {
+    id: p.id,
+    title: p.title ?? "",
+    slug: p.slug ?? "",
+    content_type: p.content_type,
+    excerpt: p.excerpt ?? "",
+    html_content: p.html_content ?? "",
+    featured_image: p.featured_image ?? "",
+    gallery_images: p.gallery_images ?? [],
+    status: p.status,
+    is_featured: !!p.is_featured,
+    display_order: p.display_order ?? 0,
+    tags: p.tags ?? [],
+    related_neighborhood: p.related_neighborhood ?? "",
+    related_condominium: p.related_condominium ?? "",
+    meta_title: p.meta_title ?? "",
+    meta_description: p.meta_description ?? "",
+    focus_keyword: p.focus_keyword ?? "",
+    secondary_keywords: p.secondary_keywords ?? [],
+    canonical_url: p.canonical_url ?? "",
+    og_title: p.og_title ?? "",
+    og_description: p.og_description ?? "",
+    og_image: p.og_image ?? "",
+    schema_type: p.schema_type ?? "Article",
+  };
+}
+
 function CmsEditorPage() {
   const { id } = Route.useParams();
   const isNew = id === "novo";
@@ -95,38 +136,49 @@ function CmsEditorPage() {
   const [tab, setTab] = useState<"conteudo" | "seo">("conteudo");
   const [preview, setPreview] = useState(false);
   const [slugTouched, setSlugTouched] = useState(!isNew);
+  const [loadedKey, setLoadedKey] = useState(isNew ? "novo" : "");
+  const dbContentRef = useRef("");
 
   useEffect(() => {
-    if (pageQ.data) {
-      const p: any = pageQ.data;
-      setForm({
-        id: p.id,
-        title: p.title ?? "",
-        slug: p.slug ?? "",
-        content_type: p.content_type,
-        excerpt: p.excerpt ?? "",
-        html_content: p.html_content ?? "",
-        featured_image: p.featured_image ?? "",
-        gallery_images: p.gallery_images ?? [],
-        status: p.status,
-        is_featured: !!p.is_featured,
-        display_order: p.display_order ?? 0,
-        tags: p.tags ?? [],
-        related_neighborhood: p.related_neighborhood ?? "",
-        related_condominium: p.related_condominium ?? "",
-        meta_title: p.meta_title ?? "",
-        meta_description: p.meta_description ?? "",
-        focus_keyword: p.focus_keyword ?? "",
-        secondary_keywords: p.secondary_keywords ?? [],
-        canonical_url: p.canonical_url ?? "",
-        og_title: p.og_title ?? "",
-        og_description: p.og_description ?? "",
-        og_image: p.og_image ?? "",
-        schema_type: p.schema_type ?? "Article",
-      });
-      setSlugTouched(true);
+    if (isNew) {
+      if (loadedKey !== "novo") {
+        setForm(EMPTY);
+        dbContentRef.current = "";
+        setSlugTouched(false);
+        setLoadedKey("novo");
+      }
+      return;
     }
-  }, [pageQ.data]);
+    if (!pageQ.data || loadedKey === id || (pageQ.data as any).id !== id) return;
+
+    const dbForm = toFormState(pageQ.data);
+    let nextForm = dbForm;
+
+    try {
+      const raw = sessionStorage.getItem(snapKey);
+      if (raw) {
+        const snap = JSON.parse(raw) as FormState;
+        const safeSnapshot =
+          snap.id === dbForm.id &&
+          (!isMeaningfullyEmptyHtml(snap.html_content) || isMeaningfullyEmptyHtml(dbForm.html_content));
+
+        if (safeSnapshot && snap.html_content !== dbForm.html_content) {
+          if (window.confirm("Encontramos alterações não salvas desta página. Deseja restaurá-las?")) {
+            nextForm = snap;
+          } else {
+            sessionStorage.removeItem(snapKey);
+          }
+        } else if (!safeSnapshot) {
+          sessionStorage.removeItem(snapKey);
+        }
+      }
+    } catch { /* ignore */ }
+
+    setForm(nextForm);
+    dbContentRef.current = dbForm.html_content;
+    setSlugTouched(true);
+    setLoadedKey(id);
+  }, [pageQ.data, isNew, id, snapKey, loadedKey]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -151,6 +203,9 @@ function CmsEditorPage() {
 
   const saveMut = useMutation({
     mutationFn: async () => {
+      const htmlContent = isMeaningfullyEmptyHtml(form.html_content) && !isMeaningfullyEmptyHtml(dbContentRef.current)
+        ? dbContentRef.current
+        : form.html_content;
       return upsertFn({
         data: {
           id: form.id,
@@ -158,7 +213,7 @@ function CmsEditorPage() {
           slug: form.slug || slugify(form.title),
           content_type: form.content_type,
           excerpt: form.excerpt || null,
-          html_content: form.html_content,
+          html_content: htmlContent,
           featured_image: form.featured_image || null,
           gallery_images: form.gallery_images,
           status: form.status,
@@ -180,6 +235,7 @@ function CmsEditorPage() {
       });
     },
     onSuccess: (row: any) => {
+      dbContentRef.current = row?.html_content ?? form.html_content;
       if (isNew && row?.id) {
         navigate({ to: "/cms/$id", params: { id: row.id } });
       } else {
@@ -190,35 +246,17 @@ function CmsEditorPage() {
 
   // -------- Session storage snapshot (recovery from accidental reload) --------
   const snapKey = `cms:snapshot:${id}`;
-  const restoredRef = useRef(false);
-  useEffect(() => {
-    if (restoredRef.current) return;
-    if (isNew || !pageQ.data) return;
-    try {
-      const raw = sessionStorage.getItem(snapKey);
-      if (!raw) { restoredRef.current = true; return; }
-      const snap = JSON.parse(raw) as FormState;
-      // Only restore if snapshot content differs from what we just loaded from DB
-      if (snap.html_content && snap.html_content !== form.html_content) {
-        if (window.confirm("Encontramos alterações não salvas desta página. Deseja restaurá-las?")) {
-          setForm(snap);
-        } else {
-          sessionStorage.removeItem(snapKey);
-        }
-      }
-    } catch { /* ignore */ }
-    restoredRef.current = true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageQ.data, isNew]);
 
   useEffect(() => {
-    if (isNew || !form.id) return;
+    if (isNew || !form.id || loadedKey !== id) return;
+    if (isMeaningfullyEmptyHtml(form.html_content) && !isMeaningfullyEmptyHtml(dbContentRef.current)) return;
     try { sessionStorage.setItem(snapKey, JSON.stringify(form)); } catch { /* quota */ }
-  }, [form, isNew, snapKey]);
+  }, [form, isNew, snapKey, loadedKey, id]);
 
   // -------- Auto-save (debounced) --------
   const autoSave = useCallback(async (f: FormState) => {
     if (!f.id || !f.title) return;
+    if (isMeaningfullyEmptyHtml(f.html_content) && !isMeaningfullyEmptyHtml(dbContentRef.current)) return;
     await upsertFn({
       data: {
         id: f.id,
@@ -246,15 +284,17 @@ function CmsEditorPage() {
         schema_type: f.schema_type,
       } as any,
     });
+    dbContentRef.current = f.html_content;
     try { sessionStorage.removeItem(snapKey); } catch { /* ignore */ }
   }, [upsertFn, snapKey]);
 
-  const autosaveEnabled = !isNew && !!form.id && form.status !== "published";
+  const autosaveEnabled = !isNew && loadedKey === id && !!form.id && form.status !== "published";
   const { state: saveState } = useAutosave({
     data: form,
     save: autoSave,
     enabled: autosaveEnabled,
     debounceMs: 2000,
+    resetKey: loadedKey,
   });
 
 
@@ -286,7 +326,7 @@ function CmsEditorPage() {
 
   if (adminQ.isLoading) return <SiteLayout><div className="px-6 py-24 text-sm">Carregando…</div></SiteLayout>;
   if (!adminQ.data?.isAdmin) return <SiteLayout><div className="px-6 py-24 text-sm">Acesso restrito.</div></SiteLayout>;
-  if (!isNew && pageQ.isLoading) return <SiteLayout><div className="px-6 py-24 text-sm">Carregando página…</div></SiteLayout>;
+  if (!isNew && (pageQ.isLoading || loadedKey !== id)) return <SiteLayout><div className="px-6 py-24 text-sm">Carregando página…</div></SiteLayout>;
 
   return (
     <SiteLayout>

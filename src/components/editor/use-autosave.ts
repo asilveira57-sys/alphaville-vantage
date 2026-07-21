@@ -12,6 +12,7 @@ type Options<T> = {
   save: (data: T) => Promise<void>;
   enabled: boolean;
   debounceMs?: number;
+  resetKey?: string | number | boolean | null;
 };
 
 /**
@@ -19,14 +20,25 @@ type Options<T> = {
  * Triggers whenever `data` changes (referentially) after `debounceMs`.
  * Also flushes on visibility change and beforeunload.
  */
-export function useAutosave<T>({ data, save, enabled, debounceMs = 2000 }: Options<T>) {
+export function useAutosave<T>({ data, save, enabled, debounceMs = 2000, resetKey = null }: Options<T>) {
   const [state, setState] = useState<SaveState>({ kind: "idle" });
   const dataRef = useRef(data);
   const savedRef = useRef(data);
+  const resetKeyRef = useRef(resetKey);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savingRef = useRef(false);
 
   useEffect(() => { dataRef.current = data; }, [data]);
+
+  useEffect(() => {
+    if (resetKeyRef.current === resetKey) return;
+    resetKeyRef.current = resetKey;
+    dataRef.current = data;
+    savedRef.current = data;
+    savingRef.current = false;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setState({ kind: "idle" });
+  }, [data, resetKey]);
 
   const flush = useCallback(async () => {
     if (!enabled) return;

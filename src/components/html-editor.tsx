@@ -33,6 +33,7 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props)
   const [imgOpen, setImgOpen] = useState(false);
   const [imgInitial, setImgInitial] = useState<Partial<ImagePayload> | undefined>();
   const lastKey = useRef(documentKey);
+  const lastExternalValue = useRef(value);
 
   const editor = useEditor({
     extensions: [
@@ -58,14 +59,23 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props)
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
 
-  // Reset content ONLY when the document key changes (switching pages),
-  // never on parent re-renders during typing.
+  // Reset content when switching pages. Also hydrate once if the editor mounted
+  // before the DB value arrived, but never reset while the user is typing.
   useEffect(() => {
     if (!editor) return;
-    if (lastKey.current !== documentKey) {
+    const next = value || "<p></p>";
+    const current = editor.getHTML();
+    const keyChanged = lastKey.current !== documentKey;
+    const loadedContentArrived =
+      lastExternalValue.current !== value &&
+      isEditorEmptyHtml(current) &&
+      !isEditorEmptyHtml(next);
+
+    if (keyChanged || loadedContentArrived) {
       lastKey.current = documentKey;
-      editor.commands.setContent(value || "<p></p>", { emitUpdate: false });
+      editor.commands.setContent(next, { emitUpdate: false });
     }
+    lastExternalValue.current = value;
   }, [documentKey, value, editor]);
 
   function toggleMode() {
@@ -295,4 +305,16 @@ function escapeAttr(s: string) {
 }
 function escapeText(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function isEditorEmptyHtml(html: string) {
+  if (/<(img|iframe|video|audio|table)\b/i.test(html)) return false;
+  const text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length === 0;
 }
