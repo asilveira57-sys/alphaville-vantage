@@ -138,6 +138,7 @@ function CmsEditorPage() {
   const [slugTouched, setSlugTouched] = useState(!isNew);
   const [loadedKey, setLoadedKey] = useState(isNew ? "novo" : "");
   const dbContentRef = useRef("");
+  const snapKey = `cms:snapshot:${id}`;
 
   useEffect(() => {
     if (isNew) {
@@ -245,8 +246,6 @@ function CmsEditorPage() {
   });
 
   // -------- Session storage snapshot (recovery from accidental reload) --------
-  const snapKey = `cms:snapshot:${id}`;
-
   useEffect(() => {
     if (isNew || !form.id || loadedKey !== id) return;
     if (isMeaningfullyEmptyHtml(form.html_content) && !isMeaningfullyEmptyHtml(dbContentRef.current)) return;
