@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search, Send, Quote } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PremiumPostCard } from "@/components/premium-cards/post-card";
 import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
+import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
