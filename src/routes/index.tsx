@@ -189,6 +189,24 @@ function HomePage() {
     posts: FeaturedPost[];
     regionCounts: RegionCounts;
   };
+  const navigate = useNavigate();
+
+  const handleHeroSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const purposeRaw = String(fd.get("modalidade") ?? "");
+    const cityRaw = String(fd.get("cidade") ?? "");
+    const q = String(fd.get("q") ?? "").trim();
+    const parsed = interpretQuery(q);
+    const purposeMap: Record<string, string> = { venda: "sale", aluguel: "rent" };
+    const search = toImoveisSearchParams(parsed, {
+      purpose: purposeMap[purposeRaw] ?? undefined,
+      city: cityRaw || undefined,
+    });
+    navigate({ to: "/imoveis", search });
+  };
+
 
   return (
     <SiteLayout>
