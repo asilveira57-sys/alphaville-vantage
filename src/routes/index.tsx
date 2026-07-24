@@ -296,7 +296,7 @@ function HomePage() {
               <input
                 type="search"
                 name="q"
-                placeholder="Ex.: Alphaville 10, Rua das Palmeiras, SA1234"
+                placeholder="Ex.: casa com 4 quartos em Santana de Parnaíba"
                 className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] placeholder:text-[#1A1A1A]/40 outline-none"
               />
             </label>
