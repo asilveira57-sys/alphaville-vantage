@@ -257,6 +257,7 @@ function HomePage() {
           <form
             action="/imoveis"
             method="get"
+            onSubmit={handleHeroSearch}
             className="bg-white shadow-[0_20px_60px_-20px_rgba(13,13,13,0.35)] ring-1 ring-black/5 grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr_auto] gap-0 divide-y md:divide-y-0 md:divide-x divide-black/10"
           >
             <label className="flex flex-col justify-center px-5 py-3">
