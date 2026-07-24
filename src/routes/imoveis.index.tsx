@@ -7,6 +7,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
 import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { interpretQuery } from "@/lib/property-search";
 
 type PropertyRow = {
   id: string;
