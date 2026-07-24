@@ -7,6 +7,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
 import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { interpretQuery } from "@/lib/property-search";
 
 type PropertyRow = {
   id: string;
@@ -243,7 +244,24 @@ function ImoveisPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const filtered = useMemo(() => applyFilters(items, search), [items, search]);
+  // Aplica o motor central de interpretação sobre a frase digitada em q,
+  // preenchendo apenas os filtros que o usuário ainda não escolheu manualmente.
+  const effectiveSearch = useMemo<FilterState>(() => {
+    if (!search.q) return search;
+    const parsed = interpretQuery(search.q);
+    return {
+      ...search,
+      purpose: search.purpose || parsed.purpose || "",
+      type: search.type || parsed.type || "",
+      city: search.city || parsed.city || "",
+      neighborhood: search.neighborhood || parsed.neighborhood || "",
+      bedrooms: search.bedrooms || parsed.bedrooms || 0,
+      parking: search.parking || parsed.parking || 0,
+      priceMax: search.priceMax || parsed.priceMax || 0,
+    };
+  }, [search]);
+
+  const filtered = useMemo(() => applyFilters(items, effectiveSearch), [items, effectiveSearch]);
   const total = items.length;
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));

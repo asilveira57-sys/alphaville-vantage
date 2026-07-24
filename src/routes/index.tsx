@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search, Send, Quote } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PremiumPostCard } from "@/components/premium-cards/post-card";
 import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
+import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
@@ -188,6 +189,24 @@ function HomePage() {
     posts: FeaturedPost[];
     regionCounts: RegionCounts;
   };
+  const navigate = useNavigate();
+
+  const handleHeroSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const purposeRaw = String(fd.get("modalidade") ?? "");
+    const cityRaw = String(fd.get("cidade") ?? "");
+    const q = String(fd.get("q") ?? "").trim();
+    const parsed = interpretQuery(q);
+    const purposeMap: Record<string, string> = { venda: "sale", aluguel: "rent" };
+    const search = toImoveisSearchParams(parsed, {
+      purpose: purposeMap[purposeRaw] ?? undefined,
+      city: cityRaw || undefined,
+    });
+    navigate({ to: "/imoveis", search });
+  };
+
 
   return (
     <SiteLayout>
@@ -238,6 +257,7 @@ function HomePage() {
           <form
             action="/imoveis"
             method="get"
+            onSubmit={handleHeroSearch}
             className="bg-white shadow-[0_20px_60px_-20px_rgba(13,13,13,0.35)] ring-1 ring-black/5 grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr_auto] gap-0 divide-y md:divide-y-0 md:divide-x divide-black/10"
           >
             <label className="flex flex-col justify-center px-5 py-3">
@@ -276,7 +296,7 @@ function HomePage() {
               <input
                 type="search"
                 name="q"
-                placeholder="Ex.: Alphaville 10, Rua das Palmeiras, SA1234"
+                placeholder="Ex.: casa com 4 quartos em Santana de Parnaíba"
                 className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] placeholder:text-[#1A1A1A]/40 outline-none"
               />
             </label>
