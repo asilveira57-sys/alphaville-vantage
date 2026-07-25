@@ -58,13 +58,26 @@ function AdminPage() {
       if (res?.post?.id) router.navigate({ to: "/cms/$id", params: { id: res.post.id } });
     },
   });
+  const [scrapeProgress, setScrapeProgress] = useState<{ batches: number; upserted: number; pages: number; remaining: number } | null>(null);
   const scrapeMut = useMutation({
     mutationFn: async () => {
-      const scrape = await scrapeFn({ data: { dryRun: false } });
-      // Reaplica a versão mais recente do motor SEO em TODOS os imóveis
-      // (inclusive os já cadastrados antes da última atualização das regras).
+      const sinceIso = new Date().toISOString();
+      const totals = { pages: 0, upserted: 0, discovered: 0, errors: 0, batches: 0 };
+      const MAX_BATCHES = 200;
+      setScrapeProgress({ batches: 0, upserted: 0, pages: 0, remaining: 0 });
+      for (let i = 0; i < MAX_BATCHES; i++) {
+        const batch = await scrapeFn({ data: { dryRun: false, limit: 15, useAI: seoUseAI, sinceIso } });
+        totals.pages += batch.pages;
+        totals.upserted += batch.upserted;
+        totals.discovered = batch.discovered;
+        totals.errors += batch.errors;
+        totals.batches += 1;
+        setScrapeProgress({ batches: totals.batches, upserted: totals.upserted, pages: totals.pages, remaining: batch.remaining ?? 0 });
+        qc.invalidateQueries({ queryKey: ["scraperRuns"] });
+        if (!batch.hasMore) break;
+      }
       const seo = await seoFn({ data: { all: true, useAI: seoUseAI } });
-      return { scrape, seo };
+      return { scrape: totals, seo };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["scraperRuns"] });
