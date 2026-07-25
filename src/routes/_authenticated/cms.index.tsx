@@ -46,6 +46,13 @@ function CmsListPage() {
   const [search, setSearch] = useState("");
   const [contentType, setContentType] = useState("");
   const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 30;
+
+  // Reset page when filters change
+  const setSearchAndReset = (v: string) => { setSearch(v); setPage(1); };
+  const setTypeAndReset = (v: string) => { setContentType(v); setPage(1); };
+  const setStatusAndReset = (v: string) => { setStatus(v); setPage(1); };
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const listQ = useQuery({
