@@ -24,11 +24,13 @@ export const Route = createFileRoute("/_authenticated/cms/$id")({
   component: CmsEditorPage,
 });
 
+type HubCard = { eyebrow: string; title: string; lead: string; to: string; image: string };
+
 type FormState = {
   id?: string;
   title: string;
   slug: string;
-  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional";
+  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional" | "hub";
   excerpt: string;
   html_content: string;
   featured_image: string;
@@ -48,6 +50,8 @@ type FormState = {
   og_description: string;
   og_image: string;
   schema_type: "Article" | "BlogPosting" | "Place" | "Residence" | "LocalBusiness";
+  hero_eyebrow: string;
+  cards: HubCard[];
 };
 
 const EMPTY: FormState = {
@@ -56,6 +60,7 @@ const EMPTY: FormState = {
   display_order: 0, tags: [], related_neighborhood: "", related_condominium: "",
   meta_title: "", meta_description: "", focus_keyword: "", secondary_keywords: [],
   canonical_url: "", og_title: "", og_description: "", og_image: "", schema_type: "Article",
+  hero_eyebrow: "", cards: [],
 };
 
 const slugify = (s: string) =>
@@ -100,6 +105,16 @@ function toFormState(p: any): FormState {
     og_description: p.og_description ?? "",
     og_image: p.og_image ?? "",
     schema_type: p.schema_type ?? "Article",
+    hero_eyebrow: p.hero_eyebrow ?? "",
+    cards: Array.isArray(p.cards)
+      ? p.cards.map((c: any) => ({
+          eyebrow: c?.eyebrow ?? "",
+          title: c?.title ?? "",
+          lead: c?.lead ?? "",
+          to: c?.to ?? "",
+          image: c?.image ?? "",
+        }))
+      : [],
   };
 }
 
@@ -232,6 +247,8 @@ function CmsEditorPage() {
           og_description: form.og_description || null,
           og_image: form.og_image || null,
           schema_type: form.schema_type,
+          hero_eyebrow: form.hero_eyebrow || null,
+          cards: form.cards,
         } as any,
       });
     },
@@ -281,6 +298,8 @@ function CmsEditorPage() {
         og_description: f.og_description || null,
         og_image: f.og_image || null,
         schema_type: f.schema_type,
+        hero_eyebrow: f.hero_eyebrow || null,
+        cards: f.cards,
       } as any,
     });
     dbContentRef.current = f.html_content;
@@ -407,6 +426,7 @@ function CmsEditorPage() {
                   <option value="guia">Guia local</option>
                   <option value="blog">Blog</option>
                   <option value="institucional">Institucional</option>
+                  <option value="hub">Hub / Guia regional</option>
                 </select>
               </Field>
               <Field label="Status">
@@ -425,6 +445,52 @@ function CmsEditorPage() {
               <Field label="Ordem de exibição">
                 <input type="number" value={form.display_order} onChange={(e) => set("display_order", Number(e.target.value))} className={inputCls} />
               </Field>
+              {form.content_type === "hub" && (
+                <>
+                  <Field label="Eyebrow do hero (ex.: Guia Regional)">
+                    <input value={form.hero_eyebrow} onChange={(e) => set("hero_eyebrow", e.target.value)} className={inputCls} />
+                  </Field>
+                  <div className="border border-ink/15 p-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Cards do hub ({form.cards.length})</span>
+                      <button
+                        type="button"
+                        onClick={() => set("cards", [...form.cards, { eyebrow: "", title: "", lead: "", to: "", image: "" }])}
+                        className="text-[10px] uppercase tracking-widest border border-ink/20 px-3 py-1 hover:bg-ink/5"
+                      >+ Card</button>
+                    </div>
+                    {form.cards.map((c, i) => (
+                      <div key={i} className="border border-ink/10 p-3 space-y-2 bg-ink/[0.02]">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">#{i + 1}</span>
+                          <div className="flex gap-2 text-[10px] uppercase tracking-widest">
+                            {i > 0 && (
+                              <button type="button" onClick={() => {
+                                const next = [...form.cards];
+                                [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                                set("cards", next);
+                              }} className="hover:underline">↑</button>
+                            )}
+                            {i < form.cards.length - 1 && (
+                              <button type="button" onClick={() => {
+                                const next = [...form.cards];
+                                [next[i + 1], next[i]] = [next[i], next[i + 1]];
+                                set("cards", next);
+                              }} className="hover:underline">↓</button>
+                            )}
+                            <button type="button" onClick={() => set("cards", form.cards.filter((_, j) => j !== i))} className="text-red-600 hover:underline">excluir</button>
+                          </div>
+                        </div>
+                        <input placeholder="Eyebrow" value={c.eyebrow} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, eyebrow: e.target.value }; set("cards", n); }} className={inputCls} />
+                        <input placeholder="Título" value={c.title} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, title: e.target.value }; set("cards", n); }} className={inputCls} />
+                        <textarea placeholder="Descrição curta" rows={2} value={c.lead} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, lead: e.target.value }; set("cards", n); }} className={inputCls} />
+                        <input placeholder="Link (ex.: /artigos/slug)" value={c.to} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, to: e.target.value }; set("cards", n); }} className={`${inputCls} font-mono`} />
+                      </div>
+                    ))}
+                    {form.cards.length === 0 && <p className="text-xs text-muted-foreground">Nenhum card. Clique em “+ Card”.</p>}
+                  </div>
+                </>
+              )}
               <Field label="Imagem principal">
                 <ImageUpload
                   value={form.featured_image}

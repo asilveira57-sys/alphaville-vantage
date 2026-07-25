@@ -20,6 +20,7 @@ const TYPES = [
   { value: "guia", label: "Guia local" },
   { value: "blog", label: "Blog" },
   { value: "institucional", label: "Institucional" },
+  { value: "hub", label: "Hub / Guia regional" },
 ];
 
 const STATUSES = [
@@ -166,6 +167,8 @@ function publicUrlFor(p: any): string {
     case "condominio": return `/condominios/${p.slug}`;
     case "bairro": return `/bairros/${p.slug}`;
     case "blog": return `/blog/${p.slug}`;
+    case "guia": return `/guia/${p.slug}`;
+    case "hub": return `/${p.slug}`;
     default: return `/`;
   }
 }

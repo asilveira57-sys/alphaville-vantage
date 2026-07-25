@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sanitizeHtml } from "./sanitize-html";
 
-const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional"] as const;
+const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional", "hub"] as const;
 const STATUSES = ["draft", "published", "archived"] as const;
 const SCHEMA_TYPES = ["Article", "BlogPosting", "Place", "Residence", "LocalBusiness"] as const;
 
@@ -133,6 +133,14 @@ export const getEditorialByIdAdmin = createServerFn({ method: "GET" })
     return row;
   });
 
+const cardSchema = z.object({
+  eyebrow: z.string().default(""),
+  title: z.string().default(""),
+  lead: z.string().default(""),
+  to: z.string().default(""),
+  image: z.string().optional().nullable(),
+});
+
 const upsertSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().min(2),
@@ -157,6 +165,8 @@ const upsertSchema = z.object({
   og_description: z.string().optional().nullable(),
   og_image: z.string().optional().nullable(),
   schema_type: z.enum(SCHEMA_TYPES).default("Article"),
+  hero_eyebrow: z.string().optional().nullable(),
+  cards: z.array(cardSchema).default([]),
 });
 
 export const upsertEditorialPage = createServerFn({ method: "POST" })
