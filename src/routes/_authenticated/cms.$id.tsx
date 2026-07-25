@@ -205,7 +205,7 @@ function CmsEditorPage() {
   });
 
   const [form, setForm] = useState<FormState>(EMPTY);
-  const [tab, setTab] = useState<"conteudo" | "seo">("conteudo");
+  const [tab, setTab] = useState<"conteudo" | "post" | "seo">("conteudo");
   const [preview, setPreview] = useState(false);
   const [slugTouched, setSlugTouched] = useState(!isNew);
   const [loadedKey, setLoadedKey] = useState(isNew ? "novo" : "");
