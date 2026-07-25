@@ -181,10 +181,16 @@ function AdminPage() {
             const pagePosts = allPosts.slice(startIdx, startIdx + POSTS_PAGE_SIZE);
             return (
               <>
-                <div className="flex items-baseline justify-between mb-4">
+                <div className="flex items-baseline justify-between mb-4 gap-4 flex-wrap">
                   <h2 className="font-serif text-2xl text-ink">Posts</h2>
+                  <input
+                    value={postsSearch}
+                    onChange={(e) => { setPostsSearch(e.target.value); setPostsPage(1); }}
+                    placeholder="Buscar por título ou slug (ex.: coworking, hospital)…"
+                    className="flex-1 min-w-[240px] max-w-md border border-ink/15 px-3 py-2 text-sm bg-transparent focus:outline-none focus:border-ink"
+                  />
                   <span className="text-xs text-muted-foreground">
-                    {allPosts.length} no total · pág. {currentPage}/{totalPages}
+                    {allPosts.length} resultado(s) · pág. {currentPage}/{totalPages}
                   </span>
                 </div>
                 <div className="border border-ink/10">
