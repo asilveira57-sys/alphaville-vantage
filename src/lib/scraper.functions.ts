@@ -333,7 +333,7 @@ type DryRunPreview = {
 
 export const runScraper = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { dryRun?: boolean; limit?: number } | undefined) => input ?? {})
+  .inputValidator((input: { dryRun?: boolean; limit?: number; useAI?: boolean; sinceIso?: string } | undefined) => input ?? {})
   .handler(async ({ context, data }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId, _role: "admin",
@@ -342,6 +342,9 @@ export const runScraper = createServerFn({ method: "POST" })
 
     const dryRun = !!data?.dryRun;
     const dryLimit = Math.max(1, Math.min(50, data?.limit ?? 10));
+    const useAI = !!data?.useAI;
+    const runLimit = !dryRun && data?.limit ? Math.max(1, Math.min(50, data.limit)) : undefined;
+    const sinceIso = data?.sinceIso ?? new Date().toISOString();
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const t0 = Date.now();
@@ -401,7 +404,10 @@ export const runScraper = createServerFn({ method: "POST" })
         });
 
       // 3) Processa respeitando rate-limit e o orçamento de tempo
-      const effectiveQueue = dryRun ? queue.slice(0, dryLimit) : queue;
+      const staleQueue = dryRun ? queue : queue.filter((i) => !i.lastSeen || i.lastSeen < sinceIso);
+      const effectiveQueue = dryRun
+        ? queue.slice(0, dryLimit)
+        : (runLimit ? staleQueue.slice(0, runLimit) : staleQueue);
       for (const item of effectiveQueue) {
         if (Date.now() - t0 > RUN_BUDGET_MS) break;
 
@@ -566,7 +572,7 @@ export const runScraper = createServerFn({ method: "POST" })
             internal_code: applyOverride("internal_code", parsed.internal_code),
           };
           const descricao_original = existing?.descricao_original ?? description;
-          const opening = await generateOpeningWithAI(seoSrc);
+          const opening = useAI ? await generateOpeningWithAI(seoSrc) : null;
           const descricao_seo = buildSeoBody(seoSrc, opening);
           const seo_title = buildSeoTitle(seoSrc);
           const seo_description = buildSeoDescription(seoSrc);
@@ -659,6 +665,9 @@ export const runScraper = createServerFn({ method: "POST" })
       return {
         dryRun, runId: run?.id ?? null, pages, upserted, discovered, errors,
         budgetReached: Date.now() - t0 > RUN_BUDGET_MS,
+        hasMore: !dryRun && runLimit != null && staleQueue.length > effectiveQueue.length,
+        remaining: !dryRun ? Math.max(0, staleQueue.length - effectiveQueue.length) : 0,
+        sinceIso,
         previews: dryRun ? previews : [],
       };
     } catch (e) {
