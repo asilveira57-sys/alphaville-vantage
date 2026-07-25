@@ -30,6 +30,7 @@ function AdminPage() {
   const seoFn = useServerFn(regenerateSeo);
   const [seoUseAI, setSeoUseAI] = useState(false);
   const [postsPage, setPostsPage] = useState(1);
+  const [postsSearch, setPostsSearch] = useState("");
   const POSTS_PAGE_SIZE = 30;
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
@@ -168,17 +169,28 @@ function AdminPage() {
 
         <section>
           {(() => {
-            const allPosts = postsQ.data ?? [];
+            const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const q = norm(postsSearch.trim());
+            const allPosts = (postsQ.data ?? []).filter((p) => {
+              if (!q) return true;
+              return norm(p.title ?? "").includes(q) || norm(p.slug ?? "").includes(q);
+            });
             const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PAGE_SIZE));
             const currentPage = Math.min(postsPage, totalPages);
             const startIdx = (currentPage - 1) * POSTS_PAGE_SIZE;
             const pagePosts = allPosts.slice(startIdx, startIdx + POSTS_PAGE_SIZE);
             return (
               <>
-                <div className="flex items-baseline justify-between mb-4">
+                <div className="flex items-baseline justify-between mb-4 gap-4 flex-wrap">
                   <h2 className="font-serif text-2xl text-ink">Posts</h2>
+                  <input
+                    value={postsSearch}
+                    onChange={(e) => { setPostsSearch(e.target.value); setPostsPage(1); }}
+                    placeholder="Buscar por título ou slug (ex.: coworking, hospital)…"
+                    className="flex-1 min-w-[240px] max-w-md border border-ink/15 px-3 py-2 text-sm bg-transparent focus:outline-none focus:border-ink"
+                  />
                   <span className="text-xs text-muted-foreground">
-                    {allPosts.length} no total · pág. {currentPage}/{totalPages}
+                    {allPosts.length} resultado(s) · pág. {currentPage}/{totalPages}
                   </span>
                 </div>
                 <div className="border border-ink/10">
