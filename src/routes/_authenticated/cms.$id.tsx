@@ -481,9 +481,9 @@ function CmsEditorPage() {
         </div>
 
         <div className="flex gap-2 text-xs uppercase tracking-widest border-b border-ink/10">
-          {(["conteudo", "seo"] as const).map((t) => (
+          {(["conteudo", "post", "seo"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 -mb-px border-b-2 ${tab === t ? "border-ink text-ink" : "border-transparent text-muted-foreground"}`}>
-              {t === "conteudo" ? "Conteúdo" : "SEO & Open Graph"}
+              {t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : "SEO & Open Graph"}
             </button>
           ))}
         </div>
