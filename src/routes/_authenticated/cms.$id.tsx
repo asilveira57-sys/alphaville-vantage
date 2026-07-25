@@ -149,6 +149,29 @@ function toFormState(p: any): FormState {
           image: c?.image ?? "",
         }))
       : [],
+    help_title: p.help_title ?? "",
+    help_text: p.help_text ?? "",
+    help_button_label: p.help_button_label ?? "",
+    help_button_url: p.help_button_url ?? "",
+    cta_title: p.cta_title ?? "",
+    cta_text: p.cta_text ?? "",
+    cta_button_label: p.cta_button_label ?? "",
+    cta_button_url: p.cta_button_url ?? "",
+    cidade: p.cidade ?? "",
+    regiao: p.regiao ?? "",
+    bairro: p.bairro ?? "",
+    condominio: p.condominio ?? "",
+    categoria_editorial: p.categoria_editorial ?? "",
+    perfil_publico: p.perfil_publico ?? "",
+    intencao_imobiliaria: p.intencao_imobiliaria ?? "",
+    tipos_imovel_relacionados: p.tipos_imovel_relacionados ?? [],
+    tags_contextuais: p.tags_contextuais ?? [],
+    conversion_context: p.conversion_context ?? "",
+    personalization_enabled: !!p.personalization_enabled,
+    reading_minutes: typeof p.reading_minutes === "number" ? p.reading_minutes : null,
+    faq: Array.isArray(p.faq)
+      ? p.faq.map((f: any) => ({ question: f?.question ?? "", answer: f?.answer ?? "" }))
+      : [],
   };
 }
 
