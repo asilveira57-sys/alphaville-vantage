@@ -24,11 +24,13 @@ export const Route = createFileRoute("/_authenticated/cms/$id")({
   component: CmsEditorPage,
 });
 
+type HubCard = { eyebrow: string; title: string; lead: string; to: string; image: string };
+
 type FormState = {
   id?: string;
   title: string;
   slug: string;
-  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional";
+  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional" | "hub";
   excerpt: string;
   html_content: string;
   featured_image: string;
@@ -48,6 +50,8 @@ type FormState = {
   og_description: string;
   og_image: string;
   schema_type: "Article" | "BlogPosting" | "Place" | "Residence" | "LocalBusiness";
+  hero_eyebrow: string;
+  cards: HubCard[];
 };
 
 const EMPTY: FormState = {
@@ -56,6 +60,7 @@ const EMPTY: FormState = {
   display_order: 0, tags: [], related_neighborhood: "", related_condominium: "",
   meta_title: "", meta_description: "", focus_keyword: "", secondary_keywords: [],
   canonical_url: "", og_title: "", og_description: "", og_image: "", schema_type: "Article",
+  hero_eyebrow: "", cards: [],
 };
 
 const slugify = (s: string) =>
