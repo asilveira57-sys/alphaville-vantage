@@ -132,94 +132,160 @@ export type Database = {
       editorial_pages: {
         Row: {
           author_id: string | null
+          bairro: string | null
           canonical_url: string | null
           cards: Json
+          categoria_editorial: string | null
+          cidade: string | null
+          condominio: string | null
           content_type: string
+          conversion_context: string | null
           created_at: string
+          cta_button_label: string | null
+          cta_button_url: string | null
+          cta_text: string | null
+          cta_title: string | null
           display_order: number
           excerpt: string | null
+          faq: Json
           featured_image: string | null
           focus_keyword: string | null
           gallery_images: string[]
+          help_button_label: string | null
+          help_button_url: string | null
+          help_text: string | null
+          help_title: string | null
           hero_eyebrow: string | null
           html_content: string
           id: string
+          intencao_imobiliaria: string | null
           is_featured: boolean
           meta_description: string | null
           meta_title: string | null
           og_description: string | null
           og_image: string | null
           og_title: string | null
+          perfil_publico: string | null
+          personalization_enabled: boolean
           published_at: string | null
+          reading_minutes: number | null
+          regiao: string | null
           related_condominium: string | null
           related_neighborhood: string | null
+          related_post_ids: string[]
           schema_type: string
           secondary_keywords: string[]
           slug: string
           status: string
           tags: string[]
+          tags_contextuais: string[]
+          tipos_imovel_relacionados: string[]
           title: string
           updated_at: string
         }
         Insert: {
           author_id?: string | null
+          bairro?: string | null
           canonical_url?: string | null
           cards?: Json
+          categoria_editorial?: string | null
+          cidade?: string | null
+          condominio?: string | null
           content_type: string
+          conversion_context?: string | null
           created_at?: string
+          cta_button_label?: string | null
+          cta_button_url?: string | null
+          cta_text?: string | null
+          cta_title?: string | null
           display_order?: number
           excerpt?: string | null
+          faq?: Json
           featured_image?: string | null
           focus_keyword?: string | null
           gallery_images?: string[]
+          help_button_label?: string | null
+          help_button_url?: string | null
+          help_text?: string | null
+          help_title?: string | null
           hero_eyebrow?: string | null
           html_content?: string
           id?: string
+          intencao_imobiliaria?: string | null
           is_featured?: boolean
           meta_description?: string | null
           meta_title?: string | null
           og_description?: string | null
           og_image?: string | null
           og_title?: string | null
+          perfil_publico?: string | null
+          personalization_enabled?: boolean
           published_at?: string | null
+          reading_minutes?: number | null
+          regiao?: string | null
           related_condominium?: string | null
           related_neighborhood?: string | null
+          related_post_ids?: string[]
           schema_type?: string
           secondary_keywords?: string[]
           slug: string
           status?: string
           tags?: string[]
+          tags_contextuais?: string[]
+          tipos_imovel_relacionados?: string[]
           title: string
           updated_at?: string
         }
         Update: {
           author_id?: string | null
+          bairro?: string | null
           canonical_url?: string | null
           cards?: Json
+          categoria_editorial?: string | null
+          cidade?: string | null
+          condominio?: string | null
           content_type?: string
+          conversion_context?: string | null
           created_at?: string
+          cta_button_label?: string | null
+          cta_button_url?: string | null
+          cta_text?: string | null
+          cta_title?: string | null
           display_order?: number
           excerpt?: string | null
+          faq?: Json
           featured_image?: string | null
           focus_keyword?: string | null
           gallery_images?: string[]
+          help_button_label?: string | null
+          help_button_url?: string | null
+          help_text?: string | null
+          help_title?: string | null
           hero_eyebrow?: string | null
           html_content?: string
           id?: string
+          intencao_imobiliaria?: string | null
           is_featured?: boolean
           meta_description?: string | null
           meta_title?: string | null
           og_description?: string | null
           og_image?: string | null
           og_title?: string | null
+          perfil_publico?: string | null
+          personalization_enabled?: boolean
           published_at?: string | null
+          reading_minutes?: number | null
+          regiao?: string | null
           related_condominium?: string | null
           related_neighborhood?: string | null
+          related_post_ids?: string[]
           schema_type?: string
           secondary_keywords?: string[]
           slug?: string
           status?: string
           tags?: string[]
+          tags_contextuais?: string[]
+          tipos_imovel_relacionados?: string[]
           title?: string
           updated_at?: string
         }
