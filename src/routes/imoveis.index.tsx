@@ -139,14 +139,28 @@ function PropertyCard({ p }: { p: PropertyRow }) {
 
 
 function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
+  const norm = (v: string | null | undefined) =>
+    (v ?? "")
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  const fuzzyEq = (a: string | null | undefined, b: string) => {
+    const na = norm(a);
+    const nb = norm(b);
+    if (!nb) return true;
+    if (!na) return false;
+    return na === nb || na.includes(nb) || nb.includes(na);
+  };
   let out = items;
   if (s.purpose) {
     out = out.filter((p) => p.purpose === s.purpose || p.purpose === "both" || (s.purpose === "both"));
   }
-  if (s.type) out = out.filter((p) => p.property_type === s.type);
-  if (s.city) out = out.filter((p) => p.city === s.city);
-  if (s.neighborhood) out = out.filter((p) => p.neighborhood === s.neighborhood);
-  if (s.condo) out = out.filter((p) => p.condominium_name === s.condo);
+  if (s.type) out = out.filter((p) => fuzzyEq(p.property_type, s.type));
+  if (s.city) out = out.filter((p) => fuzzyEq(p.city, s.city));
+  if (s.neighborhood) out = out.filter((p) => fuzzyEq(p.neighborhood, s.neighborhood));
+  if (s.condo) out = out.filter((p) => fuzzyEq(p.condominium_name, s.condo));
   if (s.bedrooms) out = out.filter((p) => (p.bedrooms ?? 0) >= s.bedrooms);
   if (s.parking) {
     out = out.filter((p) => {
