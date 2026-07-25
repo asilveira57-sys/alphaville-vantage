@@ -247,6 +247,8 @@ function CmsEditorPage() {
           og_description: form.og_description || null,
           og_image: form.og_image || null,
           schema_type: form.schema_type,
+          hero_eyebrow: form.hero_eyebrow || null,
+          cards: form.cards,
         } as any,
       });
     },
@@ -296,6 +298,8 @@ function CmsEditorPage() {
         og_description: f.og_description || null,
         og_image: f.og_image || null,
         schema_type: f.schema_type,
+        hero_eyebrow: f.hero_eyebrow || null,
+        cards: f.cards,
       } as any,
     });
     dbContentRef.current = f.html_content;
