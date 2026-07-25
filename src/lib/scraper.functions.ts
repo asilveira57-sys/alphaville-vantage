@@ -404,7 +404,10 @@ export const runScraper = createServerFn({ method: "POST" })
         });
 
       // 3) Processa respeitando rate-limit e o orçamento de tempo
-      const effectiveQueue = dryRun ? queue.slice(0, dryLimit) : queue;
+      const staleQueue = dryRun ? queue : queue.filter((i) => !i.lastSeen || i.lastSeen < sinceIso);
+      const effectiveQueue = dryRun
+        ? queue.slice(0, dryLimit)
+        : (runLimit ? staleQueue.slice(0, runLimit) : staleQueue);
       for (const item of effectiveQueue) {
         if (Date.now() - t0 > RUN_BUDGET_MS) break;
 
