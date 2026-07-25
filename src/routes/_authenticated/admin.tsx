@@ -286,13 +286,17 @@ function AdminPage() {
                 disabled={scrapeMut.isPending}
                 className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-50"
               >
-                {scrapeMut.isPending ? "Rodando…" : "Rodar agora"}
+                {scrapeMut.isPending
+                  ? (scrapeProgress
+                      ? `Lote ${scrapeProgress.batches} · ${scrapeProgress.upserted} imóveis · ${scrapeProgress.remaining} restantes`
+                      : "Rodando…")
+                  : "Rodar agora"}
               </button>
 
             </div>
           </div>
           <p className="text-xs text-muted-foreground mb-3">
-            "Rodar agora" coleta novos imóveis e reaplica o motor SEO mais recente em TODOS os imóveis cadastrados (descrição, título, meta e slug). Marque "IA na abertura" para usar IA no 1º parágrafo. "Reprocessar todos" reaplica as regras atualizadas do parser e da auditoria (ex.: aluguel "R$ X/m²" vira valor total, razão aluguel/venda fora da faixa marca como Revisar) preservando overrides manuais.
+            "Rodar agora" percorre TODOS os imóveis do site de origem em lotes de 15, gravando lote a lote até esgotar a fila, e ao final reaplica o motor SEO em toda a base. Marque "IA na abertura" para usar IA no 1º parágrafo (tanto na coleta quanto na regeração). "Reprocessar todos" reaplica as regras do parser e da auditoria preservando overrides manuais.
           </p>
           {auditQ.data && (
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4 text-xs">
@@ -315,9 +319,14 @@ function AdminPage() {
             </div>
           )}
           {scrapeMut.error && <p className="text-xs text-red-600 mb-3">{(scrapeMut.error as Error).message}</p>}
+          {scrapeMut.isPending && scrapeProgress && (
+            <p className="text-xs text-muted-foreground mb-3">
+              Lote {scrapeProgress.batches} concluído · {scrapeProgress.upserted} imóveis gravados · {scrapeProgress.pages} páginas visitadas · {scrapeProgress.remaining} restantes na fila.
+            </p>
+          )}
           {scrapeMut.data && (
             <p className="text-xs text-emerald-700 mb-3">
-              Páginas: {scrapeMut.data.scrape.pages} · Imóveis upsertados: {scrapeMut.data.scrape.upserted} · Descobertos: {scrapeMut.data.scrape.discovered} · SEO regerado: {scrapeMut.data.seo.updated}/{scrapeMut.data.seo.processed}
+              {scrapeMut.data.scrape.batches} lote(s) · Páginas: {scrapeMut.data.scrape.pages} · Imóveis upsertados: {scrapeMut.data.scrape.upserted} · Descobertos: {scrapeMut.data.scrape.discovered} · SEO regerado: {scrapeMut.data.seo.updated}/{scrapeMut.data.seo.processed}
             </p>
           )}
           {reprocessMut.error && <p className="text-xs text-red-600 mb-3">{(reprocessMut.error as Error).message}</p>}
