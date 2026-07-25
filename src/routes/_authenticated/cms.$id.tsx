@@ -25,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/cms/$id")({
 });
 
 type HubCard = { eyebrow: string; title: string; lead: string; to: string; image: string };
+type FaqItem = { question: string; answer: string };
 
 type FormState = {
   id?: string;
@@ -52,6 +53,32 @@ type FormState = {
   schema_type: "Article" | "BlogPosting" | "Place" | "Residence" | "LocalBusiness";
   hero_eyebrow: string;
   cards: HubCard[];
+  // Bloco de ajuda
+  help_title: string;
+  help_text: string;
+  help_button_label: string;
+  help_button_url: string;
+  // CTA
+  cta_title: string;
+  cta_text: string;
+  cta_button_label: string;
+  cta_button_url: string;
+  // Classificações
+  cidade: string;
+  regiao: string;
+  bairro: string;
+  condominio: string;
+  categoria_editorial: string;
+  perfil_publico: string;
+  intencao_imobiliaria: string;
+  tipos_imovel_relacionados: string[];
+  tags_contextuais: string[];
+  // Radar
+  conversion_context: string;
+  personalization_enabled: boolean;
+  // Metadados
+  reading_minutes: number | null;
+  faq: FaqItem[];
 };
 
 const EMPTY: FormState = {
@@ -61,6 +88,13 @@ const EMPTY: FormState = {
   meta_title: "", meta_description: "", focus_keyword: "", secondary_keywords: [],
   canonical_url: "", og_title: "", og_description: "", og_image: "", schema_type: "Article",
   hero_eyebrow: "", cards: [],
+  help_title: "", help_text: "", help_button_label: "", help_button_url: "",
+  cta_title: "", cta_text: "", cta_button_label: "", cta_button_url: "",
+  cidade: "", regiao: "", bairro: "", condominio: "",
+  categoria_editorial: "", perfil_publico: "", intencao_imobiliaria: "",
+  tipos_imovel_relacionados: [], tags_contextuais: [],
+  conversion_context: "", personalization_enabled: false,
+  reading_minutes: null, faq: [],
 };
 
 const slugify = (s: string) =>
@@ -115,6 +149,29 @@ function toFormState(p: any): FormState {
           image: c?.image ?? "",
         }))
       : [],
+    help_title: p.help_title ?? "",
+    help_text: p.help_text ?? "",
+    help_button_label: p.help_button_label ?? "",
+    help_button_url: p.help_button_url ?? "",
+    cta_title: p.cta_title ?? "",
+    cta_text: p.cta_text ?? "",
+    cta_button_label: p.cta_button_label ?? "",
+    cta_button_url: p.cta_button_url ?? "",
+    cidade: p.cidade ?? "",
+    regiao: p.regiao ?? "",
+    bairro: p.bairro ?? "",
+    condominio: p.condominio ?? "",
+    categoria_editorial: p.categoria_editorial ?? "",
+    perfil_publico: p.perfil_publico ?? "",
+    intencao_imobiliaria: p.intencao_imobiliaria ?? "",
+    tipos_imovel_relacionados: p.tipos_imovel_relacionados ?? [],
+    tags_contextuais: p.tags_contextuais ?? [],
+    conversion_context: p.conversion_context ?? "",
+    personalization_enabled: !!p.personalization_enabled,
+    reading_minutes: typeof p.reading_minutes === "number" ? p.reading_minutes : null,
+    faq: Array.isArray(p.faq)
+      ? p.faq.map((f: any) => ({ question: f?.question ?? "", answer: f?.answer ?? "" }))
+      : [],
   };
 }
 
@@ -148,7 +205,7 @@ function CmsEditorPage() {
   });
 
   const [form, setForm] = useState<FormState>(EMPTY);
-  const [tab, setTab] = useState<"conteudo" | "seo">("conteudo");
+  const [tab, setTab] = useState<"conteudo" | "post" | "seo">("conteudo");
   const [preview, setPreview] = useState(false);
   const [slugTouched, setSlugTouched] = useState(!isNew);
   const [loadedKey, setLoadedKey] = useState(isNew ? "novo" : "");
@@ -249,6 +306,27 @@ function CmsEditorPage() {
           schema_type: form.schema_type,
           hero_eyebrow: form.hero_eyebrow || null,
           cards: form.cards,
+          help_title: form.help_title || null,
+          help_text: form.help_text || null,
+          help_button_label: form.help_button_label || null,
+          help_button_url: form.help_button_url || null,
+          cta_title: form.cta_title || null,
+          cta_text: form.cta_text || null,
+          cta_button_label: form.cta_button_label || null,
+          cta_button_url: form.cta_button_url || null,
+          cidade: form.cidade || null,
+          regiao: form.regiao || null,
+          bairro: form.bairro || null,
+          condominio: form.condominio || null,
+          categoria_editorial: form.categoria_editorial || null,
+          perfil_publico: form.perfil_publico || null,
+          intencao_imobiliaria: form.intencao_imobiliaria || null,
+          tipos_imovel_relacionados: form.tipos_imovel_relacionados,
+          tags_contextuais: form.tags_contextuais,
+          conversion_context: form.conversion_context || null,
+          personalization_enabled: form.personalization_enabled,
+          reading_minutes: form.reading_minutes,
+          faq: form.faq,
         } as any,
       });
     },
@@ -300,6 +378,27 @@ function CmsEditorPage() {
         schema_type: f.schema_type,
         hero_eyebrow: f.hero_eyebrow || null,
         cards: f.cards,
+        help_title: f.help_title || null,
+        help_text: f.help_text || null,
+        help_button_label: f.help_button_label || null,
+        help_button_url: f.help_button_url || null,
+        cta_title: f.cta_title || null,
+        cta_text: f.cta_text || null,
+        cta_button_label: f.cta_button_label || null,
+        cta_button_url: f.cta_button_url || null,
+        cidade: f.cidade || null,
+        regiao: f.regiao || null,
+        bairro: f.bairro || null,
+        condominio: f.condominio || null,
+        categoria_editorial: f.categoria_editorial || null,
+        perfil_publico: f.perfil_publico || null,
+        intencao_imobiliaria: f.intencao_imobiliaria || null,
+        tipos_imovel_relacionados: f.tipos_imovel_relacionados,
+        tags_contextuais: f.tags_contextuais,
+        conversion_context: f.conversion_context || null,
+        personalization_enabled: f.personalization_enabled,
+        reading_minutes: f.reading_minutes,
+        faq: f.faq,
       } as any,
     });
     dbContentRef.current = f.html_content;
@@ -382,9 +481,9 @@ function CmsEditorPage() {
         </div>
 
         <div className="flex gap-2 text-xs uppercase tracking-widest border-b border-ink/10">
-          {(["conteudo", "seo"] as const).map((t) => (
+          {(["conteudo", "post", "seo"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 -mb-px border-b-2 ${tab === t ? "border-ink text-ink" : "border-transparent text-muted-foreground"}`}>
-              {t === "conteudo" ? "Conteúdo" : "SEO & Open Graph"}
+              {t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : "SEO & Open Graph"}
             </button>
           ))}
         </div>
@@ -532,6 +631,105 @@ function CmsEditorPage() {
             </div>
           </div>
         )}
+
+        {tab === "post" && (
+          <div className="space-y-8 max-w-4xl">
+            <section className="space-y-4">
+              <h3 className="text-sm font-medium text-ink">Bloco "Como a S.A. Imóveis pode ajudar"</h3>
+              <p className="text-xs text-muted-foreground">Aparece próximo ao final do post. Se ficar em branco, usa a versão padrão.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Título">
+                  <input value={form.help_title} onChange={(e) => set("help_title", e.target.value)} className={inputCls} placeholder="Como a S.A. Imóveis pode ajudar" />
+                </Field>
+                <Field label="Texto do botão">
+                  <input value={form.help_button_label} onChange={(e) => set("help_button_label", e.target.value)} className={inputCls} placeholder="Ver imóveis disponíveis" />
+                </Field>
+                <Field label="Texto">
+                  <textarea value={form.help_text} onChange={(e) => set("help_text", e.target.value)} rows={3} className={inputCls} />
+                </Field>
+                <Field label="Link do botão">
+                  <input value={form.help_button_url} onChange={(e) => set("help_button_url", e.target.value)} className={`${inputCls} font-mono`} placeholder="/imoveis" />
+                </Field>
+              </div>
+            </section>
+
+            <section className="space-y-4 border-t border-ink/10 pt-6">
+              <h3 className="text-sm font-medium text-ink">CTA contextual (final do post)</h3>
+              <p className="text-xs text-muted-foreground">Ex.: "Ver imóveis próximos às escolas", "Ver oportunidades de investimento". Vazio = CTA padrão.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="cta_title"><input value={form.cta_title} onChange={(e) => set("cta_title", e.target.value)} className={inputCls} /></Field>
+                <Field label="cta_button_label"><input value={form.cta_button_label} onChange={(e) => set("cta_button_label", e.target.value)} className={inputCls} /></Field>
+                <Field label="cta_text"><textarea value={form.cta_text} onChange={(e) => set("cta_text", e.target.value)} rows={3} className={inputCls} /></Field>
+                <Field label="cta_button_url"><input value={form.cta_button_url} onChange={(e) => set("cta_button_url", e.target.value)} className={`${inputCls} font-mono`} placeholder="/imoveis?..." /></Field>
+              </div>
+            </section>
+
+            <section className="space-y-4 border-t border-ink/10 pt-6">
+              <h3 className="text-sm font-medium text-ink">Perguntas frequentes</h3>
+              <div className="space-y-3">
+                {form.faq.map((item, i) => (
+                  <div key={i} className="border border-ink/10 p-3 space-y-2 bg-ink/[0.02]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-widest text-muted-foreground">#{i + 1}</span>
+                      <button type="button" onClick={() => set("faq", form.faq.filter((_, j) => j !== i))} className="text-[10px] uppercase tracking-widest text-red-600 hover:underline">excluir</button>
+                    </div>
+                    <input placeholder="Pergunta" value={item.question} onChange={(e) => { const n = [...form.faq]; n[i] = { ...item, question: e.target.value }; set("faq", n); }} className={inputCls} />
+                    <textarea placeholder="Resposta" rows={2} value={item.answer} onChange={(e) => { const n = [...form.faq]; n[i] = { ...item, answer: e.target.value }; set("faq", n); }} className={inputCls} />
+                  </div>
+                ))}
+                <button type="button" onClick={() => set("faq", [...form.faq, { question: "", answer: "" }])} className="text-[10px] uppercase tracking-widest border border-ink/20 px-3 py-1 hover:bg-ink/5">+ Pergunta</button>
+              </div>
+            </section>
+
+            <section className="space-y-4 border-t border-ink/10 pt-6">
+              <h3 className="text-sm font-medium text-ink">Classificações internas</h3>
+              <p className="text-xs text-muted-foreground">Não aparecem no post. Usadas para organização e futura personalização.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Cidade"><input value={form.cidade} onChange={(e) => set("cidade", e.target.value)} className={inputCls} /></Field>
+                <Field label="Região"><input value={form.regiao} onChange={(e) => set("regiao", e.target.value)} className={inputCls} /></Field>
+                <Field label="Bairro"><input value={form.bairro} onChange={(e) => set("bairro", e.target.value)} className={inputCls} /></Field>
+                <Field label="Condomínio"><input value={form.condominio} onChange={(e) => set("condominio", e.target.value)} className={inputCls} /></Field>
+                <Field label="Categoria editorial"><input value={form.categoria_editorial} onChange={(e) => set("categoria_editorial", e.target.value)} className={inputCls} placeholder="coworking, escolas, condomínios…" /></Field>
+                <Field label="Perfil do público"><input value={form.perfil_publico} onChange={(e) => set("perfil_publico", e.target.value)} className={inputCls} placeholder="família, executivo, investidor…" /></Field>
+                <Field label="Intenção imobiliária"><input value={form.intencao_imobiliaria} onChange={(e) => set("intencao_imobiliaria", e.target.value)} className={inputCls} placeholder="morar, investir, comercial…" /></Field>
+                <Field label="Tempo de leitura (min)"><input type="number" min={0} value={form.reading_minutes ?? ""} onChange={(e) => set("reading_minutes", e.target.value ? Number(e.target.value) : null)} className={inputCls} /></Field>
+                <Field label="Tipos de imóvel relacionados (vírgula)">
+                  <input value={form.tipos_imovel_relacionados.join(", ")} onChange={(e) => set("tipos_imovel_relacionados", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} className={inputCls} placeholder="casa, apartamento, terreno" />
+                </Field>
+                <Field label="Tags contextuais (vírgula)">
+                  <input value={form.tags_contextuais.join(", ")} onChange={(e) => set("tags_contextuais", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} className={inputCls} />
+                </Field>
+              </div>
+            </section>
+
+            <section className="space-y-4 border-t border-ink/10 pt-6">
+              <h3 className="text-sm font-medium text-ink">Radar (armazenado, sem ação automática)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="conversion_context">
+                  <select value={form.conversion_context} onChange={(e) => set("conversion_context", e.target.value)} className={inputCls}>
+                    <option value="">—</option>
+                    <option value="morar_perto_trabalho">morar_perto_trabalho</option>
+                    <option value="morar_perto_escola">morar_perto_escola</option>
+                    <option value="buscar_condominio">buscar_condominio</option>
+                    <option value="buscar_bairro">buscar_bairro</option>
+                    <option value="mudar_para_alphaville">mudar_para_alphaville</option>
+                    <option value="buscar_imovel_comercial">buscar_imovel_comercial</option>
+                    <option value="investir_em_imovel">investir_em_imovel</option>
+                    <option value="investir_em_terreno">investir_em_terreno</option>
+                    <option value="comparar_regioes">comparar_regioes</option>
+                  </select>
+                </Field>
+                <Field label="Personalização futura">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={form.personalization_enabled} onChange={(e) => set("personalization_enabled", e.target.checked)} />
+                    Ativar espaço personalizado (desligado por padrão)
+                  </label>
+                </Field>
+              </div>
+            </section>
+          </div>
+        )}
+
 
         {tab === "seo" && (
           <div className="space-y-4 max-w-4xl">

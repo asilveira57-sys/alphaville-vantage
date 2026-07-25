@@ -167,6 +167,33 @@ const upsertSchema = z.object({
   schema_type: z.enum(SCHEMA_TYPES).default("Article"),
   hero_eyebrow: z.string().optional().nullable(),
   cards: z.array(cardSchema).default([]),
+  // Bloco "Como a S.A. Imóveis pode ajudar"
+  help_title: z.string().optional().nullable(),
+  help_text: z.string().optional().nullable(),
+  help_button_label: z.string().optional().nullable(),
+  help_button_url: z.string().optional().nullable(),
+  // CTA contextual
+  cta_title: z.string().optional().nullable(),
+  cta_text: z.string().optional().nullable(),
+  cta_button_label: z.string().optional().nullable(),
+  cta_button_url: z.string().optional().nullable(),
+  // Classificações internas
+  cidade: z.string().optional().nullable(),
+  regiao: z.string().optional().nullable(),
+  bairro: z.string().optional().nullable(),
+  condominio: z.string().optional().nullable(),
+  categoria_editorial: z.string().optional().nullable(),
+  perfil_publico: z.string().optional().nullable(),
+  intencao_imobiliaria: z.string().optional().nullable(),
+  tipos_imovel_relacionados: z.array(z.string()).default([]),
+  tags_contextuais: z.array(z.string()).default([]),
+  // Radar (armazenado apenas)
+  conversion_context: z.string().optional().nullable(),
+  personalization_enabled: z.boolean().default(false),
+  // Metadados do post
+  reading_minutes: z.number().int().nonnegative().nullable().optional(),
+  faq: z.array(z.object({ question: z.string().default(""), answer: z.string().default("") })).default([]),
+  related_post_ids: z.array(z.string().uuid()).default([]),
 });
 
 export const upsertEditorialPage = createServerFn({ method: "POST" })
