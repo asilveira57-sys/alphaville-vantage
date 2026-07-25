@@ -1,16 +1,37 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { EditorialArticle } from "@/components/editorial-article";
 import { getSymbolicArticle, SYMBOLIC_ARTICLES } from "@/lib/symbolic-articles";
+import { getEditorialBySlug } from "@/lib/editorial.functions";
 
 export const Route = createFileRoute("/artigos/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
+    const cms = await getEditorialBySlug({ data: { slug: params.slug } }).catch(() => null);
+    if (cms) return { source: "cms" as const, cms };
     const article = getSymbolicArticle(params.slug);
     if (!article) throw notFound();
-    return { article };
+    return { source: "symbolic" as const, article };
   },
   head: ({ loaderData, params }) => {
-    const article = loaderData?.article;
-    if (!article) return {};
+    if (!loaderData) return {};
+    if (loaderData.source === "cms") {
+      const p: any = loaderData.cms;
+      const title = p.meta_title ?? `${p.title} — S.A Imóveis Alphaville`;
+      const description = p.meta_description ?? p.excerpt ?? "";
+      const image = p.og_image ?? p.featured_image ?? undefined;
+      return {
+        meta: [
+          { title },
+          { name: "description", content: description },
+          { property: "og:title", content: p.og_title ?? p.title },
+          { property: "og:description", content: p.og_description ?? description },
+          { property: "og:type", content: "article" },
+          { property: "og:url", content: `/artigos/${params.slug}` },
+          ...(image ? [{ property: "og:image", content: image }] : []),
+        ],
+        links: [{ rel: "canonical", href: p.canonical_url || `/artigos/${params.slug}` }],
+      };
+    }
+    const article = loaderData.article;
     return {
       meta: [
         { title: `${article.title} — S.A Imóveis Alphaville` },
@@ -53,7 +74,22 @@ export const Route = createFileRoute("/artigos/$slug")({
 });
 
 function ArticleRoute() {
-  const { article } = Route.useLoaderData();
+  const data = Route.useLoaderData();
+  if (data.source === "cms") {
+    const p: any = data.cms;
+    const fallback = getSymbolicArticle(p.slug);
+    return (
+      <EditorialArticle
+        eyebrow={fallback?.eyebrow ?? "Editorial"}
+        title={p.title}
+        lead={p.excerpt ?? fallback?.lead ?? ""}
+        parent={fallback?.parent ?? { label: "Blog", to: "/blog" }}
+        html={p.html_content ?? ""}
+        related={fallback?.related}
+      />
+    );
+  }
+  const { article } = data;
   return (
     <EditorialArticle
       eyebrow={article.eyebrow}
