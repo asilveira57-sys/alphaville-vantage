@@ -8,6 +8,9 @@ import { EditorialContent } from "@/components/editorial-content";
 import { ImageUpload, ImageGalleryUpload } from "@/components/image-upload";
 import { RelatedSelect } from "@/components/related-select";
 import { useAutosave } from "@/components/editor/use-autosave";
+import { PostHelpBlock } from "@/components/post-help-block";
+import { PostCtaBlock } from "@/components/post-cta-block";
+import { resolveImage } from "@/lib/image-fallbacks";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import {
   getEditorialByIdAdmin,
