@@ -1,8 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SectionPage, ComingSoonGrid } from "@/components/section-page";
+import { HubPageView, hubQO } from "@/components/hub-page";
 import { GuiaCrossNav } from "@/components/guia-cross-nav";
 
+const SLUG = "guia-barueri";
+const DEFAULTS = {
+  eyebrow: "Guia Regional",
+  title: "Barueri em profundidade",
+  lead: "Mais que cidade-sede de Alphaville, Barueri é um dos maiores polos corporativos do país. Conheça sua história, benefícios fiscais, empresas instaladas e a infraestrutura que sustenta a região.",
+  cards: [
+    { eyebrow: "Economia", title: "Benefícios fiscais de Barueri", lead: "Por que empresas escolhem se instalar na cidade.", to: "/artigos/barueri-beneficios-fiscais" },
+    { eyebrow: "Empresas", title: "Grandes corporações instaladas", lead: "Panorama do mercado de trabalho local.", to: "/artigos/barueri-corporacoes" },
+    { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Eixos de acesso e o futuro do transporte.", to: "/artigos/barueri-mobilidade" },
+  ],
+};
+
 export const Route = createFileRoute("/guia-barueri")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(hubQO(SLUG)),
   head: () => ({
     meta: [
       { title: "Guia Barueri — S.A Imóveis Alphaville" },
@@ -14,20 +27,8 @@ export const Route = createFileRoute("/guia-barueri")({
     links: [{ rel: "canonical", href: "/guia-barueri" }],
   }),
   component: () => (
-    <SectionPage
-      eyebrow="Guia Regional"
-      title="Barueri em profundidade"
-      lead="Mais que cidade-sede de Alphaville, Barueri é um dos maiores polos corporativos do país. Conheça sua história, benefícios fiscais, empresas instaladas e a infraestrutura que sustenta a região."
-      breadcrumbs={[{ label: "Guia Barueri" }]}
-    >
-      <ComingSoonGrid
-        items={[
-          { eyebrow: "Economia", title: "Benefícios fiscais de Barueri", lead: "Por que empresas escolhem se instalar na cidade.", to: "/artigos/barueri-beneficios-fiscais" },
-          { eyebrow: "Empresas", title: "Grandes corporações instaladas", lead: "Panorama do mercado de trabalho local.", to: "/artigos/barueri-corporacoes" },
-          { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Eixos de acesso e o futuro do transporte.", to: "/artigos/barueri-mobilidade" },
-        ]}
-      />
+    <HubPageView slug={SLUG} defaults={DEFAULTS} breadcrumbs={[{ label: "Guia Barueri" }]}>
       <GuiaCrossNav currentTo="/guia-barueri" />
-    </SectionPage>
+    </HubPageView>
   ),
 });
