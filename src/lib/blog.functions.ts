@@ -47,6 +47,38 @@ export const getPostBySlug = createServerFn({ method: "GET" })
     return row;
   });
 
+export const listRelatedPosts = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({
+    excludeSlug: z.string(),
+    tags: z.array(z.string()).default([]),
+    limit: z.number().int().positive().max(6).default(3),
+  }).parse(d))
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    let q = sb.from("editorial_pages")
+      .select("id, slug, title, excerpt, featured_image, published_at, tags")
+      .eq("status", "published")
+      .eq("content_type", "blog")
+      .neq("slug", data.excludeSlug)
+      .order("published_at", { ascending: false })
+      .limit(data.limit * 4);
+    if (data.tags.length) q = q.overlaps("tags", data.tags);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    const list = rows ?? [];
+    // fallback: se não houver por tag, retorna os mais recentes gerais
+    if (list.length === 0 && data.tags.length) {
+      const { data: fb } = await sb.from("editorial_pages")
+        .select("id, slug, title, excerpt, featured_image, published_at, tags")
+        .eq("status", "published").eq("content_type", "blog")
+        .neq("slug", data.excludeSlug)
+        .order("published_at", { ascending: false })
+        .limit(data.limit);
+      return fb ?? [];
+    }
+    return list.slice(0, data.limit);
+  });
+
 // ---------- AI generation now into editorial_pages ----------
 
 export const generatePostWithAI = createServerFn({ method: "POST" })
