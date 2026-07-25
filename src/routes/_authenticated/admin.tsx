@@ -169,7 +169,12 @@ function AdminPage() {
 
         <section>
           {(() => {
-            const allPosts = postsQ.data ?? [];
+            const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const q = norm(postsSearch.trim());
+            const allPosts = (postsQ.data ?? []).filter((p) => {
+              if (!q) return true;
+              return norm(p.title ?? "").includes(q) || norm(p.slug ?? "").includes(q);
+            });
             const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PAGE_SIZE));
             const currentPage = Math.min(postsPage, totalPages);
             const startIdx = (currentPage - 1) * POSTS_PAGE_SIZE;
