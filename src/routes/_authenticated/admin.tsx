@@ -29,6 +29,8 @@ function AdminPage() {
   const auditFn = useServerFn(getScrapAudit);
   const seoFn = useServerFn(regenerateSeo);
   const [seoUseAI, setSeoUseAI] = useState(false);
+  const [postsPage, setPostsPage] = useState(1);
+  const POSTS_PAGE_SIZE = 30;
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
