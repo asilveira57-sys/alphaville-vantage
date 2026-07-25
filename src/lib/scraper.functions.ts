@@ -333,7 +333,7 @@ type DryRunPreview = {
 
 export const runScraper = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { dryRun?: boolean; limit?: number } | undefined) => input ?? {})
+  .inputValidator((input: { dryRun?: boolean; limit?: number; useAI?: boolean; sinceIso?: string } | undefined) => input ?? {})
   .handler(async ({ context, data }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId, _role: "admin",
@@ -342,6 +342,9 @@ export const runScraper = createServerFn({ method: "POST" })
 
     const dryRun = !!data?.dryRun;
     const dryLimit = Math.max(1, Math.min(50, data?.limit ?? 10));
+    const useAI = !!data?.useAI;
+    const runLimit = !dryRun && data?.limit ? Math.max(1, Math.min(50, data.limit)) : undefined;
+    const sinceIso = data?.sinceIso ?? new Date().toISOString();
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const t0 = Date.now();
