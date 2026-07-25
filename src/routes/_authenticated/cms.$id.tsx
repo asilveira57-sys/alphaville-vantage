@@ -105,6 +105,16 @@ function toFormState(p: any): FormState {
     og_description: p.og_description ?? "",
     og_image: p.og_image ?? "",
     schema_type: p.schema_type ?? "Article",
+    hero_eyebrow: p.hero_eyebrow ?? "",
+    cards: Array.isArray(p.cards)
+      ? p.cards.map((c: any) => ({
+          eyebrow: c?.eyebrow ?? "",
+          title: c?.title ?? "",
+          lead: c?.lead ?? "",
+          to: c?.to ?? "",
+          image: c?.image ?? "",
+        }))
+      : [],
   };
 }
 
