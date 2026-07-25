@@ -25,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/cms/$id")({
 });
 
 type HubCard = { eyebrow: string; title: string; lead: string; to: string; image: string };
+type FaqItem = { question: string; answer: string };
 
 type FormState = {
   id?: string;
@@ -52,6 +53,32 @@ type FormState = {
   schema_type: "Article" | "BlogPosting" | "Place" | "Residence" | "LocalBusiness";
   hero_eyebrow: string;
   cards: HubCard[];
+  // Bloco de ajuda
+  help_title: string;
+  help_text: string;
+  help_button_label: string;
+  help_button_url: string;
+  // CTA
+  cta_title: string;
+  cta_text: string;
+  cta_button_label: string;
+  cta_button_url: string;
+  // Classificações
+  cidade: string;
+  regiao: string;
+  bairro: string;
+  condominio: string;
+  categoria_editorial: string;
+  perfil_publico: string;
+  intencao_imobiliaria: string;
+  tipos_imovel_relacionados: string[];
+  tags_contextuais: string[];
+  // Radar
+  conversion_context: string;
+  personalization_enabled: boolean;
+  // Metadados
+  reading_minutes: number | null;
+  faq: FaqItem[];
 };
 
 const EMPTY: FormState = {
@@ -61,6 +88,13 @@ const EMPTY: FormState = {
   meta_title: "", meta_description: "", focus_keyword: "", secondary_keywords: [],
   canonical_url: "", og_title: "", og_description: "", og_image: "", schema_type: "Article",
   hero_eyebrow: "", cards: [],
+  help_title: "", help_text: "", help_button_label: "", help_button_url: "",
+  cta_title: "", cta_text: "", cta_button_label: "", cta_button_url: "",
+  cidade: "", regiao: "", bairro: "", condominio: "",
+  categoria_editorial: "", perfil_publico: "", intencao_imobiliaria: "",
+  tipos_imovel_relacionados: [], tags_contextuais: [],
+  conversion_context: "", personalization_enabled: false,
+  reading_minutes: null, faq: [],
 };
 
 const slugify = (s: string) =>
