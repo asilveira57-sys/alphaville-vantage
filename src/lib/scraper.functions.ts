@@ -665,6 +665,9 @@ export const runScraper = createServerFn({ method: "POST" })
       return {
         dryRun, runId: run?.id ?? null, pages, upserted, discovered, errors,
         budgetReached: Date.now() - t0 > RUN_BUDGET_MS,
+        hasMore: !dryRun && runLimit != null && staleQueue.length > effectiveQueue.length,
+        remaining: !dryRun ? Math.max(0, staleQueue.length - effectiveQueue.length) : 0,
+        sinceIso,
         previews: dryRun ? previews : [],
       };
     } catch (e) {
