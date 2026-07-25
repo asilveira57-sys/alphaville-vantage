@@ -510,14 +510,13 @@ function CmsEditorPage() {
               </Field>
               <Field label="Conteúdo (HTML)">
                 {preview ? (
-                  <div className="border border-ink/15 p-6 min-h-[420px] bg-canvas">
-                    <EditorialContent html={form.html_content} />
-                  </div>
+                  <FullPostPreview form={form} />
                 ) : (
                   <HtmlEditor value={form.html_content} onChange={(v) => set("html_content", v)} documentKey={id} />
                 )}
               </Field>
             </div>
+
 
             <div className="space-y-4">
               <Field label="Tipo de conteúdo">
