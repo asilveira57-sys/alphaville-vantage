@@ -28,19 +28,32 @@ const TYPE_MAP: Record<string, string> = {
 
 // Cidades canônicas conhecidas do portfólio.
 const CITIES: { canon: string; keys: string[] }[] = [
-  { canon: "Barueri", keys: ["barueri"] },
-  { canon: "Santana de Parnaíba", keys: ["santana de parnaiba", "santana de parnaíba", "parnaiba", "parnaíba"] },
-  { canon: "Osasco", keys: ["osasco"] },
-  { canon: "São Paulo", keys: ["sao paulo", "são paulo", "sp capital"] },
+  { canon: "Barueri", keys: ["barueri", "baruery", "baruerí"] },
+  {
+    canon: "Santana de Parnaíba",
+    keys: [
+      "santana de parnaiba",
+      "santana de parnaíba",
+      "santana",
+      "sant ana",
+      "santanna",
+      "parnaiba",
+      "parnaíba",
+      "s de parnaiba",
+      "sta de parnaiba",
+    ],
+  },
+  { canon: "Osasco", keys: ["osasco", "ossasco"] },
+  { canon: "São Paulo", keys: ["sao paulo", "são paulo", "sp capital", "capital"] },
 ];
 
 // Bairros / regiões canônicas.
 const NEIGHBORHOODS: { canon: string; keys: string[] }[] = [
-  { canon: "Alphaville", keys: ["alphaville"] },
-  { canon: "Tamboré", keys: ["tambore", "tamboré"] },
-  { canon: "Aldeia da Serra", keys: ["aldeia da serra"] },
-  { canon: "Genesis", keys: ["genesis", "gênesis"] },
-  { canon: "Melville", keys: ["melville"] },
+  { canon: "Alphaville", keys: ["alphaville", "alfaville", "alpha ville", "alphavile", "alphaviller"] },
+  { canon: "Tamboré", keys: ["tambore", "tamboré", "tanbore", "tanboré", "tamborê"] },
+  { canon: "Aldeia da Serra", keys: ["aldeia da serra", "aldeia", "aldeia serra"] },
+  { canon: "Genesis", keys: ["genesis", "gênesis", "gênese", "genese"] },
+  { canon: "Melville", keys: ["melville", "melvile", "mellville"] },
 ];
 
 const norm = (s: string) =>
