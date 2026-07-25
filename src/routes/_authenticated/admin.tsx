@@ -29,6 +29,8 @@ function AdminPage() {
   const auditFn = useServerFn(getScrapAudit);
   const seoFn = useServerFn(regenerateSeo);
   const [seoUseAI, setSeoUseAI] = useState(false);
+  const [postsPage, setPostsPage] = useState(1);
+  const POSTS_PAGE_SIZE = 30;
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const postsQ = useQuery({
@@ -165,27 +167,63 @@ function AdminPage() {
         </section>
 
         <section>
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="font-serif text-2xl text-ink">Posts</h2>
-            <span className="text-xs text-muted-foreground">{postsQ.data?.length ?? 0} no total</span>
-          </div>
-          <div className="border border-ink/10">
-            {(postsQ.data ?? []).map((p) => (
-              <div key={p.id} className="grid grid-cols-12 gap-3 px-4 py-3 border-b border-ink/8 text-sm items-center">
-                <div className="col-span-6 font-medium text-ink truncate">
-                  <Link to="/cms/$id" params={{ id: p.id }} className="hover:underline">{p.title}</Link>
+          {(() => {
+            const allPosts = postsQ.data ?? [];
+            const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PAGE_SIZE));
+            const currentPage = Math.min(postsPage, totalPages);
+            const startIdx = (currentPage - 1) * POSTS_PAGE_SIZE;
+            const pagePosts = allPosts.slice(startIdx, startIdx + POSTS_PAGE_SIZE);
+            return (
+              <>
+                <div className="flex items-baseline justify-between mb-4">
+                  <h2 className="font-serif text-2xl text-ink">Posts</h2>
+                  <span className="text-xs text-muted-foreground">
+                    {allPosts.length} no total · pág. {currentPage}/{totalPages}
+                  </span>
                 </div>
-                <div className="col-span-2 text-xs uppercase tracking-wider text-muted-foreground">{p.status}</div>
-                <div className="col-span-2 text-xs text-muted-foreground truncate">/{p.slug}</div>
-                <div className="col-span-2 text-right">
-                  <Link to="/cms/$id" params={{ id: p.id }} className="text-xs uppercase tracking-widest text-ink hover:underline">Editar</Link>
+                <div className="border border-ink/10">
+                  {pagePosts.map((p) => (
+                    <div key={p.id} className="grid grid-cols-12 gap-3 px-4 py-3 border-b border-ink/8 text-sm items-center">
+                      <div className="col-span-6 font-medium text-ink truncate">
+                        <Link to="/cms/$id" params={{ id: p.id }} className="hover:underline">{p.title}</Link>
+                      </div>
+                      <div className="col-span-2 text-xs uppercase tracking-wider text-muted-foreground">{p.status}</div>
+                      <div className="col-span-2 text-xs text-muted-foreground truncate">/{p.slug}</div>
+                      <div className="col-span-2 text-right">
+                        <Link to="/cms/$id" params={{ id: p.id }} className="text-xs uppercase tracking-widest text-ink hover:underline">Editar</Link>
+                      </div>
+                    </div>
+                  ))}
+                  {allPosts.length === 0 && (
+                    <div className="px-4 py-8 text-sm text-muted-foreground text-center">Nenhum post ainda.</div>
+                  )}
                 </div>
-              </div>
-            ))}
-            {postsQ.data?.length === 0 && (
-              <div className="px-4 py-8 text-sm text-muted-foreground text-center">Nenhum post ainda.</div>
-            )}
-          </div>
+                {totalPages > 1 && (
+                  <div className="mt-4 flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPostsPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-xs uppercase tracking-widest border border-ink/15 disabled:opacity-30 hover:bg-ink/5"
+                    >
+                      Anterior
+                    </button>
+                    <span className="text-xs text-muted-foreground px-2">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPostsPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-xs uppercase tracking-widest border border-ink/15 disabled:opacity-30 hover:bg-ink/5"
+                    >
+                      Próxima
+                    </button>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </section>
 
         <section>
