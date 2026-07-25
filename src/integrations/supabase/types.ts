@@ -133,6 +133,7 @@ export type Database = {
         Row: {
           author_id: string | null
           canonical_url: string | null
+          cards: Json
           content_type: string
           created_at: string
           display_order: number
@@ -140,6 +141,7 @@ export type Database = {
           featured_image: string | null
           focus_keyword: string | null
           gallery_images: string[]
+          hero_eyebrow: string | null
           html_content: string
           id: string
           is_featured: boolean
@@ -162,6 +164,7 @@ export type Database = {
         Insert: {
           author_id?: string | null
           canonical_url?: string | null
+          cards?: Json
           content_type: string
           created_at?: string
           display_order?: number
@@ -169,6 +172,7 @@ export type Database = {
           featured_image?: string | null
           focus_keyword?: string | null
           gallery_images?: string[]
+          hero_eyebrow?: string | null
           html_content?: string
           id?: string
           is_featured?: boolean
@@ -191,6 +195,7 @@ export type Database = {
         Update: {
           author_id?: string | null
           canonical_url?: string | null
+          cards?: Json
           content_type?: string
           created_at?: string
           display_order?: number
@@ -198,6 +203,7 @@ export type Database = {
           featured_image?: string | null
           focus_keyword?: string | null
           gallery_images?: string[]
+          hero_eyebrow?: string | null
           html_content?: string
           id?: string
           is_featured?: boolean
