@@ -78,6 +78,10 @@ function CmsListPage() {
   }
 
   const rows = listQ.data ?? [];
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const startIdx = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = rows.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
     <SiteLayout>
@@ -96,17 +100,19 @@ function CmsListPage() {
 
         <div className="flex gap-3 flex-wrap items-center border border-ink/10 p-3">
           <input
-            value={search} onChange={(e) => setSearch(e.target.value)}
+            value={search} onChange={(e) => setSearchAndReset(e.target.value)}
             placeholder="Buscar por título…"
             className="flex-1 min-w-[200px] border border-ink/15 px-3 py-2 text-sm bg-transparent focus:outline-none focus:border-ink"
           />
-          <select value={contentType} onChange={(e) => setContentType(e.target.value)} className="border border-ink/15 px-3 py-2 text-sm bg-canvas">
+          <select value={contentType} onChange={(e) => setTypeAndReset(e.target.value)} className="border border-ink/15 px-3 py-2 text-sm bg-canvas">
             {TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="border border-ink/15 px-3 py-2 text-sm bg-canvas">
+          <select value={status} onChange={(e) => setStatusAndReset(e.target.value)} className="border border-ink/15 px-3 py-2 text-sm bg-canvas">
             {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
-          <span className="text-xs text-muted-foreground ml-auto">{rows.length} página(s)</span>
+          <span className="text-xs text-muted-foreground ml-auto">
+            {rows.length} página(s) · pág. {currentPage}/{totalPages}
+          </span>
         </div>
 
         <div className="border border-ink/10">
@@ -117,7 +123,7 @@ function CmsListPage() {
             <div className="col-span-2">SEO</div>
             <div className="col-span-3 text-right">Ações</div>
           </div>
-          {rows.map((p: any) => {
+          {pageRows.map((p: any) => {
             const score = seoScore(p);
             return (
               <div key={p.id} className="grid grid-cols-12 gap-3 px-4 py-3 border-b border-ink/8 text-sm items-center">
@@ -149,8 +155,62 @@ function CmsListPage() {
           })}
           {rows.length === 0 && <div className="px-4 py-12 text-center text-sm text-muted-foreground">Nenhuma página encontrada.</div>}
         </div>
+
+        {totalPages > 1 && (
+          <Pager currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
+        )}
       </div>
     </SiteLayout>
+  );
+}
+
+function Pager({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (p: number) => void }) {
+  const pages: (number | "…")[] = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "…") {
+      pages.push("…");
+    }
+  }
+  return (
+    <nav className="flex items-center justify-center gap-2" aria-label="Paginação">
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-2 text-xs uppercase tracking-widest border border-ink/15 disabled:opacity-30 hover:bg-ink/5"
+      >
+        Anterior
+      </button>
+      {pages.map((p, i) =>
+        p === "…" ? (
+          <span key={`e-${i}`} className="px-2 text-sm text-muted-foreground">…</span>
+        ) : (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onPageChange(p)}
+            aria-current={p === currentPage ? "page" : undefined}
+            className={
+              p === currentPage
+                ? "min-w-[40px] px-3 py-2 text-xs font-bold bg-ink text-canvas"
+                : "min-w-[40px] px-3 py-2 text-xs border border-ink/15 hover:bg-ink/5"
+            }
+          >
+            {p}
+          </button>
+        ),
+      )}
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-2 text-xs uppercase tracking-widest border border-ink/15 disabled:opacity-30 hover:bg-ink/5"
+      >
+        Próxima
+      </button>
+    </nav>
   );
 }
 
