@@ -1,10 +1,12 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
 import { InstitutionalBlock } from "@/components/section-page";
+import { PostHelpBlock } from "@/components/post-help-block";
+import { PostCtaBlock } from "@/components/post-cta-block";
 import { resolveImage } from "@/lib/image-fallbacks";
-import { getPostBySlug } from "@/lib/blog.functions";
+import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
 
 const postQO = (slug: string) => queryOptions({
   queryKey: ["post", slug],
@@ -30,7 +32,10 @@ export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params, context }) => {
     const post = await context.queryClient.ensureQueryData(postQO(params.slug));
     if (!post) throw notFound();
-    return { post };
+    const related = await listRelatedPosts({
+      data: { excludeSlug: params.slug, tags: (post as any).tags ?? [], limit: 3 },
+    }).catch(() => []);
+    return { post, related };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.post;
@@ -42,7 +47,9 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:title", content: p.title },
         { property: "og:description", content: p.excerpt ?? "" },
         ...(p.featured_image ? [{ property: "og:image", content: p.featured_image }] : []),
+        ...(p.featured_image ? [{ name: "twitter:image", content: p.featured_image }] : []),
         { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: `/blog/${p.slug}` }],
     };
@@ -64,11 +71,31 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function PostPage() {
-  const { post } = Route.useLoaderData();
+  const { post, related } = Route.useLoaderData() as { post: any; related: any[] };
   const cover = resolveImage(post.featured_image, { type: "post", seed: post.slug });
-  const category = post.tags?.[0] ?? "Editorial";
+  const category = post.categoria_editorial || post.tags?.[0] || "Editorial";
   const date = fmtDate(post.published_at);
-  const readMin = estimateReadMinutes(post.html_content);
+  const readMin = typeof post.reading_minutes === "number" && post.reading_minutes > 0
+    ? post.reading_minutes
+    : estimateReadMinutes(post.html_content);
+
+  const faqItems: Array<{ question: string; answer: string }> = Array.isArray(post.faq)
+    ? post.faq.filter((f: any) => f?.question && f?.answer)
+    : [];
+
+  const faqJsonLd = faqItems.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqItems.map((f) => ({
+          "@type": "Question",
+          name: f.question,
+          acceptedAnswer: { "@type": "Answer", text: f.answer },
+        })),
+      }
+    : null;
+
+  const helpContext = [post.categoria_editorial, post.cidade, post.bairro].filter(Boolean).join(" · ");
 
   return (
     <SiteLayout>
@@ -114,35 +141,97 @@ function PostPage() {
       <article className="bg-canvas px-6 py-16 md:py-24">
         <div className="max-w-2xl mx-auto">
           <EditorialContent html={post.html_content ?? ""} />
+
+          {/* Bloco "Como a S.A. Imóveis pode ajudar" */}
+          <PostHelpBlock
+            title={post.help_title}
+            text={post.help_text}
+            buttonLabel={post.help_button_label}
+            buttonUrl={post.help_button_url}
+            context={helpContext || null}
+          />
+
+          {/* Perguntas frequentes */}
+          {faqItems.length > 0 && (
+            <section className="mt-12">
+              <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6">Perguntas frequentes</h2>
+              <div className="divide-y divide-ink/10 border-y border-ink/10">
+                {faqItems.map((f, i) => (
+                  <details key={i} className="group py-4">
+                    <summary className="cursor-pointer list-none flex items-start justify-between gap-4 text-ink font-medium">
+                      <span>{f.question}</span>
+                      <span aria-hidden className="text-ink/40 group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <div className="mt-3 text-ink/75 leading-relaxed whitespace-pre-line">{f.answer}</div>
+                  </details>
+                ))}
+              </div>
+              {faqJsonLd && (
+                <script
+                  type="application/ld+json"
+                  dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+                />
+              )}
+            </section>
+          )}
+
+          {/* Espaço reservado para personalização futura — desativado por padrão */}
+          {/* personalization_enabled === true no futuro poderá substituir/complementar o CTA */}
         </div>
       </article>
 
-      {/* CTA premium */}
-      <section className="bg-navy-deep text-canvas px-6 py-16 md:py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-4">S.A Imóveis Alphaville</p>
-          <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4 text-balance">
-            Encontre o imóvel certo em Alphaville e região
-          </h2>
-          <p className="text-canvas/70 mb-8 max-w-[52ch] mx-auto leading-relaxed">
-            Curadoria de imóveis residenciais e comerciais em Alphaville, Tamboré, Barueri e Santana de Parnaíba.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link
-              to="/imoveis"
-              className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-navy-deep transition hover:bg-gold-soft"
-            >
-              Ver imóveis →
-            </Link>
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-canvas transition hover:border-gold hover:text-gold"
-            >
-              Mais matérias
-            </Link>
+      {/* CTA contextual */}
+      {!post.personalization_enabled && (
+        <PostCtaBlock
+          title={post.cta_title}
+          text={post.cta_text}
+          buttonLabel={post.cta_button_label}
+          buttonUrl={post.cta_button_url}
+        />
+      )}
+
+      {/* Matérias relacionadas */}
+      {related && related.length > 0 && (
+        <section className="bg-canvas px-6 py-16 border-t border-ink/10">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-2">Continue lendo</p>
+                <h2 className="font-serif text-2xl md:text-3xl text-ink">Matérias relacionadas</h2>
+              </div>
+              <Link to="/blog" className="text-[11px] uppercase tracking-widest hover:underline">Ver todas →</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {related.map((r: any) => {
+                const img = resolveImage(r.featured_image, { type: "post", seed: r.slug });
+                return (
+                  <Link
+                    key={r.id}
+                    to="/blog/$slug"
+                    params={{ slug: r.slug }}
+                    className="group block border border-ink/10 hover:border-ink/30 transition-colors"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden bg-ink/5">
+                      <img
+                        src={img}
+                        alt={r.title}
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-serif text-lg text-ink leading-tight group-hover:underline">{r.title}</h3>
+                      {r.excerpt && <p className="mt-2 text-sm text-ink/70 line-clamp-3">{r.excerpt}</p>}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <InstitutionalBlock />
     </SiteLayout>
