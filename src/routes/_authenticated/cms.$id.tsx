@@ -835,3 +835,82 @@ function AutoSaveIndicator({
   if (state.kind === "error") return <span className="text-[11px] uppercase tracking-widest text-red-600" title={state.message}>Erro ao salvar</span>;
   return <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Pronto</span>;
 }
+
+function FullPostPreview({ form }: { form: FormState }) {
+  const isBlog = form.content_type === "blog";
+  if (!isBlog) {
+    return (
+      <div className="border border-ink/15 p-6 min-h-[420px] bg-canvas">
+        <EditorialContent html={form.html_content} />
+      </div>
+    );
+  }
+  const cover = resolveImage(form.featured_image, { type: "post", seed: form.slug || "preview" });
+  const category = form.categoria_editorial || form.tags?.[0] || "Editorial";
+  const text = form.html_content.replace(/<[^>]+>/g, " ").trim();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const readMin = form.reading_minutes ?? (words ? Math.max(1, Math.round(words / 220)) : null);
+  const faqItems = (form.faq ?? []).filter((f) => f.question && f.answer);
+
+  return (
+    <div className="border border-ink/15 bg-canvas overflow-hidden">
+      <div className="bg-[10px] uppercase tracking-widest text-amber-700 px-4 py-2 border-b border-ink/10 text-[10px]">
+        Pré-visualização — não publicada
+      </div>
+      <header className="relative isolate bg-navy-deep text-canvas">
+        <img src={cover} alt={form.title} className="absolute inset-0 h-full w-full object-cover opacity-60" />
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,14,28,0.35)_0%,rgba(8,14,28,0.75)_60%,rgba(8,14,28,0.95)_100%)]" />
+        <div className="relative max-w-3xl mx-auto px-6 pt-16 pb-14">
+          <span className="inline-flex items-center rounded-full bg-navy/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold ring-1 ring-gold/30 backdrop-blur">
+            {category}
+          </span>
+          <h1 className="mt-5 font-serif text-3xl md:text-5xl font-medium leading-[1.05] text-balance">
+            {form.title || "Sem título"}
+          </h1>
+          {form.excerpt && (
+            <p className="mt-5 text-base md:text-lg text-canvas/80 leading-relaxed max-w-[62ch]">{form.excerpt}</p>
+          )}
+          {readMin && (
+            <p className="mt-6 text-[11px] uppercase tracking-[0.22em] text-canvas/60">{readMin} min de leitura</p>
+          )}
+        </div>
+      </header>
+      <article className="bg-canvas px-6 py-12">
+        <div className="max-w-2xl mx-auto">
+          <EditorialContent html={form.html_content} />
+          <PostHelpBlock
+            title={form.help_title}
+            text={form.help_text}
+            buttonLabel={form.help_button_label}
+            buttonUrl={form.help_button_url}
+          />
+          {faqItems.length > 0 && (
+            <section className="mt-12">
+              <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6">Perguntas frequentes</h2>
+              <div className="divide-y divide-ink/10 border-y border-ink/10">
+                {faqItems.map((f, i) => (
+                  <details key={i} className="group py-4">
+                    <summary className="cursor-pointer list-none flex items-start justify-between gap-4 text-ink font-medium">
+                      <span>{f.question}</span>
+                      <span aria-hidden className="text-ink/40 group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <div className="mt-3 text-ink/75 leading-relaxed whitespace-pre-line">{f.answer}</div>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </article>
+      {!form.personalization_enabled && (
+        <PostCtaBlock
+          title={form.cta_title}
+          text={form.cta_text}
+          buttonLabel={form.cta_button_label}
+          buttonUrl={form.cta_button_url}
+        />
+      )}
+    </div>
+  );
+}
+
