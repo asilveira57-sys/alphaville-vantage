@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, Send, Quote } from "lucide-react";
+import { Search, Send } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,7 @@ import { PremiumPostCard } from "@/components/premium-cards/post-card";
 import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
+import { GoogleReviewsSection } from "@/components/google-reviews";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
@@ -162,26 +163,6 @@ const STATS = [
   { number: "98%", label: "Índice de satisfação em pós-venda" },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "A curadoria da S.A nos entregou muito mais que uma casa — nos apresentou o estilo de vida certo para nossa família em Alphaville.",
-    author: "Renata e Paulo M.",
-    role: "Alphaville Residencial 10",
-  },
-  {
-    quote:
-      "Consultoria séria, conhecimento profundo do bairro e negociação transparente do início ao fim. Referência absoluta na região.",
-    author: "Dr. Fernando A.",
-    role: "Investidor · Tamboré",
-  },
-  {
-    quote:
-      "Encontramos um imóvel raro em Santana de Parnaíba graças ao trabalho editorial e ao networking do time. Recomendo sem hesitar.",
-    author: "Camila R.",
-    role: "Compradora · Centro Histórico",
-  },
-];
 
 function HomePage() {
   const { properties, posts, regionCounts } = Route.useLoaderData() as {
