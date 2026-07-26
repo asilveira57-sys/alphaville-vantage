@@ -11,9 +11,9 @@ export const WRITE_REVIEW_URL = `https://search.google.com/local/writereview?pla
 export const MAPS_URL = `https://www.google.com/maps/place/?q=place_id:${PLACE_ID}`;
 
 /** Nota geral exibida na seção. Atualize manualmente. */
-export const GOOGLE_RATING = 5;
+export const GOOGLE_RATING = 4.9;
 /** Quantidade total de avaliações no Google. Atualize manualmente. */
-export const GOOGLE_TOTAL_REVIEWS = 0;
+export const GOOGLE_TOTAL_REVIEWS = 79;
 
 /**
  * Avaliações reais publicadas no Google, cadastradas manualmente (máx. 6).
