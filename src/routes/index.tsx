@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, Send, Quote } from "lucide-react";
+import { Search, Send } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,7 @@ import { PremiumPostCard } from "@/components/premium-cards/post-card";
 import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
+import { GoogleReviewsSection } from "@/components/google-reviews";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
@@ -162,26 +163,6 @@ const STATS = [
   { number: "98%", label: "Índice de satisfação em pós-venda" },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "A curadoria da S.A nos entregou muito mais que uma casa — nos apresentou o estilo de vida certo para nossa família em Alphaville.",
-    author: "Renata e Paulo M.",
-    role: "Alphaville Residencial 10",
-  },
-  {
-    quote:
-      "Consultoria séria, conhecimento profundo do bairro e negociação transparente do início ao fim. Referência absoluta na região.",
-    author: "Dr. Fernando A.",
-    role: "Investidor · Tamboré",
-  },
-  {
-    quote:
-      "Encontramos um imóvel raro em Santana de Parnaíba graças ao trabalho editorial e ao networking do time. Recomendo sem hesitar.",
-    author: "Camila R.",
-    role: "Compradora · Centro Histórico",
-  },
-];
 
 function HomePage() {
   const { properties, posts, regionCounts } = Route.useLoaderData() as {
@@ -487,38 +468,9 @@ function HomePage() {
         </div>
       </section>
 
-      {/* =============== DEPOIMENTOS =============== */}
-      <section className="py-24 bg-[#EAEAE6] px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-14 max-w-[52ch]">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/60 mb-3">
-              Clientes S.A
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-medium text-[#0D0D0D]">
-              Histórias de quem confiou a nós sua decisão mais importante
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {TESTIMONIALS.map((t) => (
-              <figure
-                key={t.author}
-                className="bg-white p-8 md:p-10 shadow-[0_10px_40px_-24px_rgba(13,13,13,0.35)] ring-1 ring-black/5 flex flex-col"
-              >
-                <Quote className="h-6 w-6 text-[#F2DA00]" strokeWidth={2.2} />
-                <blockquote className="mt-6 font-display text-xl md:text-[22px] leading-snug text-[#0D0D0D] italic">
-                  “{t.quote}”
-                </blockquote>
-                <figcaption className="mt-8 pt-6 border-t border-[#0D0D0D]/10">
-                  <p className="text-sm font-semibold text-[#0D0D0D]">{t.author}</p>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-[#1A1A1A]/60 mt-1">
-                    {t.role}
-                  </p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* =============== AVALIAÇÕES GOOGLE =============== */}
+      <GoogleReviewsSection />
+
 
       {/* =============== NEWSLETTER =============== */}
       <section className="py-24 bg-[#0D0D0D] text-white px-6">
