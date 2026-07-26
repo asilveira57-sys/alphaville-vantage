@@ -7,10 +7,14 @@ export type GoogleReview = {
 };
 
 export const PLACE_ID = "ChIJG4pE168Dz5QRbYWntjRt6AA";
-/** Busca por nome: funciona mesmo se o Place ID mudar/expirar. */
-const PLACE_QUERY = encodeURIComponent("S.A. Imóveis Alphaville");
-export const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${PLACE_QUERY}&query_place_id=${PLACE_ID}`;
-export const WRITE_REVIEW_URL = MAPS_URL;
+/** Perfil oficial no Google (link informado pelo cliente). */
+export const MAPS_URL =
+  "https://www.google.com/search?hl=pt-BR&gl=br&q=S.A+Im%C3%B3veis+Alphaville+-+Av.+Marcos+Penteado+de+Ulh%C3%B4a+Rodrigues,+3866+-+Res.+Tambore+III,+Santana+de+Parna%C3%ADba+-+SP,+06543-001&ludocid=65422267767031149&lsig=AB86z5X7MxgLOIKoxenUK0jsrl2W#lrd=0x94cf03afd7448a1b:0xe86d34b6a7856d,1,,,,";
+/** Mesmo perfil, abrindo direto o formulário de avaliação. */
+export const WRITE_REVIEW_URL = MAPS_URL.replace(
+  "0xe86d34b6a7856d,1,,,,",
+  "0xe86d34b6a7856d,3,,,,",
+);
 
 /** Nota geral exibida na seção. Atualize manualmente. */
 export const GOOGLE_RATING = 4.9;
