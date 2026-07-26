@@ -1,12 +1,13 @@
 import { useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { getGoogleReviews, type GoogleReview } from "@/lib/google-reviews.functions";
-
-const PLACE_ID = "ChIJG4pE168Dz5QRbYWntjRt6AA";
-const WRITE_REVIEW_URL = `https://search.google.com/local/writereview?placeid=${PLACE_ID}`;
-const FALLBACK_MAPS_URI = `https://www.google.com/maps/place/?q=place_id:${PLACE_ID}`;
+import {
+  GOOGLE_RATING,
+  GOOGLE_REVIEWS,
+  GOOGLE_TOTAL_REVIEWS,
+  MAPS_URL,
+  WRITE_REVIEW_URL,
+  type GoogleReview,
+} from "@/lib/google-reviews-data";
 
 function Stars({ value, label }: { value: number; label?: string }) {
   const rounded = Math.round(value);
@@ -30,29 +31,17 @@ function ReviewCard({ review }: { review: GoogleReview }) {
   return (
     <article className="flex h-full flex-col bg-white p-8 ring-1 ring-black/5 shadow-[0_10px_40px_-24px_rgba(13,13,13,0.35)]">
       <div className="flex items-center gap-4">
-        {review.authorPhoto ? (
-          <img
-            src={review.authorPhoto}
-            alt={`Foto de ${review.authorName}`}
-            loading="lazy"
-            decoding="async"
-            className="h-11 w-11 rounded-full object-cover ring-1 ring-black/10"
-          />
-        ) : (
-          <span
-            aria-hidden
-            className="grid h-11 w-11 place-items-center rounded-full bg-[#0D0D0D] text-sm font-semibold text-white"
-          >
-            {review.authorName.trim().charAt(0).toUpperCase()}
-          </span>
-        )}
+        <span
+          aria-hidden
+          className="grid h-11 w-11 place-items-center rounded-full bg-[#0D0D0D] text-sm font-semibold text-white"
+        >
+          {review.authorName.trim().charAt(0).toUpperCase()}
+        </span>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-[#0D0D0D]">{review.authorName}</p>
           <div className="mt-1 flex items-center gap-2">
             <Stars value={review.rating} label={`${review.rating} de 5 estrelas`} />
-            {review.relativeTime ? (
-              <span className="text-[11px] text-[#1A1A1A]/55">{review.relativeTime}</span>
-            ) : null}
+            {review.date ? <span className="text-[11px] text-[#1A1A1A]/55">{review.date}</span> : null}
           </div>
         </div>
       </div>
@@ -78,44 +67,28 @@ function ReviewCard({ review }: { review: GoogleReview }) {
         <span className="text-[10px] uppercase tracking-[0.22em] text-[#1A1A1A]/55">
           Publicado no Google
         </span>
-        {review.uri ? (
-          <a
-            href={review.uri}
-            target="_blank"
-            rel="noreferrer"
-            className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1A1A1A] underline underline-offset-4 hover:text-[#0D0D0D]"
-          >
-            Abrir no Google
-          </a>
-        ) : null}
+        <a
+          href={MAPS_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1A1A1A] underline underline-offset-4 hover:text-[#0D0D0D]"
+        >
+          Abrir no Google
+        </a>
       </div>
     </article>
   );
 }
 
-function SkeletonCard() {
-  return (
-    <div className="h-[340px] animate-pulse bg-white/70 ring-1 ring-black/5" aria-hidden />
-  );
-}
-
 export function GoogleReviewsSection() {
-  const fetchReviews = useServerFn(getGoogleReviews);
-  const { data, isLoading } = useQuery({
-    queryKey: ["google-reviews"],
-    queryFn: () => fetchReviews(),
-    staleTime: 24 * 60 * 60 * 1000,
-  });
   const trackRef = useRef<HTMLDivElement>(null);
+  const reviews = GOOGLE_REVIEWS.slice(0, 6);
 
   const scrollBy = (dir: 1 | -1) => {
     const el = trackRef.current;
     if (!el) return;
     el.scrollBy({ left: dir * (el.clientWidth / 1.05), behavior: "smooth" });
   };
-
-  const mapsUri = data?.mapsUri ?? FALLBACK_MAPS_URI;
-  const reviews = data?.reviews ?? [];
 
   return (
     <section className="bg-[#EAEAE6] px-6 py-24" aria-labelledby="avaliacoes-google">
@@ -136,28 +109,25 @@ export function GoogleReviewsSection() {
             </p>
           </div>
 
-          {data?.rating != null ? (
+          <div className="max-w-sm">
             <div className="flex items-center gap-4 bg-white px-6 py-5 ring-1 ring-black/5 shadow-[0_10px_40px_-28px_rgba(13,13,13,0.4)]">
               <span className="font-display text-4xl text-[#0D0D0D]">
-                {data.rating.toFixed(1).replace(".", ",")}
+                {GOOGLE_RATING.toFixed(1).replace(".", ",")}
               </span>
               <div>
-                <Stars value={data.rating} label={`Nota média ${data.rating} de 5 no Google`} />
+                <Stars value={GOOGLE_RATING} label={`Nota média ${GOOGLE_RATING} de 5 no Google`} />
                 <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-[#1A1A1A]/60">
-                  {data.total ?? 0} avaliações no Google
+                  {GOOGLE_TOTAL_REVIEWS} avaliações no Google
                 </p>
               </div>
             </div>
-          ) : null}
+            <p className="mt-3 text-[11px] leading-relaxed text-[#1A1A1A]/55">
+              Avaliações publicadas originalmente no Google. Informações atualizadas periodicamente.
+            </p>
+          </div>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-        ) : reviews.length > 0 ? (
+        {reviews.length > 0 ? (
           <div className="relative">
             <div
               ref={trackRef}
@@ -195,7 +165,7 @@ export function GoogleReviewsSection() {
           </div>
         ) : (
           <p className="text-sm text-[#1A1A1A]/70">
-            Não foi possível carregar as avaliações agora. Veja o perfil completo no Google.
+            Veja o perfil completo da S.A. Imóveis no Google para ler todas as avaliações.
           </p>
         )}
 
@@ -209,12 +179,12 @@ export function GoogleReviewsSection() {
             Avaliar a S.A. Imóveis no Google
           </a>
           <a
-            href={mapsUri}
+            href={MAPS_URL}
             target="_blank"
             rel="noreferrer"
             className="inline-flex min-h-12 items-center border border-[#0D0D0D]/25 px-7 py-4 text-xs font-bold uppercase tracking-widest text-[#0D0D0D] transition hover:bg-[#0D0D0D] hover:text-white"
           >
-            {reviews.length > 0 ? "Ver todas as avaliações" : "Ver avaliações no Google"}
+            Ver todas as avaliações no Google
           </a>
         </div>
       </div>
