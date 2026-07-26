@@ -7,8 +7,10 @@ export type GoogleReview = {
 };
 
 export const PLACE_ID = "ChIJG4pE168Dz5QRbYWntjRt6AA";
-export const WRITE_REVIEW_URL = `https://search.google.com/local/writereview?placeid=${PLACE_ID}`;
-export const MAPS_URL = `https://www.google.com/maps/place/?q=place_id:${PLACE_ID}`;
+/** Busca por nome: funciona mesmo se o Place ID mudar/expirar. */
+const PLACE_QUERY = encodeURIComponent("S.A. Imóveis Alphaville");
+export const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${PLACE_QUERY}&query_place_id=${PLACE_ID}`;
+export const WRITE_REVIEW_URL = MAPS_URL;
 
 /** Nota geral exibida na seção. Atualize manualmente. */
 export const GOOGLE_RATING = 4.9;
