@@ -487,38 +487,9 @@ function HomePage() {
         </div>
       </section>
 
-      {/* =============== DEPOIMENTOS =============== */}
-      <section className="py-24 bg-[#EAEAE6] px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-14 max-w-[52ch]">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/60 mb-3">
-              Clientes S.A
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-medium text-[#0D0D0D]">
-              Histórias de quem confiou a nós sua decisão mais importante
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {TESTIMONIALS.map((t) => (
-              <figure
-                key={t.author}
-                className="bg-white p-8 md:p-10 shadow-[0_10px_40px_-24px_rgba(13,13,13,0.35)] ring-1 ring-black/5 flex flex-col"
-              >
-                <Quote className="h-6 w-6 text-[#F2DA00]" strokeWidth={2.2} />
-                <blockquote className="mt-6 font-display text-xl md:text-[22px] leading-snug text-[#0D0D0D] italic">
-                  “{t.quote}”
-                </blockquote>
-                <figcaption className="mt-8 pt-6 border-t border-[#0D0D0D]/10">
-                  <p className="text-sm font-semibold text-[#0D0D0D]">{t.author}</p>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-[#1A1A1A]/60 mt-1">
-                    {t.role}
-                  </p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* =============== AVALIAÇÕES GOOGLE =============== */}
+      <GoogleReviewsSection />
+
 
       {/* =============== NEWSLETTER =============== */}
       <section className="py-24 bg-[#0D0D0D] text-white px-6">
