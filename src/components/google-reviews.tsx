@@ -164,9 +164,13 @@ export function GoogleReviewsSection() {
             ) : null}
           </div>
         ) : (
-          <p className="text-sm text-[#1A1A1A]/70">
-            Veja o perfil completo da S.A. Imóveis no Google para ler todas as avaliações.
-          </p>
+          <div className="bg-white p-10 ring-1 ring-black/5 shadow-[0_10px_40px_-28px_rgba(13,13,13,0.4)]">
+            <p className="max-w-[60ch] text-[15px] leading-relaxed text-[#1A1A1A]/75">
+              A S.A. Imóveis mantém nota {GOOGLE_RATING.toFixed(1).replace(".", ",")} com{" "}
+              {GOOGLE_TOTAL_REVIEWS} avaliações no Google. Abra o perfil oficial para ler os
+              depoimentos completos, na íntegra e diretamente na fonte.
+            </p>
+          </div>
         )}
 
         <div className="mt-12 flex flex-wrap gap-4">
