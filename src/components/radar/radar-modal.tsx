@@ -7,6 +7,8 @@ import {
   type RadarAnswers,
 } from "@/lib/radar-config";
 import { submitRadarLead } from "@/lib/radar.functions";
+import { radarToPropertySearch } from "@/lib/radar-to-filters";
+
 import { InterestCards } from "./interest-cards";
 import { RadarProgress } from "./radar-progress";
 import { RadarQuestionField } from "./radar-question";
@@ -227,7 +229,7 @@ export function RadarModal({ open, onClose }: Props) {
 
         <div className="px-5 md:px-10 py-8 md:py-10">
           {status === "success" ? (
-            <RadarSuccess items={summaryItems} onClose={onClose} />
+            <RadarSuccess items={summaryItems} onClose={onClose} search={radarToPropertySearch(interest, answers)} />
           ) : step === 0 ? (
             <div>
               <h3 className="font-display text-2xl md:text-3xl font-medium text-[#0D0D0D]">
