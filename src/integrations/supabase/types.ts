@@ -611,6 +611,99 @@ export type Database = {
           },
         ]
       }
+      real_estate_radar_leads: {
+        Row: {
+          answers_json: Json
+          campaign: string | null
+          content: string | null
+          conversion_context: string
+          created_at: string
+          form_version: string
+          id: string
+          interest_type: string
+          landing_page: string | null
+          lead_current_city: string | null
+          lead_email: string | null
+          lead_name: string
+          lead_phone: string | null
+          medium: string | null
+          preferred_contact_channel: string | null
+          preferred_contact_period: string | null
+          priority_level: string
+          privacy_consent: boolean
+          privacy_consent_at: string | null
+          profile_summary: string | null
+          qualification_score: number
+          recommended_next_step: string | null
+          referrer: string | null
+          source: string
+          status: string
+          term: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          answers_json?: Json
+          campaign?: string | null
+          content?: string | null
+          conversion_context?: string
+          created_at?: string
+          form_version?: string
+          id?: string
+          interest_type: string
+          landing_page?: string | null
+          lead_current_city?: string | null
+          lead_email?: string | null
+          lead_name: string
+          lead_phone?: string | null
+          medium?: string | null
+          preferred_contact_channel?: string | null
+          preferred_contact_period?: string | null
+          priority_level?: string
+          privacy_consent?: boolean
+          privacy_consent_at?: string | null
+          profile_summary?: string | null
+          qualification_score?: number
+          recommended_next_step?: string | null
+          referrer?: string | null
+          source?: string
+          status?: string
+          term?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          answers_json?: Json
+          campaign?: string | null
+          content?: string | null
+          conversion_context?: string
+          created_at?: string
+          form_version?: string
+          id?: string
+          interest_type?: string
+          landing_page?: string | null
+          lead_current_city?: string | null
+          lead_email?: string | null
+          lead_name?: string
+          lead_phone?: string | null
+          medium?: string | null
+          preferred_contact_channel?: string | null
+          preferred_contact_period?: string | null
+          priority_level?: string
+          privacy_consent?: boolean
+          privacy_consent_at?: string | null
+          profile_summary?: string | null
+          qualification_score?: number
+          recommended_next_step?: string | null
+          referrer?: string | null
+          source?: string
+          status?: string
+          term?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       scraper_runs: {
         Row: {
           error: string | null

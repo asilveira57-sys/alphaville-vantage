@@ -67,6 +67,7 @@ import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cm
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
+import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
@@ -368,6 +369,11 @@ const AuthenticatedAdminRuasRoute = AuthenticatedAdminRuasRouteImport.update({
   path: '/admin-ruas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRadarRoute = AuthenticatedAdminRadarRouteImport.update({
+  id: '/admin-radar',
+  path: '/admin-radar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
@@ -586,6 +594,7 @@ export interface FileRoutesById {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
@@ -656,6 +665,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/admin'
+    | '/admin-radar'
     | '/admin-ruas'
     | '/admin-seo'
     | '/audit'
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/admin'
+    | '/admin-radar'
     | '/admin-ruas'
     | '/admin-seo'
     | '/audit'
@@ -786,6 +797,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/transparencia'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-radar'
     | '/_authenticated/admin-ruas'
     | '/_authenticated/admin-seo'
     | '/_authenticated/audit'
@@ -1273,6 +1285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRuasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-radar': {
+      id: '/_authenticated/admin-radar'
+      path: '/admin-radar'
+      fullPath: '/admin-radar'
+      preLoaderRoute: typeof AuthenticatedAdminRadarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -1382,6 +1401,7 @@ const AuthenticatedCmsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRouteWithChildren
@@ -1390,6 +1410,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRouteWithChildren,
