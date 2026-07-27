@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, Send } from "lucide-react";
+import { Search } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
 import { GoogleReviewsSection } from "@/components/google-reviews";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
@@ -485,27 +486,8 @@ function HomePage() {
             Cadastre-se para receber nossas curadorias editoriais, novos imóveis e relatórios de
             mercado direto no seu e-mail. Sem spam, apenas o que importa.
           </p>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="mt-10 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
-          >
-            <label className="flex-1">
-              <span className="sr-only">Seu melhor e-mail</span>
-              <input
-                type="email"
-                required
-                placeholder="seu.melhor@email.com"
-                className="w-full bg-white/5 border border-white/15 text-white placeholder:text-white/40 px-5 py-4 text-sm outline-none focus:border-[#F2DA00] transition"
-              />
-            </label>
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-8 py-4 text-[12px] font-bold uppercase tracking-[0.22em] hover:brightness-95 transition"
-            >
-              <Send className="h-4 w-4" strokeWidth={2.4} />
-              Inscrever
-            </button>
-          </form>
+          <NewsletterForm />
+          
         </div>
       </section>
 
