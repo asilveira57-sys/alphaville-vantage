@@ -8,6 +8,7 @@ import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
 import { GoogleReviewsSection } from "@/components/google-reviews";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
