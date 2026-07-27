@@ -9,6 +9,8 @@ import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
 import { GoogleReviewsSection } from "@/components/google-reviews";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { RadarSection } from "@/components/radar/radar-section";
+
 
 import heroImg from "@/assets/hero-architecture.jpg";
 import alphavilleImg from "@/assets/region-alphaville.jpg";
@@ -292,6 +294,13 @@ function HomePage() {
           </form>
         </div>
       </section>
+
+      {/* =============== RADAR S.A. IMÓVEIS =============== */}
+      <div className="pt-24 md:pt-28 bg-white">
+        <RadarSection />
+      </div>
+
+
 
       {/* =============== REGIÕES =============== */}
       <section className="pt-28 md:pt-32 pb-20 md:pb-24 bg-[#EAEAE6] px-6">
