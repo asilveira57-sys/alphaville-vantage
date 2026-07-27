@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { useRef } from "react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
-import { PremiumPostCard } from "@/components/premium-cards/post-card";
-import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { CleanPostCard } from "@/components/premium-cards/clean-post-card";
+import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
 import { GoogleReviewsSection } from "@/components/google-reviews";
@@ -174,6 +175,17 @@ function HomePage() {
     regionCounts: RegionCounts;
   };
   const navigate = useNavigate();
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollCarousel = (dir: 1 | -1) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const card = el.firstElementChild as HTMLElement | null;
+    const step = card ? card.offsetWidth + 24 : el.clientWidth * 0.8;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
+
 
   const handleHeroSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -338,9 +350,9 @@ function HomePage() {
       </section>
 
       {/* =============== PERSPECTIVAS RECENTES (BLOG) =============== */}
-      <section className="py-24 bg-[#0D0D0D] text-white px-6">
+      <section className="py-24 md:py-28 bg-[#151515] text-[#F5F2EA] px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-12 border-b border-white/10 pb-4 gap-4 flex-wrap">
+          <div className="flex justify-between items-end mb-12 border-b border-white/10 pb-5 gap-4 flex-wrap">
             <div>
               <p className="text-[10px] uppercase tracking-[0.3em] text-[#F2DA00] mb-3">
                 Editorial
@@ -356,10 +368,10 @@ function HomePage() {
               Ver todas →
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch">
             {(posts.length > 0
               ? posts.map((p) => (
-                  <PremiumPostCard
+                  <CleanPostCard
                     key={p.id}
                     to="/blog/$slug"
                     params={{ slug: p.slug }}
@@ -370,7 +382,7 @@ function HomePage() {
                   />
                 ))
               : FALLBACK_ARTICLES.map((a) => (
-                  <PremiumPostCard
+                  <CleanPostCard
                     key={a.title}
                     to="/blog"
                     title={a.title}
@@ -384,31 +396,59 @@ function HomePage() {
       </section>
 
       {/* =============== IMÓVEIS EM DESTAQUE =============== */}
-      <section className="py-24 bg-[#EAEAE6] px-6 overflow-hidden">
+      <section className="py-24 md:py-28 bg-[#F4F3EF] px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-end justify-between mb-12 gap-4 flex-wrap">
             <div>
               <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/60 mb-3">
                 Curadoria S.A
               </p>
-              <h2 className="font-display text-3xl md:text-4xl font-medium text-[#0D0D0D]">
+              <h2 className="font-display text-3xl md:text-4xl font-medium text-[#171717]">
                 Imóveis em destaque
               </h2>
             </div>
-            <Link
-              to="/imoveis"
-              className="text-[11px] uppercase tracking-[0.22em] text-[#0D0D0D] border-b border-[#0D0D0D] pb-1 hover:text-[#0D0D0D]/60"
-            >
-              Ver portfólio completo →
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                to="/imoveis"
+                className="text-[11px] uppercase tracking-[0.22em] text-[#0D0D0D] border-b border-[#0D0D0D] pb-1 hover:text-[#0D0D0D]/60"
+              >
+                Ver portfólio completo →
+              </Link>
+              {properties.length > 0 && (
+                <div className="hidden md:flex items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="Imóveis anteriores"
+                    onClick={() => scrollCarousel(-1)}
+                    className="grid h-10 w-10 place-items-center rounded-full bg-white ring-1 ring-[#0D0D0D]/10 text-[#0D0D0D] transition hover:ring-[#F2DA00] hover:text-[#0D0D0D]"
+                  >
+                    <ChevronLeft className="h-4 w-4" strokeWidth={2.2} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Próximos imóveis"
+                    onClick={() => scrollCarousel(1)}
+                    className="grid h-10 w-10 place-items-center rounded-full bg-white ring-1 ring-[#0D0D0D]/10 text-[#0D0D0D] transition hover:ring-[#F2DA00]"
+                  >
+                    <ChevronRight className="h-4 w-4" strokeWidth={2.2} />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
           {properties.length === 0 ? (
             <p className="text-sm text-[#1A1A1A]/60">Em breve novos imóveis em destaque.</p>
           ) : (
-            <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory">
+            <div
+              ref={carouselRef}
+              className="flex gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory scroll-smooth"
+            >
               {properties.map((p) => (
-                <div key={p.slug} className="flex-shrink-0 w-72 md:w-80 snap-start">
-                  <PremiumPropertyCard
+                <div
+                  key={p.slug}
+                  className="flex-shrink-0 w-[86vw] sm:w-[46%] lg:w-[31.5%] snap-start"
+                >
+                  <CleanPropertyCard
                     slug={p.slug}
                     title={p.title}
                     image={p.image}
