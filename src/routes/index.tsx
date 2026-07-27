@@ -488,35 +488,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* =============== TERRITÓRIOS DE AUTORIDADE (GUIAS) =============== */}
-      <section className="py-24 bg-[#0D0D0D] text-white px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-[52ch] mb-16">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-[#F2DA00] mb-3">
-              Guias Regionais
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl font-medium mb-6 leading-tight">
-              Territórios de autoridade
-            </h2>
-            <p className="text-white/70 leading-relaxed">
-              Nossa expertise local traduzida em guias detalhados sobre cada cidade e seus
-              ecossistemas de vida e investimento.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {REGIONS.map((r) => (
-              <PremiumRegionCard
-                key={r.to}
-                to={r.to}
-                slug={r.slug}
-                title={r.label}
-                description={r.description}
-                image={r.image}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+
+
 
       {/* =============== AVALIAÇÕES GOOGLE =============== */}
       <GoogleReviewsSection />
