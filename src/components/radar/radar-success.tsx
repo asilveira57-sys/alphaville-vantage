@@ -28,7 +28,9 @@ export function RadarSuccess({ items, onClose, search }: Props) {
       <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           to="/imoveis"
+          search={search}
           onClick={onClose}
+
           className="inline-flex items-center justify-center bg-[#0D0D0D] text-white px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#0D0D0D]/85"
         >
           Ver imóveis
