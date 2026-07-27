@@ -1,12 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { RadarSummary } from "./radar-summary";
+import type { PropertySearch } from "@/lib/radar-to-filters";
 
 type Props = {
   items: { label: string; value?: string | null }[];
   onClose: () => void;
+  search: PropertySearch;
 };
 
-export function RadarSuccess({ items, onClose }: Props) {
+export function RadarSuccess({ items, onClose, search }: Props) {
+
   return (
     <div className="text-center">
       <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/50">Radar S.A. Imóveis</p>
