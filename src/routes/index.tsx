@@ -175,6 +175,17 @@ function HomePage() {
     regionCounts: RegionCounts;
   };
   const navigate = useNavigate();
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollCarousel = (dir: 1 | -1) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const card = el.firstElementChild as HTMLElement | null;
+    const step = card ? card.offsetWidth + 24 : el.clientWidth * 0.8;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
+
 
   const handleHeroSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
