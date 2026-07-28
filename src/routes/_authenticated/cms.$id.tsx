@@ -605,11 +605,11 @@ function CmsEditorPage() {
                   onChange={(urls) => set("gallery_images", urls)}
                 />
               </Field>
-              <Field label="Tags (separadas por vírgula)">
-                <input
-                  value={form.tags.join(", ")}
-                  onChange={(e) => set("tags", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                  className={inputCls}
+              <Field label="Tags (vírgula ou Enter)">
+                <TagsInput
+                  value={form.tags}
+                  onChange={(v) => set("tags", v)}
+                  placeholder="Ex.: Santana de Parnaíba, Gastronomia"
                 />
               </Field>
               <Field label="Bairro relacionado">
