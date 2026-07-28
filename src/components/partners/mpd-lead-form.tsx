@@ -2,14 +2,9 @@ import { useState } from "react";
 import { Loader2, Check, Send } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { submitPartnerLead } from "@/lib/partners.functions";
+import { MPD_EMPREENDIMENTOS_ATIVOS } from "@/lib/empreendimentos-mpd";
 
-const DEVELOPMENTS = [
-  "Andrômeda by MPD",
-  "Terrah Alphaville",
-  "Florá Alphaville",
-  "Neo Alphaville",
-  "Ainda não sei / quero comparar",
-];
+const OPTIONS = MPD_EMPREENDIMENTOS_ATIVOS;
 
 const BUDGETS = [
   "Até R$ 1 milhão",
@@ -26,7 +21,7 @@ export function MpdLeadForm() {
   const [form, setForm] = useState({
     lead_name: "",
     lead_phone: "",
-    development: DEVELOPMENTS[0],
+    empreendimento_slug: OPTIONS[0]?.slug ?? "",
     goal: "morar",
     budget: BUDGETS[0],
   });
@@ -39,10 +34,18 @@ export function MpdLeadForm() {
     setStatus("loading");
     setError(null);
     try {
+      const selected = OPTIONS.find((o) => o.slug === form.empreendimento_slug);
       await submit({
         data: {
-          ...form,
+          lead_name: form.lead_name,
+          lead_phone: form.lead_phone,
+          development: selected?.name ?? form.empreendimento_slug,
+          goal: form.goal,
+          budget: form.budget,
           partner: "mpd",
+          lead_source: "partner_page",
+          empreendimento_slug: form.empreendimento_slug,
+          conversion_context: "partner_mpd",
           landing_page: typeof window !== "undefined" ? window.location.pathname : "",
         },
       });
@@ -52,6 +55,7 @@ export function MpdLeadForm() {
       setError(err instanceof Error ? err.message : "Não foi possível enviar agora.");
     }
   };
+
 
   if (status === "done") {
     return (
@@ -83,11 +87,17 @@ export function MpdLeadForm() {
         value={form.lead_phone}
         onChange={set("lead_phone")}
       />
-      <select className={field} value={form.development} onChange={set("development")} aria-label="Empreendimento de interesse">
-        {DEVELOPMENTS.map((d) => (
-          <option key={d} value={d} className="text-[#0D0D0D]">{d}</option>
+      <select
+        className={field}
+        value={form.empreendimento_slug}
+        onChange={set("empreendimento_slug")}
+        aria-label="Empreendimento de interesse"
+      >
+        {OPTIONS.map((d) => (
+          <option key={d.slug} value={d.slug} className="text-[#0D0D0D]">{d.name}</option>
         ))}
       </select>
+
       <select className={field} value={form.goal} onChange={set("goal")} aria-label="Finalidade">
         <option value="morar" className="text-[#0D0D0D]">Para morar</option>
         <option value="investir" className="text-[#0D0D0D]">Para investir</option>

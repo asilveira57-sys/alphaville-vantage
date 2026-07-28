@@ -2,47 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Building2, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { MpdLeadForm } from "@/components/partners/mpd-lead-form";
-import { resolveImage } from "@/lib/image-fallbacks";
+import { MPD_EMPREENDIMENTOS_ATIVOS } from "@/lib/empreendimentos-mpd";
 
 const URL = "https://alphaville-vantage.lovable.app/parceiros/mpd";
 const TITLE = "MPD Alphaville: empreendimentos e imóveis disponíveis";
 const DESC =
   "Veja empreendimentos da MPD em Alphaville, consulte lançamentos, unidades prontas e oportunidades com a equipe da S.A. Imóveis.";
-
-const DEVELOPMENTS = [
-  {
-    slug: "andromeda-by-mpd",
-    name: "Andrômeda by MPD",
-    location: "Alphaville, Barueri",
-    status: "Lançamento",
-    sizes: "Metragens amplas, plantas variadas",
-    text: "Projeto contemporâneo com áreas comuns completas e plantas pensadas para quem busca conforto e boa circulação.",
-  },
-  {
-    slug: "terrah-alphaville",
-    name: "Terrah Alphaville",
-    location: "Alphaville, Barueri",
-    status: "Em construção",
-    sizes: "Opções compactas e médias",
-    text: "Empreendimento com foco em praticidade e localização, indicado para moradia e para investimento na região.",
-  },
-  {
-    slug: "flora-alphaville",
-    name: "Florá Alphaville",
-    location: "Alphaville, Barueri",
-    status: "Em construção",
-    sizes: "Plantas intermediárias",
-    text: "Arquitetura integrada ao verde da região, com espaços de convivência e proposta residencial equilibrada.",
-  },
-  {
-    slug: "neo-alphaville",
-    name: "Neo Alphaville",
-    location: "Alphaville, Barueri",
-    status: "Unidades prontas",
-    sizes: "Diversas metragens disponíveis",
-    text: "Unidades prontas para morar, com possibilidade de revendas e oportunidades pontuais na região.",
-  },
-];
 
 const BENEFITS = [
   "Comparar plantas e empreendimentos lado a lado",
@@ -51,6 +16,7 @@ const BENEFITS = [
   "Avaliar localização, andar, posição solar e perfil do imóvel",
   "Encontrar lançamentos, imóveis prontos e revendas",
 ];
+
 
 export const Route = createFileRoute("/parceiros/mpd")({
   head: () => ({
@@ -135,24 +101,36 @@ function MpdPartnerPage() {
             Portfólio
           </p>
           <h2 className="font-display mt-3 text-3xl leading-tight text-[#171717] md:text-4xl">
-            Empreendimentos MPD
+            Empreendimentos MPD em Alphaville
           </h2>
+          <p className="mt-4 max-w-[70ch] text-[15px] leading-relaxed text-[#1A1A1A]/70">
+            A S.A. Imóveis reúne informações sobre empreendimentos da MPD em Alphaville, incluindo
+            projetos em construção, unidades prontas e oportunidades de revenda.
+          </p>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {DEVELOPMENTS.map((d) => (
+            {MPD_EMPREENDIMENTOS_ATIVOS.map((d) => (
               <article
                 key={d.slug}
                 className="group flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)] transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <img
-                    src={resolveImage(null, { type: "condo", region: "alphaville", seed: d.slug })}
-                    alt={`${d.name} — ${d.location}`}
-                    loading="lazy"
-                    decoding="async"
-                    sizes="(max-width: 768px) 88vw, (max-width: 1200px) 45vw, 24vw"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                  />
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#0D0D0D]">
+                  {d.image ? (
+                    <img
+                      src={d.image}
+                      alt={`${d.name} — ${d.location}`}
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(max-width: 768px) 88vw, (max-width: 1200px) 45vw, 24vw"
+                      className="h-full w-full object-contain p-8 transition-transform duration-300 group-hover:scale-[1.04]"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center p-6 text-center">
+                      <span className="font-display text-[22px] leading-tight text-white/85">
+                        {d.name}
+                      </span>
+                    </div>
+                  )}
                   <span className="absolute left-4 top-4 rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
                     {d.status}
                   </span>
@@ -161,12 +139,17 @@ function MpdPartnerPage() {
                   <h3 className="font-display text-[19px] leading-[1.25] text-[#171717]">{d.name}</h3>
                   <p className="text-sm text-[#1A1A1A]/55">{d.location}</p>
                   <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-[#1A1A1A]/45">
-                    {d.sizes}
+                    {d.sizesLabel}: {d.sizes}
                   </p>
-                  <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/70">{d.text}</p>
+                  {d.delivery ? (
+                    <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-[#1A1A1A]/45">
+                      Entrega prevista: {d.delivery}
+                    </p>
+                  ) : null}
+                  <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/70">{d.summary}</p>
+                  <p className="text-[12px] text-[#1A1A1A]/50">Construtora: {d.builder}</p>
                   <Link
-                    to="/empreendimentos/$slug"
-                    params={{ slug: d.slug }}
+                    to={d.route}
                     className="mt-auto inline-flex items-center gap-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0D0D0D] hover:text-[#0D0D0D]/60"
                   >
                     Ver empreendimento
@@ -176,6 +159,7 @@ function MpdPartnerPage() {
               </article>
             ))}
           </div>
+
 
           <p className="mt-8 text-xs text-[#1A1A1A]/50">
             Disponibilidade, valores e condições sujeitos à confirmação com a equipe da S.A. Imóveis.
