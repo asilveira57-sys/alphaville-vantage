@@ -53,12 +53,14 @@ import { Route as CondominiosIndexRouteImport } from './routes/condominios.index
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
+import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
 import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
 import { Route as GuiaDeRuasAlphavilleSlugRouteImport } from './routes/guia-de-ruas-alphaville.$slug'
+import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
@@ -298,6 +300,11 @@ const RuasSlugRoute = RuasSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => RuasRoute,
 } as any)
+const ParceirosMpdRoute = ParceirosMpdRouteImport.update({
+  id: '/parceiros/mpd',
+  path: '/parceiros/mpd',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MeioAmbienteLazerRoute = MeioAmbienteLazerRouteImport.update({
   id: '/lazer',
   path: '/lazer',
@@ -329,6 +336,11 @@ const GuiaDeRuasAlphavilleSlugRoute =
     path: '/$slug',
     getParentRoute: () => GuiaDeRuasAlphavilleRoute,
   } as any)
+const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
+  id: '/empreendimentos/$slug',
+  path: '/empreendimentos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
   id: '/condominios/$slug',
   path: '/condominios/$slug',
@@ -470,12 +482,14 @@ export interface FileRoutesByFullPath {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -532,12 +546,14 @@ export interface FileRoutesByTo {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros': typeof BairrosIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -603,12 +619,14 @@ export interface FileRoutesById {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -674,12 +692,14 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/empreendimentos/$slug'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros/'
     | '/blog/'
@@ -736,12 +756,14 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/empreendimentos/$slug'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros'
     | '/blog'
@@ -806,12 +828,14 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/empreendimentos/$slug'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros/'
     | '/blog/'
@@ -870,6 +894,8 @@ export interface RootRouteChildren {
   ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
+  EmpreendimentosSlugRoute: typeof EmpreendimentosSlugRoute
+  ParceirosMpdRoute: typeof ParceirosMpdRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
   ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
@@ -1187,6 +1213,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RuasSlugRouteImport
       parentRoute: typeof RuasRoute
     }
+    '/parceiros/mpd': {
+      id: '/parceiros/mpd'
+      path: '/parceiros/mpd'
+      fullPath: '/parceiros/mpd'
+      preLoaderRoute: typeof ParceirosMpdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/meio-ambiente/lazer': {
       id: '/meio-ambiente/lazer'
       path: '/lazer'
@@ -1228,6 +1261,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/guia-de-ruas-alphaville/$slug'
       preLoaderRoute: typeof GuiaDeRuasAlphavilleSlugRouteImport
       parentRoute: typeof GuiaDeRuasAlphavilleRoute
+    }
+    '/empreendimentos/$slug': {
+      id: '/empreendimentos/$slug'
+      path: '/empreendimentos/$slug'
+      fullPath: '/empreendimentos/$slug'
+      preLoaderRoute: typeof EmpreendimentosSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/condominios/$slug': {
       id: '/condominios/$slug'
@@ -1539,6 +1579,8 @@ const rootRouteChildren: RootRouteChildren = {
   ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,
+  EmpreendimentosSlugRoute: EmpreendimentosSlugRoute,
+  ParceirosMpdRoute: ParceirosMpdRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
   ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
