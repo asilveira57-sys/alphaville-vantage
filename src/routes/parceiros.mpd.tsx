@@ -2,47 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Building2, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { MpdLeadForm } from "@/components/partners/mpd-lead-form";
-import { resolveImage } from "@/lib/image-fallbacks";
+import { MPD_EMPREENDIMENTOS_ATIVOS } from "@/lib/empreendimentos-mpd";
 
 const URL = "https://alphaville-vantage.lovable.app/parceiros/mpd";
 const TITLE = "MPD Alphaville: empreendimentos e imóveis disponíveis";
 const DESC =
   "Veja empreendimentos da MPD em Alphaville, consulte lançamentos, unidades prontas e oportunidades com a equipe da S.A. Imóveis.";
-
-const DEVELOPMENTS = [
-  {
-    slug: "andromeda-by-mpd",
-    name: "Andrômeda by MPD",
-    location: "Alphaville, Barueri",
-    status: "Lançamento",
-    sizes: "Metragens amplas, plantas variadas",
-    text: "Projeto contemporâneo com áreas comuns completas e plantas pensadas para quem busca conforto e boa circulação.",
-  },
-  {
-    slug: "terrah-alphaville",
-    name: "Terrah Alphaville",
-    location: "Alphaville, Barueri",
-    status: "Em construção",
-    sizes: "Opções compactas e médias",
-    text: "Empreendimento com foco em praticidade e localização, indicado para moradia e para investimento na região.",
-  },
-  {
-    slug: "flora-alphaville",
-    name: "Florá Alphaville",
-    location: "Alphaville, Barueri",
-    status: "Em construção",
-    sizes: "Plantas intermediárias",
-    text: "Arquitetura integrada ao verde da região, com espaços de convivência e proposta residencial equilibrada.",
-  },
-  {
-    slug: "neo-alphaville",
-    name: "Neo Alphaville",
-    location: "Alphaville, Barueri",
-    status: "Unidades prontas",
-    sizes: "Diversas metragens disponíveis",
-    text: "Unidades prontas para morar, com possibilidade de revendas e oportunidades pontuais na região.",
-  },
-];
 
 const BENEFITS = [
   "Comparar plantas e empreendimentos lado a lado",
@@ -51,6 +16,7 @@ const BENEFITS = [
   "Avaliar localização, andar, posição solar e perfil do imóvel",
   "Encontrar lançamentos, imóveis prontos e revendas",
 ];
+
 
 export const Route = createFileRoute("/parceiros/mpd")({
   head: () => ({
