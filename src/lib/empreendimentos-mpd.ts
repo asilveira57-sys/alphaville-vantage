@@ -13,7 +13,11 @@ export type EmpreendimentoMpd = {
   delivery: string | null;
   summary: string;
   image: string | null;
-  route: string;
+  route:
+    | "/empreendimentos/andromeda-by-mpd"
+    | "/empreendimentos/terrah-alphaville"
+    | "/empreendimentos/flora-alphaville"
+    | "/empreendimentos/neo-alphaville";
   active: boolean;
 };
 
