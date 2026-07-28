@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat, BedDouble } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
+import { EmpreendimentoUnitsBlock } from "@/components/empreendimentos/units-block";
 import { FloraLeadForm } from "@/components/partners/flora-lead-form";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -132,30 +133,7 @@ export const Route = createFileRoute("/empreendimentos/flora-alphaville")({
   component: FloraPage,
 });
 
-type Unit = { id: string; slug: string; title: string };
-
-function useFloraUnits() {
-  const [units, setUnits] = useState<Unit[] | null>(null);
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      const { data } = await supabase
-        .from("properties")
-        .select("id, slug, title")
-        .eq("status", "active")
-        .or("condominium_name.ilike.%flor%alphaville%,title.ilike.%flor%alphaville%")
-        .limit(12);
-      if (active) setUnits((data as Unit[]) ?? []);
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
-  return units;
-}
-
 function FloraPage() {
-  const units = useFloraUnits();
 
   return (
     <SiteLayout>
