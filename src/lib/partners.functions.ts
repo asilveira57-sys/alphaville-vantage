@@ -27,7 +27,10 @@ export const submitPartnerLead = createServerFn({ method: "POST" })
       development: data.development,
       goal: data.goal,
       budget: data.budget || null,
+      empreendimento_slug: data.empreendimento_slug ?? null,
+      partner_slug: data.partner,
     };
+
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("real_estate_radar_leads").insert({
