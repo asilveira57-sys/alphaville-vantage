@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat, BedDouble } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
+import { EmpreendimentoUnitsBlock } from "@/components/empreendimentos/units-block";
 import { FloraLeadForm } from "@/components/partners/flora-lead-form";
-import { supabase } from "@/integrations/supabase/client";
 
 const SITE = "https://alphaville-vantage.lovable.app";
 const URL = `${SITE}/empreendimentos/flora-alphaville`;
@@ -132,30 +131,7 @@ export const Route = createFileRoute("/empreendimentos/flora-alphaville")({
   component: FloraPage,
 });
 
-type Unit = { id: string; slug: string; title: string };
-
-function useFloraUnits() {
-  const [units, setUnits] = useState<Unit[] | null>(null);
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      const { data } = await supabase
-        .from("properties")
-        .select("id, slug, title")
-        .eq("status", "active")
-        .or("condominium_name.ilike.%flor%alphaville%,title.ilike.%flor%alphaville%")
-        .limit(12);
-      if (active) setUnits((data as Unit[]) ?? []);
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
-  return units;
-}
-
 function FloraPage() {
-  const units = useFloraUnits();
 
   return (
     <SiteLayout>
@@ -323,26 +299,9 @@ function FloraPage() {
       <section className="bg-[#EAEAE6] px-6 py-16">
         <div className="mx-auto max-w-7xl">
           <h2 className="font-display text-2xl text-[#171717] md:text-3xl">Unidades disponíveis</h2>
-          {units && units.length > 0 ? (
-            <ul className="mt-8 grid gap-4 md:grid-cols-3">
-              {units.map((u) => (
-                <li key={u.id}>
-                  <Link
-                    to="/imoveis/$slug"
-                    params={{ slug: u.slug }}
-                    className="block rounded-[14px] bg-white p-5 text-[15px] text-[#171717] ring-1 ring-[#0D0D0D]/8 transition hover:ring-[#0D0D0D]/25"
-                  >
-                    {u.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 max-w-[60ch] text-[15px] leading-relaxed text-[#1A1A1A]/70">
-              Consulte a equipe da S.A. Imóveis para verificar unidades, valores e condições atualizadas.
-            </p>
-          )}
+          <EmpreendimentoUnitsBlock empreendimentoSlug="flora-alphaville" contactHref="#contato-flora" />
         </div>
+
       </section>
 
       {/* RELACIONADOS */}
