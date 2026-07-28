@@ -60,6 +60,7 @@ import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.ar
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
 import { Route as GuiaDeRuasAlphavilleSlugRouteImport } from './routes/guia-de-ruas-alphaville.$slug'
+import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
@@ -335,6 +336,11 @@ const GuiaDeRuasAlphavilleSlugRoute =
     path: '/$slug',
     getParentRoute: () => GuiaDeRuasAlphavilleRoute,
   } as any)
+const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
+  id: '/empreendimentos/$slug',
+  path: '/empreendimentos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
   id: '/condominios/$slug',
   path: '/condominios/$slug',
@@ -476,6 +482,7 @@ export interface FileRoutesByFullPath {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
@@ -539,6 +546,7 @@ export interface FileRoutesByTo {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
@@ -611,6 +619,7 @@ export interface FileRoutesById {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
@@ -683,6 +692,7 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/empreendimentos/$slug'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
@@ -746,6 +756,7 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/empreendimentos/$slug'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
@@ -817,6 +828,7 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/empreendimentos/$slug'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
     | '/imoveis/$slug'
@@ -882,6 +894,7 @@ export interface RootRouteChildren {
   ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
+  EmpreendimentosSlugRoute: typeof EmpreendimentosSlugRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
@@ -1249,6 +1262,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuiaDeRuasAlphavilleSlugRouteImport
       parentRoute: typeof GuiaDeRuasAlphavilleRoute
     }
+    '/empreendimentos/$slug': {
+      id: '/empreendimentos/$slug'
+      path: '/empreendimentos/$slug'
+      fullPath: '/empreendimentos/$slug'
+      preLoaderRoute: typeof EmpreendimentosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/condominios/$slug': {
       id: '/condominios/$slug'
       path: '/condominios/$slug'
@@ -1559,6 +1579,7 @@ const rootRouteChildren: RootRouteChildren = {
   ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,
+  EmpreendimentosSlugRoute: EmpreendimentosSlugRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
@@ -1569,3 +1590,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
