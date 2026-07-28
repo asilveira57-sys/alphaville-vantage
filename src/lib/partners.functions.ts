@@ -9,6 +9,9 @@ const schema = z.object({
   budget: z.string().trim().max(80).optional().or(z.literal("")),
   partner: z.string().trim().min(1).max(60),
   landing_page: z.string().trim().max(500).optional().or(z.literal("")),
+  lead_source: z.string().trim().max(60).optional(),
+  empreendimento_slug: z.string().trim().max(120).optional(),
+  conversion_context: z.string().trim().max(120).optional(),
 });
 
 export const submitPartnerLead = createServerFn({ method: "POST" })
@@ -24,7 +27,10 @@ export const submitPartnerLead = createServerFn({ method: "POST" })
       development: data.development,
       goal: data.goal,
       budget: data.budget || null,
+      empreendimento_slug: data.empreendimento_slug ?? null,
+      partner_slug: data.partner,
     };
+
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("real_estate_radar_leads").insert({
@@ -32,9 +38,9 @@ export const submitPartnerLead = createServerFn({ method: "POST" })
       lead_phone: phone,
       interest_type: data.goal === "investir" ? "investimento" : "moradia",
       answers_json: answers,
-      source: "partner_page",
+      source: data.lead_source || "partner_page",
       campaign: data.partner,
-      conversion_context: `partner_${data.partner}`,
+      conversion_context: data.conversion_context || `partner_${data.partner}`,
       status: "novo",
       priority_level: "media",
       qualification_score: 0,
