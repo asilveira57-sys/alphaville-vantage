@@ -87,11 +87,17 @@ export function MpdLeadForm() {
         value={form.lead_phone}
         onChange={set("lead_phone")}
       />
-      <select className={field} value={form.development} onChange={set("development")} aria-label="Empreendimento de interesse">
-        {DEVELOPMENTS.map((d) => (
-          <option key={d} value={d} className="text-[#0D0D0D]">{d}</option>
+      <select
+        className={field}
+        value={form.empreendimento_slug}
+        onChange={set("empreendimento_slug")}
+        aria-label="Empreendimento de interesse"
+      >
+        {OPTIONS.map((d) => (
+          <option key={d.slug} value={d.slug} className="text-[#0D0D0D]">{d.name}</option>
         ))}
       </select>
+
       <select className={field} value={form.goal} onChange={set("goal")} aria-label="Finalidade">
         <option value="morar" className="text-[#0D0D0D]">Para morar</option>
         <option value="investir" className="text-[#0D0D0D]">Para investir</option>
