@@ -9,6 +9,9 @@ const schema = z.object({
   budget: z.string().trim().max(80).optional().or(z.literal("")),
   partner: z.string().trim().min(1).max(60),
   landing_page: z.string().trim().max(500).optional().or(z.literal("")),
+  lead_source: z.string().trim().max(60).optional(),
+  empreendimento_slug: z.string().trim().max(120).optional(),
+  conversion_context: z.string().trim().max(120).optional(),
 });
 
 export const submitPartnerLead = createServerFn({ method: "POST" })
