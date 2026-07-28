@@ -764,11 +764,11 @@ function CmsEditorPage() {
               <Field label="Focus keyword">
                 <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
               </Field>
-              <Field label="Palavras-chave secundárias (vírgula)">
-                <input
-                  value={form.secondary_keywords.join(", ")}
-                  onChange={(e) => set("secondary_keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                  className={inputCls}
+              <Field label="Palavras-chave secundárias (vírgula ou Enter)">
+                <TagsInput
+                  value={form.secondary_keywords}
+                  onChange={(v) => set("secondary_keywords", v)}
+                  placeholder="onde comer em Santana de Parnaíba"
                 />
               </Field>
               <Field label="Canonical URL">
