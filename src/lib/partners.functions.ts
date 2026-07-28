@@ -27,9 +27,13 @@ export const submitPartnerLead = createServerFn({ method: "POST" })
       development: data.development,
       goal: data.goal,
       budget: data.budget || null,
+      investment_range: data.budget || null,
+      interest_type: data.goal === "investir" ? "investimento" : "moradia",
+      lead_source: data.lead_source || "partner_page",
       empreendimento_slug: data.empreendimento_slug ?? null,
       partner_slug: data.partner,
     };
+
 
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
