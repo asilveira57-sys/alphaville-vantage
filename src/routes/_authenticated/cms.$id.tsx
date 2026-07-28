@@ -8,6 +8,7 @@ import { EditorialContent } from "@/components/editorial-content";
 import { ImageUpload, ImageGalleryUpload } from "@/components/image-upload";
 import { RelatedSelect } from "@/components/related-select";
 import { useAutosave } from "@/components/editor/use-autosave";
+import { TagsInput } from "@/components/editor/tags-input";
 import { PostHelpBlock } from "@/components/post-help-block";
 import { PostCtaBlock } from "@/components/post-cta-block";
 import { resolveImage } from "@/lib/image-fallbacks";
@@ -605,11 +606,11 @@ function CmsEditorPage() {
                   onChange={(urls) => set("gallery_images", urls)}
                 />
               </Field>
-              <Field label="Tags (separadas por vírgula)">
-                <input
-                  value={form.tags.join(", ")}
-                  onChange={(e) => set("tags", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                  className={inputCls}
+              <Field label="Tags (vírgula ou Enter)">
+                <TagsInput
+                  value={form.tags}
+                  onChange={(v) => set("tags", v)}
+                  placeholder="Ex.: Santana de Parnaíba, Gastronomia"
                 />
               </Field>
               <Field label="Bairro relacionado">
@@ -695,11 +696,11 @@ function CmsEditorPage() {
                 <Field label="Perfil do público"><input value={form.perfil_publico} onChange={(e) => set("perfil_publico", e.target.value)} className={inputCls} placeholder="família, executivo, investidor…" /></Field>
                 <Field label="Intenção imobiliária"><input value={form.intencao_imobiliaria} onChange={(e) => set("intencao_imobiliaria", e.target.value)} className={inputCls} placeholder="morar, investir, comercial…" /></Field>
                 <Field label="Tempo de leitura (min)"><input type="number" min={0} value={form.reading_minutes ?? ""} onChange={(e) => set("reading_minutes", e.target.value ? Number(e.target.value) : null)} className={inputCls} /></Field>
-                <Field label="Tipos de imóvel relacionados (vírgula)">
-                  <input value={form.tipos_imovel_relacionados.join(", ")} onChange={(e) => set("tipos_imovel_relacionados", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} className={inputCls} placeholder="casa, apartamento, terreno" />
+                <Field label="Tipos de imóvel relacionados (vírgula ou Enter)">
+                  <TagsInput value={form.tipos_imovel_relacionados} onChange={(v) => set("tipos_imovel_relacionados", v)} placeholder="casa, apartamento, terreno" />
                 </Field>
-                <Field label="Tags contextuais (vírgula)">
-                  <input value={form.tags_contextuais.join(", ")} onChange={(e) => set("tags_contextuais", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} className={inputCls} />
+                <Field label="Tags contextuais (vírgula ou Enter)">
+                  <TagsInput value={form.tags_contextuais} onChange={(v) => set("tags_contextuais", v)} />
                 </Field>
               </div>
             </section>
@@ -763,11 +764,11 @@ function CmsEditorPage() {
               <Field label="Focus keyword">
                 <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
               </Field>
-              <Field label="Palavras-chave secundárias (vírgula)">
-                <input
-                  value={form.secondary_keywords.join(", ")}
-                  onChange={(e) => set("secondary_keywords", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                  className={inputCls}
+              <Field label="Palavras-chave secundárias (vírgula ou Enter)">
+                <TagsInput
+                  value={form.secondary_keywords}
+                  onChange={(v) => set("secondary_keywords", v)}
+                  placeholder="onde comer em Santana de Parnaíba"
                 />
               </Field>
               <Field label="Canonical URL">
