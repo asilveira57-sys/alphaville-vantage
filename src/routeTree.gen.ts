@@ -61,6 +61,7 @@ import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
 import { Route as GuiaDeRuasAlphavilleSlugRouteImport } from './routes/guia-de-ruas-alphaville.$slug'
 import { Route as EmpreendimentosTerrahAlphavilleRouteImport } from './routes/empreendimentos.terrah-alphaville'
+import { Route as EmpreendimentosFloraAlphavilleRouteImport } from './routes/empreendimentos.flora-alphaville'
 import { Route as EmpreendimentosAndromedaByMpdRouteImport } from './routes/empreendimentos.andromeda-by-mpd'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
@@ -344,6 +345,12 @@ const EmpreendimentosTerrahAlphavilleRoute =
     path: '/empreendimentos/terrah-alphaville',
     getParentRoute: () => rootRouteImport,
   } as any)
+const EmpreendimentosFloraAlphavilleRoute =
+  EmpreendimentosFloraAlphavilleRouteImport.update({
+    id: '/empreendimentos/flora-alphaville',
+    path: '/empreendimentos/flora-alphaville',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EmpreendimentosAndromedaByMpdRoute =
   EmpreendimentosAndromedaByMpdRouteImport.update({
     id: '/empreendimentos/andromeda-by-mpd',
@@ -498,6 +505,7 @@ export interface FileRoutesByFullPath {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
+  '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
@@ -564,6 +572,7 @@ export interface FileRoutesByTo {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
+  '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
@@ -639,6 +648,7 @@ export interface FileRoutesById {
   '/condominios/$slug': typeof CondominiosSlugRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
+  '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
@@ -714,6 +724,7 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
+    | '/empreendimentos/flora-alphaville'
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
@@ -780,6 +791,7 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
+    | '/empreendimentos/flora-alphaville'
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
@@ -854,6 +866,7 @@ export interface FileRouteTypes {
     | '/condominios/$slug'
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
+    | '/empreendimentos/flora-alphaville'
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
@@ -922,6 +935,7 @@ export interface RootRouteChildren {
   CondominiosSlugRoute: typeof CondominiosSlugRoute
   EmpreendimentosSlugRoute: typeof EmpreendimentosSlugRoute
   EmpreendimentosAndromedaByMpdRoute: typeof EmpreendimentosAndromedaByMpdRoute
+  EmpreendimentosFloraAlphavilleRoute: typeof EmpreendimentosFloraAlphavilleRoute
   EmpreendimentosTerrahAlphavilleRoute: typeof EmpreendimentosTerrahAlphavilleRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
@@ -1297,6 +1311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpreendimentosTerrahAlphavilleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/empreendimentos/flora-alphaville': {
+      id: '/empreendimentos/flora-alphaville'
+      path: '/empreendimentos/flora-alphaville'
+      fullPath: '/empreendimentos/flora-alphaville'
+      preLoaderRoute: typeof EmpreendimentosFloraAlphavilleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/empreendimentos/andromeda-by-mpd': {
       id: '/empreendimentos/andromeda-by-mpd'
       path: '/empreendimentos/andromeda-by-mpd'
@@ -1623,6 +1644,7 @@ const rootRouteChildren: RootRouteChildren = {
   CondominiosSlugRoute: CondominiosSlugRoute,
   EmpreendimentosSlugRoute: EmpreendimentosSlugRoute,
   EmpreendimentosAndromedaByMpdRoute: EmpreendimentosAndromedaByMpdRoute,
+  EmpreendimentosFloraAlphavilleRoute: EmpreendimentosFloraAlphavilleRoute,
   EmpreendimentosTerrahAlphavilleRoute: EmpreendimentosTerrahAlphavilleRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
   BairrosIndexRoute: BairrosIndexRoute,
@@ -1634,3 +1656,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
