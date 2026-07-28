@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat, BedDouble } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { EmpreendimentoUnitsBlock } from "@/components/empreendimentos/units-block";
 import { FloraLeadForm } from "@/components/partners/flora-lead-form";
-import { supabase } from "@/integrations/supabase/client";
 
 const SITE = "https://alphaville-vantage.lovable.app";
 const URL = `${SITE}/empreendimentos/flora-alphaville`;
