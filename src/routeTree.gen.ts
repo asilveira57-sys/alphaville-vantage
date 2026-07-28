@@ -61,6 +61,7 @@ import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
 import { Route as GuiaDeRuasAlphavilleSlugRouteImport } from './routes/guia-de-ruas-alphaville.$slug'
 import { Route as EmpreendimentosTerrahAlphavilleRouteImport } from './routes/empreendimentos.terrah-alphaville'
+import { Route as EmpreendimentosNeoAlphavilleRouteImport } from './routes/empreendimentos.neo-alphaville'
 import { Route as EmpreendimentosFloraAlphavilleRouteImport } from './routes/empreendimentos.flora-alphaville'
 import { Route as EmpreendimentosAndromedaByMpdRouteImport } from './routes/empreendimentos.andromeda-by-mpd'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
@@ -345,6 +346,12 @@ const EmpreendimentosTerrahAlphavilleRoute =
     path: '/empreendimentos/terrah-alphaville',
     getParentRoute: () => rootRouteImport,
   } as any)
+const EmpreendimentosNeoAlphavilleRoute =
+  EmpreendimentosNeoAlphavilleRouteImport.update({
+    id: '/empreendimentos/neo-alphaville',
+    path: '/empreendimentos/neo-alphaville',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EmpreendimentosFloraAlphavilleRoute =
   EmpreendimentosFloraAlphavilleRouteImport.update({
     id: '/empreendimentos/flora-alphaville',
@@ -506,6 +513,7 @@ export interface FileRoutesByFullPath {
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
   '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
+  '/empreendimentos/neo-alphaville': typeof EmpreendimentosNeoAlphavilleRoute
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
@@ -573,6 +581,7 @@ export interface FileRoutesByTo {
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
   '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
+  '/empreendimentos/neo-alphaville': typeof EmpreendimentosNeoAlphavilleRoute
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
@@ -649,6 +658,7 @@ export interface FileRoutesById {
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
   '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
+  '/empreendimentos/neo-alphaville': typeof EmpreendimentosNeoAlphavilleRoute
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
@@ -725,6 +735,7 @@ export interface FileRouteTypes {
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
     | '/empreendimentos/flora-alphaville'
+    | '/empreendimentos/neo-alphaville'
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
@@ -792,6 +803,7 @@ export interface FileRouteTypes {
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
     | '/empreendimentos/flora-alphaville'
+    | '/empreendimentos/neo-alphaville'
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
@@ -867,6 +879,7 @@ export interface FileRouteTypes {
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
     | '/empreendimentos/flora-alphaville'
+    | '/empreendimentos/neo-alphaville'
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
@@ -936,6 +949,7 @@ export interface RootRouteChildren {
   EmpreendimentosSlugRoute: typeof EmpreendimentosSlugRoute
   EmpreendimentosAndromedaByMpdRoute: typeof EmpreendimentosAndromedaByMpdRoute
   EmpreendimentosFloraAlphavilleRoute: typeof EmpreendimentosFloraAlphavilleRoute
+  EmpreendimentosNeoAlphavilleRoute: typeof EmpreendimentosNeoAlphavilleRoute
   EmpreendimentosTerrahAlphavilleRoute: typeof EmpreendimentosTerrahAlphavilleRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
@@ -1311,6 +1325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpreendimentosTerrahAlphavilleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/empreendimentos/neo-alphaville': {
+      id: '/empreendimentos/neo-alphaville'
+      path: '/empreendimentos/neo-alphaville'
+      fullPath: '/empreendimentos/neo-alphaville'
+      preLoaderRoute: typeof EmpreendimentosNeoAlphavilleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/empreendimentos/flora-alphaville': {
       id: '/empreendimentos/flora-alphaville'
       path: '/empreendimentos/flora-alphaville'
@@ -1645,6 +1666,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosSlugRoute: EmpreendimentosSlugRoute,
   EmpreendimentosAndromedaByMpdRoute: EmpreendimentosAndromedaByMpdRoute,
   EmpreendimentosFloraAlphavilleRoute: EmpreendimentosFloraAlphavilleRoute,
+  EmpreendimentosNeoAlphavilleRoute: EmpreendimentosNeoAlphavilleRoute,
   EmpreendimentosTerrahAlphavilleRoute: EmpreendimentosTerrahAlphavilleRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
   BairrosIndexRoute: BairrosIndexRoute,
