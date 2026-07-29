@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
+import { EditorialContent } from "@/components/editorial-content";
 import {
   getStreetBySlug,
   findPropertiesOnStreet,
@@ -146,11 +147,47 @@ function StreetDetail() {
       ]}
     >
       <div className="space-y-20">
+        {street.hero_image && (
+          <figure className="max-w-4xl">
+            <img
+              src={street.hero_image}
+              alt={street.hero_image_alt || street.name}
+              loading="lazy"
+              className="w-full object-cover aspect-[16/9] border border-ink/10"
+            />
+          </figure>
+        )}
+
         {street.description && (
           <section className="max-w-3xl">
             <h2 className="font-serif text-2xl md:text-3xl text-ink mb-4">Sobre esta via</h2>
-            <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-line leading-relaxed">
-              {street.description}
+            {/^\s*</.test(street.description) ? (
+              <EditorialContent html={street.description} />
+            ) : (
+              <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-line leading-relaxed">
+                {street.description}
+              </div>
+            )}
+          </section>
+        )}
+
+        {Array.isArray(street.gallery_images) && street.gallery_images.length > 0 && (
+          <section>
+            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-8">Galeria</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {(street.gallery_images as any[]).map((g: any, i: number) => {
+                const url = typeof g === "string" ? g : g?.url;
+                if (!url) return null;
+                return (
+                  <figure key={url + i}>
+                    <img src={url} alt={(typeof g === "object" && g?.alt) || street.name} loading="lazy"
+                      className="w-full object-cover aspect-[4/3] border border-ink/10" />
+                    {typeof g === "object" && g?.caption && (
+                      <figcaption className="mt-2 text-xs text-muted-foreground">{g.caption}</figcaption>
+                    )}
+                  </figure>
+                );
+              })}
             </div>
           </section>
         )}
