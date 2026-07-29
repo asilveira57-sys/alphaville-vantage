@@ -1,0 +1,1 @@
+ALTER TABLE public.streets ADD COLUMN IF NOT EXISTS hero_image_alt text;
