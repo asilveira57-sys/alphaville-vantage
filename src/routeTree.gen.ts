@@ -77,6 +77,7 @@ import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
+import { Route as AuthenticatedAdminRuasIndexRouteImport } from './routes/_authenticated/admin-ruas.index'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
@@ -431,6 +432,12 @@ const AuthenticatedCmsIndexRoute = AuthenticatedCmsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedCmsRoute,
 } as any)
+const AuthenticatedAdminRuasIndexRoute =
+  AuthenticatedAdminRuasIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminRuasRoute,
+  } as any)
 const ApiPublicIndexnowKeyDottxtRoute =
   ApiPublicIndexnowKeyDottxtRouteImport.update({
     id: '/api/public/indexnow-key.txt',
@@ -544,6 +551,7 @@ export interface FileRoutesByFullPath {
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
@@ -580,7 +588,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
-  '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -613,6 +620,7 @@ export interface FileRoutesByTo {
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/admin-ruas': typeof AuthenticatedAdminRuasIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
@@ -691,6 +699,7 @@ export interface FileRoutesById {
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/_authenticated/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
@@ -769,6 +778,7 @@ export interface FileRouteTypes {
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
+    | '/admin-ruas/'
     | '/cms/'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/seo-monthly-refresh'
@@ -805,7 +815,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-empreendimentos'
     | '/admin-radar'
-    | '/admin-ruas'
     | '/admin-seo'
     | '/audit'
     | '/artigos/$slug'
@@ -838,6 +847,7 @@ export interface FileRouteTypes {
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
+    | '/admin-ruas'
     | '/cms'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/seo-monthly-refresh'
@@ -915,6 +925,7 @@ export interface FileRouteTypes {
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
     | '/api/public/indexnow-key.txt'
+    | '/_authenticated/admin-ruas/'
     | '/_authenticated/cms/'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/seo-monthly-refresh'
@@ -1450,6 +1461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsIndexRouteImport
       parentRoute: typeof AuthenticatedCmsRoute
     }
+    '/_authenticated/admin-ruas/': {
+      id: '/_authenticated/admin-ruas/'
+      path: '/'
+      fullPath: '/admin-ruas/'
+      preLoaderRoute: typeof AuthenticatedAdminRuasIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRuasRoute
+    }
     '/api/public/indexnow-key.txt': {
       id: '/api/public/indexnow-key.txt'
       path: '/api/public/indexnow-key.txt'
@@ -1505,6 +1523,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRuasRouteChildren {
   AuthenticatedAdminRuasIdRoute: typeof AuthenticatedAdminRuasIdRoute
   AuthenticatedAdminRuasRelatoriosRoute: typeof AuthenticatedAdminRuasRelatoriosRoute
+  AuthenticatedAdminRuasIndexRoute: typeof AuthenticatedAdminRuasIndexRoute
 }
 
 const AuthenticatedAdminRuasRouteChildren: AuthenticatedAdminRuasRouteChildren =
@@ -1512,6 +1531,7 @@ const AuthenticatedAdminRuasRouteChildren: AuthenticatedAdminRuasRouteChildren =
     AuthenticatedAdminRuasIdRoute: AuthenticatedAdminRuasIdRoute,
     AuthenticatedAdminRuasRelatoriosRoute:
       AuthenticatedAdminRuasRelatoriosRoute,
+    AuthenticatedAdminRuasIndexRoute: AuthenticatedAdminRuasIndexRoute,
   }
 
 const AuthenticatedAdminRuasRouteWithChildren =
