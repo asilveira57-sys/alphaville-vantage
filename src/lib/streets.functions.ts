@@ -198,13 +198,33 @@ export const upsertStreet = createServerFn({ method: "POST" })
     postal_code_end: z.string().optional().nullable(),
     short_description: z.string().optional().nullable(),
     description: z.string().optional().nullable(),
+    history: z.string().optional().nullable(),
+    real_estate_profile: z.string().optional().nullable(),
+    access_information: z.string().optional().nullable(),
+    traffic_information: z.string().optional().nullable(),
+    public_transport_information: z.string().optional().nullable(),
+    parking_information: z.string().optional().nullable(),
     hero_image: z.string().optional().nullable(),
+    hero_image_alt: z.string().optional().nullable(),
+    gallery_images: z.array(z.object({
+      url: z.string(),
+      alt: z.string().optional().default(""),
+      caption: z.string().optional().default(""),
+    })).optional(),
+    faq: z.array(z.object({
+      question: z.string(),
+      answer: z.string(),
+    })).optional(),
     seo_title: z.string().optional().nullable(),
     seo_description: z.string().optional().nullable(),
+    seo_keywords: z.string().optional().nullable(),
+    canonical_url: z.string().optional().nullable(),
     h1: z.string().optional().nullable(),
     featured: z.boolean().default(false),
+    active: z.boolean().default(true),
     status: z.enum(STREET_STATUSES).default("draft"),
   }).parse(d))
+
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const slug = (data.slug || slugify(data.name)).trim();

@@ -1078,6 +1078,7 @@ export type Database = {
           gallery_images: Json
           h1: string | null
           hero_image: string | null
+          hero_image_alt: string | null
           history: string | null
           id: string
           latitude: number | null
@@ -1131,6 +1132,7 @@ export type Database = {
           gallery_images?: Json
           h1?: string | null
           hero_image?: string | null
+          hero_image_alt?: string | null
           history?: string | null
           id?: string
           latitude?: number | null
@@ -1184,6 +1186,7 @@ export type Database = {
           gallery_images?: Json
           h1?: string | null
           hero_image?: string | null
+          hero_image_alt?: string | null
           history?: string | null
           id?: string
           latitude?: number | null

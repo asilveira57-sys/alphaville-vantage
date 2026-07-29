@@ -100,15 +100,15 @@ function AdminRuas() {
 
           <div className="border border-ink/10">
             <div className="grid grid-cols-12 gap-3 px-4 py-2 border-b border-ink/10 text-[10px] uppercase tracking-widest text-muted-foreground">
-              <div className="col-span-5">Nome</div>
+              <div className="col-span-4">Nome</div>
               <div className="col-span-2">Bairro / Cidade</div>
               <div className="col-span-2">Status</div>
               <div className="col-span-2">Atualizado</div>
-              <div className="col-span-1 text-right">Ações</div>
+              <div className="col-span-2 text-right">Ações</div>
             </div>
             {(listQ.data ?? []).map((r: any) => (
               <div key={r.id} className="grid grid-cols-12 gap-3 px-4 py-3 border-b border-ink/8 text-sm items-center">
-                <div className="col-span-5">
+                <div className="col-span-4">
                   <Link to="/admin-ruas/$id" params={{ id: r.id }} className="font-medium text-ink hover:underline">{r.name}</Link>
                   <div className="text-[11px] text-muted-foreground">/ruas/{r.slug}</div>
                 </div>
@@ -121,12 +121,15 @@ function AdminRuas() {
                   {r.featured && <span className="ml-2 text-gold">★</span>}
                 </div>
                 <div className="col-span-2 text-xs text-muted-foreground">{new Date(r.updated_at).toLocaleDateString("pt-BR")}</div>
-                <div className="col-span-1 text-right">
+                <div className="col-span-2 flex justify-end gap-2 text-[11px] uppercase tracking-widest">
+                  <Link to="/admin-ruas/$id" params={{ id: r.id }} className="text-ink hover:underline">Editar</Link>
+                  <a href={`/ruas/${r.slug}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-ink">Ver</a>
                   <button
                     onClick={() => { if (confirm(`Excluir "${r.name}"?`)) delMut.mutate(r.id); }}
-                    className="text-[11px] uppercase tracking-widest text-red-600 hover:underline"
+                    className="text-red-600 hover:underline"
                   >Excluir</button>
                 </div>
+
               </div>
             ))}
             {listQ.data?.length === 0 && (
