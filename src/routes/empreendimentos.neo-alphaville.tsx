@@ -3,6 +3,7 @@ import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car,
 import { SiteLayout } from "@/components/site-layout";
 import { EmpreendimentoUnitsBlock } from "@/components/empreendimentos/units-block";
 import { EmpreendimentoGalleryBlock } from "@/components/empreendimentos/gallery-block";
+import { EmpreendimentoCoverImage } from "@/components/empreendimentos/cover-image";
 import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-block";
 import { NeoLeadForm } from "@/components/partners/neo-lead-form";
 import neoLogo from "@/assets/neo-alphaville-logo.png.asset.json";
@@ -176,7 +177,10 @@ function NeoPage() {
       <section className="bg-[#EAEAE6] px-6 py-16">
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.1fr_0.9fr]">
           <div>
-            {HERO_IMAGE ? (
+            <EmpreendimentoCoverImage
+              empreendimentoSlug="neo-alphaville"
+              alt="Neo Alphaville, na Avenida Sagitário, Alphaville Empresarial, Barueri"
+              fallback={HERO_IMAGE ? (
               <div className="grid aspect-[16/10] w-full place-items-center rounded-[16px] bg-white p-10 ring-1 ring-[#0D0D0D]/8">
                 <img
                   src={HERO_IMAGE}
@@ -198,6 +202,7 @@ function NeoPage() {
                 </div>
               </div>
             )}
+            />
 
             {GALLERY.length > 0 ? (
               <div className="mt-4 grid grid-cols-3 gap-3">
