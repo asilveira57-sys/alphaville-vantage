@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { EmpreendimentoUnitsBlock } from "@/components/empreendimentos/units-block";
+import { EmpreendimentoGalleryBlock } from "@/components/empreendimentos/gallery-block";
+import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-block";
 import { NeoLeadForm } from "@/components/partners/neo-lead-form";
 import neoLogo from "@/assets/neo-alphaville-logo.png.asset.json";
 
@@ -284,6 +286,9 @@ function NeoPage() {
           </div>
         </div>
       </section>
+
+      <EmpreendimentoGalleryBlock empreendimentoSlug="neo-alphaville" name="Neo Alphaville" />
+      <EmpreendimentoPlansBlock empreendimentoSlug="neo-alphaville" name="Neo Alphaville" />
 
       {/* UNIDADES DISPONÍVEIS */}
       <section className="bg-[#EAEAE6] px-6 py-16">
