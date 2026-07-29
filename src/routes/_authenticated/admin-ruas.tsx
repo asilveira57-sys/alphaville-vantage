@@ -121,12 +121,15 @@ function AdminRuas() {
                   {r.featured && <span className="ml-2 text-gold">★</span>}
                 </div>
                 <div className="col-span-2 text-xs text-muted-foreground">{new Date(r.updated_at).toLocaleDateString("pt-BR")}</div>
-                <div className="col-span-1 text-right">
+                <div className="col-span-1 flex justify-end gap-2 text-[11px] uppercase tracking-widest">
+                  <Link to="/admin-ruas/$id" params={{ id: r.id }} className="text-ink hover:underline">Editar</Link>
+                  <a href={`/ruas/${r.slug}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-ink">Ver</a>
                   <button
                     onClick={() => { if (confirm(`Excluir "${r.name}"?`)) delMut.mutate(r.id); }}
-                    className="text-[11px] uppercase tracking-widest text-red-600 hover:underline"
+                    className="text-red-600 hover:underline"
                   >Excluir</button>
                 </div>
+
               </div>
             ))}
             {listQ.data?.length === 0 && (
