@@ -299,6 +299,111 @@ export type Database = {
           },
         ]
       }
+      empreendimento_media: {
+        Row: {
+          active: boolean
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          credit: string | null
+          empreendimento_slug: string
+          id: string
+          is_cover: boolean
+          sort_order: number
+          source: string | null
+          title: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          credit?: string | null
+          empreendimento_slug: string
+          id?: string
+          is_cover?: boolean
+          sort_order?: number
+          source?: string | null
+          title?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          credit?: string | null
+          empreendimento_slug?: string
+          id?: string
+          is_cover?: boolean
+          sort_order?: number
+          source?: string | null
+          title?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      empreendimento_plans: {
+        Row: {
+          active: boolean
+          area_label: string | null
+          category: string | null
+          created_at: string
+          credit: string | null
+          description: string | null
+          embed_url: string | null
+          empreendimento_slug: string
+          id: string
+          image_url: string | null
+          kind: string
+          sort_order: number
+          source: string | null
+          thumb_url: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          area_label?: string | null
+          category?: string | null
+          created_at?: string
+          credit?: string | null
+          description?: string | null
+          embed_url?: string | null
+          empreendimento_slug: string
+          id?: string
+          image_url?: string | null
+          kind?: string
+          sort_order?: number
+          source?: string | null
+          thumb_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          area_label?: string | null
+          category?: string | null
+          created_at?: string
+          credit?: string | null
+          description?: string | null
+          embed_url?: string | null
+          empreendimento_slug?: string
+          id?: string
+          image_url?: string | null
+          kind?: string
+          sort_order?: number
+          source?: string | null
+          thumb_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       knowledge_base: {
         Row: {
           category: string

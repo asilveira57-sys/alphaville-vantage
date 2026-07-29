@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { EmpreendimentoUnitsBlock } from "@/components/empreendimentos/units-block";
+import { EmpreendimentoGalleryBlock } from "@/components/empreendimentos/gallery-block";
+import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-block";
 import { AndromedaLeadForm } from "@/components/partners/andromeda-lead-form";
 
 const SITE = "https://alphaville-vantage.lovable.app";
@@ -260,6 +262,9 @@ function AndromedaPage() {
           </div>
         </div>
       </section>
+
+      <EmpreendimentoGalleryBlock empreendimentoSlug="andromeda-by-mpd" name="Andrômeda by MPD" />
+      <EmpreendimentoPlansBlock empreendimentoSlug="andromeda-by-mpd" name="Andrômeda by MPD" />
 
       {/* UNIDADES DISPONÍVEIS */}
       <section className="bg-white px-6 py-16">

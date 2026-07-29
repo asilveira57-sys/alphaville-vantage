@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat, BedDouble } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { EmpreendimentoUnitsBlock } from "@/components/empreendimentos/units-block";
+import { EmpreendimentoGalleryBlock } from "@/components/empreendimentos/gallery-block";
+import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-block";
 import { TerrahLeadForm } from "@/components/partners/terrah-lead-form";
 
 const SITE = "https://alphaville-vantage.lovable.app";
@@ -293,6 +295,9 @@ function TerrahPage() {
           </div>
         </div>
       </section>
+
+      <EmpreendimentoGalleryBlock empreendimentoSlug="terrah-alphaville" name="Terrah Alphaville" />
+      <EmpreendimentoPlansBlock empreendimentoSlug="terrah-alphaville" name="Terrah Alphaville" />
 
       {/* UNIDADES DISPONÍVEIS */}
       <section className="bg-[#EAEAE6] px-6 py-16">
