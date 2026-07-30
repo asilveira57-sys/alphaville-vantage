@@ -48,8 +48,8 @@ function AdminMedia() {
   });
 
   const updateMut = useMutation({
-    mutationFn: (v: Parameters<typeof updateMedia>[0]["data"]) => updateFn({ data: v }),
-    onSuccess: (row) => { setSelected(row); qc.invalidateQueries({ queryKey: ["media"] }); },
+    mutationFn: (v: { id: string; title?: string | null; alt_text?: string | null; caption?: string | null; description?: string | null; folder?: string; is_decorative?: boolean }) => updateFn({ data: v }),
+    onSuccess: (row) => { setSelected(row as MediaItem); qc.invalidateQueries({ queryKey: ["media"] }); },
   });
   const deleteMut = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
