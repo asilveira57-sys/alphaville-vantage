@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      cms_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_label: string | null
+          created_at: string
+          details: Json
+          entity_id: string | null
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_label?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_label?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
       condominiums: {
         Row: {
           address: string | null
@@ -129,6 +162,101 @@ export type Database = {
           },
         ]
       }
+      cta_blocks: {
+        Row: {
+          active: boolean
+          allowed_content_types: string[]
+          button_label: string | null
+          button_url: string | null
+          conversion_context: string | null
+          created_at: string
+          created_by: string | null
+          cta_type: string
+          description: string | null
+          display_order: number
+          icon: string | null
+          id: string
+          image_url: string | null
+          internal_name: string
+          secondary_button_label: string | null
+          secondary_button_url: string | null
+          title: string
+          tracking_source: string | null
+          updated_at: string
+          variant: string
+        }
+        Insert: {
+          active?: boolean
+          allowed_content_types?: string[]
+          button_label?: string | null
+          button_url?: string | null
+          conversion_context?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_type?: string
+          description?: string | null
+          display_order?: number
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          internal_name: string
+          secondary_button_label?: string | null
+          secondary_button_url?: string | null
+          title: string
+          tracking_source?: string | null
+          updated_at?: string
+          variant?: string
+        }
+        Update: {
+          active?: boolean
+          allowed_content_types?: string[]
+          button_label?: string | null
+          button_url?: string | null
+          conversion_context?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_type?: string
+          description?: string | null
+          display_order?: number
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          internal_name?: string
+          secondary_button_label?: string | null
+          secondary_button_url?: string | null
+          title?: string
+          tracking_source?: string | null
+          updated_at?: string
+          variant?: string
+        }
+        Relationships: []
+      }
+      cta_defaults: {
+        Row: {
+          content_type: string
+          cta_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          content_type: string
+          cta_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          cta_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cta_defaults_cta_id_fkey"
+            columns: ["cta_id"]
+            isOneToOne: false
+            referencedRelation: "cta_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       editorial_pages: {
         Row: {
           author_id: string | null
@@ -143,6 +271,8 @@ export type Database = {
           created_at: string
           cta_button_label: string | null
           cta_button_url: string | null
+          cta_hidden: boolean
+          cta_id: string | null
           cta_text: string | null
           cta_title: string | null
           display_order: number
@@ -161,6 +291,7 @@ export type Database = {
           intencao_imobiliaria: string | null
           is_featured: boolean
           meta_description: string | null
+          meta_keywords: string | null
           meta_title: string | null
           og_description: string | null
           og_image: string | null
@@ -173,9 +304,12 @@ export type Database = {
           related_condominium: string | null
           related_neighborhood: string | null
           related_post_ids: string[]
+          robots_follow: boolean
+          robots_index: boolean
           schema_type: string
           secondary_keywords: string[]
           slug: string
+          social_image: string | null
           status: string
           tags: string[]
           tags_contextuais: string[]
@@ -196,6 +330,8 @@ export type Database = {
           created_at?: string
           cta_button_label?: string | null
           cta_button_url?: string | null
+          cta_hidden?: boolean
+          cta_id?: string | null
           cta_text?: string | null
           cta_title?: string | null
           display_order?: number
@@ -214,6 +350,7 @@ export type Database = {
           intencao_imobiliaria?: string | null
           is_featured?: boolean
           meta_description?: string | null
+          meta_keywords?: string | null
           meta_title?: string | null
           og_description?: string | null
           og_image?: string | null
@@ -226,9 +363,12 @@ export type Database = {
           related_condominium?: string | null
           related_neighborhood?: string | null
           related_post_ids?: string[]
+          robots_follow?: boolean
+          robots_index?: boolean
           schema_type?: string
           secondary_keywords?: string[]
           slug: string
+          social_image?: string | null
           status?: string
           tags?: string[]
           tags_contextuais?: string[]
@@ -249,6 +389,8 @@ export type Database = {
           created_at?: string
           cta_button_label?: string | null
           cta_button_url?: string | null
+          cta_hidden?: boolean
+          cta_id?: string | null
           cta_text?: string | null
           cta_title?: string | null
           display_order?: number
@@ -267,6 +409,7 @@ export type Database = {
           intencao_imobiliaria?: string | null
           is_featured?: boolean
           meta_description?: string | null
+          meta_keywords?: string | null
           meta_title?: string | null
           og_description?: string | null
           og_image?: string | null
@@ -279,9 +422,12 @@ export type Database = {
           related_condominium?: string | null
           related_neighborhood?: string | null
           related_post_ids?: string[]
+          robots_follow?: boolean
+          robots_index?: boolean
           schema_type?: string
           secondary_keywords?: string[]
           slug?: string
+          social_image?: string | null
           status?: string
           tags?: string[]
           tags_contextuais?: string[]
@@ -290,6 +436,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "editorial_pages_cta_id_fkey"
+            columns: ["cta_id"]
+            isOneToOne: false
+            referencedRelation: "cta_blocks"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "editorial_pages_related_condominium_fkey"
             columns: ["related_condominium"]
@@ -433,6 +586,104 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      media_library: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          description: string | null
+          folder: string
+          height: number | null
+          id: string
+          is_decorative: boolean
+          mime_type: string | null
+          original_filename: string
+          size_bytes: number | null
+          storage_path: string
+          title: string | null
+          updated_at: string
+          uploaded_by: string | null
+          url: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          description?: string | null
+          folder?: string
+          height?: number | null
+          id?: string
+          is_decorative?: boolean
+          mime_type?: string | null
+          original_filename: string
+          size_bytes?: number | null
+          storage_path: string
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          url: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          description?: string | null
+          folder?: string
+          height?: number | null
+          id?: string
+          is_decorative?: boolean
+          mime_type?: string | null
+          original_filename?: string
+          size_bytes?: number | null
+          storage_path?: string
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          url?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
+      media_usage: {
+        Row: {
+          content_id: string
+          content_label: string | null
+          content_type: string
+          created_at: string
+          id: string
+          media_id: string
+          usage_kind: string
+        }
+        Insert: {
+          content_id: string
+          content_label?: string | null
+          content_type: string
+          created_at?: string
+          id?: string
+          media_id: string
+          usage_kind?: string
+        }
+        Update: {
+          content_id?: string
+          content_label?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          media_id?: string
+          usage_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_usage_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media_library"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_subscribers: {
         Row: {
@@ -1072,6 +1323,8 @@ export type Database = {
           commercial_profile: string | null
           created_at: string
           created_by: string | null
+          cta_hidden: boolean
+          cta_id: string | null
           description: string | null
           faq: Json
           featured: boolean
@@ -1099,6 +1352,8 @@ export type Database = {
           nearby_supermarkets: Json
           neighborhood: string | null
           official_name: string | null
+          og_description: string | null
+          og_title: string | null
           parking_information: string | null
           postal_code_end: string | null
           postal_code_start: string | null
@@ -1106,12 +1361,15 @@ export type Database = {
           published_at: string | null
           real_estate_profile: string | null
           residential_profile: string | null
+          robots_follow: boolean
+          robots_index: boolean
           seo_description: string | null
           seo_keywords: string | null
           seo_title: string | null
           short_description: string | null
           short_name: string | null
           slug: string
+          social_image: string | null
           state: string | null
           status: string
           street_type: string | null
@@ -1126,6 +1384,8 @@ export type Database = {
           commercial_profile?: string | null
           created_at?: string
           created_by?: string | null
+          cta_hidden?: boolean
+          cta_id?: string | null
           description?: string | null
           faq?: Json
           featured?: boolean
@@ -1153,6 +1413,8 @@ export type Database = {
           nearby_supermarkets?: Json
           neighborhood?: string | null
           official_name?: string | null
+          og_description?: string | null
+          og_title?: string | null
           parking_information?: string | null
           postal_code_end?: string | null
           postal_code_start?: string | null
@@ -1160,12 +1422,15 @@ export type Database = {
           published_at?: string | null
           real_estate_profile?: string | null
           residential_profile?: string | null
+          robots_follow?: boolean
+          robots_index?: boolean
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null
           short_description?: string | null
           short_name?: string | null
           slug: string
+          social_image?: string | null
           state?: string | null
           status?: string
           street_type?: string | null
@@ -1180,6 +1445,8 @@ export type Database = {
           commercial_profile?: string | null
           created_at?: string
           created_by?: string | null
+          cta_hidden?: boolean
+          cta_id?: string | null
           description?: string | null
           faq?: Json
           featured?: boolean
@@ -1207,6 +1474,8 @@ export type Database = {
           nearby_supermarkets?: Json
           neighborhood?: string | null
           official_name?: string | null
+          og_description?: string | null
+          og_title?: string | null
           parking_information?: string | null
           postal_code_end?: string | null
           postal_code_start?: string | null
@@ -1214,19 +1483,30 @@ export type Database = {
           published_at?: string | null
           real_estate_profile?: string | null
           residential_profile?: string | null
+          robots_follow?: boolean
+          robots_index?: boolean
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null
           short_description?: string | null
           short_name?: string | null
           slug?: string
+          social_image?: string | null
           state?: string | null
           status?: string
           street_type?: string | null
           traffic_information?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "streets_cta_id_fkey"
+            columns: ["cta_id"]
+            isOneToOne: false
+            referencedRelation: "cta_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
