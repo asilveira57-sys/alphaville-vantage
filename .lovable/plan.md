@@ -1,62 +1,73 @@
-## Diagnóstico dos problemas atuais
+# Diagnóstico + Melhoria do CMS (mídia, SEO, CTAs e Guia de Ruas)
 
-1. **"Não respeita h1/h2/h3, vira um bloco horroroso"** — o `EditorialContent` usa classes `prose prose-headings:...` do plugin `@tailwindcss/typography`, mas esse plugin **não está instalado** neste projeto (só existe `@tailwindcss/vite`). Resultado: nenhum estilo é aplicado, tudo cai no default do browser sem hierarquia. Isso afeta o blog, o preview do CMS e qualquer página que usa `EditorialContent`.
-2. **"Perde o texto enquanto digito, volta para o original"** — no `HtmlEditor` o `useEffect` sincroniza `value → editor` sempre que `value !== editor.getHTML()`. Como o TipTap normaliza HTML (aspas, espaços, tags vazias), o HTML devolvido nunca bate exatamente com o que o pai guardou, disparando `setContent` no meio da digitação e revertendo o cursor/conteúdo.
-3. **Faltam recursos** — inserir imagem com **alt**, link interno com autocomplete de rotas, **tabelas**, atalhos de teclado, e **auto-save**.
+## 1. O que já existe hoje
 
-## O que vou construir
+**Conteúdo e editor**
+- `editorial_pages` concentra posts, artigos, guias, bairros, condomínios e páginas institucionais (já tem `meta_title`, `meta_description`, `focus_keyword`, `secondary_keywords`, `canonical_url`, `og_title`, `og_description`, `og_image`, `schema_type`, `faq`, `cards`, `cta_*`, `help_*`).
+- Editor TipTap em `html-editor.tsx` com diálogo de imagem (`editor/image-dialog.tsx`), autosave (`editor/use-autosave.ts`) e tags (`editor/tags-input.tsx`). Base64 já está desativado no TipTap.
+- CMS em `/cms` e `/admin`; ruas em `/admin-ruas`; empreendimentos em `/admin-empreendimentos`.
 
-### 1. Corrigir a renderização do conteúdo (blog, guia, bairro, condomínio, preview)
-- Instalar `@tailwindcss/typography` e ativá-lo no `src/styles.css` via `@plugin "@tailwindcss/typography"` (padrão Tailwind v4).
-- Refinar `EditorialContent`: escala tipográfica premium (h1 serif grande, h2/h3 com pesos e espaçamento coerentes ao design atual), listas, blockquote, tabelas com bordas, imagens com legenda, links com sublinhado dourado.
-- Adicionar CSS específico para `<table>`, `<figure>`/`<figcaption>` e `<img alt>` para ficar consistente entre editor e página publicada (WYSIWYG real).
+**Mídia**
+- Bucket privado `editorial-images` + proxy público `/api/public/editorial-image/*` com cache imutável.
+- Upload feito em `image-upload.tsx` (arquivo → storage → URL). **Não existe tabela de biblioteca**, nem metadados, nem reuso/pesquisa.
 
-### 2. Reescrever o `HtmlEditor` para nível WordPress
-Base continua TipTap, mas com extensões novas e barra reorganizada:
-- **Headings** H1/H2/H3/H4 + Parágrafo (dropdown).
-- **Formatação**: negrito, itálico, sublinhado, riscado, código inline, sobrescrito/subscrito, limpar formatação.
-- **Blocos**: listas, checklist, citação, separador, bloco de código.
-- **Links internos**: modal com busca por título nas páginas publicadas (`editorial_pages`, `properties`, `condominios`, `bairros`) via novo server function `searchInternalLinks`; também aceita URL externa; edita/remove link existente.
-- **Imagem com alt**: modal com upload (usa `uploadEditorialImageFile` já existente) + campo obrigatório de **texto alternativo** + legenda opcional. Insere como `<figure><img alt=""><figcaption></figcaption></figure>`. Permite reeditar alt clicando na imagem.
-- **Tabelas**: extensões `@tiptap/extension-table`, `table-row`, `table-header`, `table-cell`. Menu contextual: inserir/remover linha, coluna, cabeçalho, mesclar/dividir células.
-- **Alinhamento** (esquerda/centro/direita) para parágrafos e imagens.
-- **Atalhos** padrão (Ctrl+B, Ctrl+I, Ctrl+K para link, Ctrl+Z/Y).
-- **Modo HTML** mantido para colar código bruto.
-- **Correção do bug de "voltar ao original"**: a sincronização externa passa a ocorrer apenas quando o `id` da página muda (troca de documento) — não em cada keystroke. Um `ref` guarda o `id` atual; enquanto for o mesmo, o editor é a fonte da verdade.
+**CTA**
+- `post-cta-block.tsx` e `post-help-block.tsx` leem campos `cta_*`/`help_*` de cada página. Não há CTAs reutilizáveis.
 
-### 3. Auto-save (WordPress-style)
-- Debounce de 2s após parar de digitar → salva rascunho via `upsertEditorialPage` já existente.
-- Indicador de estado no topo: "Salvando…", "Salvo às 14:32", "Erro — tentar novamente".
-- Salva também ao trocar de aba/fechar (`beforeunload` + `visibilitychange`).
-- Bloqueia auto-save enquanto `status = "published"` a menos que o usuário confirme (para não publicar mudanças sem revisão) — em rascunho salva livremente.
-- Botão manual "Salvar" continua disponível.
+**Ruas — hoje existem DOIS módulos**
+- `streets` → rotas `/ruas` e `/ruas/:slug` (com CMS admin recente).
+- `street_guides` → rotas `/guia-de-ruas-alphaville` e `/guia-de-ruas-alphaville/:slug`.
+- Ambos estão no sitemap. Não há link no menu principal para nenhum dos dois.
 
-### 4. Prevenção contra perda de conteúdo
-- Snapshot local em `sessionStorage` a cada mudança (chave por `id`), restaurado se a página recarregar antes do auto-save concluir.
+**Sitemap**
+- `/sitemap.xml` server-side, lista estática + imóveis ativos + `editorial_pages` publicadas. Já filtra rascunhos; ainda não filtra `noindex` nem inclui todas as ruas/parceiros/empreendimentos.
 
-## Escopo técnico
+## 2. O que será feito (incremental, sem apagar nada)
 
-**Pacotes novos** (via `bun add`):
-- `@tailwindcss/typography`
-- `@tiptap/extension-table`, `@tiptap/extension-table-row`, `@tiptap/extension-table-header`, `@tiptap/extension-table-cell`
-- `@tiptap/extension-text-align`
-- `@tiptap/extension-task-list`, `@tiptap/extension-task-item`
-- `@tiptap/extension-subscript`, `@tiptap/extension-superscript`
-- `@tiptap/extension-placeholder`
+### Fase A — Biblioteca de mídia
+- Nova tabela `media_library`: `storage_path`, `url`, `original_filename`, `title`, `alt_text`, `caption`, `description`, `width`, `height`, `mime_type`, `size_bytes`, `folder`, `is_decorative`, `uploaded_by`, timestamps. Nenhuma tabela existente é alterada.
+- Tabela `media_usage` (media_id, content_type, content_id) para "onde está sendo usada" e bloquear exclusão de imagem em uso.
+- Server functions `media.functions.ts`: listar (busca por nome, filtro por pasta e data, paginado), registrar upload, atualizar metadados, substituir arquivo, excluir se não usada.
+- Nova rota admin `/admin-midia`: grade, upload múltiplo, busca, filtros por pasta (Blog, Ruas, Condomínios, Guias, Empreendimentos, Parceiros, Institucional, Geral), copiar URL, editar alt/título/legenda, ver usos.
+- Componente `MediaPicker` (modal) reutilizável: "enviar nova" ou "escolher da biblioteca". Sem duplicação física do arquivo.
 
-**Arquivos alterados/criados**
-- `src/styles.css` — registrar plugin typography + estilos custom para tabela/figure.
-- `src/components/editorial-content.tsx` — nova escala tipográfica.
-- `src/components/html-editor.tsx` — reescrito.
-- `src/components/editor/` (novo) — `link-dialog.tsx`, `image-dialog.tsx`, `table-menu.tsx`, `toolbar.tsx`, `use-autosave.ts`.
-- `src/lib/editorial.functions.ts` — adicionar `searchInternalLinks` (busca em `editorial_pages` published + `properties` ativas + rotas fixas do site).
-- `src/routes/_authenticated/cms.$id.tsx` — integrar auto-save + indicador de estado + snapshot em sessionStorage.
+### Fase B — Editor
+- Botão **Adicionar mídia** no `HtmlEditor` abrindo o `MediaPicker`; inserção na posição do cursor com alt, legenda, alinhamento, largura e link (reaproveita o `ImageDialog` atual).
+- Handler de colagem: imagem colada/base64 → upload ao Storage → registro na biblioteca → substituição pela URL permanente, com pedido de alt.
+- Aviso (não bloqueante) ao publicar com imagem sem alt; opção "imagem decorativa" → `alt=""`.
 
-**Sem mudanças** em backend/RLS/tabelas — tudo já existe.
+### Fase C — SEO avançado por página
+- Painel único `SeoPanel` (componente compartilhado) usado no CMS de posts/páginas e no CMS de ruas: title, description, keywords, slug, canonical, imagem social, OG title/description, robots (index/noindex × follow/nofollow), schema, datas.
+- Contadores visuais 60/160 caracteres, sem cortar texto.
+- Fallbacks automáticos já aplicados na renderização (title → título; description → resumo; imagem social → OG image → destaque → padrão; canonical → URL da própria página).
+- Migração adiciona apenas colunas faltantes: `robots_index`, `robots_follow`, `social_image`, `meta_keywords` onde não existirem (em `editorial_pages` e `streets`).
+- Pré-visualização Google / Facebook / WhatsApp usando os valores efetivos.
 
-## Fora de escopo (posso fazer depois se quiser)
-- Histórico de revisões (versionamento).
-- Colaboração multi-usuário em tempo real.
-- Blocos reutilizáveis / Gutenberg-style block library.
+### Fase D — Gestão central de CTAs
+- Tabela `cta_blocks` (nome interno, título, descrição, botões 1 e 2, imagem/ícone, tipo, variação visual, contexto de conversão, tipos de conteúdo permitidos, ordem, ativo).
+- Tabela `cta_defaults` (CTA padrão por tipo de conteúdo).
+- Rota admin `/admin-ctas` (CRUD + pré-visualização).
+- `PostCtaBlock` **mantém o layout atual**, apenas passa a aceitar dados vindos do CTA selecionado. Hierarquia: CTA da página → padrão do tipo → CTA geral → nenhum (se ocultado).
+- Campos existentes `cta_*` continuam valendo como CTA da página, então nada muda no que já está publicado.
 
-Confirmando: sigo com este plano?
+### Fase E — Guia de Ruas
+- Preservar `/ruas` e `/guia-de-ruas-alphaville` (sem quebrar URLs) e criar `/guia-de-ruas` como hub principal, com 301 canônico apontando para a rota indexada correta.
+- Hub: introdução, pesquisa, filtros por cidade/bairro/região, listagem alfabética, ruas em destaque, relacionados, breadcrumbs, paginação e CTA final.
+- Página individual de rua: seletor de CTA (padrão do guia, específico, oculto), bloco de CTA antes dos relacionados, condomínios próximos, imóveis, artigos relacionados e data de atualização.
+- Navegação: entrada "Guia de Ruas" dentro de **Guias** no menu, no rodapé, no mapa do site e nas páginas de bairros/condomínios.
+
+### Fase F — Sitemap, performance e migração
+- Sitemap passa a incluir ruas publicadas, guias de ruas, parceiros e empreendimentos, e a excluir qualquer página marcada como `noindex`.
+- Upload gera versão WebP otimizada preservando o original; `width`/`height` sempre no HTML; `loading="lazy"`; limite de tamanho configurável com aviso.
+- Rotina idempotente (executável no admin de mídia) para varrer HTML existente, migrar imagens base64/coladas para o Storage, registrá-las na biblioteca e trocar o `src` mantendo posição e dimensões.
+
+### Fase G — Segurança e auditoria
+- Todas as tabelas novas com RLS: leitura pública apenas do necessário; escrita restrita a `admin`/`editor` via `has_role`.
+- Validação de extensão, MIME e tamanho no upload; bloqueio de executáveis e SVG não sanitizado.
+- Tabela `cms_audit_log` registrando upload, troca/exclusão de imagem, alteração de SEO, alteração de CTA e publicação, com usuário e data.
+
+## 3. Garantias
+Nenhum conteúdo, slug, URL, imagem, campo de SEO ou CTA atual é apagado ou reescrito. Todas as colunas novas são opcionais e as tabelas novas são aditivas.
+
+## 4. Observação técnica
+Como o escopo é grande, a execução será feita nas fases acima, em ordem (A→G), cada uma verificável de forma independente.
