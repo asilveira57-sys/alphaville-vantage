@@ -194,6 +194,13 @@ const upsertSchema = z.object({
   reading_minutes: z.number().int().nonnegative().nullable().optional(),
   faq: z.array(z.object({ question: z.string().default(""), answer: z.string().default("") })).default([]),
   related_post_ids: z.array(z.string().uuid()).default([]),
+  // SEO avançado
+  meta_keywords: z.string().optional().nullable(),
+  social_image: z.string().optional().nullable(),
+  robots_index: z.boolean().default(true),
+  robots_follow: z.boolean().default(true),
+  cta_id: z.string().uuid().optional().nullable(),
+  cta_hidden: z.boolean().default(false),
 });
 
 export const upsertEditorialPage = createServerFn({ method: "POST" })

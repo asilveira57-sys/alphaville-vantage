@@ -8,6 +8,7 @@ import { HtmlEditor } from "@/components/html-editor";
 import { ImageUpload, uploadEditorialImageFile } from "@/components/image-upload";
 import { useAutosave } from "@/components/editor/use-autosave";
 import { STREET_TYPES, upsertStreet, deleteStreet } from "@/lib/streets.functions";
+import { SeoPanel } from "@/components/seo-panel";
 
 export const Route = createFileRoute("/_authenticated/admin-ruas/$id")({
   head: () => ({ meta: [{ title: "Editar rua — Admin" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -29,6 +30,8 @@ type Form = {
   gallery_images: GalleryItem[];
   faq: FaqItem[];
   seo_title: string; seo_description: string; seo_keywords: string; canonical_url: string; h1: string;
+  og_title: string; og_description: string; social_image: string;
+  robots_index: boolean; robots_follow: boolean;
   featured: boolean; active: boolean; status: "draft" | "published" | "archived";
   slug: string;
 };
@@ -44,6 +47,7 @@ const empty: Form = {
   hero_image: "", hero_image_alt: "",
   gallery_images: [], faq: [],
   seo_title: "", seo_description: "", seo_keywords: "", canonical_url: "", h1: "",
+  og_title: "", og_description: "", social_image: "", robots_index: true, robots_follow: true,
   featured: false, active: true, status: "draft", slug: "",
 };
 
@@ -113,6 +117,9 @@ function EditRua() {
       seo_title: d.seo_title ?? "", seo_description: d.seo_description ?? "",
       seo_keywords: d.seo_keywords ?? "", canonical_url: d.canonical_url ?? "",
       h1: d.h1 ?? "", featured: !!d.featured, active: d.active !== false,
+      og_title: d.og_title ?? "", og_description: d.og_description ?? "",
+      social_image: d.social_image ?? "",
+      robots_index: d.robots_index !== false, robots_follow: d.robots_follow !== false,
       status: d.status ?? "draft", slug: d.slug ?? "",
     });
     setLoaded(true);
@@ -377,20 +384,50 @@ function EditRua() {
         )}
 
         {tab === "seo" && (
-          <section className="space-y-4">
-            <h2 className="font-serif text-lg text-ink">SEO</h2>
-            <div><label className={label}>H1</label><input className={input} {...bind("h1")} /></div>
+          <SeoPanel
+            values={{
+              title: form.seo_title,
+              description: form.seo_description,
+              keywords: form.seo_keywords,
+              slug: form.slug,
+              path: `/ruas/${form.slug}`,
+              canonical: form.canonical_url,
+              ogTitle: form.og_title,
+              ogDescription: form.og_description,
+              socialImage: form.social_image,
+              robotsIndex: form.robots_index,
+              robotsFollow: form.robots_follow,
+            }}
+            onChange={(patch) =>
+              setForm((f) => ({
+                ...f,
+                ...(patch.title !== undefined ? { seo_title: patch.title } : {}),
+                ...(patch.description !== undefined ? { seo_description: patch.description } : {}),
+                ...(patch.keywords !== undefined ? { seo_keywords: patch.keywords } : {}),
+                ...(patch.canonical !== undefined ? { canonical_url: patch.canonical } : {}),
+                ...(patch.ogTitle !== undefined ? { og_title: patch.ogTitle } : {}),
+                ...(patch.ogDescription !== undefined ? { og_description: patch.ogDescription } : {}),
+                ...(patch.socialImage !== undefined ? { social_image: patch.socialImage } : {}),
+                ...(patch.robotsIndex !== undefined ? { robots_index: patch.robotsIndex } : {}),
+                ...(patch.robotsFollow !== undefined ? { robots_follow: patch.robotsFollow } : {}),
+              }))
+            }
+            fallbackTitle={form.name}
+            fallbackDescription={form.short_description}
+            fallbackImage={form.hero_image || null}
+            imageSlot={
+              <ImageUpload
+                value={form.social_image}
+                onUploaded={(url) => set("social_image", url)}
+                folder="ruas"
+              />
+            }
+          >
             <div>
-              <label className={label}>Title (SEO) — {form.seo_title.length} caracteres</label>
-              <input className={input} {...bind("seo_title")} />
+              <label className={label}>H1 da página</label>
+              <input className={input} {...bind("h1")} />
             </div>
-            <div>
-              <label className={label}>Meta description — {form.seo_description.length} caracteres</label>
-              <textarea rows={3} className={input} {...bind("seo_description")} />
-            </div>
-            <div><label className={label}>Palavras-chave</label><input className={input} {...bind("seo_keywords")} /></div>
-            <div><label className={label}>Canonical (opcional)</label><input className={input} {...bind("canonical_url")} /></div>
-          </section>
+          </SeoPanel>
         )}
 
         {tab === "publicacao" && (

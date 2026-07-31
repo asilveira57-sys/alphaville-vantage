@@ -40,18 +40,22 @@ export const Route = createFileRoute("/blog/$slug")({
   head: ({ loaderData }) => {
     const p = loaderData?.post;
     if (!p) return { meta: [{ title: "Post — S.A Imóveis Alphaville" }] };
+    const social = p.social_image || p.og_image || p.featured_image || null;
+    const robots = `${p.robots_index === false ? "noindex" : "index"},${p.robots_follow === false ? "nofollow" : "follow"}`;
     return {
       meta: [
         { title: `${p.meta_title ?? p.title} — S.A Imóveis Alphaville` },
         { name: "description", content: p.meta_description ?? p.excerpt ?? "" },
-        { property: "og:title", content: p.title },
-        { property: "og:description", content: p.excerpt ?? "" },
-        ...(p.featured_image ? [{ property: "og:image", content: p.featured_image }] : []),
-        ...(p.featured_image ? [{ name: "twitter:image", content: p.featured_image }] : []),
+        ...(p.meta_keywords ? [{ name: "keywords", content: p.meta_keywords }] : []),
+        { name: "robots", content: robots },
+        { property: "og:title", content: p.og_title || p.title },
+        { property: "og:description", content: p.og_description || p.excerpt || "" },
+        ...(social ? [{ property: "og:image", content: social }] : []),
+        ...(social ? [{ name: "twitter:image", content: social }] : []),
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/blog/${p.slug}` }],
+      links: [{ rel: "canonical", href: p.canonical_url || `/blog/${p.slug}` }],
     };
   },
   component: PostPage,

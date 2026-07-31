@@ -63,7 +63,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         // Dynamic: editorial_pages publicadas
         const { data: pages } = await supabase
           .from("editorial_pages")
-          .select("slug,content_type,updated_at")
+          .select("slug,content_type,updated_at,robots_index")
           .eq("status", "published");
         for (const e of pages ?? []) {
           const base = e.content_type === "condominio" ? "/condominios"
@@ -71,6 +71,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             : e.content_type === "blog" ? "/blog"
             : null;
           if (!base) continue;
+          if ((e as { robots_index?: boolean }).robots_index === false) continue;
           entries.push({ path: `${base}/${e.slug}`, lastmod: e.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
         }
 
@@ -86,10 +87,11 @@ export const Route = createFileRoute("/sitemap.xml")({
         // Dynamic: streets (novo módulo /ruas)
         const { data: ruas } = await supabase
           .from("streets")
-          .select("slug,updated_at")
+          .select("slug,updated_at,robots_index")
           .eq("status", "published")
           .eq("active", true);
         for (const r of ruas ?? []) {
+          if ((r as { robots_index?: boolean }).robots_index === false) continue;
           entries.push({ path: `/ruas/${r.slug}`, lastmod: r.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
         }
 
