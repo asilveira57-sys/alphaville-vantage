@@ -383,20 +383,50 @@ function EditRua() {
         )}
 
         {tab === "seo" && (
-          <section className="space-y-4">
-            <h2 className="font-serif text-lg text-ink">SEO</h2>
-            <div><label className={label}>H1</label><input className={input} {...bind("h1")} /></div>
+          <SeoPanel
+            values={{
+              title: form.seo_title,
+              description: form.seo_description,
+              keywords: form.seo_keywords,
+              slug: form.slug,
+              path: `/ruas/${form.slug}`,
+              canonical: form.canonical_url,
+              ogTitle: form.og_title,
+              ogDescription: form.og_description,
+              socialImage: form.social_image,
+              robotsIndex: form.robots_index,
+              robotsFollow: form.robots_follow,
+            }}
+            onChange={(patch) =>
+              setForm((f) => ({
+                ...f,
+                ...(patch.title !== undefined ? { seo_title: patch.title } : {}),
+                ...(patch.description !== undefined ? { seo_description: patch.description } : {}),
+                ...(patch.keywords !== undefined ? { seo_keywords: patch.keywords } : {}),
+                ...(patch.canonical !== undefined ? { canonical_url: patch.canonical } : {}),
+                ...(patch.ogTitle !== undefined ? { og_title: patch.ogTitle } : {}),
+                ...(patch.ogDescription !== undefined ? { og_description: patch.ogDescription } : {}),
+                ...(patch.socialImage !== undefined ? { social_image: patch.socialImage } : {}),
+                ...(patch.robotsIndex !== undefined ? { robots_index: patch.robotsIndex } : {}),
+                ...(patch.robotsFollow !== undefined ? { robots_follow: patch.robotsFollow } : {}),
+              }))
+            }
+            fallbackTitle={form.name}
+            fallbackDescription={form.short_description}
+            fallbackImage={form.hero_image || null}
+            imageSlot={
+              <ImageUpload
+                value={form.social_image}
+                onUploaded={(url) => set("social_image", url)}
+                folder="ruas"
+              />
+            }
+          >
             <div>
-              <label className={label}>Title (SEO) — {form.seo_title.length} caracteres</label>
-              <input className={input} {...bind("seo_title")} />
+              <label className={label}>H1 da página</label>
+              <input className={input} {...bind("h1")} />
             </div>
-            <div>
-              <label className={label}>Meta description — {form.seo_description.length} caracteres</label>
-              <textarea rows={3} className={input} {...bind("seo_description")} />
-            </div>
-            <div><label className={label}>Palavras-chave</label><input className={input} {...bind("seo_keywords")} /></div>
-            <div><label className={label}>Canonical (opcional)</label><input className={input} {...bind("canonical_url")} /></div>
-          </section>
+          </SeoPanel>
         )}
 
         {tab === "publicacao" && (
