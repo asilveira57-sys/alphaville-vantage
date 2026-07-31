@@ -770,47 +770,70 @@ function CmsEditorPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Field label="Meta title">
-                <input value={form.meta_title} onChange={(e) => set("meta_title", e.target.value)} className={inputCls} maxLength={70} />
-                <small className="text-[11px] text-muted-foreground">{form.meta_title.length}/60 ideal</small>
-              </Field>
-              <Field label="Meta description">
-                <textarea value={form.meta_description} onChange={(e) => set("meta_description", e.target.value)} rows={3} className={inputCls} maxLength={180} />
-                <small className="text-[11px] text-muted-foreground">{form.meta_description.length}/155 ideal</small>
-              </Field>
-              <Field label="Focus keyword">
-                <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
-              </Field>
-              <Field label="Palavras-chave secundárias (vírgula ou Enter)">
-                <TagsInput
-                  value={form.secondary_keywords}
-                  onChange={(v) => set("secondary_keywords", v)}
-                  placeholder="onde comer em Santana de Parnaíba"
-                />
-              </Field>
-              <Field label="Canonical URL">
-                <input value={form.canonical_url} onChange={(e) => set("canonical_url", e.target.value)} className={inputCls} placeholder="https://…" />
-              </Field>
-              <Field label="Schema.org type">
-                <select value={form.schema_type} onChange={(e) => set("schema_type", e.target.value as any)} className={inputCls}>
-                  <option>Article</option><option>BlogPosting</option><option>Place</option><option>Residence</option><option>LocalBusiness</option>
-                </select>
-              </Field>
-              <Field label="OG title">
-                <input value={form.og_title} onChange={(e) => set("og_title", e.target.value)} className={inputCls} />
-              </Field>
-              <Field label="OG description">
-                <textarea value={form.og_description} onChange={(e) => set("og_description", e.target.value)} rows={3} className={inputCls} />
-              </Field>
-              <Field label="OG image">
+            <SeoPanel
+              values={{
+                title: form.meta_title,
+                description: form.meta_description,
+                keywords: form.meta_keywords,
+                slug: form.slug,
+                path: `/${form.content_type === "blog" ? "blog" : "artigos"}/${form.slug}`,
+                canonical: form.canonical_url,
+                ogTitle: form.og_title,
+                ogDescription: form.og_description,
+                socialImage: form.social_image,
+                robotsIndex: form.robots_index,
+                robotsFollow: form.robots_follow,
+              }}
+              onChange={(patch) =>
+                setForm((f) => ({
+                  ...f,
+                  ...(patch.title !== undefined ? { meta_title: patch.title } : {}),
+                  ...(patch.description !== undefined ? { meta_description: patch.description } : {}),
+                  ...(patch.keywords !== undefined ? { meta_keywords: patch.keywords } : {}),
+                  ...(patch.canonical !== undefined ? { canonical_url: patch.canonical } : {}),
+                  ...(patch.ogTitle !== undefined ? { og_title: patch.ogTitle } : {}),
+                  ...(patch.ogDescription !== undefined ? { og_description: patch.ogDescription } : {}),
+                  ...(patch.socialImage !== undefined ? { social_image: patch.socialImage } : {}),
+                  ...(patch.robotsIndex !== undefined ? { robots_index: patch.robotsIndex } : {}),
+                  ...(patch.robotsFollow !== undefined ? { robots_follow: patch.robotsFollow } : {}),
+                }))
+              }
+              fallbackTitle={form.title}
+              fallbackDescription={form.excerpt}
+              fallbackImage={form.og_image || form.featured_image || null}
+              imageSlot={
                 <ImageUpload
-                  value={form.og_image}
-                  onUploaded={(url) => set("og_image", url)}
+                  value={form.social_image}
+                  onUploaded={(url) => set("social_image", url)}
                   folder="og"
                 />
-              </Field>
-            </div>
+              }
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Field label="Focus keyword">
+                  <input value={form.focus_keyword} onChange={(e) => set("focus_keyword", e.target.value)} className={inputCls} />
+                </Field>
+                <Field label="Palavras-chave secundárias (vírgula ou Enter)">
+                  <TagsInput
+                    value={form.secondary_keywords}
+                    onChange={(v) => set("secondary_keywords", v)}
+                    placeholder="onde comer em Santana de Parnaíba"
+                  />
+                </Field>
+                <Field label="Schema.org type">
+                  <select value={form.schema_type} onChange={(e) => set("schema_type", e.target.value as any)} className={inputCls}>
+                    <option>Article</option><option>BlogPosting</option><option>Place</option><option>Residence</option><option>LocalBusiness</option>
+                  </select>
+                </Field>
+                <Field label="OG image (legado)">
+                  <ImageUpload
+                    value={form.og_image}
+                    onUploaded={(url) => set("og_image", url)}
+                    folder="og"
+                  />
+                </Field>
+              </div>
+            </SeoPanel>
           </div>
         )}
       </div>
