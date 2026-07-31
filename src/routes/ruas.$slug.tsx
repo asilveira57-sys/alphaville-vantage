@@ -41,15 +41,20 @@ export const Route = createFileRoute("/ruas/$slug")({
     const title = s.seo_title || `${s.name} — ${s.neighborhood ?? s.city ?? "Alphaville"}`;
     const desc = s.seo_description || s.short_description || `Imóveis, informações e entorno da ${s.name}${s.neighborhood ? `, em ${s.neighborhood}` : ""}.`;
     const url = `${SITE_URL}/ruas/${params.slug}`;
+    const social = s.social_image || s.hero_image || null;
+    const robots = `${s.robots_index === false ? "noindex" : "index"},${s.robots_follow === false ? "nofollow" : "follow"}`;
     return {
       meta: [
         { title },
         { name: "description", content: desc },
-        { property: "og:title", content: title },
-        { property: "og:description", content: desc },
+        ...(s.seo_keywords ? [{ name: "keywords", content: s.seo_keywords }] : []),
+        { name: "robots", content: robots },
+        { property: "og:title", content: s.og_title || title },
+        { property: "og:description", content: s.og_description || desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
-        ...(s.hero_image ? [{ property: "og:image", content: s.hero_image }] : []),
+        ...(social ? [{ property: "og:image", content: social }] : []),
+        ...(social ? [{ name: "twitter:image", content: social }] : []),
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: s.canonical_url || url }],
