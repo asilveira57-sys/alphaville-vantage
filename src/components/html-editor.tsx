@@ -318,7 +318,8 @@ function Toolbar({
       <Sep />
 
       <button type="button" title="Link (Ctrl+K)" onClick={onLink} className={btn(editor.isActive("link"))}>Link</button>
-      <button type="button" title="Imagem" onClick={onImage} className={btn(false)}>Img</button>
+      <button type="button" title="Adicionar mídia da biblioteca" onClick={onMedia} className={btn(false)}>Mídia</button>
+      <button type="button" title="Imagem por URL/upload" onClick={onImage} className={btn(false)}>Img</button>
       <button type="button" title="Inserir tabela" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={btn(false)}>Tabela</button>
       <button type="button" title="Linha horizontal" onClick={() => editor.chain().focus().setHorizontalRule().run()} className={btn(false)}>—</button>
 
