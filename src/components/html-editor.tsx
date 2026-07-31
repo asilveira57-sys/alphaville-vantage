@@ -180,8 +180,14 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey, mediaFol
             editor={editor}
             onLink={openLinkDialog}
             onImage={() => openImageDialog()}
+            onMedia={() => setMediaOpen(true)}
             onToggleHtml={toggleMode}
           />
+          {(uploading || uploadErr) && (
+            <div className={`px-4 py-1.5 text-xs ${uploadErr ? "text-red-600" : "text-muted-foreground"}`}>
+              {uploadErr ?? "Enviando imagem para a biblioteca…"}
+            </div>
+          )}
           <EditorContent editor={editor} />
           {editor?.isActive("table") && <TableSubmenu editor={editor} />}
         </>
