@@ -46,6 +46,7 @@ const empty: Form = {
   hero_image: "", hero_image_alt: "",
   gallery_images: [], faq: [],
   seo_title: "", seo_description: "", seo_keywords: "", canonical_url: "", h1: "",
+  og_title: "", og_description: "", social_image: "", robots_index: true, robots_follow: true,
   featured: false, active: true, status: "draft", slug: "",
 };
 
