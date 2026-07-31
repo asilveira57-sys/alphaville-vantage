@@ -222,18 +222,33 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey, mediaFol
         onClose={() => setImgOpen(false)}
         onSubmit={applyImage}
       />
+      <MediaPicker
+        open={mediaOpen}
+        folder={mediaFolder}
+        onClose={() => setMediaOpen(false)}
+        onSelect={(m) => {
+          setMediaOpen(false);
+          openImageDialog({ src: m.url, alt: m.alt_text ?? "", caption: m.caption ?? "" });
+        }}
+      />
     </div>
   );
+}
+
+function filesFromDataTransfer(dt: DataTransfer | null | undefined): File[] {
+  if (!dt) return [];
+  return Array.from(dt.files ?? []).filter((f) => f.type.startsWith("image/"));
 }
 
 // ---------------- Toolbar ----------------
 
 function Toolbar({
-  editor, onLink, onImage, onToggleHtml,
+  editor, onLink, onImage, onMedia, onToggleHtml,
 }: {
   editor: Editor | null;
   onLink: () => void;
   onImage: () => void;
+  onMedia: () => void;
   onToggleHtml: () => void;
 }) {
   if (!editor) return null;
