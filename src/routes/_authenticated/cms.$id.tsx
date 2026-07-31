@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
 import { HtmlEditor } from "@/components/html-editor";
+import { SeoPanel } from "@/components/seo-panel";
 import { EditorialContent } from "@/components/editorial-content";
 import { ImageUpload, ImageGalleryUpload } from "@/components/image-upload";
 import { RelatedSelect } from "@/components/related-select";
@@ -83,6 +84,10 @@ type FormState = {
   // Metadados
   reading_minutes: number | null;
   faq: FaqItem[];
+  meta_keywords: string;
+  social_image: string;
+  robots_index: boolean;
+  robots_follow: boolean;
 };
 
 const EMPTY: FormState = {
@@ -99,6 +104,7 @@ const EMPTY: FormState = {
   tipos_imovel_relacionados: [], tags_contextuais: [],
   conversion_context: "", personalization_enabled: false,
   reading_minutes: null, faq: [],
+  meta_keywords: "", social_image: "", robots_index: true, robots_follow: true,
 };
 
 const slugify = (s: string) =>
@@ -143,6 +149,10 @@ function toFormState(p: any): FormState {
     og_description: p.og_description ?? "",
     og_image: p.og_image ?? "",
     schema_type: p.schema_type ?? "Article",
+    meta_keywords: p.meta_keywords ?? "",
+    social_image: p.social_image ?? "",
+    robots_index: p.robots_index !== false,
+    robots_follow: p.robots_follow !== false,
     hero_eyebrow: p.hero_eyebrow ?? "",
     cards: Array.isArray(p.cards)
       ? p.cards.map((c: any) => ({
@@ -308,6 +318,10 @@ function CmsEditorPage() {
           og_description: form.og_description || null,
           og_image: form.og_image || null,
           schema_type: form.schema_type,
+          meta_keywords: form.meta_keywords || null,
+          social_image: form.social_image || null,
+          robots_index: form.robots_index,
+          robots_follow: form.robots_follow,
           hero_eyebrow: form.hero_eyebrow || null,
           cards: form.cards,
           help_title: form.help_title || null,
@@ -380,6 +394,10 @@ function CmsEditorPage() {
         og_description: f.og_description || null,
         og_image: f.og_image || null,
         schema_type: f.schema_type,
+        meta_keywords: f.meta_keywords || null,
+        social_image: f.social_image || null,
+        robots_index: f.robots_index,
+        robots_follow: f.robots_follow,
         hero_eyebrow: f.hero_eyebrow || null,
         cards: f.cards,
         help_title: f.help_title || null,
