@@ -17,6 +17,8 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { useEffect, useRef, useState } from "react";
 import { LinkDialog } from "./editor/link-dialog";
 import { ImageDialog, type ImagePayload } from "./editor/image-dialog";
+import { MediaPicker } from "./media/media-picker";
+import { uploadToLibrary } from "@/lib/media-upload";
 
 type Props = {
   value: string;
@@ -24,13 +26,18 @@ type Props = {
   placeholder?: string;
   /** When this changes, the editor content is reset from `value`. Use the page id. */
   documentKey?: string;
+  /** Pasta padrão da biblioteca de mídia para uploads feitos aqui. */
+  mediaFolder?: string;
 };
 
-export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props) {
+export function HtmlEditor({ value, onChange, placeholder, documentKey, mediaFolder = "geral" }: Props) {
   const [mode, setMode] = useState<"visual" | "html">("visual");
   const [htmlDraft, setHtmlDraft] = useState(value);
   const [linkOpen, setLinkOpen] = useState(false);
   const [imgOpen, setImgOpen] = useState(false);
+  const [mediaOpen, setMediaOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadErr, setUploadErr] = useState<string | null>(null);
   const [imgInitial, setImgInitial] = useState<Partial<ImagePayload> | undefined>();
   const lastKey = useRef(documentKey);
   const lastExternalValue = useRef(value);
@@ -55,9 +62,38 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props)
     content: value || "<p></p>",
     editorProps: {
       attributes: { class: "editorial ProseMirror min-h-[480px] px-6 py-5 focus:outline-none" },
+      handlePaste: (_view, event) => {
+        const files = filesFromDataTransfer(event.clipboardData);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        void uploadAndInsert(files);
+        return true;
+      },
+      handleDrop: (_view, event) => {
+        const files = filesFromDataTransfer((event as DragEvent).dataTransfer);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        void uploadAndInsert(files);
+        return true;
+      },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
+
+  async function uploadAndInsert(files: File[]) {
+    setUploading(true);
+    setUploadErr(null);
+    try {
+      for (const f of files) {
+        const item = await uploadToLibrary(f, { folder: mediaFolder });
+        editor?.chain().focus().setImage({ src: item.url, alt: item.alt_text ?? "" }).run();
+      }
+    } catch (e) {
+      setUploadErr((e as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  }
 
   // Reset content when switching pages. Also hydrate once if the editor mounted
   // before the DB value arrived, but never reset while the user is typing.
@@ -144,8 +180,14 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props)
             editor={editor}
             onLink={openLinkDialog}
             onImage={() => openImageDialog()}
+            onMedia={() => setMediaOpen(true)}
             onToggleHtml={toggleMode}
           />
+          {(uploading || uploadErr) && (
+            <div className={`px-4 py-1.5 text-xs ${uploadErr ? "text-red-600" : "text-muted-foreground"}`}>
+              {uploadErr ?? "Enviando imagem para a biblioteca…"}
+            </div>
+          )}
           <EditorContent editor={editor} />
           {editor?.isActive("table") && <TableSubmenu editor={editor} />}
         </>
@@ -180,18 +222,33 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props)
         onClose={() => setImgOpen(false)}
         onSubmit={applyImage}
       />
+      <MediaPicker
+        open={mediaOpen}
+        folder={mediaFolder}
+        onClose={() => setMediaOpen(false)}
+        onSelect={(m) => {
+          setMediaOpen(false);
+          openImageDialog({ src: m.url, alt: m.alt_text ?? "", caption: m.caption ?? "" });
+        }}
+      />
     </div>
   );
+}
+
+function filesFromDataTransfer(dt: DataTransfer | null | undefined): File[] {
+  if (!dt) return [];
+  return Array.from(dt.files ?? []).filter((f) => f.type.startsWith("image/"));
 }
 
 // ---------------- Toolbar ----------------
 
 function Toolbar({
-  editor, onLink, onImage, onToggleHtml,
+  editor, onLink, onImage, onMedia, onToggleHtml,
 }: {
   editor: Editor | null;
   onLink: () => void;
   onImage: () => void;
+  onMedia: () => void;
   onToggleHtml: () => void;
 }) {
   if (!editor) return null;
@@ -261,7 +318,8 @@ function Toolbar({
       <Sep />
 
       <button type="button" title="Link (Ctrl+K)" onClick={onLink} className={btn(editor.isActive("link"))}>Link</button>
-      <button type="button" title="Imagem" onClick={onImage} className={btn(false)}>Img</button>
+      <button type="button" title="Adicionar mídia da biblioteca" onClick={onMedia} className={btn(false)}>Mídia</button>
+      <button type="button" title="Imagem por URL/upload" onClick={onImage} className={btn(false)}>Img</button>
       <button type="button" title="Inserir tabela" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={btn(false)}>Tabela</button>
       <button type="button" title="Linha horizontal" onClick={() => editor.chain().focus().setHorizontalRule().run()} className={btn(false)}>—</button>
 
