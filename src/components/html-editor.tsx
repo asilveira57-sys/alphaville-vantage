@@ -17,6 +17,8 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { useEffect, useRef, useState } from "react";
 import { LinkDialog } from "./editor/link-dialog";
 import { ImageDialog, type ImagePayload } from "./editor/image-dialog";
+import { MediaPicker } from "./media/media-picker";
+import { uploadToLibrary } from "@/lib/media-upload";
 
 type Props = {
   value: string;
@@ -24,13 +26,18 @@ type Props = {
   placeholder?: string;
   /** When this changes, the editor content is reset from `value`. Use the page id. */
   documentKey?: string;
+  /** Pasta padrão da biblioteca de mídia para uploads feitos aqui. */
+  mediaFolder?: string;
 };
 
-export function HtmlEditor({ value, onChange, placeholder, documentKey }: Props) {
+export function HtmlEditor({ value, onChange, placeholder, documentKey, mediaFolder = "geral" }: Props) {
   const [mode, setMode] = useState<"visual" | "html">("visual");
   const [htmlDraft, setHtmlDraft] = useState(value);
   const [linkOpen, setLinkOpen] = useState(false);
   const [imgOpen, setImgOpen] = useState(false);
+  const [mediaOpen, setMediaOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadErr, setUploadErr] = useState<string | null>(null);
   const [imgInitial, setImgInitial] = useState<Partial<ImagePayload> | undefined>();
   const lastKey = useRef(documentKey);
   const lastExternalValue = useRef(value);
