@@ -116,6 +116,9 @@ function EditRua() {
       seo_title: d.seo_title ?? "", seo_description: d.seo_description ?? "",
       seo_keywords: d.seo_keywords ?? "", canonical_url: d.canonical_url ?? "",
       h1: d.h1 ?? "", featured: !!d.featured, active: d.active !== false,
+      og_title: d.og_title ?? "", og_description: d.og_description ?? "",
+      social_image: d.social_image ?? "",
+      robots_index: d.robots_index !== false, robots_follow: d.robots_follow !== false,
       status: d.status ?? "draft", slug: d.slug ?? "",
     });
     setLoaded(true);
