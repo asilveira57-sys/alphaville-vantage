@@ -62,9 +62,38 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey, mediaFol
     content: value || "<p></p>",
     editorProps: {
       attributes: { class: "editorial ProseMirror min-h-[480px] px-6 py-5 focus:outline-none" },
+      handlePaste: (_view, event) => {
+        const files = filesFromDataTransfer(event.clipboardData);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        void uploadAndInsert(files);
+        return true;
+      },
+      handleDrop: (_view, event) => {
+        const files = filesFromDataTransfer((event as DragEvent).dataTransfer);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        void uploadAndInsert(files);
+        return true;
+      },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
+
+  async function uploadAndInsert(files: File[]) {
+    setUploading(true);
+    setUploadErr(null);
+    try {
+      for (const f of files) {
+        const item = await uploadToLibrary(f, { folder: mediaFolder });
+        editor?.chain().focus().setImage({ src: item.url, alt: item.alt_text ?? "" }).run();
+      }
+    } catch (e) {
+      setUploadErr((e as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  }
 
   // Reset content when switching pages. Also hydrate once if the editor mounted
   // before the DB value arrived, but never reset while the user is typing.
