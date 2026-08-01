@@ -4,6 +4,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
 import { EditorialContent } from "@/components/editorial-content";
+import { ResolvedCta } from "@/components/resolved-cta";
 import {
   getStreetBySlug,
   findPropertiesOnStreet,
