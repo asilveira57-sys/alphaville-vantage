@@ -430,7 +430,20 @@ function EditRua() {
               <label className={label}>H1 da página</label>
               <input className={input} {...bind("h1")} />
             </div>
+            <CtaSelector
+              contentType="rua"
+              ctaId={form.cta_id}
+              hidden={form.cta_hidden}
+              onChange={(patch) =>
+                setForm((f) => ({
+                  ...f,
+                  ...(patch.ctaId !== undefined ? { cta_id: patch.ctaId } : {}),
+                  ...(patch.hidden !== undefined ? { cta_hidden: patch.hidden } : {}),
+                }))
+              }
+            />
           </SeoPanel>
+        )}
         )}
 
         {tab === "publicacao" && (
