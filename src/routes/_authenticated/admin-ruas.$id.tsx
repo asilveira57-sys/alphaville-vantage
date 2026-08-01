@@ -9,6 +9,7 @@ import { ImageUpload, uploadEditorialImageFile } from "@/components/image-upload
 import { useAutosave } from "@/components/editor/use-autosave";
 import { STREET_TYPES, upsertStreet, deleteStreet } from "@/lib/streets.functions";
 import { SeoPanel } from "@/components/seo-panel";
+import { CtaSelector } from "@/components/cta-selector";
 
 export const Route = createFileRoute("/_authenticated/admin-ruas/$id")({
   head: () => ({ meta: [{ title: "Editar rua — Admin" }, { name: "robots", content: "noindex,nofollow" }] }),
