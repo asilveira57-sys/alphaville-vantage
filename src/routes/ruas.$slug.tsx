@@ -264,6 +264,13 @@ function StreetDetail() {
           </section>
         )}
 
+        <ResolvedCta
+          contentType="rua"
+          ctaId={(street as any).cta_id}
+          hidden={(street as any).cta_hidden}
+        />
+
+
         {nearby.length > 0 && (
           <section>
             <div className="mb-8 max-w-3xl">
