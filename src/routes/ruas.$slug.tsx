@@ -4,6 +4,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
 import { EditorialContent } from "@/components/editorial-content";
+import { ResolvedCta } from "@/components/resolved-cta";
 import {
   getStreetBySlug,
   findPropertiesOnStreet,
@@ -263,6 +264,13 @@ function StreetDetail() {
             </div>
           </section>
         )}
+
+        <ResolvedCta
+          contentType="rua"
+          ctaId={(street as any).cta_id}
+          hidden={(street as any).cta_hidden}
+        />
+
 
         {nearby.length > 0 && (
           <section>

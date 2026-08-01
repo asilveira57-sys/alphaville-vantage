@@ -225,6 +225,8 @@ export const upsertStreet = createServerFn({ method: "POST" })
     social_image: z.string().optional().nullable(),
     robots_index: z.boolean().default(true),
     robots_follow: z.boolean().default(true),
+    cta_id: z.string().uuid().optional().nullable(),
+    cta_hidden: z.boolean().default(false),
     featured: z.boolean().default(false),
     active: z.boolean().default(true),
     status: z.enum(STREET_STATUSES).default("draft"),

@@ -9,6 +9,7 @@ import { ImageUpload, uploadEditorialImageFile } from "@/components/image-upload
 import { useAutosave } from "@/components/editor/use-autosave";
 import { STREET_TYPES, upsertStreet, deleteStreet } from "@/lib/streets.functions";
 import { SeoPanel } from "@/components/seo-panel";
+import { CtaSelector } from "@/components/cta-selector";
 
 export const Route = createFileRoute("/_authenticated/admin-ruas/$id")({
   head: () => ({ meta: [{ title: "Editar rua — Admin" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -32,6 +33,7 @@ type Form = {
   seo_title: string; seo_description: string; seo_keywords: string; canonical_url: string; h1: string;
   og_title: string; og_description: string; social_image: string;
   robots_index: boolean; robots_follow: boolean;
+  cta_id: string | null; cta_hidden: boolean;
   featured: boolean; active: boolean; status: "draft" | "published" | "archived";
   slug: string;
 };
@@ -48,6 +50,7 @@ const empty: Form = {
   gallery_images: [], faq: [],
   seo_title: "", seo_description: "", seo_keywords: "", canonical_url: "", h1: "",
   og_title: "", og_description: "", social_image: "", robots_index: true, robots_follow: true,
+  cta_id: null, cta_hidden: false,
   featured: false, active: true, status: "draft", slug: "",
 };
 
@@ -120,6 +123,7 @@ function EditRua() {
       og_title: d.og_title ?? "", og_description: d.og_description ?? "",
       social_image: d.social_image ?? "",
       robots_index: d.robots_index !== false, robots_follow: d.robots_follow !== false,
+      cta_id: d.cta_id ?? null, cta_hidden: !!d.cta_hidden,
       status: d.status ?? "draft", slug: d.slug ?? "",
     });
     setLoaded(true);
@@ -427,6 +431,18 @@ function EditRua() {
               <label className={label}>H1 da página</label>
               <input className={input} {...bind("h1")} />
             </div>
+            <CtaSelector
+              contentType="rua"
+              ctaId={form.cta_id}
+              hidden={form.cta_hidden}
+              onChange={(patch) =>
+                setForm((f) => ({
+                  ...f,
+                  ...(patch.ctaId !== undefined ? { cta_id: patch.ctaId } : {}),
+                  ...(patch.hidden !== undefined ? { cta_hidden: patch.hidden } : {}),
+                }))
+              }
+            />
           </SeoPanel>
         )}
 

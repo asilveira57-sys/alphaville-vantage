@@ -4,7 +4,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PostHelpBlock } from "@/components/post-help-block";
-import { PostCtaBlock } from "@/components/post-cta-block";
+import { ResolvedCta } from "@/components/resolved-cta";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
 
@@ -186,11 +186,16 @@ function PostPage() {
 
       {/* CTA contextual */}
       {!post.personalization_enabled && (
-        <PostCtaBlock
-          title={post.cta_title}
-          text={post.cta_text}
-          buttonLabel={post.cta_button_label}
-          buttonUrl={post.cta_button_url}
+        <ResolvedCta
+          contentType={post.content_type || "blog"}
+          ctaId={post.cta_id}
+          hidden={post.cta_hidden}
+          legacy={{
+            title: post.cta_title,
+            text: post.cta_text,
+            buttonLabel: post.cta_button_label,
+            buttonUrl: post.cta_button_url,
+          }}
         />
       )}
 
