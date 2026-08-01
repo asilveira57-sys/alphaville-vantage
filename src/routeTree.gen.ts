@@ -30,6 +30,7 @@ import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as GuiaTamboreRouteImport } from './routes/guia-tambore'
 import { Route as GuiaSantanaDeParnaibaRouteImport } from './routes/guia-santana-de-parnaiba'
 import { Route as GuiaDeRuasAlphavilleRouteImport } from './routes/guia-de-ruas-alphaville'
+import { Route as GuiaDeRuasRouteImport } from './routes/guia-de-ruas'
 import { Route as GuiaBarueriRouteImport } from './routes/guia-barueri'
 import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as GuiaRouteImport } from './routes/guia'
@@ -191,6 +192,11 @@ const GuiaSantanaDeParnaibaRoute = GuiaSantanaDeParnaibaRouteImport.update({
 const GuiaDeRuasAlphavilleRoute = GuiaDeRuasAlphavilleRouteImport.update({
   id: '/guia-de-ruas-alphaville',
   path: '/guia-de-ruas-alphaville',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuiaDeRuasRoute = GuiaDeRuasRouteImport.update({
+  id: '/guia-de-ruas',
+  path: '/guia-de-ruas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuiaBarueriRoute = GuiaBarueriRouteImport.update({
@@ -505,6 +511,7 @@ export interface FileRoutesByFullPath {
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-de-ruas': typeof GuiaDeRuasRoute
   '/guia-de-ruas-alphaville': typeof GuiaDeRuasAlphavilleRouteWithChildren
   '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
   '/guia-tambore': typeof GuiaTamboreRoute
@@ -582,6 +589,7 @@ export interface FileRoutesByTo {
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-de-ruas': typeof GuiaDeRuasRoute
   '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
   '/guia-tambore': typeof GuiaTamboreRoute
   '/historia': typeof HistoriaRoute
@@ -657,6 +665,7 @@ export interface FileRoutesById {
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
+  '/guia-de-ruas': typeof GuiaDeRuasRoute
   '/guia-de-ruas-alphaville': typeof GuiaDeRuasAlphavilleRouteWithChildren
   '/guia-santana-de-parnaiba': typeof GuiaSantanaDeParnaibaRoute
   '/guia-tambore': typeof GuiaTamboreRoute
@@ -738,6 +747,7 @@ export interface FileRouteTypes {
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
+    | '/guia-de-ruas'
     | '/guia-de-ruas-alphaville'
     | '/guia-santana-de-parnaiba'
     | '/guia-tambore'
@@ -815,6 +825,7 @@ export interface FileRouteTypes {
     | '/escolas'
     | '/guia-alphaville'
     | '/guia-barueri'
+    | '/guia-de-ruas'
     | '/guia-santana-de-parnaiba'
     | '/guia-tambore'
     | '/historia'
@@ -889,6 +900,7 @@ export interface FileRouteTypes {
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
+    | '/guia-de-ruas'
     | '/guia-de-ruas-alphaville'
     | '/guia-santana-de-parnaiba'
     | '/guia-tambore'
@@ -970,6 +982,7 @@ export interface RootRouteChildren {
   GuiaRoute: typeof GuiaRouteWithChildren
   GuiaAlphavilleRoute: typeof GuiaAlphavilleRoute
   GuiaBarueriRoute: typeof GuiaBarueriRoute
+  GuiaDeRuasRoute: typeof GuiaDeRuasRoute
   GuiaDeRuasAlphavilleRoute: typeof GuiaDeRuasAlphavilleRouteWithChildren
   GuiaSantanaDeParnaibaRoute: typeof GuiaSantanaDeParnaibaRoute
   GuiaTamboreRoute: typeof GuiaTamboreRoute
@@ -1154,6 +1167,13 @@ declare module '@tanstack/react-router' {
       path: '/guia-de-ruas-alphaville'
       fullPath: '/guia-de-ruas-alphaville'
       preLoaderRoute: typeof GuiaDeRuasAlphavilleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guia-de-ruas': {
+      id: '/guia-de-ruas'
+      path: '/guia-de-ruas'
+      fullPath: '/guia-de-ruas'
+      preLoaderRoute: typeof GuiaDeRuasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guia-barueri': {
@@ -1724,6 +1744,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuiaRoute: GuiaRouteWithChildren,
   GuiaAlphavilleRoute: GuiaAlphavilleRoute,
   GuiaBarueriRoute: GuiaBarueriRoute,
+  GuiaDeRuasRoute: GuiaDeRuasRoute,
   GuiaDeRuasAlphavilleRoute: GuiaDeRuasAlphavilleRouteWithChildren,
   GuiaSantanaDeParnaibaRoute: GuiaSantanaDeParnaibaRoute,
   GuiaTamboreRoute: GuiaTamboreRoute,
