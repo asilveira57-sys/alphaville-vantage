@@ -186,11 +186,16 @@ function PostPage() {
 
       {/* CTA contextual */}
       {!post.personalization_enabled && (
-        <PostCtaBlock
-          title={post.cta_title}
-          text={post.cta_text}
-          buttonLabel={post.cta_button_label}
-          buttonUrl={post.cta_button_url}
+        <ResolvedCta
+          contentType={post.content_type || "blog"}
+          ctaId={post.cta_id}
+          hidden={post.cta_hidden}
+          legacy={{
+            title: post.cta_title,
+            text: post.cta_text,
+            buttonLabel: post.cta_button_label,
+            buttonUrl: post.cta_button_url,
+          }}
         />
       )}
 
