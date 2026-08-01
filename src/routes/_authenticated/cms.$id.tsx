@@ -12,6 +12,7 @@ import { useAutosave } from "@/components/editor/use-autosave";
 import { TagsInput } from "@/components/editor/tags-input";
 import { PostHelpBlock } from "@/components/post-help-block";
 import { PostCtaBlock } from "@/components/post-cta-block";
+import { CtaSelector } from "@/components/cta-selector";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import {
@@ -88,6 +89,8 @@ type FormState = {
   social_image: string;
   robots_index: boolean;
   robots_follow: boolean;
+  cta_id: string | null;
+  cta_hidden: boolean;
 };
 
 const EMPTY: FormState = {
@@ -105,6 +108,7 @@ const EMPTY: FormState = {
   conversion_context: "", personalization_enabled: false,
   reading_minutes: null, faq: [],
   meta_keywords: "", social_image: "", robots_index: true, robots_follow: true,
+  cta_id: null, cta_hidden: false,
 };
 
 const slugify = (s: string) =>
@@ -153,6 +157,8 @@ function toFormState(p: any): FormState {
     social_image: p.social_image ?? "",
     robots_index: p.robots_index !== false,
     robots_follow: p.robots_follow !== false,
+    cta_id: p.cta_id ?? null,
+    cta_hidden: !!p.cta_hidden,
     hero_eyebrow: p.hero_eyebrow ?? "",
     cards: Array.isArray(p.cards)
       ? p.cards.map((c: any) => ({
@@ -322,6 +328,8 @@ function CmsEditorPage() {
           social_image: form.social_image || null,
           robots_index: form.robots_index,
           robots_follow: form.robots_follow,
+          cta_id: form.cta_id,
+          cta_hidden: form.cta_hidden,
           hero_eyebrow: form.hero_eyebrow || null,
           cards: form.cards,
           help_title: form.help_title || null,
@@ -398,6 +406,8 @@ function CmsEditorPage() {
         social_image: f.social_image || null,
         robots_index: f.robots_index,
         robots_follow: f.robots_follow,
+        cta_id: f.cta_id,
+        cta_hidden: f.cta_hidden,
         hero_eyebrow: f.hero_eyebrow || null,
         cards: f.cards,
         help_title: f.help_title || null,
@@ -683,6 +693,18 @@ function CmsEditorPage() {
                 <Field label="cta_text"><textarea value={form.cta_text} onChange={(e) => set("cta_text", e.target.value)} rows={3} className={inputCls} /></Field>
                 <Field label="cta_button_url"><input value={form.cta_button_url} onChange={(e) => set("cta_button_url", e.target.value)} className={`${inputCls} font-mono`} placeholder="/imoveis?..." /></Field>
               </div>
+              <CtaSelector
+                contentType={form.content_type}
+                ctaId={form.cta_id}
+                hidden={form.cta_hidden}
+                onChange={(patch) =>
+                  setForm((f) => ({
+                    ...f,
+                    ...(patch.ctaId !== undefined ? { cta_id: patch.ctaId } : {}),
+                    ...(patch.hidden !== undefined ? { cta_hidden: patch.hidden } : {}),
+                  }))
+                }
+              />
             </section>
 
             <section className="space-y-4 border-t border-ink/10 pt-6">
