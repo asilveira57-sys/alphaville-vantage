@@ -444,7 +444,6 @@ function EditRua() {
             />
           </SeoPanel>
         )}
-        )}
 
         {tab === "publicacao" && (
           <section className="space-y-4">
