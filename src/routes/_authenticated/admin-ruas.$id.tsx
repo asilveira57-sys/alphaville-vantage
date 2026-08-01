@@ -49,6 +49,7 @@ const empty: Form = {
   gallery_images: [], faq: [],
   seo_title: "", seo_description: "", seo_keywords: "", canonical_url: "", h1: "",
   og_title: "", og_description: "", social_image: "", robots_index: true, robots_follow: true,
+  cta_id: null, cta_hidden: false,
   featured: false, active: true, status: "draft", slug: "",
 };
 
