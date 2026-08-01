@@ -4,7 +4,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PostHelpBlock } from "@/components/post-help-block";
-import { PostCtaBlock } from "@/components/post-cta-block";
+import { ResolvedCta } from "@/components/resolved-cta";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
 
