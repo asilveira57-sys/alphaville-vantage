@@ -32,6 +32,7 @@ type Form = {
   seo_title: string; seo_description: string; seo_keywords: string; canonical_url: string; h1: string;
   og_title: string; og_description: string; social_image: string;
   robots_index: boolean; robots_follow: boolean;
+  cta_id: string | null; cta_hidden: boolean;
   featured: boolean; active: boolean; status: "draft" | "published" | "archived";
   slug: string;
 };
