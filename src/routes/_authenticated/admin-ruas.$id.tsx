@@ -122,6 +122,7 @@ function EditRua() {
       og_title: d.og_title ?? "", og_description: d.og_description ?? "",
       social_image: d.social_image ?? "",
       robots_index: d.robots_index !== false, robots_follow: d.robots_follow !== false,
+      cta_id: d.cta_id ?? null, cta_hidden: !!d.cta_hidden,
       status: d.status ?? "draft", slug: d.slug ?? "",
     });
     setLoaded(true);
