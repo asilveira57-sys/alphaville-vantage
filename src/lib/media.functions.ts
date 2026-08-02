@@ -46,13 +46,17 @@ export type MediaItem = {
   updated_at: string;
 };
 
-function publicClient() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false, storage: undefined } },
-  );
-}
+/** Formatos aceitos no upload — executáveis e SVG não sanitizado são bloqueados. */
+export const ALLOWED_MEDIA_MIME = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+] as const;
+export const MAX_MEDIA_BYTES = 8 * 1024 * 1024;
+const ALLOWED_EXT = /\.(jpe?g|png|webp|gif|avif)$/i;
+
 
 async function assertEditor(ctx: { supabase: any; userId: string }) {
   const [{ data: isAdmin }, { data: isEditor }] = await Promise.all([
