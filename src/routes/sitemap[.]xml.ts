@@ -70,6 +70,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           const base = e.content_type === "condominio" ? "/condominios"
             : e.content_type === "bairro" ? "/bairros"
             : e.content_type === "blog" ? "/blog"
+            : e.content_type === "guia" ? "/guia"
             : null;
           if (!base) continue;
           if ((e as { robots_index?: boolean }).robots_index === false) continue;
@@ -95,12 +96,32 @@ export const Route = createFileRoute("/sitemap.xml")({
           if ((r as { robots_index?: boolean }).robots_index === false) continue;
           entries.push({ path: `/ruas/${r.slug}`, lastmod: r.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
         }
+        // Parceiros e empreendimentos (páginas fixas)
+        for (const p of [
+          "/parceiros/mpd",
+          "/empreendimentos/andromeda-by-mpd",
+          "/empreendimentos/terrah-alphaville",
+          "/empreendimentos/flora-alphaville",
+          "/empreendimentos/neo-alphaville",
+        ]) {
+          entries.push({ path: p, changefreq: "weekly", priority: "0.8" });
+        }
 
-
-
-
+        // Condomínios cadastrados (módulo próprio)
+        const { data: condos } = await supabase
+          .from("condominiums")
+          .select("slug,updated_at")
+          .eq("status", "published");
+        const seen = new Set(entries.map((e) => e.path));
+        for (const c of condos ?? []) {
+          const path = `/condominios/${c.slug}`;
+          if (seen.has(path)) continue;
+          seen.add(path);
+          entries.push({ path, lastmod: c.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
+        }
 
         const urls = entries.map((e) =>
+
           [
             `  <url>`,
             `    <loc>${BASE_URL}${e.path}</loc>`,
