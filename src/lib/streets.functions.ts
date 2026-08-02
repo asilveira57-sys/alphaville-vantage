@@ -241,6 +241,13 @@ export const upsertStreet = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase
       .from("streets").upsert(payload as any, { onConflict: "id" }).select().single();
     if (error) throw new Error(error.message);
+    const { logCmsAction, seoSnapshot } = await import("./audit.server");
+    await logCmsAction(context, {
+      action: data.id ? (data.status === "published" ? "street.publish" : "street.update") : "street.create",
+      entity_type: "street",
+      entity_id: row.id,
+      details: { name: data.name, slug, status: data.status, seo: seoSnapshot(data) },
+    });
     return row;
   });
 
@@ -251,8 +258,11 @@ export const deleteStreet = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { error } = await context.supabase.from("streets").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+    const { logCmsAction } = await import("./audit.server");
+    await logCmsAction(context, { action: "street.delete", entity_type: "street", entity_id: data.id });
     return { ok: true };
   });
+
 
 // ---------- REPORTS (admin) ----------
 

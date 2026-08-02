@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -46,13 +46,17 @@ export type MediaItem = {
   updated_at: string;
 };
 
-function publicClient() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false, storage: undefined } },
-  );
-}
+/** Formatos aceitos no upload — executáveis e SVG não sanitizado são bloqueados. */
+export const ALLOWED_MEDIA_MIME = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+] as const;
+export const MAX_MEDIA_BYTES = 8 * 1024 * 1024;
+const ALLOWED_EXT = /\.(jpe?g|png|webp|gif|avif)$/i;
+
 
 async function assertEditor(ctx: { supabase: any; userId: string }) {
   const [{ data: isAdmin }, { data: isEditor }] = await Promise.all([
@@ -78,30 +82,31 @@ async function audit(
   });
 }
 
-// ---------------- LIST ----------------
+// ---------------- LIST (admin/editor apenas) ----------------
 
 export const listMedia = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z
       .object({
-        search: z.string().optional(),
-        folder: z.string().optional(),
-        from: z.string().optional(),
-        to: z.string().optional(),
+        search: z.string().max(200).optional(),
+        folder: z.string().max(60).optional(),
+        from: z.string().max(40).optional(),
+        to: z.string().max(40).optional(),
         page: z.number().int().min(1).default(1),
         pageSize: z.number().int().min(1).max(120).default(48),
       })
       .parse(d ?? {}),
   )
-  .handler(async ({ data }) => {
-    const sb = publicClient();
-    let q = sb
+  .handler(async ({ data, context }) => {
+    await assertEditor(context);
+    let q = context.supabase
       .from("media_library")
       .select("*", { count: "exact" })
       .order("created_at", { ascending: false });
 
     if (data.search) {
-      const s = `%${data.search}%`;
+      const s = `%${data.search.replace(/[,()]/g, " ")}%`;
       q = q.or(`original_filename.ilike.${s},title.ilike.${s},alt_text.ilike.${s}`);
     }
     if (data.folder && data.folder !== "all") q = q.eq("folder", data.folder);
@@ -115,10 +120,11 @@ export const listMedia = createServerFn({ method: "GET" })
   });
 
 export const getMediaUsage = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ mediaId: z.string().uuid() }).parse(d))
-  .handler(async ({ data }) => {
-    const sb = publicClient();
-    const { data: rows, error } = await sb
+  .handler(async ({ data, context }) => {
+    await assertEditor(context);
+    const { data: rows, error } = await context.supabase
       .from("media_usage")
       .select("id,content_type,content_id,content_label,usage_kind,created_at")
       .eq("media_id", data.mediaId)
@@ -127,21 +133,28 @@ export const getMediaUsage = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
+
 // ---------------- WRITE ----------------
 
 const registerSchema = z.object({
-  storage_path: z.string().min(1),
-  url: z.string().min(1),
-  original_filename: z.string().min(1),
-  title: z.string().optional().nullable(),
-  alt_text: z.string().optional().nullable(),
-  caption: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
+  storage_path: z
+    .string()
+    .min(1)
+    .max(300)
+    .regex(/^[a-z0-9][a-z0-9/_-]*\.[a-z0-9]+$/i, "Caminho de arquivo inválido")
+    .refine((p) => !p.includes(".."), "Caminho de arquivo inválido")
+    .refine((p) => ALLOWED_EXT.test(p), "Extensão de arquivo não permitida"),
+  url: z.string().min(1).max(400).startsWith("/api/public/editorial-image/"),
+  original_filename: z.string().min(1).max(255).refine((n) => ALLOWED_EXT.test(n), "Extensão não permitida"),
+  title: z.string().max(300).optional().nullable(),
+  alt_text: z.string().max(500).optional().nullable(),
+  caption: z.string().max(1000).optional().nullable(),
+  description: z.string().max(2000).optional().nullable(),
   width: z.number().int().positive().optional().nullable(),
   height: z.number().int().positive().optional().nullable(),
-  mime_type: z.string().optional().nullable(),
-  size_bytes: z.number().int().nonnegative().optional().nullable(),
-  folder: z.string().default("geral"),
+  mime_type: z.enum(ALLOWED_MEDIA_MIME).optional().nullable(),
+  size_bytes: z.number().int().nonnegative().max(MAX_MEDIA_BYTES).optional().nullable(),
+  folder: z.enum(MEDIA_FOLDERS).default("geral"),
   is_decorative: z.boolean().default(false),
 });
 
@@ -166,6 +179,7 @@ export const registerMedia = createServerFn({ method: "POST" })
     await audit(context, "media.upload", "media", row.id, { path: data.storage_path });
     return row as MediaItem;
   });
+
 
 export const updateMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

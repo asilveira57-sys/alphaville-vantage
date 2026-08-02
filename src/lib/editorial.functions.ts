@@ -240,6 +240,13 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw new Error(error.message);
+    const { logCmsAction, seoSnapshot } = await import("./audit.server");
+    await logCmsAction(context, {
+      action: !data.id ? "page.create" : row?.status === "published" ? "page.publish" : "page.update",
+      entity_type: "editorial_page",
+      entity_id: row?.id ?? null,
+      details: { title: data.title, slug, content_type: data.content_type, status: data.status, seo: seoSnapshot(data) },
+    });
     if (row?.status === "published") {
       const base = row.content_type === "condominio" ? "/condominios"
         : row.content_type === "bairro" ? "/bairros"
@@ -259,6 +266,8 @@ export const deleteEditorialPage = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { error } = await context.supabase.from("editorial_pages").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+    const { logCmsAction } = await import("./audit.server");
+    await logCmsAction(context, { action: "page.delete", entity_type: "editorial_page", entity_id: data.id });
     return { ok: true };
   });
 
@@ -276,6 +285,13 @@ export const togglePublishEditorial = createServerFn({ method: "POST" })
       published_at: next === "published" ? new Date().toISOString() : null,
     }).eq("id", data.id);
     if (error) throw new Error(error.message);
+    const { logCmsAction } = await import("./audit.server");
+    await logCmsAction(context, {
+      action: next === "published" ? "page.publish" : "page.unpublish",
+      entity_type: "editorial_page",
+      entity_id: data.id,
+      details: { slug: row.slug, content_type: row.content_type },
+    });
     if (next === "published") {
       const base = row.content_type === "condominio" ? "/condominios"
         : row.content_type === "bairro" ? "/bairros"
@@ -287,6 +303,7 @@ export const togglePublishEditorial = createServerFn({ method: "POST" })
     }
     return { status: next };
   });
+
 
 export const duplicateEditorialPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
