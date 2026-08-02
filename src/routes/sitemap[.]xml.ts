@@ -70,6 +70,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           const base = e.content_type === "condominio" ? "/condominios"
             : e.content_type === "bairro" ? "/bairros"
             : e.content_type === "blog" ? "/blog"
+            : e.content_type === "guia" ? "/guia"
             : null;
           if (!base) continue;
           if ((e as { robots_index?: boolean }).robots_index === false) continue;
