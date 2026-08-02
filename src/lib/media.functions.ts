@@ -78,30 +78,31 @@ async function audit(
   });
 }
 
-// ---------------- LIST ----------------
+// ---------------- LIST (admin/editor apenas) ----------------
 
 export const listMedia = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z
       .object({
-        search: z.string().optional(),
-        folder: z.string().optional(),
-        from: z.string().optional(),
-        to: z.string().optional(),
+        search: z.string().max(200).optional(),
+        folder: z.string().max(60).optional(),
+        from: z.string().max(40).optional(),
+        to: z.string().max(40).optional(),
         page: z.number().int().min(1).default(1),
         pageSize: z.number().int().min(1).max(120).default(48),
       })
       .parse(d ?? {}),
   )
-  .handler(async ({ data }) => {
-    const sb = publicClient();
-    let q = sb
+  .handler(async ({ data, context }) => {
+    await assertEditor(context);
+    let q = context.supabase
       .from("media_library")
       .select("*", { count: "exact" })
       .order("created_at", { ascending: false });
 
     if (data.search) {
-      const s = `%${data.search}%`;
+      const s = `%${data.search.replace(/[,()]/g, " ")}%`;
       q = q.or(`original_filename.ilike.${s},title.ilike.${s},alt_text.ilike.${s}`);
     }
     if (data.folder && data.folder !== "all") q = q.eq("folder", data.folder);
@@ -115,10 +116,11 @@ export const listMedia = createServerFn({ method: "GET" })
   });
 
 export const getMediaUsage = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ mediaId: z.string().uuid() }).parse(d))
-  .handler(async ({ data }) => {
-    const sb = publicClient();
-    const { data: rows, error } = await sb
+  .handler(async ({ data, context }) => {
+    await assertEditor(context);
+    const { data: rows, error } = await context.supabase
       .from("media_usage")
       .select("id,content_type,content_id,content_label,usage_kind,created_at")
       .eq("media_id", data.mediaId)
@@ -126,6 +128,7 @@ export const getMediaUsage = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
 
 // ---------------- WRITE ----------------
 
