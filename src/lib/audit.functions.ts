@@ -9,7 +9,7 @@ export type AuditEntry = {
   action: string;
   entity_type: string;
   entity_id: string | null;
-  details: Record<string, unknown>;
+  details: any;
   created_at: string;
 };
 
