@@ -137,18 +137,24 @@ export const getMediaUsage = createServerFn({ method: "GET" })
 // ---------------- WRITE ----------------
 
 const registerSchema = z.object({
-  storage_path: z.string().min(1),
-  url: z.string().min(1),
-  original_filename: z.string().min(1),
-  title: z.string().optional().nullable(),
-  alt_text: z.string().optional().nullable(),
-  caption: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
+  storage_path: z
+    .string()
+    .min(1)
+    .max(300)
+    .regex(/^[a-z0-9][a-z0-9/_-]*\.[a-z0-9]+$/i, "Caminho de arquivo inválido")
+    .refine((p) => !p.includes(".."), "Caminho de arquivo inválido")
+    .refine((p) => ALLOWED_EXT.test(p), "Extensão de arquivo não permitida"),
+  url: z.string().min(1).max(400).startsWith("/api/public/editorial-image/"),
+  original_filename: z.string().min(1).max(255).refine((n) => ALLOWED_EXT.test(n), "Extensão não permitida"),
+  title: z.string().max(300).optional().nullable(),
+  alt_text: z.string().max(500).optional().nullable(),
+  caption: z.string().max(1000).optional().nullable(),
+  description: z.string().max(2000).optional().nullable(),
   width: z.number().int().positive().optional().nullable(),
   height: z.number().int().positive().optional().nullable(),
-  mime_type: z.string().optional().nullable(),
-  size_bytes: z.number().int().nonnegative().optional().nullable(),
-  folder: z.string().default("geral"),
+  mime_type: z.enum(ALLOWED_MEDIA_MIME).optional().nullable(),
+  size_bytes: z.number().int().nonnegative().max(MAX_MEDIA_BYTES).optional().nullable(),
+  folder: z.enum(MEDIA_FOLDERS).default("geral"),
   is_decorative: z.boolean().default(false),
 });
 
@@ -173,6 +179,7 @@ export const registerMedia = createServerFn({ method: "POST" })
     await audit(context, "media.upload", "media", row.id, { path: data.storage_path });
     return row as MediaItem;
   });
+
 
 export const updateMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
