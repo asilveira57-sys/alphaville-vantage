@@ -40,18 +40,40 @@ const DEVELOPMENTS: Record<
 };
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const item = DEVELOPMENTS[params.slug];
-    if (!item) throw notFound();
-    return { item, slug: params.slug };
+    if (item) return { item, cms: null, slug: params.slug };
+    const page = await getEditorialBySlug({ data: { slug: params.slug } });
+    if (!page || page.content_type !== "empreendimento") throw notFound();
+    return { item: null, cms: page, slug: params.slug };
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) {
       return { meta: [{ title: "Empreendimento não encontrado" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.item.name} — Alphaville | S.A Imóveis`;
-    const desc = `${loaderData.item.name} em ${loaderData.item.location}. ${loaderData.item.text} Consulte disponibilidade com a equipe da S.A. Imóveis.`;
     const url = `${SITE}/empreendimentos/${params.slug}`;
+    if (loaderData.cms) {
+      const p = loaderData.cms;
+      const title = p.meta_title ?? `${p.title} — S.A Imóveis Alphaville`;
+      const desc = p.meta_description ?? p.excerpt ?? "";
+      const image = p.og_image ?? p.featured_image ?? undefined;
+      return {
+        meta: [
+          { title },
+          { name: "description", content: desc },
+          { property: "og:title", content: p.og_title ?? p.title },
+          { property: "og:description", content: p.og_description ?? desc },
+          { property: "og:type", content: "website" },
+          { property: "og:url", content: url },
+          { name: "twitter:card", content: "summary_large_image" },
+          ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
+        ],
+        links: [{ rel: "canonical", href: p.canonical_url || url }],
+      };
+    }
+    const item = loaderData.item!;
+    const title = `${item.name} — Alphaville | S.A Imóveis`;
+    const desc = `${item.name} em ${item.location}. ${item.text} Consulte disponibilidade com a equipe da S.A. Imóveis.`;
     return {
       meta: [
         { title },
@@ -69,7 +91,12 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
 });
 
 function DevelopmentPage() {
-  const { item, slug } = Route.useLoaderData();
+  const { item, cms, slug } = Route.useLoaderData();
+  if (!item && cms) {
+    return <CmsEditorialPage page={cms} parentLabel="Empreendimentos" parentTo="/parceiros/mpd" />;
+  }
+  if (!item) return null;
+
   return (
     <SiteLayout>
       <section className="bg-[#0D0D0D] px-6 py-20 md:py-24 text-white">

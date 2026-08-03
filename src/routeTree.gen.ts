@@ -55,6 +55,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
+import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
 import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
@@ -320,6 +321,11 @@ const ParceirosMpdRoute = ParceirosMpdRouteImport.update({
   path: '/parceiros/mpd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParceirosSlugRoute = ParceirosSlugRouteImport.update({
+  id: '/parceiros/$slug',
+  path: '/parceiros/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MeioAmbienteLazerRoute = MeioAmbienteLazerRouteImport.update({
   id: '/lazer',
   path: '/lazer',
@@ -565,6 +571,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -638,6 +645,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros': typeof BairrosIndexRoute
@@ -721,6 +729,7 @@ export interface FileRoutesById {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -804,6 +813,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros/'
@@ -877,6 +887,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros'
@@ -959,6 +970,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros/'
@@ -1025,6 +1037,7 @@ export interface RootRouteChildren {
   EmpreendimentosFloraAlphavilleRoute: typeof EmpreendimentosFloraAlphavilleRoute
   EmpreendimentosNeoAlphavilleRoute: typeof EmpreendimentosNeoAlphavilleRoute
   EmpreendimentosTerrahAlphavilleRoute: typeof EmpreendimentosTerrahAlphavilleRoute
+  ParceirosSlugRoute: typeof ParceirosSlugRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
@@ -1355,6 +1368,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiros/mpd'
       fullPath: '/parceiros/mpd'
       preLoaderRoute: typeof ParceirosMpdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parceiros/$slug': {
+      id: '/parceiros/$slug'
+      path: '/parceiros/$slug'
+      fullPath: '/parceiros/$slug'
+      preLoaderRoute: typeof ParceirosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/meio-ambiente/lazer': {
@@ -1796,6 +1816,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosFloraAlphavilleRoute: EmpreendimentosFloraAlphavilleRoute,
   EmpreendimentosNeoAlphavilleRoute: EmpreendimentosNeoAlphavilleRoute,
   EmpreendimentosTerrahAlphavilleRoute: EmpreendimentosTerrahAlphavilleRoute,
+  ParceirosSlugRoute: ParceirosSlugRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
