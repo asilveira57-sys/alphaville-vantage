@@ -77,6 +77,7 @@ import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
+import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
@@ -436,6 +437,11 @@ const AuthenticatedAdminMidiaRoute = AuthenticatedAdminMidiaRouteImport.update({
   path: '/admin-midia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminMapaRoute = AuthenticatedAdminMapaRouteImport.update({
+  id: '/admin-mapa',
+  path: '/admin-mapa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminEmpreendimentosRoute =
   AuthenticatedAdminEmpreendimentosRouteImport.update({
     id: '/admin-empreendimentos',
@@ -550,6 +556,7 @@ export interface FileRoutesByFullPath {
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -626,6 +633,7 @@ export interface FileRoutesByTo {
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
@@ -708,6 +716,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -792,6 +801,7 @@ export interface FileRouteTypes {
     | '/admin-auditoria'
     | '/admin-ctas'
     | '/admin-empreendimentos'
+    | '/admin-mapa'
     | '/admin-midia'
     | '/admin-radar'
     | '/admin-ruas'
@@ -868,6 +878,7 @@ export interface FileRouteTypes {
     | '/admin-auditoria'
     | '/admin-ctas'
     | '/admin-empreendimentos'
+    | '/admin-mapa'
     | '/admin-midia'
     | '/admin-radar'
     | '/admin-seo'
@@ -949,6 +960,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-auditoria'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-empreendimentos'
+    | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-ruas'
@@ -1524,6 +1536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMidiaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-mapa': {
+      id: '/_authenticated/admin-mapa'
+      path: '/admin-mapa'
+      fullPath: '/admin-mapa'
+      preLoaderRoute: typeof AuthenticatedAdminMapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-empreendimentos': {
       id: '/_authenticated/admin-empreendimentos'
       path: '/admin-empreendimentos'
@@ -1666,6 +1685,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
+  AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
@@ -1680,6 +1700,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,
+  AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,
   AuthenticatedAdminMidiaRoute: AuthenticatedAdminMidiaRoute,
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
