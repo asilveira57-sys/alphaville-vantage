@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sanitizeHtml } from "./sanitize-html";
 
-const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional", "hub"] as const;
+const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional", "hub", "empreendimento", "parceiro"] as const;
 const STATUSES = ["draft", "published", "archived"] as const;
 const SCHEMA_TYPES = ["Article", "BlogPosting", "Place", "Residence", "LocalBusiness"] as const;
 
