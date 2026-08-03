@@ -155,6 +155,7 @@ function AdminPage() {
             <Link to="/admin-empreendimentos" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Empreendimentos →</Link>
             <Link to="/admin-midia" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Mídia →</Link>
             <Link to="/admin-auditoria" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Auditoria →</Link>
+            <Link to="/admin-mapa" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">Mapa do sistema →</Link>
 
 
 
