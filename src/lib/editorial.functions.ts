@@ -512,6 +512,8 @@ export const searchInternalLinks = createServerFn({ method: "POST" })
         : p.content_type === "bairro" ? "/bairros"
         : p.content_type === "blog" ? "/blog"
         : p.content_type === "guia" ? "/guia"
+        : p.content_type === "empreendimento" ? "/empreendimentos"
+        : p.content_type === "parceiro" ? "/parceiros"
         : null;
       return {
         title: p.title,
