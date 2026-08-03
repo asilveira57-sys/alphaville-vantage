@@ -71,6 +71,8 @@ export const Route = createFileRoute("/sitemap.xml")({
             : e.content_type === "bairro" ? "/bairros"
             : e.content_type === "blog" ? "/blog"
             : e.content_type === "guia" ? "/guia"
+            : e.content_type === "empreendimento" ? "/empreendimentos"
+            : e.content_type === "parceiro" ? "/parceiros"
             : null;
           if (!base) continue;
           if ((e as { robots_index?: boolean }).robots_index === false) continue;
