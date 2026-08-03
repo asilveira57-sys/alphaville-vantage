@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { resolveImage } from "@/lib/image-fallbacks";
+import { getEditorialBySlug } from "@/lib/editorial.functions";
+import { CmsEditorialPage } from "@/components/cms-editorial-page";
 
 const SITE = "https://alphaville-vantage.lovable.app";
 
