@@ -37,7 +37,7 @@ type FormState = {
   id?: string;
   title: string;
   slug: string;
-  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional" | "hub";
+  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional" | "hub" | "empreendimento" | "parceiro";
   excerpt: string;
   html_content: string;
   featured_image: string;
