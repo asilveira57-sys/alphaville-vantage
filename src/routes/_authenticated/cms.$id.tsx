@@ -556,6 +556,8 @@ function CmsEditorPage() {
                   <option value="guia">Guia local</option>
                   <option value="blog">Blog</option>
                   <option value="institucional">Institucional</option>
+                  <option value="empreendimento">Empreendimento</option>
+                  <option value="parceiro">Parceiro</option>
                   <option value="hub">Hub / Guia regional</option>
                 </select>
               </Field>
