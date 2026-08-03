@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sanitizeHtml } from "./sanitize-html";
 
-const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional", "hub"] as const;
+const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional", "hub", "empreendimento", "parceiro"] as const;
 const STATUSES = ["draft", "published", "archived"] as const;
 const SCHEMA_TYPES = ["Article", "BlogPosting", "Place", "Residence", "LocalBusiness"] as const;
 
@@ -512,6 +512,8 @@ export const searchInternalLinks = createServerFn({ method: "POST" })
         : p.content_type === "bairro" ? "/bairros"
         : p.content_type === "blog" ? "/blog"
         : p.content_type === "guia" ? "/guia"
+        : p.content_type === "empreendimento" ? "/empreendimentos"
+        : p.content_type === "parceiro" ? "/parceiros"
         : null;
       return {
         title: p.title,

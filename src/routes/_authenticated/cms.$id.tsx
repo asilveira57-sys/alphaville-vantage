@@ -37,7 +37,7 @@ type FormState = {
   id?: string;
   title: string;
   slug: string;
-  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional" | "hub";
+  content_type: "condominio" | "bairro" | "cidade" | "guia" | "blog" | "institucional" | "hub" | "empreendimento" | "parceiro";
   excerpt: string;
   html_content: string;
   featured_image: string;
@@ -556,6 +556,8 @@ function CmsEditorPage() {
                   <option value="guia">Guia local</option>
                   <option value="blog">Blog</option>
                   <option value="institucional">Institucional</option>
+                  <option value="empreendimento">Empreendimento</option>
+                  <option value="parceiro">Parceiro</option>
                   <option value="hub">Hub / Guia regional</option>
                 </select>
               </Field>

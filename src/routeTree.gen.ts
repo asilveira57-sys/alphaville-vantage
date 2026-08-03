@@ -55,6 +55,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
+import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
 import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
@@ -76,6 +77,7 @@ import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
+import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
@@ -320,6 +322,11 @@ const ParceirosMpdRoute = ParceirosMpdRouteImport.update({
   path: '/parceiros/mpd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParceirosSlugRoute = ParceirosSlugRouteImport.update({
+  id: '/parceiros/$slug',
+  path: '/parceiros/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MeioAmbienteLazerRoute = MeioAmbienteLazerRouteImport.update({
   id: '/lazer',
   path: '/lazer',
@@ -428,6 +435,11 @@ const AuthenticatedAdminRadarRoute = AuthenticatedAdminRadarRouteImport.update({
 const AuthenticatedAdminMidiaRoute = AuthenticatedAdminMidiaRouteImport.update({
   id: '/admin-midia',
   path: '/admin-midia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminMapaRoute = AuthenticatedAdminMapaRouteImport.update({
+  id: '/admin-mapa',
+  path: '/admin-mapa',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminEmpreendimentosRoute =
@@ -544,6 +556,7 @@ export interface FileRoutesByFullPath {
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -565,6 +578,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -619,6 +633,7 @@ export interface FileRoutesByTo {
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
@@ -638,6 +653,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros': typeof BairrosIndexRoute
@@ -700,6 +716,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -721,6 +738,7 @@ export interface FileRoutesById {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -783,6 +801,7 @@ export interface FileRouteTypes {
     | '/admin-auditoria'
     | '/admin-ctas'
     | '/admin-empreendimentos'
+    | '/admin-mapa'
     | '/admin-midia'
     | '/admin-radar'
     | '/admin-ruas'
@@ -804,6 +823,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros/'
@@ -858,6 +878,7 @@ export interface FileRouteTypes {
     | '/admin-auditoria'
     | '/admin-ctas'
     | '/admin-empreendimentos'
+    | '/admin-mapa'
     | '/admin-midia'
     | '/admin-radar'
     | '/admin-seo'
@@ -877,6 +898,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros'
@@ -938,6 +960,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-auditoria'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-empreendimentos'
+    | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-ruas'
@@ -959,6 +982,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
     | '/bairros/'
@@ -1025,6 +1049,7 @@ export interface RootRouteChildren {
   EmpreendimentosFloraAlphavilleRoute: typeof EmpreendimentosFloraAlphavilleRoute
   EmpreendimentosNeoAlphavilleRoute: typeof EmpreendimentosNeoAlphavilleRoute
   EmpreendimentosTerrahAlphavilleRoute: typeof EmpreendimentosTerrahAlphavilleRoute
+  ParceirosSlugRoute: typeof ParceirosSlugRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
@@ -1357,6 +1382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceirosMpdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/parceiros/$slug': {
+      id: '/parceiros/$slug'
+      path: '/parceiros/$slug'
+      fullPath: '/parceiros/$slug'
+      preLoaderRoute: typeof ParceirosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/meio-ambiente/lazer': {
       id: '/meio-ambiente/lazer'
       path: '/lazer'
@@ -1504,6 +1536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMidiaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-mapa': {
+      id: '/_authenticated/admin-mapa'
+      path: '/admin-mapa'
+      fullPath: '/admin-mapa'
+      preLoaderRoute: typeof AuthenticatedAdminMapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-empreendimentos': {
       id: '/_authenticated/admin-empreendimentos'
       path: '/admin-empreendimentos'
@@ -1646,6 +1685,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
+  AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
@@ -1660,6 +1700,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,
+  AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,
   AuthenticatedAdminMidiaRoute: AuthenticatedAdminMidiaRoute,
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
@@ -1796,6 +1837,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosFloraAlphavilleRoute: EmpreendimentosFloraAlphavilleRoute,
   EmpreendimentosNeoAlphavilleRoute: EmpreendimentosNeoAlphavilleRoute,
   EmpreendimentosTerrahAlphavilleRoute: EmpreendimentosTerrahAlphavilleRoute,
+  ParceirosSlugRoute: ParceirosSlugRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
@@ -1806,13 +1848,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

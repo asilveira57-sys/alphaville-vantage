@@ -20,7 +20,10 @@ const TYPES = [
   { value: "guia", label: "Guia local" },
   { value: "blog", label: "Blog" },
   { value: "institucional", label: "Institucional" },
+  { value: "empreendimento", label: "Empreendimento" },
+  { value: "parceiro", label: "Parceiro" },
   { value: "hub", label: "Hub / Guia regional" },
+
 ];
 
 const STATUSES = [
