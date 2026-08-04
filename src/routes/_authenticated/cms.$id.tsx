@@ -585,9 +585,10 @@ function CmsEditorPage() {
                     <input value={form.hero_eyebrow} onChange={(e) => set("hero_eyebrow", e.target.value)} className={inputCls} />
                   </Field>
                   <HubCardsEditor
-                    cards={form.cards as any}
-                    onChange={(next) => set("cards", next as any)}
+                    cards={form.cards as HubCardDraft[]}
+                    onChange={(next: HubCardDraft[]) => set("cards", next as any)}
                   />
+
 
                 </>
               )}
