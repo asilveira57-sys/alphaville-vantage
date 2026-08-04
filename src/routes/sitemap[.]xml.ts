@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetch-all";
 
 const BASE_URL = "https://alphaville-vantage.lovable.app";
 
@@ -53,20 +54,20 @@ export const Route = createFileRoute("/sitemap.xml")({
         ];
 
         // Dynamic: imóveis ativos
-        const { data: props } = await supabase
-          .from("properties")
-          .select("slug,updated_at")
-          .eq("status", "active");
-        for (const p of props ?? []) {
+        const props = await fetchAllRows<{ slug: string; updated_at: string | null }>((f, t) =>
+          supabase.from("properties").select("slug,updated_at").eq("status", "active")
+            .order("slug", { ascending: true }).range(f, t),
+        );
+        for (const p of props) {
           entries.push({ path: `/imoveis/${p.slug}`, lastmod: p.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
         }
 
         // Dynamic: editorial_pages publicadas
-        const { data: pages } = await supabase
-          .from("editorial_pages")
-          .select("slug,content_type,updated_at,robots_index")
-          .eq("status", "published");
-        for (const e of pages ?? []) {
+        const pages = await fetchAllRows<{ slug: string; content_type: string; updated_at: string | null; robots_index?: boolean }>((f, t) =>
+          supabase.from("editorial_pages").select("slug,content_type,updated_at,robots_index").eq("status", "published")
+            .order("slug", { ascending: true }).range(f, t),
+        );
+        for (const e of pages) {
           const base = e.content_type === "condominio" ? "/condominios"
             : e.content_type === "bairro" ? "/bairros"
             : e.content_type === "blog" ? "/blog"
@@ -75,27 +76,26 @@ export const Route = createFileRoute("/sitemap.xml")({
             : e.content_type === "parceiro" ? "/parceiros"
             : null;
           if (!base) continue;
-          if ((e as { robots_index?: boolean }).robots_index === false) continue;
+          if (e.robots_index === false) continue;
           entries.push({ path: `${base}/${e.slug}`, lastmod: e.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
         }
 
         // Dynamic: guias de ruas publicados
-        const { data: streets } = await supabase
-          .from("street_guides")
-          .select("slug,updated_at")
-          .eq("status", "published");
-        for (const s of streets ?? []) {
+        const streets = await fetchAllRows<{ slug: string; updated_at: string | null }>((f, t) =>
+          supabase.from("street_guides").select("slug,updated_at").eq("status", "published")
+            .order("slug", { ascending: true }).range(f, t),
+        );
+        for (const s of streets) {
           entries.push({ path: `/guia-de-ruas-alphaville/${s.slug}`, lastmod: s.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
         }
 
         // Dynamic: streets (novo módulo /ruas)
-        const { data: ruas } = await supabase
-          .from("streets")
-          .select("slug,updated_at,robots_index")
-          .eq("status", "published")
-          .eq("active", true);
-        for (const r of ruas ?? []) {
-          if ((r as { robots_index?: boolean }).robots_index === false) continue;
+        const ruas = await fetchAllRows<{ slug: string; updated_at: string | null; robots_index?: boolean }>((f, t) =>
+          supabase.from("streets").select("slug,updated_at,robots_index").eq("status", "published").eq("active", true)
+            .order("slug", { ascending: true }).range(f, t),
+        );
+        for (const r of ruas) {
+          if (r.robots_index === false) continue;
           entries.push({ path: `/ruas/${r.slug}`, lastmod: r.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
         }
         // Parceiros e empreendimentos (páginas fixas)
@@ -110,12 +110,12 @@ export const Route = createFileRoute("/sitemap.xml")({
         }
 
         // Condomínios cadastrados (módulo próprio)
-        const { data: condos } = await supabase
-          .from("condominiums")
-          .select("slug,updated_at")
-          .eq("status", "published");
+        const condos = await fetchAllRows<{ slug: string; updated_at: string | null }>((f, t) =>
+          supabase.from("condominiums").select("slug,updated_at").eq("status", "published")
+            .order("slug", { ascending: true }).range(f, t),
+        );
         const seen = new Set(entries.map((e) => e.path));
-        for (const c of condos ?? []) {
+        for (const c of condos) {
           const path = `/condominios/${c.slug}`;
           if (seen.has(path)) continue;
           seen.add(path);

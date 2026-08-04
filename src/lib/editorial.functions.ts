@@ -3,6 +3,23 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sanitizeHtml } from "./sanitize-html";
+import { fetchAllRows } from "./fetch-all";
+
+type AdminEditorialRow = {
+  id: string;
+  slug: string;
+  title: string;
+  content_type: string;
+  status: string;
+  is_featured: boolean;
+  display_order: number;
+  tags: string[];
+  meta_title: string | null;
+  meta_description: string | null;
+  updated_at: string;
+  published_at: string | null;
+  html_content: string;
+};
 
 const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional", "hub", "empreendimento", "parceiro"] as const;
 const STATUSES = ["draft", "published", "archived"] as const;
@@ -110,16 +127,17 @@ export const listEditorialPages = createServerFn({ method: "GET" })
   }).default({}).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    let q = context.supabase.from("editorial_pages")
-      .select("id,slug,title,content_type,status,is_featured,display_order,tags,meta_title,meta_description,updated_at,published_at,html_content")
-      .order("updated_at", { ascending: false });
-    if (data.contentType) q = q.eq("content_type", data.contentType);
-    if (data.status) q = q.eq("status", data.status);
-    if (data.search) q = q.ilike("title", `%${data.search}%`);
-    if (data.tag) q = q.contains("tags", [data.tag]);
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    return rows ?? [];
+    const rows = await fetchAllRows<AdminEditorialRow>((f, t) => {
+      let q = context.supabase.from("editorial_pages")
+        .select("id,slug,title,content_type,status,is_featured,display_order,tags,meta_title,meta_description,updated_at,published_at,html_content")
+        .order("updated_at", { ascending: false });
+      if (data.contentType) q = q.eq("content_type", data.contentType);
+      if (data.status) q = q.eq("status", data.status);
+      if (data.search) q = q.ilike("title", `%${data.search}%`);
+      if (data.tag) q = q.contains("tags", [data.tag]);
+      return q.range(f, t);
+    });
+    return rows;
   });
 
 export const getEditorialByIdAdmin = createServerFn({ method: "GET" })

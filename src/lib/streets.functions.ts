@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { fetchAllRows } from "./fetch-all";
 
 export const STREET_TYPES = [
   "rua",
@@ -172,15 +173,16 @@ export const listStreetsForAdmin = createServerFn({ method: "GET" })
   }).default({}).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    let q = context.supabase.from("streets")
-      .select("id,slug,name,street_type,neighborhood,city,status,featured,active,updated_at,published_at")
-      .order("updated_at", { ascending: false });
-    if (data.status) q = q.eq("status", data.status);
-    if (data.city) q = q.eq("city", data.city);
-    if (data.search) q = q.ilike("name", `%${data.search}%`);
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    return rows ?? [];
+    const rows = await fetchAllRows<any>((f, t) => {
+      let q = context.supabase.from("streets")
+        .select("id,slug,name,street_type,neighborhood,city,status,featured,active,updated_at,published_at")
+        .order("updated_at", { ascending: false });
+      if (data.status) q = q.eq("status", data.status);
+      if (data.city) q = q.eq("city", data.city);
+      if (data.search) q = q.ilike("name", `%${data.search}%`);
+      return q.range(f, t);
+    });
+    return rows;
   });
 
 export const upsertStreet = createServerFn({ method: "POST" })
@@ -281,10 +283,10 @@ export const getStreetsReport = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const sb = context.supabase;
 
-    const [{ data: streets }, { data: propsAll }, { data: links }] = await Promise.all([
-      sb.from("streets").select("id,name,slug,status,featured,city,neighborhood"),
-      sb.from("properties").select("id,slug,title,address,neighborhood,city,street_id,status").eq("status", "active"),
-      sb.from("property_streets").select("street_id,property_id,match_confidence"),
+    const [streets, propsAll, links] = await Promise.all([
+      fetchAllRows<any>((f, t) => sb.from("streets").select("id,name,slug,status,featured,city,neighborhood").order("id").range(f, t)),
+      fetchAllRows<any>((f, t) => sb.from("properties").select("id,slug,title,address,neighborhood,city,street_id,status").eq("status", "active").order("id").range(f, t)),
+      fetchAllRows<any>((f, t) => sb.from("property_streets").select("street_id,property_id,match_confidence").order("street_id").range(f, t)),
     ]);
 
     const s = streets ?? [];
@@ -339,22 +341,23 @@ export const rematchAllProperties = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data: rows, error } = await context.supabase.from("properties").select("id").eq("status", "active");
-    if (error) throw new Error(error.message);
+    const rows = await fetchAllRows<{ id: string }>((f, t) =>
+      context.supabase.from("properties").select("id").eq("status", "active").order("id").range(f, t),
+    );
     let ok = 0, fail = 0;
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       const { error: e } = await context.supabase.rpc("match_property_streets", { p_property_id: r.id });
       if (e) fail++; else ok++;
     }
-    return { processed: ok, failed: fail, total: (rows ?? []).length };
+    return { processed: ok, failed: fail, total: rows.length };
   });
 
 // Sitemap helper
 export const listPublishedStreetSlugsForSitemap = createServerFn({ method: "GET" })
   .handler(async () => {
     const sb = publicClient();
-    const { data, error } = await sb.from("streets")
-      .select("slug,updated_at").eq("status", "published").eq("active", true);
-    if (error) throw new Error(error.message);
-    return data ?? [];
+    return fetchAllRows<{ slug: string; updated_at: string | null }>((f, t) =>
+      sb.from("streets").select("slug,updated_at").eq("status", "published").eq("active", true)
+        .order("slug").range(f, t),
+    );
   });
