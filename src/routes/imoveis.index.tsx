@@ -42,18 +42,22 @@ const isUsableImg = (u: string) =>
 const WHATSAPP_NUMBER = "5511995515053";
 
 async function fetchProperties(): Promise<{ items: PropertyRow[]; options: FilterOptions }> {
-  const { data, error } = await supabase
-    .from("properties")
-    .select(
-      "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,images",
-    )
-    .eq("status", "active")
-    .order("last_seen_at", { ascending: false });
-  if (error) throw new Error(error.message);
-  const items = (data ?? []).map((p) => ({
+  const data = await fetchAllRows<Record<string, unknown>>((f, t) =>
+    supabase
+      .from("properties")
+      .select(
+        "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,images",
+      )
+      .eq("status", "active")
+      .order("last_seen_at", { ascending: false })
+      .range(f, t),
+  );
+  const items = data.map((p) => ({
     ...p,
-    images: Array.isArray(p.images) ? (p.images as string[]).filter(isUsableImg) : [],
-  })) as PropertyRow[];
+    images: Array.isArray((p as { images?: unknown }).images)
+      ? ((p as { images: string[] }).images).filter(isUsableImg)
+      : [],
+  })) as unknown as PropertyRow[];
 
   const uniq = (arr: (string | null | undefined)[]) =>
     Array.from(new Set(arr.filter((x): x is string => !!x && x.trim() !== ""))).sort((a, b) => a.localeCompare(b, "pt-BR"));
