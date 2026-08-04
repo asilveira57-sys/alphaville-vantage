@@ -36,10 +36,18 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
 
 async function getAllSitemapUrls() {
   const sb = publicClient();
-  const [props, pages] = await Promise.all([
-    sb.from("properties").select("slug,updated_at").eq("status", "active"),
-    sb.from("editorial_pages").select("slug,content_type,updated_at").eq("status", "published"),
+  const [propRows, pageRows] = await Promise.all([
+    fetchAllRows<{ slug: string; updated_at: string | null }>((f, t) =>
+      sb.from("properties").select("slug,updated_at").eq("status", "active")
+        .order("slug", { ascending: true }).range(f, t),
+    ),
+    fetchAllRows<{ slug: string; content_type: string; updated_at: string | null }>((f, t) =>
+      sb.from("editorial_pages").select("slug,content_type,updated_at").eq("status", "published")
+        .order("slug", { ascending: true }).range(f, t),
+    ),
   ]);
+  const props = { data: propRows };
+  const pages = { data: pageRows };
 
   type Entry = { url: string; path: string; type: string; lastmod: string | null };
   const entries: Entry[] = [];
