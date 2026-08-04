@@ -173,15 +173,16 @@ export const listStreetsForAdmin = createServerFn({ method: "GET" })
   }).default({}).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    let q = context.supabase.from("streets")
-      .select("id,slug,name,street_type,neighborhood,city,status,featured,active,updated_at,published_at")
-      .order("updated_at", { ascending: false });
-    if (data.status) q = q.eq("status", data.status);
-    if (data.city) q = q.eq("city", data.city);
-    if (data.search) q = q.ilike("name", `%${data.search}%`);
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    return rows ?? [];
+    const rows = await fetchAllRows<any>((f, t) => {
+      let q = context.supabase.from("streets")
+        .select("id,slug,name,street_type,neighborhood,city,status,featured,active,updated_at,published_at")
+        .order("updated_at", { ascending: false });
+      if (data.status) q = q.eq("status", data.status);
+      if (data.city) q = q.eq("city", data.city);
+      if (data.search) q = q.ilike("name", `%${data.search}%`);
+      return q.range(f, t);
+    });
+    return rows;
   });
 
 export const upsertStreet = createServerFn({ method: "POST" })
