@@ -281,10 +281,10 @@ export const getStreetsReport = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const sb = context.supabase;
 
-    const [{ data: streets }, { data: propsAll }, { data: links }] = await Promise.all([
-      sb.from("streets").select("id,name,slug,status,featured,city,neighborhood"),
-      sb.from("properties").select("id,slug,title,address,neighborhood,city,street_id,status").eq("status", "active"),
-      sb.from("property_streets").select("street_id,property_id,match_confidence"),
+    const [streets, propsAll, links] = await Promise.all([
+      fetchAllRows<any>((f, t) => sb.from("streets").select("id,name,slug,status,featured,city,neighborhood").order("id").range(f, t)),
+      fetchAllRows<any>((f, t) => sb.from("properties").select("id,slug,title,address,neighborhood,city,street_id,status").eq("status", "active").order("id").range(f, t)),
+      fetchAllRows<any>((f, t) => sb.from("property_streets").select("street_id,property_id,match_confidence").order("street_id").range(f, t)),
     ]);
 
     const s = streets ?? [];
