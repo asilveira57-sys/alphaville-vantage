@@ -341,22 +341,23 @@ export const rematchAllProperties = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data: rows, error } = await context.supabase.from("properties").select("id").eq("status", "active");
-    if (error) throw new Error(error.message);
+    const rows = await fetchAllRows<{ id: string }>((f, t) =>
+      context.supabase.from("properties").select("id").eq("status", "active").order("id").range(f, t),
+    );
     let ok = 0, fail = 0;
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       const { error: e } = await context.supabase.rpc("match_property_streets", { p_property_id: r.id });
       if (e) fail++; else ok++;
     }
-    return { processed: ok, failed: fail, total: (rows ?? []).length };
+    return { processed: ok, failed: fail, total: rows.length };
   });
 
 // Sitemap helper
 export const listPublishedStreetSlugsForSitemap = createServerFn({ method: "GET" })
   .handler(async () => {
     const sb = publicClient();
-    const { data, error } = await sb.from("streets")
-      .select("slug,updated_at").eq("status", "published").eq("active", true);
-    if (error) throw new Error(error.message);
-    return data ?? [];
+    return fetchAllRows<{ slug: string; updated_at: string | null }>((f, t) =>
+      sb.from("streets").select("slug,updated_at").eq("status", "published").eq("active", true)
+        .order("slug").range(f, t),
+    );
   });
