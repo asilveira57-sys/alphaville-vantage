@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
 import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
 import { interpretQuery } from "@/lib/property-search";
+import { fetchAllRows } from "@/lib/fetch-all";
 
 type PropertyRow = {
   id: string;
