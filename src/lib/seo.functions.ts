@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { submitIndexNow } from "./indexnow.server";
+import { fetchAllRows } from "./fetch-all";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 const SITE_HOST = "alphaville-vantage.lovable.app";
