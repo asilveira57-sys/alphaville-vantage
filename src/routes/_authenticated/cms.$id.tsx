@@ -582,45 +582,11 @@ function CmsEditorPage() {
                   <Field label="Eyebrow do hero (ex.: Guia Regional)">
                     <input value={form.hero_eyebrow} onChange={(e) => set("hero_eyebrow", e.target.value)} className={inputCls} />
                   </Field>
-                  <div className="border border-ink/15 p-3 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Cards do hub ({form.cards.length})</span>
-                      <button
-                        type="button"
-                        onClick={() => set("cards", [...form.cards, { eyebrow: "", title: "", lead: "", to: "", image: "" }])}
-                        className="text-[10px] uppercase tracking-widest border border-ink/20 px-3 py-1 hover:bg-ink/5"
-                      >+ Card</button>
-                    </div>
-                    {form.cards.map((c, i) => (
-                      <div key={i} className="border border-ink/10 p-3 space-y-2 bg-ink/[0.02]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">#{i + 1}</span>
-                          <div className="flex gap-2 text-[10px] uppercase tracking-widest">
-                            {i > 0 && (
-                              <button type="button" onClick={() => {
-                                const next = [...form.cards];
-                                [next[i - 1], next[i]] = [next[i], next[i - 1]];
-                                set("cards", next);
-                              }} className="hover:underline">↑</button>
-                            )}
-                            {i < form.cards.length - 1 && (
-                              <button type="button" onClick={() => {
-                                const next = [...form.cards];
-                                [next[i + 1], next[i]] = [next[i], next[i + 1]];
-                                set("cards", next);
-                              }} className="hover:underline">↓</button>
-                            )}
-                            <button type="button" onClick={() => set("cards", form.cards.filter((_, j) => j !== i))} className="text-red-600 hover:underline">excluir</button>
-                          </div>
-                        </div>
-                        <input placeholder="Eyebrow" value={c.eyebrow} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, eyebrow: e.target.value }; set("cards", n); }} className={inputCls} />
-                        <input placeholder="Título" value={c.title} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, title: e.target.value }; set("cards", n); }} className={inputCls} />
-                        <textarea placeholder="Descrição curta" rows={2} value={c.lead} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, lead: e.target.value }; set("cards", n); }} className={inputCls} />
-                        <input placeholder="Link (ex.: /artigos/slug)" value={c.to} onChange={(e) => { const n = [...form.cards]; n[i] = { ...c, to: e.target.value }; set("cards", n); }} className={`${inputCls} font-mono`} />
-                      </div>
-                    ))}
-                    {form.cards.length === 0 && <p className="text-xs text-muted-foreground">Nenhum card. Clique em “+ Card”.</p>}
-                  </div>
+                  <HubCardsEditor
+                    cards={form.cards as any}
+                    onChange={(next) => set("cards", next as any)}
+                  />
+
                 </>
               )}
               <Field label="Imagem principal">
