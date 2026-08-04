@@ -127,7 +127,7 @@ export const listEditorialPages = createServerFn({ method: "GET" })
   }).default({}).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const rows = await fetchAllRows<any>((f, t) => {
+    const rows = await fetchAllRows<AdminEditorialRow>((f, t) => {
       let q = context.supabase.from("editorial_pages")
         .select("id,slug,title,content_type,status,is_featured,display_order,tags,meta_title,meta_description,updated_at,published_at,html_content")
         .order("updated_at", { ascending: false });
