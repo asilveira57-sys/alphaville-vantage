@@ -3,6 +3,23 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sanitizeHtml } from "./sanitize-html";
+import { fetchAllRows } from "./fetch-all";
+
+type AdminEditorialRow = {
+  id: string;
+  slug: string;
+  title: string;
+  content_type: string;
+  status: string;
+  is_featured: boolean;
+  display_order: number;
+  tags: string[];
+  meta_title: string | null;
+  meta_description: string | null;
+  updated_at: string;
+  published_at: string | null;
+  html_content: string;
+};
 
 const CONTENT_TYPES = ["condominio", "bairro", "cidade", "guia", "blog", "institucional", "hub", "empreendimento", "parceiro"] as const;
 const STATUSES = ["draft", "published", "archived"] as const;
