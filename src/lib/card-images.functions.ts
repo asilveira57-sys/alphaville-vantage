@@ -148,7 +148,7 @@ export const updateCardImage = createServerFn({ method: "POST" })
 
     const { error } = await context.supabase
       .from("editorial_pages")
-      .update({ cards })
+      .update({ cards: cards as never })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
