@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
 import { HtmlEditor } from "@/components/html-editor";
@@ -202,6 +202,7 @@ function CmsEditorPage() {
   const isNew = id === "novo";
   const router = useRouter();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const checkFn = useServerFn(checkIsAdmin);
   const getFn = useServerFn(getEditorialByIdAdmin);
   const upsertFn = useServerFn(upsertEditorialPage);
@@ -360,6 +361,7 @@ function CmsEditorPage() {
     },
     onSuccess: (row: any) => {
       dbContentRef.current = row?.html_content ?? form.html_content;
+      queryClient.invalidateQueries({ queryKey: ["editorial"] });
       if (isNew && row?.id) {
         navigate({ to: "/cms/$id", params: { id: row.id } });
       } else {

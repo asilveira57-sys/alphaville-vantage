@@ -117,8 +117,13 @@ export function PremiumCard(props: PremiumCardProps) {
   );
 
   if ("href" in props && props.href) {
+    const external = /^https?:\/\//i.test(props.href);
     return (
-      <a href={props.href} target="_blank" rel="noreferrer" className="block outline-none">
+      <a
+        href={props.href}
+        {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+        className="block outline-none"
+      >
         {inner}
       </a>
     );
