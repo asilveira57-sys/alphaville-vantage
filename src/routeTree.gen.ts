@@ -80,6 +80,7 @@ import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
+import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
@@ -453,6 +454,11 @@ const AuthenticatedAdminCtasRoute = AuthenticatedAdminCtasRouteImport.update({
   path: '/admin-ctas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminCardsRoute = AuthenticatedAdminCardsRouteImport.update({
+  id: '/admin-cards',
+  path: '/admin-cards',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminAuditoriaRoute =
   AuthenticatedAdminAuditoriaRouteImport.update({
     id: '/admin-auditoria',
@@ -554,6 +560,7 @@ export interface FileRoutesByFullPath {
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
@@ -631,6 +638,7 @@ export interface FileRoutesByTo {
   '/transparencia': typeof TransparenciaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
@@ -714,6 +722,7 @@ export interface FileRoutesById {
   '/transparencia': typeof TransparenciaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
@@ -799,6 +808,7 @@ export interface FileRouteTypes {
     | '/transparencia'
     | '/admin'
     | '/admin-auditoria'
+    | '/admin-cards'
     | '/admin-ctas'
     | '/admin-empreendimentos'
     | '/admin-mapa'
@@ -876,6 +886,7 @@ export interface FileRouteTypes {
     | '/transparencia'
     | '/admin'
     | '/admin-auditoria'
+    | '/admin-cards'
     | '/admin-ctas'
     | '/admin-empreendimentos'
     | '/admin-mapa'
@@ -958,6 +969,7 @@ export interface FileRouteTypes {
     | '/transparencia'
     | '/_authenticated/admin'
     | '/_authenticated/admin-auditoria'
+    | '/_authenticated/admin-cards'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-empreendimentos'
     | '/_authenticated/admin-mapa'
@@ -1557,6 +1569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCtasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-cards': {
+      id: '/_authenticated/admin-cards'
+      path: '/admin-cards'
+      fullPath: '/admin-cards'
+      preLoaderRoute: typeof AuthenticatedAdminCardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-auditoria': {
       id: '/_authenticated/admin-auditoria'
       path: '/admin-auditoria'
@@ -1683,6 +1702,7 @@ const AuthenticatedCmsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
+  AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
   AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
@@ -1697,6 +1717,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
+  AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,

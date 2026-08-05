@@ -194,7 +194,7 @@ export function HubCardsEditor({
 
       <MediaPicker
         open={mediaIndex !== null}
-        folder="hub"
+        folder="guias"
         onClose={() => setMediaIndex(null)}
         onSelect={(item) => {
           if (mediaIndex !== null) patch(mediaIndex, { image: item.url });

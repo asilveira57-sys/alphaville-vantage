@@ -104,6 +104,11 @@ const AREAS: Area[] = [
     admin: "/admin-midia",
   },
   {
+    title: "Imagens dos cards",
+    description: "Gestão visual das imagens de cards: destaques, cards dos hubs e capas de condomínio.",
+    admin: "/admin-cards",
+  },
+  {
     title: "CTAs",
     description: "Blocos de conversão reutilizáveis e padrões por tipo de conteúdo.",
     admin: "/admin-ctas",
