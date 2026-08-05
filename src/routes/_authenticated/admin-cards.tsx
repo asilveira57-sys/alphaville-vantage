@@ -176,7 +176,7 @@ function AdminCards() {
 
       <MediaPicker
         open={picking !== null}
-        folder="cards"
+        folder="guias"
         onClose={() => setPicking(null)}
         onSelect={(m) => {
           if (picking) mut.mutate({ kind: picking.kind, id: picking.id, index: picking.index, image: m.url });
