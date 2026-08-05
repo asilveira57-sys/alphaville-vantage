@@ -1,6 +1,7 @@
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { SectionPage, ComingSoonGrid, type BreadcrumbItem } from "./section-page";
+import { EditorialContent } from "./editorial-content";
 import { getEditorialBySlug } from "@/lib/editorial.functions";
 
 export type HubCard = {
@@ -22,7 +23,8 @@ export const hubQO = (slug: string) =>
   queryOptions({
     queryKey: ["editorial", "hub", slug],
     queryFn: () => getEditorialBySlug({ data: { slug } }),
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
 interface Props {
@@ -38,6 +40,7 @@ export function HubPageView({ slug, defaults, breadcrumbs, children }: Props) {
   const eyebrow = (isHub && data.hero_eyebrow) || defaults.eyebrow;
   const title = (isHub && data.title) || defaults.title;
   const lead = (isHub && (data.excerpt as string)) || defaults.lead;
+  const html = isHub && typeof data.html_content === "string" ? data.html_content : "";
   const rawCards = (isHub && Array.isArray((data as any).cards) ? (data as any).cards : null) as
     | HubCard[]
     | null;
@@ -54,6 +57,12 @@ export function HubPageView({ slug, defaults, breadcrumbs, children }: Props) {
 
   return (
     <SectionPage eyebrow={eyebrow} title={title} lead={lead} breadcrumbs={breadcrumbs}>
+      {html ? (
+        <EditorialContent
+          html={html}
+          className="mx-auto mb-20 max-w-3xl border-b border-ink/10 pb-16"
+        />
+      ) : null}
       <ComingSoonGrid
         items={cards.map((c) => ({
           eyebrow: c.eyebrow,

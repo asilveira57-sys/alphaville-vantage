@@ -533,9 +533,12 @@ export const searchInternalLinks = createServerFn({ method: "POST" })
         : p.content_type === "empreendimento" ? "/empreendimentos"
         : p.content_type === "parceiro" ? "/parceiros"
         : null;
+      const url = p.content_type === "hub" && p.slug.startsWith("guia-")
+        ? `/${p.slug}`
+        : base ? `${base}/${p.slug}` : `/artigos/${p.slug}`;
       return {
         title: p.title,
-        url: base ? `${base}/${p.slug}` : `/artigos/${p.slug}`,
+        url,
         kind: p.content_type,
       };
     });

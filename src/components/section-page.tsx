@@ -153,7 +153,7 @@ export function ComingSoonGrid({ items }: ComingSoonGridProps) {
           return (
             <PremiumCard
               key={i}
-              to={item.to as never}
+              href={item.to}
               image={item.image ?? null}
               imageAlt={item.title}
               eyebrow={item.eyebrow}
