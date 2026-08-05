@@ -45,7 +45,7 @@ export function HubPageView({ slug, defaults, breadcrumbs, children }: Props) {
     | HubCard[]
     | null;
   const cards: HubCard[] =
-    rawCards && rawCards.length > 0
+    rawCards !== null
       ? rawCards.map((c) => ({
           eyebrow: c.eyebrow ?? "",
           title: c.title ?? "",
