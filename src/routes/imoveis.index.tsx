@@ -6,7 +6,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
-import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { interpretQuery } from "@/lib/property-search";
 import { fetchAllRows } from "@/lib/fetch-all";
 
@@ -123,7 +123,7 @@ function PropertyCard({ p }: { p: PropertyRow }) {
   const totalParking = (p.parking_covered ?? 0) + (p.parking_uncovered ?? 0) || p.parking || 0;
   const area = p.area_useful ?? p.area_built ?? p.area_total;
   return (
-    <PremiumPropertyCard
+    <CleanPropertyCard
       slug={p.slug}
       title={p.title}
       image={img}
@@ -134,7 +134,6 @@ function PropertyCard({ p }: { p: PropertyRow }) {
       priceSale={p.price_sale}
       priceRent={p.price_rent}
       bedrooms={p.bedrooms}
-      suites={p.suites}
       parking={totalParking || null}
       area={area}
       internalCode={p.internal_code}

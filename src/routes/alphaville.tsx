@@ -4,7 +4,7 @@ import { Building2, GraduationCap, Route as RouteIcon, UtensilsCrossed, Stethosc
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
-import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -180,7 +180,7 @@ function AlphavillePage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {featured.map((p: typeof featured[number]) => (
-                <PremiumPropertyCard
+                <CleanPropertyCard
                   key={p.id}
                   slug={p.slug}
                   title={p.seo_title?.replace(/\s*\|\s*S\.A.*$/i, "") ?? p.title}
