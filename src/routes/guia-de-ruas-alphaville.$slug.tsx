@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
-import { PremiumPropertyCard } from "@/components/premium-cards/property-card";
+import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import {
   getStreetGuideBySlug,
   findPropertiesNearStreet,
@@ -248,7 +248,7 @@ function StreetGuidePage() {
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {near.items.map((p: any) => (
-                  <PremiumPropertyCard
+                  <CleanPropertyCard
                     key={p.id}
                     slug={p.slug}
                     title={p.title}
@@ -260,7 +260,6 @@ function StreetGuidePage() {
                     priceSale={p.price_sale}
                     priceRent={p.price_rent}
                     bedrooms={p.bedrooms}
-                    suites={p.suites}
                     parking={p.parking}
                     area={p.area}
                     internalCode={p.internal_code}
