@@ -33,85 +33,66 @@ type AnchorProps = BaseProps & { href: string; to?: never; params?: never; searc
 
 export type PremiumCardProps = LinkedProps | AnchorProps;
 
+/** Media ratio kept close to the property-card standard (4/3) for visual consistency. */
 const aspects: Record<NonNullable<BaseProps["aspectRatio"]>, string> = {
-  portrait: "aspect-[3/4]",
+  portrait: "aspect-[4/3]",
   landscape: "aspect-[16/10]",
-  square: "aspect-square",
-  tall: "aspect-[4/5]",
+  square: "aspect-[4/3]",
+  tall: "aspect-[4/3]",
 };
+
+export const cleanCardShell =
+  "group flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)] outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-28px_rgba(13,13,13,0.55)] focus-visible:ring-2 focus-visible:ring-[#F2DA00]";
 
 export function PremiumCard(props: PremiumCardProps) {
   const {
     image, imageAlt, eyebrow, title, description, icon, cta = "Explorar",
     aspectRatio = "tall", className, fallback, footer, badges,
     priority = false,
-    sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
+    sizes = "(max-width: 768px) 88vw, (max-width: 1200px) 45vw, 30vw",
   } = props;
   const src = resolveImage(image, fallback ?? {});
 
   const inner = (
-    <div
-      className={cn(
-        "group relative isolate overflow-hidden rounded-2xl bg-navy-deep text-canvas",
-        "shadow-premium ring-1 ring-white/5 transition-all duration-300",
-        "hover:-translate-y-1 hover:shadow-premium-hover hover:ring-gold/40",
-        "focus-within:ring-2 focus-within:ring-gold",
-        aspects[aspectRatio],
-        className,
-      )}
-    >
-      <img
-        src={src}
-        alt={imageAlt}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        sizes={sizes}
-        {...(priority ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
-        className="photo-bw absolute inset-0 h-full w-full object-cover group-hover:scale-[1.04]"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.35)_45%,rgba(0,0,0,0.92)_100%)]"
-      />
-
-      {/* Top row: eyebrow badge + icon */}
-      <div className="absolute inset-x-0 top-0 flex items-start justify-between p-5">
+    <div className={cn(cleanCardShell, className)}>
+      <div className={cn("relative shrink-0 overflow-hidden", aspects[aspectRatio])}>
+        <img
+          src={src}
+          alt={imageAlt}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          sizes={sizes}
+          {...(priority ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
+          className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
+        />
         {eyebrow ? (
-          <span className="inline-flex items-center rounded-full bg-navy/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold ring-1 ring-gold/30 backdrop-blur">
+          <span className="absolute left-4 top-4 max-w-[85%] truncate rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
             {eyebrow}
           </span>
-        ) : <span />}
+        ) : null}
         {icon ? (
-          <span className="grid h-11 w-11 place-items-center rounded-full bg-gold text-navy-deep shadow-[0_6px_20px_-6px_rgba(203,161,53,0.6)]">
+          <span className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-[#0D0D0D] shadow-sm">
             {icon}
           </span>
         ) : null}
+        {badges ? <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">{badges}</div> : null}
       </div>
 
-      {/* Optional secondary badges (e.g. Venda/Alugar) */}
-      {badges ? (
-        <div className="absolute left-5 top-16 flex flex-wrap gap-2">{badges}</div>
-      ) : null}
-
-      {/* Bottom content */}
-      <div className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-5 md:p-6">
-        <h3 className="font-serif text-2xl md:text-3xl leading-[1.1] text-canvas text-balance drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
+      <div className="flex flex-1 flex-col gap-3 p-6">
+        <h3 className="font-display line-clamp-3 text-[19px] leading-[1.25] text-[#171717] text-balance">
           {title}
         </h3>
         {description ? (
-          <p className="text-sm text-canvas/75 leading-relaxed line-clamp-3 max-w-[46ch]">
-            {description}
-          </p>
+          <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/60">{description}</p>
         ) : null}
         {footer ? <div className="pt-1">{footer}</div> : null}
-        <div className="mt-2 flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-gold text-navy-deep transition-transform duration-300 group-hover:translate-x-1">
-            <ArrowUpRight className="h-4 w-4" strokeWidth={2.4} />
-          </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
-            {cta}
-          </span>
-        </div>
+        <span className="mt-auto inline-flex items-center gap-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0D0D0D] transition-colors group-hover:text-[#0D0D0D]/60">
+          {cta}
+          <ArrowUpRight
+            className="h-4 w-4 text-[#0D0D0D] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            strokeWidth={2.2}
+          />
+        </span>
       </div>
     </div>
   );
@@ -122,7 +103,7 @@ export function PremiumCard(props: PremiumCardProps) {
       <a
         href={props.href}
         {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-        className="block outline-none"
+        className="block h-full outline-none"
       >
         {inner}
       </a>
@@ -134,7 +115,7 @@ export function PremiumCard(props: PremiumCardProps) {
       to={to as never}
       {...(params ? { params: params as never } : {})}
       {...(search ? { search: search as never } : {})}
-      className="block outline-none"
+      className="block h-full outline-none"
     >
       {inner}
     </Link>
