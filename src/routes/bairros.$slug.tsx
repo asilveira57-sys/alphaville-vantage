@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
+import { PremiumCard } from "@/components/premium-card";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
