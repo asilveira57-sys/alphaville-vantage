@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
+import { PremiumCard } from "@/components/premium-card";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
@@ -103,15 +104,23 @@ function BairroPage() {
         <section className="px-6 py-16 border-t border-ink/8 bg-ink/[0.02]">
           <div className="max-w-7xl mx-auto">
             <h2 className="font-serif text-2xl mb-8">Veja também</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {related.map((r) => (
-                <Link key={r.id} to="/bairros/$slug" params={{ slug: r.slug }} className="group block">
-                  {r.featured_image && <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-3"><img src={r.featured_image} alt={r.title} className="w-full h-full object-cover" loading="lazy" /></div>}
-                  <h3 className="font-serif text-lg group-hover:underline">{r.title}</h3>
-                  {r.excerpt && <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{r.excerpt}</p>}
-                </Link>
+                <PremiumCard
+                  key={r.id}
+                  to={"/bairros/$slug" as never}
+                  params={{ slug: r.slug } as never}
+                  image={r.featured_image}
+                  imageAlt={r.title}
+                  eyebrow={r.related_neighborhood ?? "Bairro"}
+                  title={r.title}
+                  description={r.excerpt ?? undefined}
+                  cta="Ver bairro"
+                  fallback={{ type: "region", region: r.related_neighborhood, seed: r.slug }}
+                />
               ))}
             </div>
+
           </div>
         </section>
       )}
