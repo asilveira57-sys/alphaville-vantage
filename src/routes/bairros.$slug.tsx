@@ -116,7 +116,7 @@ function BairroPage() {
                   title={r.title}
                   description={r.excerpt ?? undefined}
                   cta="Ver bairro"
-                  fallback={{ type: "neighborhood", region: r.related_neighborhood, seed: r.slug }}
+                  fallback={{ type: "region", region: r.related_neighborhood, seed: r.slug }}
                 />
               ))}
             </div>
