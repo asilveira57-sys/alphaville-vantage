@@ -124,19 +124,19 @@ function CondoPage() {
         <section className="px-6 py-16 border-t border-ink/8 bg-ink/[0.02]">
           <div className="max-w-7xl mx-auto">
             <h2 className="font-serif text-2xl mb-8">Veja também</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {related.map((r) => (
-                <Link key={r.id} to="/condominios/$slug" params={{ slug: r.slug }} className="group block">
-                  {r.featured_image && (
-                    <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-3">
-                      <img src={r.featured_image} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                    </div>
-                  )}
-                  <h3 className="font-serif text-lg group-hover:underline">{r.title}</h3>
-                  {r.excerpt && <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{r.excerpt}</p>}
-                </Link>
+                <PremiumCondoCard
+                  key={r.id}
+                  slug={r.slug}
+                  title={r.title}
+                  image={r.featured_image}
+                  neighborhood={r.related_neighborhood}
+                  excerpt={r.excerpt}
+                />
               ))}
             </div>
+
           </div>
         </section>
       )}
