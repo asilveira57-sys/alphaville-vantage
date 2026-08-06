@@ -169,22 +169,23 @@ export function ComingSoonGrid({ items }: ComingSoonGridProps) {
         return (
           <article
             key={i}
-            className="group relative isolate overflow-hidden rounded-2xl bg-navy-deep text-canvas shadow-premium ring-1 ring-white/5 aspect-[4/5]"
+            className="flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)]"
           >
-            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,17,35,0.35)_0%,rgba(8,14,28,0.95)_100%)]" />
-            <div className="absolute inset-x-0 top-0 p-5">
-              <span className="inline-flex items-center rounded-full bg-navy/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold ring-1 ring-gold/30 backdrop-blur">
+            <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-[#EAEAE6]">
+              <span className="absolute left-4 top-4 max-w-[85%] truncate rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
                 {item.eyebrow}
               </span>
             </div>
-            <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
-              <h3 className="font-serif text-2xl md:text-3xl leading-[1.1] text-canvas text-balance">
+            <div className="flex flex-1 flex-col gap-3 p-6">
+              <h3 className="font-display line-clamp-3 text-[19px] leading-[1.25] text-[#171717] text-balance">
                 {item.title}
               </h3>
-              <p className="mt-3 text-sm text-canvas/75 leading-relaxed line-clamp-3 max-w-[46ch]">
+              <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/60">
                 {item.lead}
               </p>
-              <p className="mt-4 text-[10px] uppercase tracking-[0.22em] text-gold">Em breve</p>
+              <p className="mt-auto pt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#1A1A1A]/45">
+                Em breve
+              </p>
             </div>
           </article>
         );
