@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PropertyGallery } from "@/components/property-gallery";
+import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { supabase } from "@/integrations/supabase/client";
 import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
 import { humanizeOriginalDescription } from "@/lib/property-parser";
