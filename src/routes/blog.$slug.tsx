@@ -33,10 +33,12 @@ function fmtDate(d?: string | null) {
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params, context }) => {
     const post = await context.queryClient.ensureQueryData(postQO(params.slug));
-    if (!post) throw notFound();
-    const related = await listRelatedPosts({
-      data: { excludeSlug: params.slug, tags: (post as any).tags ?? [], limit: 3 },
-    }).catch(() => []);
+    if (!post) {
+      const r = await getRedirectFor({ data: { path: `/blog/${params.slug}` } }).catch(() => null);
+      if (r?.new_url) throw redirect({ href: r.new_url, statusCode: (r.redirect_type as 301 | 302) ?? 301 });
+      throw notFound();
+    }
+
     return { post, related };
   },
   head: ({ loaderData }) => {
