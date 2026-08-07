@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link, redirect } from "@tanstack/react-router";
 import { queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
@@ -7,6 +7,8 @@ import { PostHelpBlock } from "@/components/post-help-block";
 import { ResolvedCta } from "@/components/resolved-cta";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
+import { getRedirectFor } from "@/lib/seo.functions";
+
 
 const postQO = (slug: string) => queryOptions({
   queryKey: ["post", slug],
@@ -31,11 +33,16 @@ function fmtDate(d?: string | null) {
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params, context }) => {
     const post = await context.queryClient.ensureQueryData(postQO(params.slug));
-    if (!post) throw notFound();
+    if (!post) {
+      const r = await getRedirectFor({ data: { path: `/blog/${params.slug}` } }).catch(() => null);
+      if (r?.new_url) throw redirect({ href: r.new_url, statusCode: (r.redirect_type as 301 | 302) ?? 301 });
+      throw notFound();
+    }
     const related = await listRelatedPosts({
       data: { excludeSlug: params.slug, tags: (post as any).tags ?? [], limit: 3 },
     }).catch(() => []);
     return { post, related };
+
   },
   head: ({ loaderData }) => {
     const p = loaderData?.post;

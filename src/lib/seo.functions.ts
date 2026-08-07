@@ -134,7 +134,7 @@ export const runSeoAudit = createServerFn({ method: "GET" })
 
     // Editorial pages
     const { data: pages } = await context.supabase.from("editorial_pages")
-      .select("id,title,slug,content_type,meta_title,meta_description,featured_image,og_title,og_image,canonical_url,status");
+      .select("id,title,slug,content_type,meta_title,meta_description,featured_image,og_title,og_image,canonical_url,status,html_content");
     const slugCount = new Map<string, number>();
     for (const p of pages ?? []) {
       slugCount.set(p.slug, (slugCount.get(p.slug) ?? 0) + 1);
@@ -143,6 +143,14 @@ export const runSeoAudit = createServerFn({ method: "GET" })
         page_id: p.id, page_title: p.title, page_slug: p.slug,
         page_type: p.content_type, edit_url: `/cms/${p.id}`,
       };
+      const textLen = String(p.html_content ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().length;
+      if (textLen < 800) {
+        issues.push({
+          severity: textLen < 300 ? "error" : "warning",
+          message: `Conteúdo muito curto (${textLen} caracteres) — possível texto genérico`,
+          ...base,
+        });
+      }
       if (!p.meta_title) issues.push({ severity: "error", message: "Meta title ausente", ...base });
       else if (p.meta_title.length > 60) issues.push({ severity: "warning", message: `Meta title com ${p.meta_title.length} chars (>60)`, ...base });
       if (!p.meta_description) issues.push({ severity: "error", message: "Meta description ausente", ...base });
@@ -151,6 +159,7 @@ export const runSeoAudit = createServerFn({ method: "GET" })
       if (!p.og_image && !p.featured_image) issues.push({ severity: "warning", message: "OG image ausente", ...base });
       if (!p.canonical_url) issues.push({ severity: "warning", message: "Canonical URL ausente", ...base });
     }
+
     for (const [slug, count] of slugCount.entries()) {
       if (count > 1) {
         const p = (pages ?? []).find((r: any) => r.slug === slug);
@@ -303,3 +312,18 @@ export async function autoNotifyPublish(paths: string[]) {
     console.error("[autoNotifyPublish] falhou:", e);
   }
 }
+
+// ---------- REDIRECTS (público) ----------
+
+export const getRedirectFor = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ path: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    const { data: row } = await sb
+      .from("seo_redirects")
+      .select("new_url,redirect_type")
+      .eq("old_url", data.path)
+      .eq("active", true)
+      .maybeSingle();
+    return row ?? null;
+  });
