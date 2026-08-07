@@ -38,8 +38,11 @@ export const Route = createFileRoute("/blog/$slug")({
       if (r?.new_url) throw redirect({ href: r.new_url, statusCode: (r.redirect_type as 301 | 302) ?? 301 });
       throw notFound();
     }
-
+    const related = await listRelatedPosts({
+      data: { excludeSlug: params.slug, tags: (post as any).tags ?? [], limit: 3 },
+    }).catch(() => []);
     return { post, related };
+
   },
   head: ({ loaderData }) => {
     const p = loaderData?.post;
