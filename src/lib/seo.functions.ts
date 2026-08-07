@@ -303,3 +303,18 @@ export async function autoNotifyPublish(paths: string[]) {
     console.error("[autoNotifyPublish] falhou:", e);
   }
 }
+
+// ---------- REDIRECTS (público) ----------
+
+export const getRedirectFor = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ path: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    const { data: row } = await sb
+      .from("seo_redirects")
+      .select("new_url,redirect_type")
+      .eq("old_url", data.path)
+      .eq("active", true)
+      .maybeSingle();
+    return row ?? null;
+  });
