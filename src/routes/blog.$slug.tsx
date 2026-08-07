@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link, redirect } from "@tanstack/react-router";
 import { queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
@@ -7,6 +7,8 @@ import { PostHelpBlock } from "@/components/post-help-block";
 import { ResolvedCta } from "@/components/resolved-cta";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
+import { getRedirectFor } from "@/lib/seo.functions";
+
 
 const postQO = (slug: string) => queryOptions({
   queryKey: ["post", slug],
