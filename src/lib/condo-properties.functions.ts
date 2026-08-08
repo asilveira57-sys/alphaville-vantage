@@ -79,6 +79,7 @@ function toDTO(r: Row): CondoPropertyDTO {
 
 const listSchema = z.object({
   condominiumId: z.string().uuid().nullable().optional(),
+  condoTerms: z.array(z.string()).default([]),
   includedIds: z.array(z.string().uuid()).default([]),
   excludedIds: z.array(z.string().uuid()).default([]),
 });
@@ -92,13 +93,29 @@ export const listCondoProperties = createServerFn({ method: "GET" })
     let condominiumName: string | null = null;
     const auto: Row[] = [];
 
+    // Filtro por nomes de condomínio definidos no admin
+    if (data.condoTerms.length) {
+      for (const term of data.condoTerms.slice(0, 20)) {
+        const { data: rows, error } = await sb
+          .from("properties")
+          .select(SELECT)
+          .eq("condominium_name", term)
+          .eq("status", "active")
+          .order("price_sale", { ascending: false, nullsFirst: false })
+          .limit(500);
+        if (error) throw new Error(error.message);
+        auto.push(...((rows ?? []) as Row[]));
+      }
+      if (!condominiumName) condominiumName = data.condoTerms[0] ?? null;
+    }
+
     if (data.condominiumId) {
       const { data: condo } = await sb
         .from("condominiums")
         .select("name")
         .eq("id", data.condominiumId)
         .maybeSingle();
-      condominiumName = (condo as { name?: string } | null)?.name ?? null;
+      condominiumName = (condo as { name?: string } | null)?.name ?? condominiumName;
 
       const step = 500;
       for (let from = 0; ; from += step) {
@@ -145,6 +162,35 @@ export const listCondoProperties = createServerFn({ method: "GET" })
 
     const items = ordered.map(toDTO).filter((p) => !!p.slug && !!p.title);
     return { condominiumName, items };
+  });
+
+/** Lista os nomes de condomínio existentes nos imóveis, para o admin escolher os filtros. */
+export const listCondoNameOptions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ q: z.string().default("") }).parse(d))
+  .handler(async ({ data, context }): Promise<{ name: string; count: number }[]> => {
+    const counts = new Map<string, number>();
+    const step = 1000;
+    for (let from = 0; ; from += step) {
+      let query = context.supabase
+        .from("properties")
+        .select("condominium_name")
+        .eq("status", "active")
+        .not("condominium_name", "is", null);
+      if (data.q.trim()) query = query.ilike("condominium_name", `%${data.q.trim()}%`);
+      const { data: rows, error } = await query.range(from, from + step - 1);
+      if (error) throw new Error(error.message);
+      const batch = (rows ?? []) as { condominium_name: string | null }[];
+      for (const r of batch) {
+        const n = r.condominium_name?.trim();
+        if (n) counts.set(n, (counts.get(n) ?? 0) + 1);
+      }
+      if (batch.length < step) break;
+    }
+    return [...counts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 200);
   });
 
 /** Busca de imóveis para o seletor manual no admin. */
