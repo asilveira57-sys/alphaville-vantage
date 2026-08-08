@@ -219,6 +219,11 @@ const upsertSchema = z.object({
   robots_follow: z.boolean().default(true),
   cta_id: z.string().uuid().optional().nullable(),
   cta_hidden: z.boolean().default(false),
+  // Bloco de imóveis (páginas de condomínio)
+  properties_block_enabled: z.boolean().default(true),
+  properties_block_title: z.string().optional().nullable(),
+  properties_included_ids: z.array(z.string().uuid()).default([]),
+  properties_excluded_ids: z.array(z.string().uuid()).default([]),
 });
 
 export const upsertEditorialPage = createServerFn({ method: "POST" })
