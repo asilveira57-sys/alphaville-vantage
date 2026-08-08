@@ -4,8 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
 import { MediaPicker } from "@/components/media/media-picker";
+import { LinkDialog } from "@/components/editor/link-dialog";
 import { checkIsAdmin } from "@/lib/admin.functions";
-import { listCardImages, updateCardImage, type CardImageItem } from "@/lib/card-images.functions";
+import { listCardImages, updateCardImage, updateCardLink, type CardImageItem } from "@/lib/card-images.functions";
 
 export const Route = createFileRoute("/_authenticated/admin-cards")({
   head: () => ({
