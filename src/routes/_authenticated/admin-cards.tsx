@@ -33,11 +33,13 @@ function AdminCards() {
   const checkFn = useServerFn(checkIsAdmin);
   const listFn = useServerFn(listCardImages);
   const updateFn = useServerFn(updateCardImage);
+  const linkFn = useServerFn(updateCardLink);
 
   const [search, setSearch] = useState("");
   const [kind, setKind] = useState<"all" | CardImageItem["kind"]>("all");
   const [onlyMissing, setOnlyMissing] = useState(false);
   const [picking, setPicking] = useState<CardImageItem | null>(null);
+  const [linking, setLinking] = useState<CardImageItem | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
@@ -47,14 +49,22 @@ function AdminCards() {
     enabled: !!adminQ.data?.isAdmin,
   });
 
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["card-images"] });
+    qc.invalidateQueries({ queryKey: ["editorial"] });
+    qc.invalidateQueries({ queryKey: ["hub"] });
+  };
+
   const mut = useMutation({
     mutationFn: (v: { kind: CardImageItem["kind"]; id: string; index?: number; image: string | null }) =>
       updateFn({ data: v }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["card-images"] });
-      qc.invalidateQueries({ queryKey: ["editorial"] });
-      qc.invalidateQueries({ queryKey: ["hub"] });
-    },
+    onSuccess: invalidate,
+    onError: (e: Error) => setErr(e.message),
+  });
+
+  const linkMut = useMutation({
+    mutationFn: (v: { id: string; index: number; to: string }) => linkFn({ data: v }),
+    onSuccess: invalidate,
     onError: (e: Error) => setErr(e.message),
   });
 
