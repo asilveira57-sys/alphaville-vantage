@@ -300,6 +300,7 @@ export type Database = {
           personalization_enabled: boolean
           properties_block_enabled: boolean
           properties_block_title: string | null
+          properties_condo_terms: string[]
           properties_excluded_ids: string[]
           properties_included_ids: string[]
           published_at: string | null
@@ -363,6 +364,7 @@ export type Database = {
           personalization_enabled?: boolean
           properties_block_enabled?: boolean
           properties_block_title?: string | null
+          properties_condo_terms?: string[]
           properties_excluded_ids?: string[]
           properties_included_ids?: string[]
           published_at?: string | null
@@ -426,6 +428,7 @@ export type Database = {
           personalization_enabled?: boolean
           properties_block_enabled?: boolean
           properties_block_title?: string | null
+          properties_condo_terms?: string[]
           properties_excluded_ids?: string[]
           properties_included_ids?: string[]
           published_at?: string | null
