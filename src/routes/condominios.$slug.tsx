@@ -132,6 +132,13 @@ function CondoPage() {
           <div className="max-w-5xl mx-auto">
             <img src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" />
           </div>
+        </section>
+      )}
+
+      <section className="px-6 py-16 border-t border-ink/8">
+        <div className="max-w-3xl mx-auto">
+          <EditorialContent html={page.html_content} />
+        </div>
       </section>
 
       {blockEnabled && (
@@ -141,6 +148,8 @@ function CondoPage() {
           items={propsData.items}
         />
       )}
+
+
 
 
 
