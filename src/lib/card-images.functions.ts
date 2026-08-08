@@ -153,3 +153,38 @@ export const updateCardImage = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Atualiza o destino (link) de um card de hub. */
+export const updateCardLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      index: z.number().int().nonnegative(),
+      to: z.string(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+
+    const { data: page, error: readErr } = await context.supabase
+      .from("editorial_pages")
+      .select("cards")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readErr) throw new Error(readErr.message);
+    const cards = Array.isArray(page?.cards) ? [...(page!.cards as Array<Record<string, unknown>>)] : [];
+    if (data.index < 0 || data.index >= cards.length) throw new Error("Card não encontrado");
+    cards[data.index] = { ...cards[data.index], to: data.to.trim() };
+
+    const { error } = await context.supabase
+      .from("editorial_pages")
+      .update({ cards: cards as never })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
