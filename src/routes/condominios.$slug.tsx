@@ -4,7 +4,9 @@ import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
 import { PremiumCondoCard } from "@/components/premium-cards/condo-card";
+import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
+import { listCondoProperties } from "@/lib/condo-properties.functions";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 
@@ -16,14 +18,27 @@ const relatedQO = (slug: string) => queryOptions({
   queryKey: ["editorial", "condominio", "related", slug],
   queryFn: () => listRelated({ data: { type: "condominio", excludeSlug: slug, limit: 3 } }),
 });
+type PropsArgs = { condominiumId: string | null; condoTerms: string[]; includedIds: string[]; excludedIds: string[] };
+const propsQO = (slug: string, a: PropsArgs) => queryOptions({
+  queryKey: ["condominio", "properties", slug, a],
+  queryFn: () => listCondoProperties({ data: a }),
+});
+const propsArgsFrom = (page: Record<string, unknown> | null | undefined): PropsArgs => ({
+  condominiumId: (page?.["related_condominium"] as string | null) ?? null,
+  condoTerms: (page?.["properties_condo_terms"] as string[] | null) ?? [],
+  includedIds: (page?.["properties_included_ids"] as string[] | null) ?? [],
+  excludedIds: (page?.["properties_excluded_ids"] as string[] | null) ?? [],
+});
 
 export const Route = createFileRoute("/condominios/$slug")({
   loader: async ({ params, context }) => {
     const page = await context.queryClient.ensureQueryData(pageQO(params.slug));
     if (!page || page.content_type !== "condominio") throw notFound();
     await context.queryClient.ensureQueryData(relatedQO(params.slug));
+    await context.queryClient.ensureQueryData(propsQO(params.slug, propsArgsFrom(page as never)));
     return { page };
   },
+
   head: ({ params, loaderData }) => {
     const p = loaderData?.page;
     const url = `${SITE_URL}/condominios/${params.slug}`;
@@ -82,7 +97,13 @@ function CondoPage() {
   const { slug } = Route.useParams();
   const { data: page } = useSuspenseQuery(pageQO(slug));
   const { data: related } = useSuspenseQuery(relatedQO(slug));
+  const { data: propsData } = useSuspenseQuery(propsQO(slug, propsArgsFrom(page as never)));
   if (!page) return null;
+  const blockEnabled = (page as { properties_block_enabled?: boolean }).properties_block_enabled !== false;
+  const blockTitle =
+    (page as { properties_block_title?: string | null }).properties_block_title?.trim() ||
+    `Imóveis no ${page.title}`;
+
 
   return (
     <SiteLayout>
@@ -120,6 +141,18 @@ function CondoPage() {
           <EditorialContent html={page.html_content} />
         </div>
       </section>
+
+      {blockEnabled && (
+        <CondoPropertiesBlock
+          title={blockTitle}
+          condominiumName={propsData.condominiumName ?? page.title}
+          items={propsData.items}
+        />
+      )}
+
+
+
+
 
       {related.length > 0 && (
         <section className="px-6 py-16 border-t border-ink/8 bg-ink/[0.02]">
