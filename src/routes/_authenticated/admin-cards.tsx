@@ -150,13 +150,36 @@ function AdminCards() {
                   <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{KIND_LABEL[it.kind]}</span>
                   <p className="text-sm text-ink leading-snug line-clamp-2">{it.label}</p>
                   <p className="text-[11px] text-muted-foreground line-clamp-1">{it.context}</p>
+
+                  <div className="border-t border-ink/10 pt-2 space-y-1">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Destino</span>
+                    {it.url ? (
+                      <p className="text-[11px] font-mono text-ink break-all line-clamp-2">{it.url}</p>
+                    ) : (
+                      <p className="text-[11px] text-amber-700">Sem link definido</p>
+                    )}
+                    {it.kind === "hub_card" ? (
+                      <button
+                        type="button"
+                        onClick={() => { setErr(null); setLinking(it); }}
+                        className="text-[10px] uppercase tracking-widest border border-ink/20 px-3 py-1 hover:bg-ink hover:text-canvas"
+                      >
+                        {it.url ? "Trocar destino" : "Escolher página"}
+                      </button>
+                    ) : (
+                      <p className="text-[10px] text-muted-foreground">
+                        Destino automático (endereço da própria página).
+                      </p>
+                    )}
+                  </div>
+
                   <div className="mt-auto flex flex-wrap gap-2 pt-2">
                     <button
                       type="button"
                       onClick={() => { setErr(null); setPicking(it); }}
                       className="text-[10px] uppercase tracking-widest border border-ink/20 px-3 py-2 hover:bg-ink hover:text-canvas"
                     >
-                      {it.image ? "Trocar" : "Definir"}
+                      {it.image ? "Trocar imagem" : "Definir imagem"}
                     </button>
                     {it.image && (
                       <button
@@ -194,6 +217,19 @@ function AdminCards() {
           setPicking(null);
         }}
       />
+
+      <LinkDialog
+        open={linking !== null}
+        initialUrl={linking?.url ?? ""}
+        onClose={() => setLinking(null)}
+        onSubmit={(url) => {
+          if (linking && linking.index !== undefined) {
+            linkMut.mutate({ id: linking.id, index: linking.index, to: url });
+          }
+          setLinking(null);
+        }}
+      />
+
     </SiteLayout>
   );
 }
