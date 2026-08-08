@@ -96,7 +96,13 @@ function CondoPage() {
   const { slug } = Route.useParams();
   const { data: page } = useSuspenseQuery(pageQO(slug));
   const { data: related } = useSuspenseQuery(relatedQO(slug));
+  const { data: propsData } = useSuspenseQuery(propsQO(slug, propsArgsFrom(page as never)));
   if (!page) return null;
+  const blockEnabled = (page as { properties_block_enabled?: boolean }).properties_block_enabled !== false;
+  const blockTitle =
+    (page as { properties_block_title?: string | null }).properties_block_title?.trim() ||
+    `Imóveis no ${page.title}`;
+
 
   return (
     <SiteLayout>
