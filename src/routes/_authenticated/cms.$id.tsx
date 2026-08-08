@@ -8,6 +8,7 @@ import { SeoPanel } from "@/components/seo-panel";
 import { EditorialContent } from "@/components/editorial-content";
 import { ImageUpload, ImageGalleryUpload } from "@/components/image-upload";
 import { RelatedSelect } from "@/components/related-select";
+import { CondoPropertiesPicker } from "@/components/cms/condo-properties-picker";
 import { useAutosave } from "@/components/editor/use-autosave";
 import { TagsInput } from "@/components/editor/tags-input";
 import { HubCardsEditor, type HubCardDraft } from "@/components/editor/hub-cards-editor";
@@ -93,6 +94,11 @@ type FormState = {
   robots_follow: boolean;
   cta_id: string | null;
   cta_hidden: boolean;
+  // Bloco de imóveis (condomínio)
+  properties_block_enabled: boolean;
+  properties_block_title: string;
+  properties_included_ids: string[];
+  properties_excluded_ids: string[];
 };
 
 const EMPTY: FormState = {
@@ -111,6 +117,8 @@ const EMPTY: FormState = {
   reading_minutes: null, faq: [],
   meta_keywords: "", social_image: "", robots_index: true, robots_follow: true,
   cta_id: null, cta_hidden: false,
+  properties_block_enabled: true, properties_block_title: "",
+  properties_included_ids: [], properties_excluded_ids: [],
 };
 
 const slugify = (s: string) =>
@@ -146,6 +154,10 @@ function toFormState(p: any): FormState {
     tags: p.tags ?? [],
     related_neighborhood: p.related_neighborhood ?? "",
     related_condominium: p.related_condominium ?? "",
+    properties_block_enabled: p.properties_block_enabled !== false,
+    properties_block_title: p.properties_block_title ?? "",
+    properties_included_ids: p.properties_included_ids ?? [],
+    properties_excluded_ids: p.properties_excluded_ids ?? [],
     meta_title: p.meta_title ?? "",
     meta_description: p.meta_description ?? "",
     focus_keyword: p.focus_keyword ?? "",
@@ -228,7 +240,7 @@ function CmsEditorPage() {
   });
 
   const [form, setForm] = useState<FormState>(EMPTY);
-  const [tab, setTab] = useState<"conteudo" | "post" | "seo">("conteudo");
+  const [tab, setTab] = useState<"conteudo" | "post" | "imoveis" | "seo">("conteudo");
   const [preview, setPreview] = useState(false);
   const [slugTouched, setSlugTouched] = useState(!isNew);
   const [loadedKey, setLoadedKey] = useState(isNew ? "novo" : "");
@@ -356,6 +368,10 @@ function CmsEditorPage() {
           personalization_enabled: form.personalization_enabled,
           reading_minutes: form.reading_minutes,
           faq: form.faq,
+          properties_block_enabled: form.properties_block_enabled,
+          properties_block_title: form.properties_block_title || null,
+          properties_included_ids: form.properties_included_ids,
+          properties_excluded_ids: form.properties_excluded_ids,
         } as any,
       });
     },
@@ -435,6 +451,10 @@ function CmsEditorPage() {
         personalization_enabled: f.personalization_enabled,
         reading_minutes: f.reading_minutes,
         faq: f.faq,
+        properties_block_enabled: f.properties_block_enabled,
+        properties_block_title: f.properties_block_title || null,
+        properties_included_ids: f.properties_included_ids,
+        properties_excluded_ids: f.properties_excluded_ids,
       } as any,
     });
     dbContentRef.current = f.html_content;
@@ -517,9 +537,11 @@ function CmsEditorPage() {
         </div>
 
         <div className="flex gap-2 text-xs uppercase tracking-widest border-b border-ink/10">
-          {(["conteudo", "post", "seo"] as const).map((t) => (
+          {((form.content_type === "condominio"
+            ? (["conteudo", "post", "imoveis", "seo"] as const)
+            : (["conteudo", "post", "seo"] as const)) as readonly ("conteudo" | "post" | "imoveis" | "seo")[]).map((t) => (
             <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 -mb-px border-b-2 ${tab === t ? "border-ink text-ink" : "border-transparent text-muted-foreground"}`}>
-              {t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : "SEO & Open Graph"}
+              {t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : t === "imoveis" ? "Imóveis" : "SEO & Open Graph"}
             </button>
           ))}
         </div>
