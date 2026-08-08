@@ -132,14 +132,17 @@ function CondoPage() {
           <div className="max-w-5xl mx-auto">
             <img src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" />
           </div>
-        </section>
+      </section>
+
+      {blockEnabled && (
+        <CondoPropertiesBlock
+          title={blockTitle}
+          condominiumName={propsData.condominiumName ?? page.title}
+          items={propsData.items}
+        />
       )}
 
-      <section className="px-6 py-16 border-t border-ink/8">
-        <div className="max-w-3xl mx-auto">
-          <EditorialContent html={page.html_content} />
-        </div>
-      </section>
+
 
       {related.length > 0 && (
         <section className="px-6 py-16 border-t border-ink/8 bg-ink/[0.02]">
