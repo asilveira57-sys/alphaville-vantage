@@ -97,6 +97,7 @@ type FormState = {
   // Bloco de imóveis (condomínio)
   properties_block_enabled: boolean;
   properties_block_title: string;
+  properties_condo_terms: string[];
   properties_included_ids: string[];
   properties_excluded_ids: string[];
 };
@@ -118,7 +119,7 @@ const EMPTY: FormState = {
   meta_keywords: "", social_image: "", robots_index: true, robots_follow: true,
   cta_id: null, cta_hidden: false,
   properties_block_enabled: true, properties_block_title: "",
-  properties_included_ids: [], properties_excluded_ids: [],
+  properties_condo_terms: [], properties_included_ids: [], properties_excluded_ids: [],
 };
 
 const slugify = (s: string) =>
@@ -156,6 +157,7 @@ function toFormState(p: any): FormState {
     related_condominium: p.related_condominium ?? "",
     properties_block_enabled: p.properties_block_enabled !== false,
     properties_block_title: p.properties_block_title ?? "",
+    properties_condo_terms: p.properties_condo_terms ?? [],
     properties_included_ids: p.properties_included_ids ?? [],
     properties_excluded_ids: p.properties_excluded_ids ?? [],
     meta_title: p.meta_title ?? "",
@@ -370,6 +372,7 @@ function CmsEditorPage() {
           faq: form.faq,
           properties_block_enabled: form.properties_block_enabled,
           properties_block_title: form.properties_block_title || null,
+          properties_condo_terms: form.properties_condo_terms,
           properties_included_ids: form.properties_included_ids,
           properties_excluded_ids: form.properties_excluded_ids,
         } as any,
@@ -453,6 +456,7 @@ function CmsEditorPage() {
         faq: f.faq,
         properties_block_enabled: f.properties_block_enabled,
         properties_block_title: f.properties_block_title || null,
+        properties_condo_terms: f.properties_condo_terms,
         properties_included_ids: f.properties_included_ids,
         properties_excluded_ids: f.properties_excluded_ids,
       } as any,
@@ -695,6 +699,8 @@ function CmsEditorPage() {
 
             <CondoPropertiesPicker
               condominiumId={form.related_condominium || null}
+              condoTerms={form.properties_condo_terms}
+              onChangeTerms={(t) => set("properties_condo_terms", t)}
               includedIds={form.properties_included_ids}
               excludedIds={form.properties_excluded_ids}
               onChangeIncluded={(ids) => set("properties_included_ids", ids)}

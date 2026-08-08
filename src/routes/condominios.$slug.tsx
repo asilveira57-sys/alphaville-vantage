@@ -18,13 +18,14 @@ const relatedQO = (slug: string) => queryOptions({
   queryKey: ["editorial", "condominio", "related", slug],
   queryFn: () => listRelated({ data: { type: "condominio", excludeSlug: slug, limit: 3 } }),
 });
-type PropsArgs = { condominiumId: string | null; includedIds: string[]; excludedIds: string[] };
+type PropsArgs = { condominiumId: string | null; condoTerms: string[]; includedIds: string[]; excludedIds: string[] };
 const propsQO = (slug: string, a: PropsArgs) => queryOptions({
   queryKey: ["condominio", "properties", slug, a],
   queryFn: () => listCondoProperties({ data: a }),
 });
 const propsArgsFrom = (page: Record<string, unknown> | null | undefined): PropsArgs => ({
   condominiumId: (page?.["related_condominium"] as string | null) ?? null,
+  condoTerms: (page?.["properties_condo_terms"] as string[] | null) ?? [],
   includedIds: (page?.["properties_included_ids"] as string[] | null) ?? [],
   excludedIds: (page?.["properties_excluded_ids"] as string[] | null) ?? [],
 });

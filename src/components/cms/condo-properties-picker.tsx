@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   listCondoProperties,
+  listCondoNameOptions,
   searchPropertiesForPicker,
   type CondoPropertyDTO,
 } from "@/lib/condo-properties.functions";
@@ -33,12 +34,16 @@ function Info({ p }: { p: CondoPropertyDTO }) {
 
 export function CondoPropertiesPicker({
   condominiumId,
+  condoTerms,
+  onChangeTerms,
   includedIds,
   excludedIds,
   onChangeIncluded,
   onChangeExcluded,
 }: {
   condominiumId: string | null;
+  condoTerms: string[];
+  onChangeTerms: (terms: string[]) => void;
   includedIds: string[];
   excludedIds: string[];
   onChangeIncluded: (ids: string[]) => void;
@@ -49,15 +54,23 @@ export function CondoPropertiesPicker({
   const listFn = useServerFn(listCondoProperties);
 
   const previewQ = useQuery({
-    queryKey: ["cms", "condo-properties", condominiumId, includedIds, excludedIds],
-    queryFn: () => listFn({ data: { condominiumId, includedIds, excludedIds } }),
+    queryKey: ["cms", "condo-properties", condominiumId, condoTerms, includedIds, excludedIds],
+    queryFn: () => listFn({ data: { condominiumId, condoTerms, includedIds, excludedIds } }),
   });
 
   const autoQ = useQuery({
-    queryKey: ["cms", "condo-properties-auto", condominiumId],
-    queryFn: () => listFn({ data: { condominiumId, includedIds: [], excludedIds: [] } }),
-    enabled: !!condominiumId,
+    queryKey: ["cms", "condo-properties-auto", condominiumId, condoTerms],
+    queryFn: () => listFn({ data: { condominiumId, condoTerms, includedIds: [], excludedIds: [] } }),
+    enabled: !!condominiumId || condoTerms.length > 0,
   });
+
+  const namesFn = useServerFn(listCondoNameOptions);
+  const [nameQ, setNameQ] = useState("");
+  const namesQ = useQuery({
+    queryKey: ["cms", "condo-names", nameQ],
+    queryFn: () => namesFn({ data: { q: nameQ } }),
+  });
+  const termSet = useMemo(() => new Set(condoTerms), [condoTerms]);
 
   const searchQ = useQuery({
     queryKey: ["cms", "property-search", q],
@@ -75,15 +88,58 @@ export function CondoPropertiesPicker({
   return (
     <div className="space-y-8">
       <section className="space-y-3">
+        <h4 className="text-sm font-medium text-ink">Filtro por nome do condomínio</h4>
+        <p className="text-xs text-muted-foreground">
+          Selecione os nomes usados no cadastro dos imóveis que pertencem a este condomínio.
+        </p>
+        {condoTerms.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {condoTerms.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => onChangeTerms(condoTerms.filter((x) => x !== t))}
+                className="border border-ink/20 bg-ink/5 px-2 py-1 text-xs"
+              >
+                {t} ✕
+              </button>
+            ))}
+          </div>
+        )}
+        <input
+          value={nameQ}
+          onChange={(e) => setNameQ(e.target.value)}
+          placeholder="Buscar nome de condomínio…"
+          className="w-full border border-ink/15 bg-white px-3 py-2 text-sm"
+        />
+        <ul className="divide-y divide-ink/8 border border-ink/10 rounded max-h-56 overflow-auto">
+          {(namesQ.data ?? []).map((n) => (
+            <li key={n.name} className="flex items-center gap-3 p-2 text-sm">
+              <input
+                type="checkbox"
+                className="h-4 w-4"
+                checked={termSet.has(n.name)}
+                onChange={() =>
+                  onChangeTerms(termSet.has(n.name) ? condoTerms.filter((x) => x !== n.name) : [...condoTerms, n.name])
+                }
+              />
+              <span className="flex-1 truncate">{n.name}</span>
+              <span className="text-xs text-muted-foreground">{n.count}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="space-y-3">
         <h4 className="text-sm font-medium text-ink">
-          Imóveis vinculados ao condomínio ({autoItems.length})
+          Imóveis do filtro ({autoItems.length})
         </h4>
         <p className="text-xs text-muted-foreground">
           Vêm automaticamente do cadastro de imóveis. Desmarque os que não devem aparecer na página.
         </p>
-        {!condominiumId ? (
+        {!condominiumId && condoTerms.length === 0 ? (
           <p className="text-xs text-amber-700">
-            Selecione o “Condomínio relacionado” abaixo para carregar os imóveis.
+            Selecione ao menos um nome de condomínio acima para carregar os imóveis.
           </p>
         ) : autoQ.isLoading ? (
           <p className="text-xs text-muted-foreground">Carregando…</p>

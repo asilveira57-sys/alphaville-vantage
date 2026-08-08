@@ -222,6 +222,7 @@ const upsertSchema = z.object({
   // Bloco de imóveis (páginas de condomínio)
   properties_block_enabled: z.boolean().default(true),
   properties_block_title: z.string().optional().nullable(),
+  properties_condo_terms: z.array(z.string()).default([]),
   properties_included_ids: z.array(z.string().uuid()).default([]),
   properties_excluded_ids: z.array(z.string().uuid()).default([]),
 });
