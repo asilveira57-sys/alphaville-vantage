@@ -658,6 +658,53 @@ function CmsEditorPage() {
           </div>
         )}
 
+        {tab === "imoveis" && (
+          <div className="space-y-8 max-w-4xl">
+            <section className="space-y-4">
+              <h3 className="text-sm font-medium text-ink">Bloco de imóveis do condomínio</h3>
+              <p className="text-xs text-muted-foreground">
+                Exibe na página do condomínio os imóveis à venda e para alugar, com CTA para a busca filtrada.
+              </p>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={form.properties_block_enabled}
+                  onChange={(e) => set("properties_block_enabled", e.target.checked)}
+                  className="h-4 w-4"
+                />
+                Exibir o bloco de imóveis nesta página
+              </label>
+              <Field label="Título do bloco (opcional)">
+                <input
+                  value={form.properties_block_title}
+                  onChange={(e) => set("properties_block_title", e.target.value)}
+                  className={inputCls}
+                  placeholder={`Imóveis no ${form.title || "condomínio"}`}
+                />
+              </Field>
+              <Field label="Condomínio relacionado (fonte dos imóveis)">
+                <RelatedSelect
+                  value={form.related_condominium}
+                  onChange={(v) => set("related_condominium", v)}
+                  options={condoOpts}
+                  loading={condosQ.isLoading}
+                  placeholder={condoOpts.length ? "Selecionar condomínio…" : "Nenhum condomínio cadastrado"}
+                />
+              </Field>
+            </section>
+
+            <CondoPropertiesPicker
+              condominiumId={form.related_condominium || null}
+              includedIds={form.properties_included_ids}
+              excludedIds={form.properties_excluded_ids}
+              onChangeIncluded={(ids) => set("properties_included_ids", ids)}
+              onChangeExcluded={(ids) => set("properties_excluded_ids", ids)}
+            />
+          </div>
+        )}
+
+
+
         {tab === "post" && (
           <div className="space-y-8 max-w-4xl">
             <section className="space-y-4">
