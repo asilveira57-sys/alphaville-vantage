@@ -5,7 +5,6 @@ import { Search } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
-import { Input } from "@/components/ui/input";
 import { listPublishedStreets, type StreetListItem } from "@/lib/streets.functions";
 import { listPublishedStreetGuides, type StreetGuideListItem } from "@/lib/street-guides.functions";
 
