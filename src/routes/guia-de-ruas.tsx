@@ -5,7 +5,6 @@ import { Search } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
-import { Input } from "@/components/ui/input";
 import { listPublishedStreets, type StreetListItem } from "@/lib/streets.functions";
 import { listPublishedStreetGuides, type StreetGuideListItem } from "@/lib/street-guides.functions";
 
@@ -148,7 +147,7 @@ function GuiaDeRuasHub() {
 
   const all = useMemo(() => toEntries(streets, guides), [streets, guides]);
 
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState("all");
   const [city, setCity] = useState<string>("all");
   const [kind, setKind] = useState<string>("all");
 
@@ -162,15 +161,23 @@ function GuiaDeRuasHub() {
   );
 
   const filtered = useMemo(() => {
-    const nq = norm(q.trim());
     return all.filter((e) => {
       if (city !== "all" && e.city !== city) return false;
       if (kind !== "all" && e.kindLabel !== kind) return false;
-      if (!nq) return true;
-      return [e.name, e.neighborhood ?? "", e.city ?? "", e.kindLabel]
-        .some((v) => norm(v).includes(nq));
+      if (q !== "all" && e.key !== q) return false;
+      return true;
     });
   }, [all, q, city, kind]);
+
+  const selectable = useMemo(
+    () =>
+      all.filter((e) => {
+        if (city !== "all" && e.city !== city) return false;
+        if (kind !== "all" && e.kindLabel !== kind) return false;
+        return true;
+      }),
+    [all, city, kind],
+  );
 
   const featured = all.filter((e) => e.featured).slice(0, 3);
 
@@ -204,15 +211,23 @@ function GuiaDeRuasHub() {
       <div className="border border-ink/10 bg-white/60 p-5 md:p-6 mb-12">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-4 items-center">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <select
               value={q}
               onChange={(ev) => setQ(ev.target.value)}
-              placeholder="Buscar por rua, avenida, alameda, bairro..."
-              aria-label="Buscar via"
-              className="pl-9"
-            />
+              aria-label="Selecionar via"
+              className="h-10 w-full border border-ink/15 bg-transparent pl-9 pr-3 text-sm"
+            >
+              <option value="all">Todas as vias</option>
+              {selectable.map((e) => (
+                <option key={e.key} value={e.key}>
+                  {e.kindLabel} {e.name}
+                  {e.neighborhood ? ` — ${e.neighborhood}` : ""}
+                </option>
+              ))}
+            </select>
           </div>
+
           <select
             value={city}
             onChange={(ev) => setCity(ev.target.value)}
