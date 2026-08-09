@@ -82,7 +82,20 @@ const listSchema = z.object({
   condoTerms: z.array(z.string()).default([]),
   includedIds: z.array(z.string().uuid()).default([]),
   excludedIds: z.array(z.string().uuid()).default([]),
+  /** Título da página, usado como filtro automático quando nada foi configurado no admin. */
+  titleFallback: z.string().default(""),
 });
+
+/** "Residencial Burle Marx: Luxo e Natureza..." -> "burle marx" */
+function fallbackTerm(title: string): string {
+  const base = title.split(/[:—–|]/)[0] ?? "";
+  const stop = new Set(["residencial", "condominio", "condomínio", "alphaville", "residencial:", "o", "a", "de", "do", "da", "em"]);
+  const words = base
+    .trim()
+    .split(/\s+/)
+    .filter((w) => w && !stop.has(w.toLowerCase()));
+  return words.join(" ").trim();
+}
 
 /** Imóveis do condomínio (vínculo do admin) + inclusões manuais, menos as exclusões. */
 export const listCondoProperties = createServerFn({ method: "GET" })
@@ -132,6 +145,24 @@ export const listCondoProperties = createServerFn({ method: "GET" })
         if (batch.length < step) break;
       }
     }
+
+    // Nada configurado no admin: tenta casar pelo título da página
+    if (!data.condoTerms.length && !data.condominiumId) {
+      const term = fallbackTerm(data.titleFallback);
+      if (term.length >= 3) {
+        const { data: rows, error } = await sb
+          .from("properties")
+          .select(SELECT)
+          .ilike("condominium_name", `%${term}%`)
+          .eq("status", "active")
+          .order("price_sale", { ascending: false, nullsFirst: false })
+          .limit(500);
+        if (error) throw new Error(error.message);
+        auto.push(...((rows ?? []) as Row[]));
+        if (!condominiumName) condominiumName = term;
+      }
+    }
+
 
     const manual: Row[] = [];
     if (data.includedIds.length) {
