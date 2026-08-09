@@ -148,7 +148,7 @@ function GuiaDeRuasHub() {
 
   const all = useMemo(() => toEntries(streets, guides), [streets, guides]);
 
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState("all");
   const [city, setCity] = useState<string>("all");
   const [kind, setKind] = useState<string>("all");
 
@@ -162,15 +162,23 @@ function GuiaDeRuasHub() {
   );
 
   const filtered = useMemo(() => {
-    const nq = norm(q.trim());
     return all.filter((e) => {
       if (city !== "all" && e.city !== city) return false;
       if (kind !== "all" && e.kindLabel !== kind) return false;
-      if (!nq) return true;
-      return [e.name, e.neighborhood ?? "", e.city ?? "", e.kindLabel]
-        .some((v) => norm(v).includes(nq));
+      if (q !== "all" && e.key !== q) return false;
+      return true;
     });
   }, [all, q, city, kind]);
+
+  const selectable = useMemo(
+    () =>
+      all.filter((e) => {
+        if (city !== "all" && e.city !== city) return false;
+        if (kind !== "all" && e.kindLabel !== kind) return false;
+        return true;
+      }),
+    [all, city, kind],
+  );
 
   const featured = all.filter((e) => e.featured).slice(0, 3);
 
