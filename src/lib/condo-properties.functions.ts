@@ -146,6 +146,24 @@ export const listCondoProperties = createServerFn({ method: "GET" })
       }
     }
 
+    // Nada configurado no admin: tenta casar pelo título da página
+    if (!data.condoTerms.length && !data.condominiumId) {
+      const term = fallbackTerm(data.titleFallback);
+      if (term.length >= 3) {
+        const { data: rows, error } = await sb
+          .from("properties")
+          .select(SELECT)
+          .ilike("condominium_name", `%${term}%`)
+          .eq("status", "active")
+          .order("price_sale", { ascending: false, nullsFirst: false })
+          .limit(500);
+        if (error) throw new Error(error.message);
+        auto.push(...((rows ?? []) as Row[]));
+        if (!condominiumName) condominiumName = term;
+      }
+    }
+
+
     const manual: Row[] = [];
     if (data.includedIds.length) {
       const { data: rows, error } = await sb
