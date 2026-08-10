@@ -572,6 +572,137 @@ export type Database = {
         }
         Relationships: []
       }
+      financing_settings: {
+        Row: {
+          default_annual_rate: number
+          fgts_example_amount: number
+          id: number
+          max_term_months: number
+          min_down_payment_pct: number
+          updated_at: string
+        }
+        Insert: {
+          default_annual_rate?: number
+          fgts_example_amount?: number
+          id?: number
+          max_term_months?: number
+          min_down_payment_pct?: number
+          updated_at?: string
+        }
+        Update: {
+          default_annual_rate?: number
+          fgts_example_amount?: number
+          id?: number
+          max_term_months?: number
+          min_down_payment_pct?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      financing_simulations: {
+        Row: {
+          amortization_system: string
+          annual_rate: number
+          campaign: string | null
+          converted_to_lead: boolean
+          created_at: string
+          down_payment: number
+          down_payment_pct: number
+          financed_amount: number
+          first_installment: number
+          id: string
+          landing_page: string | null
+          last_installment: number
+          lead_email: string | null
+          lead_name: string | null
+          lead_phone: string | null
+          medium: string | null
+          priority_level: string
+          property_id: string | null
+          property_slug: string | null
+          property_value: number
+          qualification_score: number
+          referrer: string | null
+          source: string
+          suggested_min_income: number
+          term_months: number
+          total_interest: number
+          total_paid: number
+          updated_at: string
+          used_fgts: boolean
+        }
+        Insert: {
+          amortization_system: string
+          annual_rate: number
+          campaign?: string | null
+          converted_to_lead?: boolean
+          created_at?: string
+          down_payment: number
+          down_payment_pct: number
+          financed_amount: number
+          first_installment: number
+          id?: string
+          landing_page?: string | null
+          last_installment: number
+          lead_email?: string | null
+          lead_name?: string | null
+          lead_phone?: string | null
+          medium?: string | null
+          priority_level?: string
+          property_id?: string | null
+          property_slug?: string | null
+          property_value: number
+          qualification_score?: number
+          referrer?: string | null
+          source?: string
+          suggested_min_income: number
+          term_months: number
+          total_interest: number
+          total_paid: number
+          updated_at?: string
+          used_fgts?: boolean
+        }
+        Update: {
+          amortization_system?: string
+          annual_rate?: number
+          campaign?: string | null
+          converted_to_lead?: boolean
+          created_at?: string
+          down_payment?: number
+          down_payment_pct?: number
+          financed_amount?: number
+          first_installment?: number
+          id?: string
+          landing_page?: string | null
+          last_installment?: number
+          lead_email?: string | null
+          lead_name?: string | null
+          lead_phone?: string | null
+          medium?: string | null
+          priority_level?: string
+          property_id?: string | null
+          property_slug?: string | null
+          property_value?: number
+          qualification_score?: number
+          referrer?: string | null
+          source?: string
+          suggested_min_income?: number
+          term_months?: number
+          total_interest?: number
+          total_paid?: number
+          updated_at?: string
+          used_fgts?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financing_simulations_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base: {
         Row: {
           category: string
