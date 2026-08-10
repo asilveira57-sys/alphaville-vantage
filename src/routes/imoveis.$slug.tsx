@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PropertyGallery } from "@/components/property-gallery";
+import { FinancingSimulator } from "@/components/financing-simulator";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { supabase } from "@/integrations/supabase/client";
 import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
@@ -210,6 +211,14 @@ function PropertyDetail() {
           </aside>
         </div>
       </section>
+
+      {p.price_sale != null && (
+        <section className="px-6 py-12 border-t border-ink/8 bg-ink/[0.02]">
+          <div className="max-w-6xl mx-auto">
+            <FinancingSimulator propertyId={p.id} propertySlug={p.slug} propertyValue={Number(p.price_sale)} />
+          </div>
+        </section>
+      )}
 
       <section className="px-6 py-12 border-t border-ink/8">
         <div className="max-w-6xl mx-auto">
