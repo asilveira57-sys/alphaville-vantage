@@ -78,6 +78,7 @@ import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
 import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
+import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
@@ -443,6 +444,12 @@ const AuthenticatedAdminMapaRoute = AuthenticatedAdminMapaRouteImport.update({
   path: '/admin-mapa',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminFinanciamentoRoute =
+  AuthenticatedAdminFinanciamentoRouteImport.update({
+    id: '/admin-financiamento',
+    path: '/admin-financiamento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminEmpreendimentosRoute =
   AuthenticatedAdminEmpreendimentosRouteImport.update({
     id: '/admin-empreendimentos',
@@ -563,6 +570,7 @@ export interface FileRoutesByFullPath {
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
@@ -641,6 +649,7 @@ export interface FileRoutesByTo {
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
@@ -725,6 +734,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
@@ -811,6 +821,7 @@ export interface FileRouteTypes {
     | '/admin-cards'
     | '/admin-ctas'
     | '/admin-empreendimentos'
+    | '/admin-financiamento'
     | '/admin-mapa'
     | '/admin-midia'
     | '/admin-radar'
@@ -889,6 +900,7 @@ export interface FileRouteTypes {
     | '/admin-cards'
     | '/admin-ctas'
     | '/admin-empreendimentos'
+    | '/admin-financiamento'
     | '/admin-mapa'
     | '/admin-midia'
     | '/admin-radar'
@@ -972,6 +984,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-cards'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-empreendimentos'
+    | '/_authenticated/admin-financiamento'
     | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
     | '/_authenticated/admin-radar'
@@ -1555,6 +1568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMapaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-financiamento': {
+      id: '/_authenticated/admin-financiamento'
+      path: '/admin-financiamento'
+      fullPath: '/admin-financiamento'
+      preLoaderRoute: typeof AuthenticatedAdminFinanciamentoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-empreendimentos': {
       id: '/_authenticated/admin-empreendimentos'
       path: '/admin-empreendimentos'
@@ -1705,6 +1725,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
+  AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
   AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
@@ -1721,6 +1742,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,
+  AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
   AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,
   AuthenticatedAdminMidiaRoute: AuthenticatedAdminMidiaRoute,
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
@@ -1869,13 +1891,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
