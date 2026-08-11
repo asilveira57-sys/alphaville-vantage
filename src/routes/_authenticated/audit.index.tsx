@@ -6,7 +6,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { getScrapAudit, listAuditProperties } from "@/lib/property-review.functions";
 
-export const Route = createFileRoute("/_authenticated/audit")({
+export const Route = createFileRoute("/_authenticated/audit/")({
   head: () => ({ meta: [{ title: "Auditoria SEO — Portal S.A" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: AuditPage,
 });
