@@ -72,7 +72,6 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
 import { Route as ArtigosSlugRouteImport } from './routes/artigos.$slug'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
-import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
@@ -85,6 +84,7 @@ import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
+import { Route as AuthenticatedAuditIndexRouteImport } from './routes/_authenticated/audit.index'
 import { Route as AuthenticatedAdminRuasIndexRouteImport } from './routes/_authenticated/admin-ruas.index'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
@@ -414,11 +414,6 @@ const AuthenticatedCmsRoute = AuthenticatedCmsRouteImport.update({
   path: '/cms',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   id: '/admin-seo',
   path: '/admin-seo',
@@ -482,6 +477,11 @@ const AuthenticatedCmsIndexRoute = AuthenticatedCmsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedCmsRoute,
 } as any)
+const AuthenticatedAuditIndexRoute = AuthenticatedAuditIndexRouteImport.update({
+  id: '/audit/',
+  path: '/audit/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRuasIndexRoute =
   AuthenticatedAdminRuasIndexRouteImport.update({
     id: '/',
@@ -500,9 +500,9 @@ const AuthenticatedCmsIdRoute = AuthenticatedCmsIdRouteImport.update({
   getParentRoute: () => AuthenticatedCmsRoute,
 } as any)
 const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthenticatedAuditRoute,
+  id: '/audit/$id',
+  path: '/audit/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRuasRelatoriosRoute =
   AuthenticatedAdminRuasRelatoriosRouteImport.update({
@@ -576,7 +576,6 @@ export interface FileRoutesByFullPath {
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
-  '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/cms': typeof AuthenticatedCmsRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
@@ -610,6 +609,7 @@ export interface FileRoutesByFullPath {
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
+  '/audit/': typeof AuthenticatedAuditIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
@@ -654,7 +654,6 @@ export interface FileRoutesByTo {
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
-  '/audit': typeof AuthenticatedAuditRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -687,6 +686,7 @@ export interface FileRoutesByTo {
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasIndexRoute
+  '/audit': typeof AuthenticatedAuditIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
@@ -740,7 +740,6 @@ export interface FileRoutesById {
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
-  '/_authenticated/audit': typeof AuthenticatedAuditRouteWithChildren
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
@@ -774,6 +773,7 @@ export interface FileRoutesById {
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/_authenticated/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
+  '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
@@ -827,7 +827,6 @@ export interface FileRouteTypes {
     | '/admin-radar'
     | '/admin-ruas'
     | '/admin-seo'
-    | '/audit'
     | '/cms'
     | '/artigos/$slug'
     | '/bairros/$slug'
@@ -861,6 +860,7 @@ export interface FileRouteTypes {
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
     | '/admin-ruas/'
+    | '/audit/'
     | '/cms/'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/seo-monthly-refresh'
@@ -905,7 +905,6 @@ export interface FileRouteTypes {
     | '/admin-midia'
     | '/admin-radar'
     | '/admin-seo'
-    | '/audit'
     | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
@@ -938,6 +937,7 @@ export interface FileRouteTypes {
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
     | '/admin-ruas'
+    | '/audit'
     | '/cms'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/seo-monthly-refresh'
@@ -990,7 +990,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-ruas'
     | '/_authenticated/admin-seo'
-    | '/_authenticated/audit'
     | '/_authenticated/cms'
     | '/artigos/$slug'
     | '/bairros/$slug'
@@ -1024,6 +1023,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cms/$id'
     | '/api/public/indexnow-key.txt'
     | '/_authenticated/admin-ruas/'
+    | '/_authenticated/audit/'
     | '/_authenticated/cms/'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/seo-monthly-refresh'
@@ -1526,13 +1526,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/audit': {
-      id: '/_authenticated/audit'
-      path: '/audit'
-      fullPath: '/audit'
-      preLoaderRoute: typeof AuthenticatedAuditRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin-seo': {
       id: '/_authenticated/admin-seo'
       path: '/admin-seo'
@@ -1617,6 +1610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsIndexRouteImport
       parentRoute: typeof AuthenticatedCmsRoute
     }
+    '/_authenticated/audit/': {
+      id: '/_authenticated/audit/'
+      path: '/audit'
+      fullPath: '/audit/'
+      preLoaderRoute: typeof AuthenticatedAuditIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-ruas/': {
       id: '/_authenticated/admin-ruas/'
       path: '/'
@@ -1640,10 +1640,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/audit/$id': {
       id: '/_authenticated/audit/$id'
-      path: '/$id'
+      path: '/audit/$id'
       fullPath: '/audit/$id'
       preLoaderRoute: typeof AuthenticatedAuditIdRouteImport
-      parentRoute: typeof AuthenticatedAuditRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-ruas/relatorios': {
       id: '/_authenticated/admin-ruas/relatorios'
@@ -1695,17 +1695,6 @@ const AuthenticatedAdminRuasRouteWithChildren =
     AuthenticatedAdminRuasRouteChildren,
   )
 
-interface AuthenticatedAuditRouteChildren {
-  AuthenticatedAuditIdRoute: typeof AuthenticatedAuditIdRoute
-}
-
-const AuthenticatedAuditRouteChildren: AuthenticatedAuditRouteChildren = {
-  AuthenticatedAuditIdRoute: AuthenticatedAuditIdRoute,
-}
-
-const AuthenticatedAuditRouteWithChildren =
-  AuthenticatedAuditRoute._addFileChildren(AuthenticatedAuditRouteChildren)
-
 interface AuthenticatedCmsRouteChildren {
   AuthenticatedCmsIdRoute: typeof AuthenticatedCmsIdRoute
   AuthenticatedCmsIndexRoute: typeof AuthenticatedCmsIndexRoute
@@ -1731,8 +1720,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
-  AuthenticatedAuditRoute: typeof AuthenticatedAuditRouteWithChildren
   AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
+  AuthenticatedAuditIdRoute: typeof AuthenticatedAuditIdRoute
+  AuthenticatedAuditIndexRoute: typeof AuthenticatedAuditIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1748,8 +1738,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
-  AuthenticatedAuditRoute: AuthenticatedAuditRouteWithChildren,
   AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,
+  AuthenticatedAuditIdRoute: AuthenticatedAuditIdRoute,
+  AuthenticatedAuditIndexRoute: AuthenticatedAuditIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
