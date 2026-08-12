@@ -169,10 +169,10 @@ const FALLBACK_ARTICLES = [
 ] as const;
 
 const REGIONS = [
-  { slug: "alphaville", label: "Alphaville", to: "/guia-alphaville", image: alphavilleImg, description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
-  { slug: "tambore", label: "Tamboré", to: "/guia-tambore", image: tamboreImg, description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
-  { slug: "barueri", label: "Barueri", to: "/guia-barueri", image: barueriImg, description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
-  { slug: "santana", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
+  { slug: "alphaville", cmsSlug: "guia-alphaville", label: "Alphaville", to: "/guia-alphaville", image: alphavilleImg, description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
+  { slug: "tambore", cmsSlug: "guia-tambore", label: "Tamboré", to: "/guia-tambore", image: tamboreImg, description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
+  { slug: "barueri", cmsSlug: "guia-barueri", label: "Barueri", to: "/guia-barueri", image: barueriImg, description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
+  { slug: "santana", cmsSlug: "guia-santana-de-parnaiba", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
 ];
 
 const STATS = [
