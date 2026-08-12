@@ -95,6 +95,48 @@ export const listCardImages = createServerFn({ method: "GET" })
       });
     }
 
+    const { data: streets, error: streetErr } = await context.supabase
+      .from("streets")
+      .select("id,name,slug,hero_image,status,city,neighborhood,updated_at")
+      .order("name", { ascending: true });
+    if (streetErr) throw new Error(streetErr.message);
+
+    for (const s of (streets ?? []) as Array<{
+      id: string; name: string; slug: string; hero_image: string | null;
+      status: string; city: string | null; neighborhood: string | null; updated_at: string | null;
+    }>) {
+      items.push({
+        kind: "street_hero",
+        id: s.id,
+        label: s.name,
+        context: `Rua · ${[s.neighborhood, s.city].filter(Boolean).join(" · ") || "sem localidade"} · ${s.status}`,
+        image: s.hero_image,
+        url: `/ruas/${s.slug}`,
+        updated_at: s.updated_at,
+      });
+    }
+
+    const { data: guides, error: guideErr } = await context.supabase
+      .from("street_guides")
+      .select("id,name,slug,og_image,status,city,region,neighborhood,updated_at")
+      .order("name", { ascending: true });
+    if (guideErr) throw new Error(guideErr.message);
+
+    for (const g of (guides ?? []) as Array<{
+      id: string; name: string; slug: string; og_image: string | null; status: string;
+      city: string | null; region: string | null; neighborhood: string | null; updated_at: string | null;
+    }>) {
+      items.push({
+        kind: "guide_cover",
+        id: g.id,
+        label: g.name,
+        context: `Guia de rua · ${[g.neighborhood ?? g.region, g.city].filter(Boolean).join(" · ") || "sem localidade"} · ${g.status}`,
+        image: g.og_image,
+        url: `/guia-de-ruas-alphaville/${g.slug}`,
+        updated_at: g.updated_at,
+      });
+    }
+
     return { items };
   });
 
