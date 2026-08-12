@@ -55,6 +55,8 @@ function AdminCards() {
     qc.invalidateQueries({ queryKey: ["card-images"] });
     qc.invalidateQueries({ queryKey: ["editorial"] });
     qc.invalidateQueries({ queryKey: ["hub"] });
+    qc.invalidateQueries({ queryKey: ["ruas"] });
+    qc.invalidateQueries({ queryKey: ["street-guides"] });
   };
 
   const mut = useMutation({
