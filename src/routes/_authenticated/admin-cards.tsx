@@ -124,6 +124,8 @@ function AdminCards() {
             <option value="featured">Imagem de destaque</option>
             <option value="hub_card">Cards de hub</option>
             <option value="condo_cover">Capas de condomínio</option>
+            <option value="street_hero">Imagens das ruas</option>
+            <option value="guide_cover">Capas dos guias de rua</option>
           </select>
           <label className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
             <input type="checkbox" checked={onlyMissing} onChange={(e) => setOnlyMissing(e.target.checked)} />
