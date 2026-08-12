@@ -4,12 +4,28 @@ import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { listPublishedByType } from "@/lib/editorial.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 const QO = queryOptions({
   queryKey: ["editorial", "bairro"],
   queryFn: () => listPublishedByType({ data: { type: "bairro" } }),
+});
+
+const GUIA_IMAGES_QO = queryOptions({
+  queryKey: ["guia-region-images"],
+  queryFn: async () => {
+    const { data } = await supabase
+      .from("editorial_pages")
+      .select("slug,featured_image")
+      .in("slug", ["guia-alphaville", "guia-tambore", "guia-barueri", "guia-santana-de-parnaiba"]);
+    const map: Record<string, string> = {};
+    for (const r of (data ?? []) as Array<{ slug: string; featured_image: string | null }>) {
+      if (r.featured_image) map[r.slug] = r.featured_image;
+    }
+    return map;
+  },
 });
 
 const GUIAS = [
@@ -20,7 +36,10 @@ const GUIAS = [
 ];
 
 export const Route = createFileRoute("/bairros/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(QO),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(QO),
+    context.queryClient.ensureQueryData(GUIA_IMAGES_QO),
+  ]),
   head: () => ({
     meta: [
       { title: "Bairros de Alphaville, Tamboré e região — S.A Imóveis Alphaville" },
@@ -41,6 +60,7 @@ export const Route = createFileRoute("/bairros/")({
 
 function BairrosPage() {
   const { data: items } = useSuspenseQuery(QO);
+  const { data: guiaImages } = useSuspenseQuery(GUIA_IMAGES_QO);
 
   return (
     <SiteLayout>
@@ -60,7 +80,7 @@ function BairrosPage() {
       <section className="bg-navy-deep px-6 pb-24">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {GUIAS.map((g) => (
-            <PremiumRegionCard key={g.slug} to={g.to} slug={g.slug} title={g.title} description={g.description} />
+            <PremiumRegionCard key={g.slug} to={g.to} slug={g.slug} title={g.title} description={g.description} image={guiaImages[g.to.replace("/", "")]} />
           ))}
         </div>
       </section>
