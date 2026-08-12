@@ -183,10 +183,11 @@ const STATS = [
 
 
 function HomePage() {
-  const { properties, posts, regionCounts } = Route.useLoaderData() as {
+  const { properties, posts, regionCounts, regionImages } = Route.useLoaderData() as {
     properties: FeaturedProperty[];
     posts: FeaturedPost[];
     regionCounts: RegionCounts;
+    regionImages: Record<string, string>;
   };
   const navigate = useNavigate();
   const carouselRef = useRef<HTMLDivElement | null>(null);
