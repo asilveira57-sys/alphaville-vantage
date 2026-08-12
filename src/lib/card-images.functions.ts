@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type CardImageItem = {
-  kind: "featured" | "hub_card" | "condo_cover";
+  kind: "featured" | "hub_card" | "condo_cover" | "street_hero" | "guide_cover";
   /** id da página/condomínio */
   id: string;
   /** índice do card dentro do hub (apenas hub_card) */
