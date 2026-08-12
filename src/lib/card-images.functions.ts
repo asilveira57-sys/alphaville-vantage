@@ -159,6 +159,24 @@ export const updateCardImage = createServerFn({ method: "POST" })
 
     const image = data.image?.trim() ? data.image.trim() : null;
 
+    if (data.kind === "street_hero") {
+      const { error } = await context.supabase
+        .from("streets")
+        .update({ hero_image: image })
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true };
+    }
+
+    if (data.kind === "guide_cover") {
+      const { error } = await context.supabase
+        .from("street_guides")
+        .update({ og_image: image })
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true };
+    }
+
     if (data.kind === "condo_cover") {
       const { error } = await context.supabase
         .from("condominiums")
