@@ -356,7 +356,7 @@ function HomePage() {
                 slug={r.slug}
                 title={r.label}
                 description={r.description}
-                image={r.image}
+                image={regionImages[r.cmsSlug] ?? r.image}
                 count={regionCounts[r.slug] ?? null}
               />
             ))}
