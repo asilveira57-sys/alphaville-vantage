@@ -112,13 +112,27 @@ async function fetchRegionCounts(): Promise<RegionCounts> {
   return Object.fromEntries(entries);
 }
 
+/** Imagens dos cards de região vindas do CMS (Admin → Imagens dos cards). */
+async function fetchRegionImages(): Promise<Record<string, string>> {
+  const { data } = await supabase
+    .from("editorial_pages")
+    .select("slug,featured_image")
+    .in("slug", ["guia-alphaville", "guia-tambore", "guia-barueri", "guia-santana-de-parnaiba"]);
+  const map: Record<string, string> = {};
+  for (const row of (data ?? []) as Array<{ slug: string; featured_image: string | null }>) {
+    if (row.featured_image) map[row.slug] = row.featured_image;
+  }
+  return map;
+}
+
 async function loadHome() {
-  const [properties, posts, regionCounts] = await Promise.all([
+  const [properties, posts, regionCounts, regionImages] = await Promise.all([
     fetchFeatured(),
     fetchLatestPosts(),
     fetchRegionCounts(),
+    fetchRegionImages(),
   ]);
-  return { properties, posts, regionCounts };
+  return { properties, posts, regionCounts, regionImages };
 }
 
 export const Route = createFileRoute("/")({
