@@ -22,6 +22,8 @@ const KIND_LABEL: Record<CardImageItem["kind"], string> = {
   featured: "Imagem de destaque",
   hub_card: "Card de hub",
   condo_cover: "Capa de condomínio",
+  street_hero: "Imagem da rua",
+  guide_cover: "Capa do guia de rua",
 };
 
 function keyOf(it: CardImageItem) {
