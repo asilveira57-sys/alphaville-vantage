@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type CardImageItem = {
-  kind: "featured" | "hub_card" | "condo_cover" | "street_hero" | "guide_cover";
+  kind: "featured" | "hub_card" | "condo_cover" | "street_hero" | "guide_cover" | "region_card";
   /** id da página/condomínio */
   id: string;
   /** índice do card dentro do hub (apenas hub_card) */
@@ -72,6 +72,28 @@ export const listCardImages = createServerFn({ method: "GET" })
           url: (c["to"] as string) || null,
           updated_at: p.updated_at,
         });
+      });
+    }
+
+    const REGION_SLUGS: Record<string, string> = {
+      "guia-alphaville": "Alphaville",
+      "guia-tambore": "Tamboré",
+      "guia-barueri": "Barueri",
+      "guia-santana-de-parnaiba": "Santana de Parnaíba",
+    };
+    for (const p of (pages ?? []) as Array<{
+      id: string; title: string; slug: string; featured_image: string | null; updated_at: string | null;
+    }>) {
+      const region = REGION_SLUGS[p.slug];
+      if (!region) continue;
+      items.push({
+        kind: "region_card",
+        id: p.id,
+        label: `Bairro · ${region}`,
+        context: "Card de bairro/região (home e /bairros)",
+        image: p.featured_image,
+        url: `/${p.slug}`,
+        updated_at: p.updated_at,
       });
     }
 
@@ -144,7 +166,7 @@ export const updateCardImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({
-      kind: z.enum(["featured", "hub_card", "condo_cover", "street_hero", "guide_cover"]),
+      kind: z.enum(["featured", "hub_card", "condo_cover", "street_hero", "guide_cover", "region_card"]),
       id: z.string().uuid(),
       index: z.number().int().nonnegative().optional(),
       image: z.string().nullable(),
@@ -186,7 +208,7 @@ export const updateCardImage = createServerFn({ method: "POST" })
       return { ok: true };
     }
 
-    if (data.kind === "featured") {
+    if (data.kind === "featured" || data.kind === "region_card") {
       const { error } = await context.supabase
         .from("editorial_pages")
         .update({ featured_image: image })

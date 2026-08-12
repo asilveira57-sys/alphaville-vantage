@@ -24,6 +24,7 @@ const KIND_LABEL: Record<CardImageItem["kind"], string> = {
   condo_cover: "Capa de condomínio",
   street_hero: "Imagem da rua",
   guide_cover: "Capa do guia de rua",
+  region_card: "Card de bairro/região",
 };
 
 function keyOf(it: CardImageItem) {
@@ -123,6 +124,7 @@ function AdminCards() {
             className="border border-ink/15 bg-transparent px-2 py-2 text-sm"
           >
             <option value="all">Todos os tipos</option>
+            <option value="region_card">Cards de bairros/regiões</option>
             <option value="featured">Imagem de destaque</option>
             <option value="hub_card">Cards de hub</option>
             <option value="condo_cover">Capas de condomínio</option>

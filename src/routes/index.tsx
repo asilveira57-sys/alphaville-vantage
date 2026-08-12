@@ -112,13 +112,27 @@ async function fetchRegionCounts(): Promise<RegionCounts> {
   return Object.fromEntries(entries);
 }
 
+/** Imagens dos cards de região vindas do CMS (Admin → Imagens dos cards). */
+async function fetchRegionImages(): Promise<Record<string, string>> {
+  const { data } = await supabase
+    .from("editorial_pages")
+    .select("slug,featured_image")
+    .in("slug", ["guia-alphaville", "guia-tambore", "guia-barueri", "guia-santana-de-parnaiba"]);
+  const map: Record<string, string> = {};
+  for (const row of (data ?? []) as Array<{ slug: string; featured_image: string | null }>) {
+    if (row.featured_image) map[row.slug] = row.featured_image;
+  }
+  return map;
+}
+
 async function loadHome() {
-  const [properties, posts, regionCounts] = await Promise.all([
+  const [properties, posts, regionCounts, regionImages] = await Promise.all([
     fetchFeatured(),
     fetchLatestPosts(),
     fetchRegionCounts(),
+    fetchRegionImages(),
   ]);
-  return { properties, posts, regionCounts };
+  return { properties, posts, regionCounts, regionImages };
 }
 
 export const Route = createFileRoute("/")({
@@ -155,10 +169,10 @@ const FALLBACK_ARTICLES = [
 ] as const;
 
 const REGIONS = [
-  { slug: "alphaville", label: "Alphaville", to: "/guia-alphaville", image: alphavilleImg, description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
-  { slug: "tambore", label: "Tamboré", to: "/guia-tambore", image: tamboreImg, description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
-  { slug: "barueri", label: "Barueri", to: "/guia-barueri", image: barueriImg, description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
-  { slug: "santana", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
+  { slug: "alphaville", cmsSlug: "guia-alphaville", label: "Alphaville", to: "/guia-alphaville", image: alphavilleImg, description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
+  { slug: "tambore", cmsSlug: "guia-tambore", label: "Tamboré", to: "/guia-tambore", image: tamboreImg, description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
+  { slug: "barueri", cmsSlug: "guia-barueri", label: "Barueri", to: "/guia-barueri", image: barueriImg, description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
+  { slug: "santana", cmsSlug: "guia-santana-de-parnaiba", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
 ];
 
 const STATS = [
@@ -169,10 +183,11 @@ const STATS = [
 
 
 function HomePage() {
-  const { properties, posts, regionCounts } = Route.useLoaderData() as {
+  const { properties, posts, regionCounts, regionImages } = Route.useLoaderData() as {
     properties: FeaturedProperty[];
     posts: FeaturedPost[];
     regionCounts: RegionCounts;
+    regionImages: Record<string, string>;
   };
   const navigate = useNavigate();
   const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -341,7 +356,7 @@ function HomePage() {
                 slug={r.slug}
                 title={r.label}
                 description={r.description}
-                image={r.image}
+                image={regionImages[r.cmsSlug] ?? r.image}
                 count={regionCounts[r.slug] ?? null}
               />
             ))}
