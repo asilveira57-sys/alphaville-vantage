@@ -144,7 +144,7 @@ export const updateCardImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({
-      kind: z.enum(["featured", "hub_card", "condo_cover"]),
+      kind: z.enum(["featured", "hub_card", "condo_cover", "street_hero", "guide_cover"]),
       id: z.string().uuid(),
       index: z.number().int().nonnegative().optional(),
       image: z.string().nullable(),
