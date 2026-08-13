@@ -238,7 +238,7 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
     let htmlContent = sanitizedContent;
 
     // Safety net: never let a transient empty editor state erase an existing article.
-    if (data.id && isMeaningfullyEmptyHtml(sanitizedContent)) {
+    if (data.id && !data.allow_empty_content && isMeaningfullyEmptyHtml(sanitizedContent)) {
       const { data: existing, error: existingError } = await context.supabase
         .from("editorial_pages")
         .select("html_content")
@@ -258,6 +258,7 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
       author_id: context.userId,
       published_at: data.status === "published" ? new Date().toISOString() : null,
     };
+    delete payload.allow_empty_content;
     if (!data.id) delete payload.id;
     const { data: row, error } = await context.supabase
       .from("editorial_pages")
