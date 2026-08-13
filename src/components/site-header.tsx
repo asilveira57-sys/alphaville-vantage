@@ -71,13 +71,7 @@ export function SiteHeader() {
 
           <div className="flex items-center gap-3 shrink-0">
             <Link
-              to="/auth"
-              aria-label="Área do cliente"
-              className="hidden sm:inline-grid place-items-center h-10 w-10 rounded-full bg-[#F2DA00] text-[#0D0D0D] hover:brightness-95 transition"
-            >
-              <User className="h-4 w-4" strokeWidth={2.2} />
-            </Link>
-            <Link
+
               to="/imoveis"
               className="inline-flex items-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest hover:brightness-95 transition"
             >
