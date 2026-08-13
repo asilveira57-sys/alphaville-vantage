@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Phone, MessageCircle, Search, User } from "lucide-react";
+import { Phone, MessageCircle, Search } from "lucide-react";
 import logoAsset from "@/assets/logo-sa-imoveis.png.asset.json";
 
 const NAV = [
