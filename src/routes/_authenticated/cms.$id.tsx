@@ -313,9 +313,8 @@ function CmsEditorPage() {
 
   const saveMut = useMutation({
     mutationFn: async () => {
-      const htmlContent = isMeaningfullyEmptyHtml(form.html_content) && !isMeaningfullyEmptyHtml(dbContentRef.current)
-        ? dbContentRef.current
-        : form.html_content;
+      // Salvamento manual é intencional: se o editor está vazio, o conteúdo é apagado de fato.
+      const htmlContent = form.html_content;
       return upsertFn({
         data: {
           id: form.id,
@@ -324,6 +323,7 @@ function CmsEditorPage() {
           content_type: form.content_type,
           excerpt: form.excerpt || null,
           html_content: htmlContent,
+          allow_empty_content: true,
           featured_image: form.featured_image || null,
           gallery_images: form.gallery_images,
           status: form.status,
