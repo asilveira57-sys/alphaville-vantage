@@ -20,6 +20,9 @@ type PropertyRow = {
   city: string | null;
   neighborhood: string | null;
   condominium_name: string | null;
+  condominium_id: string | null;
+  condo_official: string | null;
+
   region: string | null;
   bedrooms: number | null;
   suites: number | null;
