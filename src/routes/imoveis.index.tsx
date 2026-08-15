@@ -20,6 +20,9 @@ type PropertyRow = {
   city: string | null;
   neighborhood: string | null;
   condominium_name: string | null;
+  condominium_id: string | null;
+  condo_official: string | null;
+
   region: string | null;
   bedrooms: number | null;
   suites: number | null;
@@ -43,18 +46,25 @@ const isUsableImg = (u: string) =>
 const WHATSAPP_NUMBER = "5511995515053";
 
 async function fetchProperties(): Promise<{ items: PropertyRow[]; options: FilterOptions }> {
-  const data = await fetchAllRows<Record<string, unknown>>((f, t) =>
-    supabase
-      .from("properties")
-      .select(
-        "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,images",
-      )
-      .eq("status", "active")
-      .order("last_seen_at", { ascending: false })
-      .range(f, t),
+  const [data, condoRes] = await Promise.all([
+    fetchAllRows<Record<string, unknown>>((f, t) =>
+      supabase
+        .from("properties")
+        .select(
+          "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,condominium_id,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,images",
+        )
+        .eq("status", "active")
+        .order("last_seen_at", { ascending: false })
+        .range(f, t),
+    ),
+    supabase.from("condominiums").select("id,name"),
+  ]);
+  const condoNames = new Map<string, string>(
+    ((condoRes.data ?? []) as { id: string; name: string }[]).map((c) => [c.id, c.name]),
   );
   const items = data.map((p) => ({
     ...p,
+    condo_official: condoNames.get(String((p as { condominium_id?: string | null }).condominium_id ?? "")) ?? null,
     images: Array.isArray((p as { images?: unknown }).images)
       ? ((p as { images: string[] }).images).filter(isUsableImg)
       : [],
@@ -63,11 +73,14 @@ async function fetchProperties(): Promise<{ items: PropertyRow[]; options: Filte
   const uniq = (arr: (string | null | undefined)[]) =>
     Array.from(new Set(arr.filter((x): x is string => !!x && x.trim() !== ""))).sort((a, b) => a.localeCompare(b, "pt-BR"));
 
+  const officialCondos = uniq(items.map((p) => p.condo_official));
+
   const options: FilterOptions = {
     types: uniq(items.map((p) => p.property_type)),
     cities: uniq(items.map((p) => p.city)),
     neighborhoods: uniq(items.map((p) => p.neighborhood)),
-    condos: uniq(items.map((p) => p.condominium_name)),
+    condos: officialCondos.length ? officialCondos : uniq(items.map((p) => p.condominium_name)),
+
     priceMax: Math.max(
       0,
       ...items.map((p) => Math.max(p.price_sale ?? 0, p.price_rent ?? 0)),
@@ -164,7 +177,7 @@ function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
   if (s.type) out = out.filter((p) => fuzzyEq(p.property_type, s.type));
   if (s.city) out = out.filter((p) => fuzzyEq(p.city, s.city));
   if (s.neighborhood) out = out.filter((p) => fuzzyEq(p.neighborhood, s.neighborhood));
-  if (s.condo) out = out.filter((p) => fuzzyEq(p.condominium_name, s.condo));
+  if (s.condo) out = out.filter((p) => fuzzyEq(p.condo_official ?? p.condominium_name, s.condo));
   if (s.bedrooms) out = out.filter((p) => (p.bedrooms ?? 0) >= s.bedrooms);
   if (s.parking) {
     out = out.filter((p) => {
