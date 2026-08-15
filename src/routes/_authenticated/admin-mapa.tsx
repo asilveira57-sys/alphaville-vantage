@@ -47,6 +47,13 @@ const AREAS: Area[] = [
     type: "condominio",
   },
   {
+    title: "Central de condomínios",
+    description: "Cadastro oficial, limpeza dos nomes do scrap, unificação de duplicados e criação do guia de cada condomínio.",
+    admin: "/admin-condominios",
+    site: "/imoveis",
+  },
+
+  {
     title: "Guias locais",
     description: "Guias (/guia/slug) e hubs regionais (Alphaville, Tamboré, Barueri, Santana).",
     admin: "/cms",

@@ -82,6 +82,7 @@ import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
+import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_authenticated/admin-condominios'
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -469,6 +470,12 @@ const AuthenticatedAdminCtasRoute = AuthenticatedAdminCtasRouteImport.update({
   path: '/admin-ctas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminCondominiosRoute =
+  AuthenticatedAdminCondominiosRouteImport.update({
+    id: '/admin-condominios',
+    path: '/admin-condominios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCardsRoute = AuthenticatedAdminCardsRouteImport.update({
   id: '/admin-cards',
   path: '/admin-cards',
@@ -582,6 +589,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
+  '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
@@ -663,6 +671,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
+  '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
@@ -750,6 +759,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
+  '/_authenticated/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
@@ -839,6 +849,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-auditoria'
     | '/admin-cards'
+    | '/admin-condominios'
     | '/admin-ctas'
     | '/admin-empreendimentos'
     | '/admin-financiamento'
@@ -920,6 +931,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-auditoria'
     | '/admin-cards'
+    | '/admin-condominios'
     | '/admin-ctas'
     | '/admin-empreendimentos'
     | '/admin-financiamento'
@@ -1006,6 +1018,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-auditoria'
     | '/_authenticated/admin-cards'
+    | '/_authenticated/admin-condominios'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-empreendimentos'
     | '/_authenticated/admin-financiamento'
@@ -1622,6 +1635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCtasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-condominios': {
+      id: '/_authenticated/admin-condominios'
+      path: '/admin-condominios'
+      fullPath: '/admin-condominios'
+      preLoaderRoute: typeof AuthenticatedAdminCondominiosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-cards': {
       id: '/_authenticated/admin-cards'
       path: '/admin-cards'
@@ -1752,6 +1772,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
+  AuthenticatedAdminCondominiosRoute: typeof AuthenticatedAdminCondominiosRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
@@ -1770,6 +1791,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
   AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
+  AuthenticatedAdminCondominiosRoute: AuthenticatedAdminCondominiosRoute,
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,
