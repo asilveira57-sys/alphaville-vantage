@@ -47,6 +47,44 @@ export type Database = {
         }
         Relationships: []
       }
+      condominium_aliases: {
+        Row: {
+          alias: string
+          condominium_id: string | null
+          created_at: string
+          id: string
+          is_not_condominium: boolean
+          normalized_alias: string
+          updated_at: string
+        }
+        Insert: {
+          alias: string
+          condominium_id?: string | null
+          created_at?: string
+          id?: string
+          is_not_condominium?: boolean
+          normalized_alias: string
+          updated_at?: string
+        }
+        Update: {
+          alias?: string
+          condominium_id?: string | null
+          created_at?: string
+          id?: string
+          is_not_condominium?: boolean
+          normalized_alias?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "condominium_aliases_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       condominiums: {
         Row: {
           address: string | null
