@@ -8,16 +8,15 @@ import { CondoTriage } from "@/components/admin/condo-triage";
 
 import {
   listCondominiumOverview,
-  listGroupProperties,
   createCondominium,
   updateCondominium,
   assignAliasToCondominium,
-  assignPropertiesToCondominium,
   markAliasNotCondominium,
   mergeCondominiums,
   createCondominiumGuide,
   type CondoGroup,
 } from "@/lib/condominiums-admin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin-condominios")({
   head: () => ({
