@@ -4,18 +4,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/site-layout";
+import { CondoTriage } from "@/components/admin/condo-triage";
+
 import {
   listCondominiumOverview,
-  listGroupProperties,
   createCondominium,
   updateCondominium,
   assignAliasToCondominium,
-  assignPropertiesToCondominium,
   markAliasNotCondominium,
   mergeCondominiums,
   createCondominiumGuide,
   type CondoGroup,
 } from "@/lib/condominiums-admin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin-condominios")({
   head: () => ({
@@ -279,75 +280,9 @@ function GroupProperties({
   condos: CondoGroup[];
   onDone: () => void;
 }) {
-  const listFn = useServerFn(listGroupProperties);
-  const assignFn = useServerFn(assignPropertiesToCondominium);
-  const [sel, setSel] = useState<string[]>([]);
-  const [target, setTarget] = useState("");
-
-  const props = useQuery({
-    queryKey: ["admin", "condo-props", condominiumId, alias],
-    queryFn: () => listFn({ data: { condominiumId, alias } }),
-  });
-
-  const move = useMutation({
-    mutationFn: () => assignFn({ data: { propertyIds: sel, condominiumId: target || null } }),
-    onSuccess: (r) => {
-      toast.success(`${r.moved} imóveis movidos`);
-      setSel([]);
-      setTarget("");
-      props.refetch();
-      onDone();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const items = props.data ?? [];
-  const toggle = (id: string) => setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
-
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <p className="text-xs text-muted-foreground">{items.length} imóveis</p>
-        <button type="button" className={btn} onClick={() => setSel(items.map((p) => p.id))}>Selecionar todos</button>
-        <button type="button" className={btn} onClick={() => setSel([])}>Limpar</button>
-        <select value={target} onChange={(e) => setTarget(e.target.value)} className={`${input} max-w-xs`}>
-          <option value="">Mover selecionados para…</option>
-          {condos.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-        <button type="button" className={btn} disabled={!sel.length || !target || move.isPending} onClick={() => move.mutate()}>
-          {move.isPending ? "Movendo…" : `Mover (${sel.length})`}
-        </button>
-      </div>
-
-      {props.isLoading ? (
-        <p className="text-xs text-muted-foreground">Carregando imóveis…</p>
-      ) : (
-        <ul className="max-h-96 divide-y divide-ink/10 overflow-auto border border-ink/10">
-          {items.map((p) => (
-            <li key={p.id} className="flex items-center gap-3 p-3">
-              <input type="checkbox" checked={sel.includes(p.id)} onChange={() => toggle(p.id)} className="h-4 w-4" aria-label={`Selecionar ${p.title}`} />
-              {p.image ? (
-                <img src={p.image} alt="" className="h-12 w-16 shrink-0 rounded object-cover" loading="lazy" />
-              ) : (
-                <div className="h-12 w-16 shrink-0 rounded bg-ink/10" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm">{p.title}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {[p.internal_code, p.condominium_name].filter(Boolean).join(" · ")}
-                </p>
-              </div>
-              <Link to="/imoveis/$slug" params={{ slug: p.slug }} className={btn} target="_blank">Ver</Link>
-            </li>
-          ))}
-          {items.length === 0 && <li className="p-4 text-xs text-muted-foreground">Nenhum imóvel neste grupo.</li>}
-        </ul>
-      )}
-    </div>
-  );
+  return <CondoTriage condominiumId={condominiumId} alias={alias} condos={condos} onDone={onDone} />;
 }
+
 
 function UnclassifiedTab({
   aliases,
@@ -412,10 +347,20 @@ function UnclassifiedTab({
                 type="button"
                 className={btn}
                 disabled={!(choice[a.alias] ?? a.suggestion?.id) || assign.isPending}
-                onClick={() => assign.mutate({ alias: a.alias, condominiumId: (choice[a.alias] ?? a.suggestion?.id) as string })}
+                onClick={() => {
+                  if (
+                    a.count > 25 &&
+                    !window.confirm(
+                      `Este grupo tem ${a.count} imóveis e pode misturar condomínios diferentes. Vincular todos mesmo assim? Prefira abrir “Imóveis” e triar por sugestão.`,
+                    )
+                  )
+                    return;
+                  assign.mutate({ alias: a.alias, condominiumId: (choice[a.alias] ?? a.suggestion?.id) as string });
+                }}
               >
-                Vincular
+                Vincular todos
               </button>
+
               <button type="button" className={btn} disabled={notCondo.isPending} onClick={() => notCondo.mutate(a.alias)}>
                 Não é condomínio
               </button>
