@@ -33,10 +33,16 @@ export type CondoPropertyRow = {
   price_rent: number | null;
   condominium_name: string | null;
   condominium_id: string | null;
+  address: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  region: string | null;
+  suggestion: { id: string | null; label: string; score: number } | null;
 };
 
 const PROP_SELECT =
-  "id,slug,title,images,internal_code,purpose,price_sale,price_rent,condominium_name,condominium_id";
+  "id,slug,title,images,internal_code,purpose,price_sale,price_rent,condominium_name,condominium_id,address,neighborhood,city,region";
+
 
 export function normalizeName(s: string): string {
   return s
