@@ -208,22 +208,107 @@ export const listCondominiumOverview = createServerFn({ method: "GET" })
     };
   });
 
-/** Imóveis de um condomínio oficial ou de um nome solto. */
+export type SuggestionBucket = {
+  condominiumId: string | null;
+  label: string;
+  count: number;
+  propertyIds: string[];
+};
+
+/** Constrói o índice de nomes oficiais/apelidos para sugerir vínculo. */
+function buildCondoIndex(condos: Record<string, unknown>[], aliases: Record<string, unknown>[]) {
+  const idx: { norm: string; id: string; label: string }[] = [];
+  const nameById = new Map<string, string>();
+  for (const c of condos) {
+    const id = String(c["id"]);
+    const name = String(c["name"] ?? "");
+    nameById.set(id, name);
+    const norm = normalizeName(name);
+    if (norm.length >= 5) idx.push({ norm, id, label: name });
+  }
+  for (const a of aliases) {
+    const cid = (a["condominium_id"] as string | null) ?? null;
+    if (!cid) continue;
+    const norm = String(a["normalized_alias"] ?? "");
+    if (norm.length >= 5) idx.push({ norm, id: cid, label: nameById.get(cid) ?? String(a["alias"]) });
+  }
+  return idx.sort((a, b) => b.norm.length - a.norm.length);
+}
+
+function suggestFor(row: Record<string, unknown>, idx: { norm: string; id: string; label: string }[]) {
+  const text = normalizeName(
+    [row["title"], row["address"], row["neighborhood"], row["region"]].filter(Boolean).join(" "),
+  );
+  if (!text) return null;
+  for (const c of idx) {
+    if (text.includes(c.norm)) return { id: c.id, label: c.label, score: c.norm.length };
+  }
+  return null;
+}
+
+/** Imóveis de um condomínio oficial ou de um nome solto — paginado, com sugestões. */
 export const listGroupProperties = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ condominiumId: z.string().uuid().nullable().default(null), alias: z.string().nullable().default(null) }).parse(d),
+    z
+      .object({
+        condominiumId: z.string().uuid().nullable().default(null),
+        alias: z.string().nullable().default(null),
+        search: z.string().default(""),
+        onlyWithoutSuggestion: z.boolean().default(false),
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(5).max(100).default(30),
+      })
+      .parse(d),
   )
-  .handler(async ({ data, context }): Promise<CondoPropertyRow[]> => {
+  .handler(async ({ data, context }): Promise<{ items: CondoPropertyRow[]; total: number; buckets: SuggestionBucket[] }> => {
     const sb = context.supabase as unknown as SB;
-    if (!data.condominiumId && !data.alias) return [];
-    const rows = await fetchAllRows<Record<string, unknown>>(sb, "properties", PROP_SELECT, (q) => {
-      let qq = q.eq("status", "active");
-      qq = data.condominiumId ? qq.eq("condominium_id", data.condominiumId) : qq.eq("condominium_name", data.alias);
-      return qq.order("title", { ascending: true });
+    if (!data.condominiumId && !data.alias) return { items: [], total: 0, buckets: [] };
+
+    const [rows, condos, aliases] = await Promise.all([
+      fetchAllRows<Record<string, unknown>>(sb, "properties", PROP_SELECT, (q) => {
+        let qq = q.eq("status", "active");
+        qq = data.condominiumId ? qq.eq("condominium_id", data.condominiumId) : qq.eq("condominium_name", data.alias);
+        return qq.order("title", { ascending: true });
+      }),
+      fetchAllRows<Record<string, unknown>>(sb, "condominiums", "id,name"),
+      fetchAllRows<Record<string, unknown>>(sb, "condominium_aliases", "alias,normalized_alias,condominium_id"),
+    ]);
+
+    const idx = buildCondoIndex(condos, aliases);
+    const enriched = rows.map((r) => {
+      const row = toRow(r);
+      const s = data.condominiumId ? null : suggestFor(r, idx);
+      row.suggestion = s ? { id: s.id, label: s.label, score: s.score } : null;
+      return row;
     });
-    return rows.map(toRow);
+
+    // Blocos por sugestão (sobre o grupo inteiro, não só a página)
+    const bucketMap = new Map<string, SuggestionBucket>();
+    for (const row of enriched) {
+      const key = row.suggestion?.id ?? "__none__";
+      const label = row.suggestion?.label ?? "Sem sugestão";
+      const b = bucketMap.get(key) ?? { condominiumId: row.suggestion?.id ?? null, label, count: 0, propertyIds: [] };
+      b.count++;
+      b.propertyIds.push(row.id);
+      bucketMap.set(key, b);
+    }
+    const buckets = [...bucketMap.values()].sort(
+      (a, b) => (a.condominiumId ? 0 : 1) - (b.condominiumId ? 0 : 1) || b.count - a.count,
+    );
+
+    const term = normalizeName(data.search);
+    let filtered = term
+      ? enriched.filter((r) =>
+          normalizeName([r.title, r.address, r.neighborhood, r.internal_code].filter(Boolean).join(" ")).includes(term),
+        )
+      : enriched;
+    if (data.onlyWithoutSuggestion) filtered = filtered.filter((r) => !r.suggestion);
+
+    const start = (data.page - 1) * data.pageSize;
+    return { items: filtered.slice(start, start + data.pageSize), total: filtered.length, buckets };
   });
+
 
 /** Cria um condomínio oficial. */
 export const createCondominium = createServerFn({ method: "POST" })
