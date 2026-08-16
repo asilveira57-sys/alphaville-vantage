@@ -348,10 +348,20 @@ function UnclassifiedTab({
                 type="button"
                 className={btn}
                 disabled={!(choice[a.alias] ?? a.suggestion?.id) || assign.isPending}
-                onClick={() => assign.mutate({ alias: a.alias, condominiumId: (choice[a.alias] ?? a.suggestion?.id) as string })}
+                onClick={() => {
+                  if (
+                    a.count > 25 &&
+                    !window.confirm(
+                      `Este grupo tem ${a.count} imóveis e pode misturar condomínios diferentes. Vincular todos mesmo assim? Prefira abrir “Imóveis” e triar por sugestão.`,
+                    )
+                  )
+                    return;
+                  assign.mutate({ alias: a.alias, condominiumId: (choice[a.alias] ?? a.suggestion?.id) as string });
+                }}
               >
-                Vincular
+                Vincular todos
               </button>
+
               <button type="button" className={btn} disabled={notCondo.isPending} onClick={() => notCondo.mutate(a.alias)}>
                 Não é condomínio
               </button>
