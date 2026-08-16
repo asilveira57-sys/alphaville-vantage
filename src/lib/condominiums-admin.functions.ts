@@ -94,7 +94,13 @@ const toRow = (r: Record<string, unknown>): CondoPropertyRow => ({
   price_rent: (r["price_rent"] as number | null) ?? null,
   condominium_name: (r["condominium_name"] as string | null) ?? null,
   condominium_id: (r["condominium_id"] as string | null) ?? null,
+  address: (r["address"] as string | null) ?? null,
+  neighborhood: (r["neighborhood"] as string | null) ?? null,
+  city: (r["city"] as string | null) ?? null,
+  region: (r["region"] as string | null) ?? null,
+  suggestion: null,
 });
+
 
 /** Panorama completo: condomínios oficiais + nomes soltos do scrap. */
 export const listCondominiumOverview = createServerFn({ method: "GET" })
