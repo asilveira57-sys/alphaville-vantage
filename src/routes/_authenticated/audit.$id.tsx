@@ -176,6 +176,15 @@ function AuditEditPage() {
                 <span className="text-ink truncate">{String(p[k] ?? "—")}</span>
               </div>
             ))}
+            {MONEY_FIELDS.map(([k, label]) => (
+              <div key={k} className="grid grid-cols-2 gap-2">
+                <span className="text-muted-foreground">{label}</span>
+                <span className="text-ink truncate">
+                  {p[k] == null ? "—" : `R$ ${formatBRL(Number(p[k]))}`}
+                </span>
+              </div>
+            ))}
+
             {BOOL_FIELDS.map(([k, label]) => (
               <div key={k} className="grid grid-cols-2 gap-2">
                 <span className="text-muted-foreground">{label}</span>
