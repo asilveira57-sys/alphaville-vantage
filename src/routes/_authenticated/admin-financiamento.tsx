@@ -61,6 +61,7 @@ function AdminFinanciamento() {
   });
 
   const leads = (sims ?? []).filter((s) => s.converted_to_lead);
+  const fgtsValue = fgts === "" || Number.isNaN(Number(fgts)) ? null : Number(fgts);
 
   return (
     <SiteLayout>
