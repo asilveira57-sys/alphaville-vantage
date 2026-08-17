@@ -206,6 +206,16 @@ function AuditEditPage() {
                 />
               </FieldRow>
             ))}
+            {MONEY_FIELDS.map(([k, label]) => (
+              <FieldRow key={k} k={k} label={label} overridden={k in overrides} onClear={() => clearField(k)}>
+                <MoneyInput
+                  value={valueOf(k) as number | null}
+                  onChange={(v) => setField(k, v)}
+                  className="w-full border border-ink/20 px-2 py-1"
+                />
+              </FieldRow>
+            ))}
+
             {BOOL_FIELDS.map(([k, label]) => (
               <FieldRow key={k} k={k} label={label} overridden={k in overrides} onClear={() => clearField(k)}>
                 <select
