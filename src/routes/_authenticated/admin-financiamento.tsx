@@ -7,6 +7,7 @@ import {
   updateFinancingSettings,
   listFinancingSimulations,
 } from "@/lib/financing.functions";
+import { MoneyInput } from "@/components/ui/money-input";
 
 export const Route = createFileRoute("/_authenticated/admin-financiamento")({
   head: () => ({
@@ -60,6 +61,7 @@ function AdminFinanciamento() {
   });
 
   const leads = (sims ?? []).filter((s) => s.converted_to_lead);
+  const fgtsValue = fgts === "" || Number.isNaN(Number(fgts)) ? null : Number(fgts);
 
   return (
     <SiteLayout>
@@ -94,8 +96,13 @@ function AdminFinanciamento() {
             </label>
             <label>
               <span className={labelClass}>FGTS exemplo (R$)</span>
-              <input className={inputClass} value={fgts} onChange={(e) => setFgts(e.target.value)} inputMode="numeric" />
+              <MoneyInput
+                className={inputClass}
+                value={fgtsValue}
+                onChange={(v) => setFgts(v == null ? "" : String(v))}
+              />
             </label>
+
           </div>
           <div className="mt-6 flex items-center gap-4">
             <button

@@ -6,6 +6,8 @@ import { SiteLayout } from "@/components/site-layout";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { getPropertyForReview, saveManualReview, reprocessProperties } from "@/lib/property-review.functions";
 import { regenerateSeo } from "@/lib/property-seo.functions";
+import { MoneyInput, formatBRL } from "@/components/ui/money-input";
+
 
 export const Route = createFileRoute("/_authenticated/audit/$id")({
   head: () => ({ meta: [{ title: "Editar imóvel — Auditoria" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -36,11 +38,15 @@ const NUM_FIELDS = [
   ["area_useful", "Área útil (m²)"],
   ["area_built", "Área construída (m²)"],
   ["area_total", "Área total (m²)"],
+] as const;
+
+const MONEY_FIELDS = [
   ["price_sale", "Valor de venda (R$)"],
   ["price_rent", "Valor de locação (R$)"],
   ["condo_fee", "Condomínio (R$)"],
   ["iptu", "IPTU (R$)"],
 ] as const;
+
 
 const BOOL_FIELDS = [
   ["furnished", "Mobiliado"],
@@ -170,6 +176,15 @@ function AuditEditPage() {
                 <span className="text-ink truncate">{String(p[k] ?? "—")}</span>
               </div>
             ))}
+            {MONEY_FIELDS.map(([k, label]) => (
+              <div key={k} className="grid grid-cols-2 gap-2">
+                <span className="text-muted-foreground">{label}</span>
+                <span className="text-ink truncate">
+                  {p[k] == null ? "—" : `R$ ${formatBRL(Number(p[k]))}`}
+                </span>
+              </div>
+            ))}
+
             {BOOL_FIELDS.map(([k, label]) => (
               <div key={k} className="grid grid-cols-2 gap-2">
                 <span className="text-muted-foreground">{label}</span>
@@ -202,6 +217,16 @@ function AuditEditPage() {
                 />
               </FieldRow>
             ))}
+            {MONEY_FIELDS.map(([k, label]) => (
+              <FieldRow key={k} k={k} label={label} overridden={k in overrides} onClear={() => clearField(k)}>
+                <MoneyInput
+                  value={valueOf(k) as number | null}
+                  onChange={(v) => setField(k, v)}
+                  className="w-full border border-ink/20 px-2 py-1"
+                />
+              </FieldRow>
+            ))}
+
             {BOOL_FIELDS.map(([k, label]) => (
               <FieldRow key={k} k={k} label={label} overridden={k in overrides} onClear={() => clearField(k)}>
                 <select
