@@ -6,6 +6,8 @@ import { SiteLayout } from "@/components/site-layout";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { getPropertyForReview, saveManualReview, reprocessProperties } from "@/lib/property-review.functions";
 import { regenerateSeo } from "@/lib/property-seo.functions";
+import { MoneyInput } from "@/components/ui/money-input";
+
 
 export const Route = createFileRoute("/_authenticated/audit/$id")({
   head: () => ({ meta: [{ title: "Editar imóvel — Auditoria" }, { name: "robots", content: "noindex,nofollow" }] }),
