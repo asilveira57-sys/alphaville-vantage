@@ -7,6 +7,7 @@ import {
   updateFinancingSettings,
   listFinancingSimulations,
 } from "@/lib/financing.functions";
+import { MoneyInput } from "@/components/ui/money-input";
 
 export const Route = createFileRoute("/_authenticated/admin-financiamento")({
   head: () => ({
