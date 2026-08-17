@@ -36,11 +36,15 @@ const NUM_FIELDS = [
   ["area_useful", "Área útil (m²)"],
   ["area_built", "Área construída (m²)"],
   ["area_total", "Área total (m²)"],
+] as const;
+
+const MONEY_FIELDS = [
   ["price_sale", "Valor de venda (R$)"],
   ["price_rent", "Valor de locação (R$)"],
   ["condo_fee", "Condomínio (R$)"],
   ["iptu", "IPTU (R$)"],
 ] as const;
+
 
 const BOOL_FIELDS = [
   ["furnished", "Mobiliado"],
