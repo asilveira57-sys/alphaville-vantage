@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parsePropertyText, computeReviewStatus } from "./property-parser";
 import { auditProperty, type SeoSource } from "./property-seo";
+import { fetchAllRows } from "./fetch-all";
 
 type RawPayload = { html_excerpt?: string; body_excerpt?: string };
 
@@ -187,6 +188,34 @@ export const getScrapAudit = createServerFn({ method: "GET" })
     return { total, active, complete, incomplete, needsReview, auditOk, auditReview, auditError, qualityPct, lastRun };
   });
 
+export type AuditRow = {
+  id: string;
+  slug: string | null;
+  internal_code: string | null;
+  title: string | null;
+  city: string | null;
+  condominium_name: string | null;
+  property_type: string | null;
+  bedrooms: number | null;
+  suites: number | null;
+  bathrooms: number | null;
+  lavabos: number | null;
+  parking: number | null;
+  parking_covered: number | null;
+  parking_uncovered: number | null;
+  area_useful: number | null;
+  area_built: number | null;
+  area_total: number | null;
+  price_rent: number | null;
+  price_sale: number | null;
+  descricao_original: string | null;
+  descricao_seo: string | null;
+  audit_status: string | null;
+  audit_issues: unknown;
+  audit_exempt: boolean | null;
+  audit_exempt_reason: string | null;
+};
+
 /**
  * Lista imóveis para auditoria com filtros. SEM limite de registros — pagina
  * automaticamente até trazer todos os resultados.
@@ -230,13 +259,11 @@ export const listAuditProperties = createServerFn({ method: "POST" })
       return q;
     };
 
-    type Row = Awaited<ReturnType<typeof build>>["data"] extends (infer R)[] | null ? R : never;
-    let result = await fetchAllRows<Row>((from, to) => build(from, to) as never);
+    let result = await fetchAllRows<AuditRow>((from: number, to: number) => build(from, to) as never);
 
     if (data.filter === "ratio_off") {
-      result = result.filter((r) => {
-        const row = r as { price_rent?: number | null; price_sale?: number | null };
-        const ratio = (row.price_rent ?? 0) / (row.price_sale ?? 1);
+      result = result.filter((r: AuditRow) => {
+        const ratio = (r.price_rent ?? 0) / (r.price_sale ?? 1);
         return ratio < 0.0015 || ratio > 0.02;
       });
     }
