@@ -188,14 +188,14 @@ export const getScrapAudit = createServerFn({ method: "GET" })
   });
 
 /**
- * Lista imóveis para auditoria com filtros.
+ * Lista imóveis para auditoria com filtros. SEM limite de registros — pagina
+ * automaticamente até trazer todos os resultados.
  */
 export const listAuditProperties = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: {
-    status?: "ok" | "review" | "error" | "all";
+    status?: "ok" | "review" | "error" | "all" | "exempt";
     filter?: "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off" | null;
-    limit?: number;
   }) => d)
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
@@ -203,31 +203,89 @@ export const listAuditProperties = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let q = supabaseAdmin
-      .from("properties")
-      SELECT_COLS_PLACEHOLDER
-    if (data.status && data.status !== "all") q = q.eq("audit_status", data.status);
-    if (data.filter === "missing_condo") q = q.is("condominium_name", null);
-    if (data.filter === "missing_city") q = q.is("city", null);
-    if (data.filter === "missing_area") q = q.is("area_useful", null).is("area_built", null).is("area_total", null);
-    if (data.filter === "missing_bedrooms") q = q.is("bedrooms", null);
-    if (data.filter === "missing_price") q = q.is("price_rent", null).is("price_sale", null);
-    if (data.filter === "rent_suspect") q = q.not("price_rent", "is", null).lt("price_rent", 100);
-    if (data.filter === "ratio_off") {
-      // filtragem fina por razão é feita client-side; aqui só restringe a quem tem ambos
-      q = q.not("price_rent", "is", null).not("price_sale", "is", null);
-    }
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    let result = rows ?? [];
+    const COLS =
+      "id,slug,internal_code,title,city,condominium_name,property_type,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_rent,price_sale,descricao_original,descricao_seo,audit_status,audit_issues,audit_exempt,audit_exempt_reason";
+
+    const build = (from: number, to: number) => {
+      let q = supabaseAdmin
+        .from("properties")
+        .select(COLS)
+        .order("audit_status", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to);
+      if (data.status === "exempt") q = q.eq("audit_exempt", true);
+      else {
+        q = q.eq("audit_exempt", false);
+        if (data.status && data.status !== "all") q = q.eq("audit_status", data.status);
+      }
+      if (data.filter === "missing_condo") q = q.is("condominium_name", null);
+      if (data.filter === "missing_city") q = q.is("city", null);
+      if (data.filter === "missing_area") q = q.is("area_useful", null).is("area_built", null).is("area_total", null);
+      if (data.filter === "missing_bedrooms") q = q.is("bedrooms", null);
+      if (data.filter === "missing_price") q = q.is("price_rent", null).is("price_sale", null);
+      if (data.filter === "rent_suspect") q = q.not("price_rent", "is", null).lt("price_rent", 100);
+      if (data.filter === "ratio_off") {
+        q = q.not("price_rent", "is", null).not("price_sale", "is", null);
+      }
+      return q;
+    };
+
+    type Row = Awaited<ReturnType<typeof build>>["data"] extends (infer R)[] | null ? R : never;
+    let result = await fetchAllRows<Row>((from, to) => build(from, to) as never);
+
     if (data.filter === "ratio_off") {
       result = result.filter((r) => {
-        const ratio = (r.price_rent ?? 0) / (r.price_sale ?? 1);
+        const row = r as { price_rent?: number | null; price_sale?: number | null };
+        const ratio = (row.price_rent ?? 0) / (row.price_sale ?? 1);
         return ratio < 0.0015 || ratio > 0.02;
       });
     }
     return result;
   });
+
+/**
+ * Marca (ou desmarca) um imóvel como "Não se aplica" na auditoria.
+ * Usado para terrenos, lojas, galpões etc., que não exigem dormitórios,
+ * suítes, banheiros ou vagas. Ao marcar, o imóvel sai da lista de revisão.
+ */
+export const setAuditExempt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { ids: string[]; exempt: boolean; reason?: string | null }) => d)
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+    if (!data.ids.length) return { ok: true, updated: 0 };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    if (data.exempt) {
+      const { error } = await supabaseAdmin
+        .from("properties")
+        .update({
+          audit_exempt: true,
+          audit_exempt_reason: data.reason ?? null,
+          audit_exempt_at: new Date().toISOString(),
+          audit_status: "ok",
+          audit_issues: [],
+        } as never)
+        .in("id", data.ids);
+      if (error) throw new Error(error.message);
+      return { ok: true, updated: data.ids.length };
+    }
+
+    const { error } = await supabaseAdmin
+      .from("properties")
+      .update({
+        audit_exempt: false,
+        audit_exempt_reason: null,
+        audit_exempt_at: null,
+      } as never)
+      .in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { ok: true, updated: data.ids.length };
+  });
+
 
 /**
  * Carrega um imóvel com TODOS os campos necessários para a tela de revisão.
