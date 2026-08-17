@@ -28,7 +28,7 @@ export const reprocessProperties = createServerFn({ method: "POST" })
     for (let from = 0; ; from += PAGE) {
       let q = supabaseAdmin
         .from("properties")
-        .select("id,title,description,source_url,raw,manual_overrides,descricao_seo,purpose")
+        .select("id,title,description,source_url,raw,manual_overrides,descricao_seo,purpose,audit_exempt")
         .order("id", { ascending: true })
         .range(from, from + PAGE - 1);
       if (data.id) q = q.eq("id", data.id);
@@ -97,8 +97,8 @@ export const reprocessProperties = createServerFn({ method: "POST" })
           .update({
             ...structured,
             review_status,
-            audit_status: audit.status,
-            audit_issues: audit.issues,
+            audit_status: (row as { audit_exempt?: boolean }).audit_exempt ? "ok" : audit.status,
+            audit_issues: (row as { audit_exempt?: boolean }).audit_exempt ? [] : audit.issues,
             extracted_at: new Date().toISOString(),
           } as never)
           .eq("id", row.id);
@@ -205,9 +205,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin
       .from("properties")
-      .select("id,slug,internal_code,title,city,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_rent,price_sale,descricao_original,descricao_seo,audit_status,audit_issues")
-      .order("audit_status", { ascending: true })
-      .limit(data.limit ?? 100);
+      SELECT_COLS_PLACEHOLDER
     if (data.status && data.status !== "all") q = q.eq("audit_status", data.status);
     if (data.filter === "missing_condo") q = q.is("condominium_name", null);
     if (data.filter === "missing_city") q = q.is("city", null);
