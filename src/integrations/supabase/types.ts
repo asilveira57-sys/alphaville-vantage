@@ -925,6 +925,9 @@ export type Database = {
           area_built: number | null
           area_total: number | null
           area_useful: number | null
+          audit_exempt: boolean
+          audit_exempt_at: string | null
+          audit_exempt_reason: string | null
           audit_issues: Json | null
           audit_status: string | null
           bathrooms: number | null
@@ -982,6 +985,9 @@ export type Database = {
           area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
+          audit_exempt?: boolean
+          audit_exempt_at?: string | null
+          audit_exempt_reason?: string | null
           audit_issues?: Json | null
           audit_status?: string | null
           bathrooms?: number | null
@@ -1039,6 +1045,9 @@ export type Database = {
           area_built?: number | null
           area_total?: number | null
           area_useful?: number | null
+          audit_exempt?: boolean
+          audit_exempt_at?: string | null
+          audit_exempt_reason?: string | null
           audit_issues?: Json | null
           audit_status?: string | null
           bathrooms?: number | null
