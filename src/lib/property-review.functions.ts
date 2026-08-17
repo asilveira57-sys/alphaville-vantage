@@ -211,7 +211,7 @@ export type AuditRow = {
   descricao_original: string | null;
   descricao_seo: string | null;
   audit_status: string | null;
-  audit_issues: unknown;
+  audit_issues: string[] | null;
   audit_exempt: boolean | null;
   audit_exempt_reason: string | null;
 };
