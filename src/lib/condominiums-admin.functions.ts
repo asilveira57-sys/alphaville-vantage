@@ -348,13 +348,20 @@ async function linkAlias(sb: SB, alias: string, condominiumId: string | null, is
   if (error) throw new Error(error.message);
 }
 
-async function updateProperties(sb: SB, ids: string[], patch: Record<string, unknown>) {
+async function updateProperties(sb: SB, ids: string[], patch: Record<string, unknown>): Promise<number> {
+  let affected = 0;
   for (let i = 0; i < ids.length; i += 200) {
     const chunk = ids.slice(i, i + 200);
-    const { error } = await sb.from("properties").update(patch).in("id", chunk);
+    const { data, error } = await sb.from("properties").update(patch).in("id", chunk).select("id");
     if (error) throw new Error(error.message);
+    affected += (data ?? []).length;
   }
+  if (ids.length && affected === 0) {
+    throw new Error("Nenhum imóvel foi atualizado — verifique se sua conta tem permissão de administrador.");
+  }
+  return affected;
 }
+
 
 /** Vincula todos os imóveis de um nome solto a um condomínio oficial. */
 export const assignAliasToCondominium = createServerFn({ method: "POST" })
