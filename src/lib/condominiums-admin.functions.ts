@@ -505,6 +505,47 @@ export const mergeCondominiums = createServerFn({ method: "POST" })
     return { moved: ids.length, redirects };
   });
 
+type CondoRecord = { id: string; name: string; slug: string; region: string | null };
+
+/** Cria (ou reaproveita) a página básica do condomínio. Nasce como rascunho. */
+async function ensureCondoPage(sb: SB, c: CondoRecord): Promise<{ pageId: string; created: boolean }> {
+  const { data: existing } = await sb
+    .from("editorial_pages")
+    .select("id")
+    .eq("content_type", "condominio")
+    .eq("related_condominium", c.id)
+    .maybeSingle();
+  if (existing) return { pageId: String((existing as { id: string }).id), created: false };
+
+  let slug = c.slug || slugify(c.name);
+  const { data: slugTaken } = await sb.from("editorial_pages").select("id").eq("slug", slug).maybeSingle();
+  if (slugTaken) slug = `${slug}-condominio`;
+
+  const region = c.region?.trim() || null;
+  const excerpt = `Perfil do ${c.name}${region ? ` — ${region}` : ""}: infraestrutura, estilo de vida e imóveis disponíveis.`;
+
+  const { data: created, error: insErr } = await sb
+    .from("editorial_pages")
+    .insert({
+      title: c.name,
+      slug,
+      content_type: "condominio",
+      status: "draft",
+      html_content: "",
+      excerpt,
+      meta_title: `${c.name} — Condomínio${region ? ` em ${region}` : ""} | S.A Imóveis Alphaville`,
+      meta_description: excerpt,
+      related_condominium: c.id,
+      related_neighborhood: region,
+      properties_block_enabled: true,
+      properties_block_title: `Imóveis no ${c.name}`,
+    })
+    .select("id")
+    .single();
+  if (insErr) throw new Error(insErr.message);
+  return { pageId: String((created as { id: string }).id), created: true };
+}
+
 /** Cria (ou reaproveita) a página de guia do condomínio no CMS. */
 export const createCondominiumGuide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -513,36 +554,37 @@ export const createCondominiumGuide = createServerFn({ method: "POST" })
     const sb = context.supabase as unknown as SB;
     const { data: condo, error } = await sb.from("condominiums").select("id,name,slug,region").eq("id", data.condominiumId).single();
     if (error) throw new Error(error.message);
-    const c = condo as { id: string; name: string; slug: string; region: string | null };
-
-    const { data: existing } = await sb
-      .from("editorial_pages")
-      .select("id")
-      .eq("content_type", "condominio")
-      .eq("related_condominium", c.id)
-      .maybeSingle();
-    if (existing) return { pageId: String((existing as { id: string }).id), created: false };
-
-    let slug = c.slug;
-    const { data: slugTaken } = await sb.from("editorial_pages").select("id").eq("slug", slug).maybeSingle();
-    if (slugTaken) slug = `${slug}-condominio`;
-
-    const { data: created, error: insErr } = await sb
-      .from("editorial_pages")
-      .insert({
-        title: c.name,
-        slug,
-        content_type: "condominio",
-        status: "draft",
-        html_content: "",
-        related_condominium: c.id,
-        related_neighborhood: c.region,
-        properties_block_enabled: true,
-      })
-      .select("id")
-      .single();
-    if (insErr) throw new Error(insErr.message);
-    const pageId = String((created as { id: string }).id);
-    await logCmsAction(context as never, { action: "create_guide", entity_type: "condominium", entity_id: c.id, details: { pageId, slug } });
-    return { pageId, created: true };
+    const res = await ensureCondoPage(sb, condo as CondoRecord);
+    if (res.created) {
+      await logCmsAction(context as never, {
+        action: "create_guide",
+        entity_type: "condominium",
+        entity_id: data.condominiumId,
+        details: { pageId: res.pageId },
+      });
+    }
+    return res;
   });
+
+/** Garante uma página (rascunho) para todos os condomínios cadastrados. */
+export const syncCondominiumGuides = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ created: number; total: number }> => {
+    const sb = context.supabase as unknown as SB;
+    const condos = await fetchAllRows<CondoRecord>(sb, "condominiums", "id,name,slug,region");
+    let created = 0;
+    for (const c of condos) {
+      const res = await ensureCondoPage(sb, c);
+      if (res.created) created++;
+    }
+    if (created) {
+      await logCmsAction(context as never, {
+        action: "sync_guides",
+        entity_type: "condominium",
+        entity_id: null,
+        details: { created, total: condos.length },
+      });
+    }
+    return { created, total: condos.length };
+  });
+
