@@ -14,8 +14,10 @@ import {
   markAliasNotCondominium,
   mergeCondominiums,
   createCondominiumGuide,
+  syncCondominiumGuides,
   type CondoGroup,
 } from "@/lib/condominiums-admin.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin-condominios")({
