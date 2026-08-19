@@ -332,9 +332,12 @@ export const createCondominium = createServerFn({ method: "POST" })
     const id = String((created as { id: string }).id);
 
     if (data.alias) await linkAlias(sb, data.alias, id);
+    // Toda ficha de condomínio nasce com uma página básica (rascunho) para edição.
+    await ensureCondoPage(sb, { id, name, slug, region: data.region });
     await logCmsAction(context as never, { action: "create", entity_type: "condominium", entity_id: id, details: { name } });
     return { id };
   });
+
 
 async function linkAlias(sb: SB, alias: string, condominiumId: string | null, isNot = false) {
   const norm = normalizeName(alias);
