@@ -151,6 +151,20 @@ function CondoPage() {
         />
       )}
 
+      <ResolvedCta
+        contentType="condominio"
+        ctaId={(page as { cta_id?: string | null }).cta_id ?? null}
+        hidden={(page as { cta_hidden?: boolean | null }).cta_hidden ?? false}
+        legacy={{
+          title: (page as { cta_title?: string | null }).cta_title,
+          text: (page as { cta_text?: string | null }).cta_text,
+          buttonLabel: (page as { cta_button_label?: string | null }).cta_button_label,
+          buttonUrl: (page as { cta_button_url?: string | null }).cta_button_url,
+        }}
+      />
+
+
+
 
 
 
