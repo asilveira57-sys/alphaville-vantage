@@ -190,6 +190,9 @@ function CondosTab({ condos, allCondos, onDone }: { condos: CondoGroup[]; allCon
   return (
     <div className="space-y-5">
       <NewCondoForm onDone={onDone} />
+      <SyncGuidesBar onDone={onDone} />
+
+
 
       {selected.length > 1 && (
         <div className="flex flex-wrap items-end gap-3 border border-ink/20 bg-ink/[0.03] p-4">
