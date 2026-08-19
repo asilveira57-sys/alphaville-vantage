@@ -5,6 +5,8 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
 import { PremiumCondoCard } from "@/components/premium-cards/condo-card";
 import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
+import { ResolvedCta } from "@/components/resolved-cta";
+
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 import { listCondoProperties } from "@/lib/condo-properties.functions";
 
