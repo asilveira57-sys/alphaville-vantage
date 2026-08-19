@@ -14,8 +14,10 @@ import {
   markAliasNotCondominium,
   mergeCondominiums,
   createCondominiumGuide,
+  syncCondominiumGuides,
   type CondoGroup,
 } from "@/lib/condominiums-admin.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin-condominios")({
@@ -146,7 +148,33 @@ function NewCondoForm({ onDone, defaultName = "" }: { onDone: () => void; defaul
   );
 }
 
+function SyncGuidesBar({ onDone }: { onDone: () => void }) {
+  const syncFn = useServerFn(syncCondominiumGuides);
+  const m = useMutation({
+    mutationFn: () => syncFn({}),
+    onSuccess: (r) => {
+      toast.success(
+        r.created ? `${r.created} página(s) criada(s) como rascunho` : "Todos os condomínios já têm página",
+      );
+      onDone();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <div className="flex flex-wrap items-center gap-3 border border-ink/10 bg-ink/[0.02] p-4">
+      <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+        Cada condomínio tem uma página própria em <span className="text-ink">/condominios</span>, com imóveis
+        relacionados e CTA no final. Ela nasce como rascunho e só aparece no site depois de publicada no CMS.
+      </p>
+      <button type="button" className={btn} disabled={m.isPending} onClick={() => m.mutate()}>
+        {m.isPending ? "Gerando…" : "Gerar páginas faltantes"}
+      </button>
+    </div>
+  );
+}
+
 function CondosTab({ condos, allCondos, onDone }: { condos: CondoGroup[]; allCondos: CondoGroup[]; onDone: () => void }) {
+
   const guideFn = useServerFn(createCondominiumGuide);
   const mergeFn = useServerFn(mergeCondominiums);
   const updateFn = useServerFn(updateCondominium);
@@ -188,6 +216,9 @@ function CondosTab({ condos, allCondos, onDone }: { condos: CondoGroup[]; allCon
   return (
     <div className="space-y-5">
       <NewCondoForm onDone={onDone} />
+      <SyncGuidesBar onDone={onDone} />
+
+
 
       {selected.length > 1 && (
         <div className="flex flex-wrap items-end gap-3 border border-ink/20 bg-ink/[0.03] p-4">
