@@ -203,10 +203,6 @@ function PropertyDetail() {
               <Row label="Venda" value={sale} />
               <Row label="Locação" value={rent ? `${rent}/mês` : null} />
               <Row label="Status" value={fmtStatus(p.status)} />
-              <Row label="Última coleta" value={p.last_seen_at ? new Date(p.last_seen_at).toISOString().replace("T", " ").slice(0, 16) + " UTC" : null} />
-              <Row label="Imagens" value={`${p.images.length}`} />
-              <Row label="Slug" value={<code className="text-xs">{p.slug}</code>} />
-              <Row label="Ref externa" value={<code className="text-xs">{p.external_ref}</code>} />
             </dl>
           </aside>
         </div>
@@ -220,18 +216,6 @@ function PropertyDetail() {
         </section>
       )}
 
-      <section className="px-6 py-12 border-t border-ink/8">
-        <div className="max-w-6xl mx-auto">
-          <details className="text-sm">
-            <summary className="cursor-pointer text-muted-foreground uppercase tracking-[0.2em] text-[10px]">
-              Debug — payload bruto do scraper
-            </summary>
-            <pre className="mt-6 p-4 bg-ink/5 overflow-auto text-[11px] leading-relaxed max-h-[500px]">
-{JSON.stringify({ ...p, raw: p.raw ? { ...(p.raw as object), html_excerpt: "[omitido — ver source_url]" } : null }, null, 2)}
-            </pre>
-          </details>
-        </div>
-      </section>
 
       {p.related && p.related.length > 0 && (
         <section className="px-6 py-20 border-t border-ink/8">
