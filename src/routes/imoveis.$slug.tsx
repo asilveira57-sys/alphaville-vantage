@@ -203,10 +203,6 @@ function PropertyDetail() {
               <Row label="Venda" value={sale} />
               <Row label="Locação" value={rent ? `${rent}/mês` : null} />
               <Row label="Status" value={fmtStatus(p.status)} />
-              <Row label="Última coleta" value={p.last_seen_at ? new Date(p.last_seen_at).toISOString().replace("T", " ").slice(0, 16) + " UTC" : null} />
-              <Row label="Imagens" value={`${p.images.length}`} />
-              <Row label="Slug" value={<code className="text-xs">{p.slug}</code>} />
-              <Row label="Ref externa" value={<code className="text-xs">{p.external_ref}</code>} />
             </dl>
           </aside>
         </div>
