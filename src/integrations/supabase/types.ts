@@ -610,6 +610,69 @@ export type Database = {
         }
         Relationships: []
       }
+      financing_banks: {
+        Row: {
+          accepts_fgts: boolean
+          active: boolean
+          allows_price: boolean
+          allows_sac: boolean
+          annual_rate: number
+          created_at: string
+          display_order: number
+          id: string
+          logo_url: string | null
+          max_financing_pct: number
+          max_term_months: number
+          min_down_payment_pct: number
+          min_term_months: number
+          name: string
+          notes: string | null
+          site_url: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          accepts_fgts?: boolean
+          active?: boolean
+          allows_price?: boolean
+          allows_sac?: boolean
+          annual_rate?: number
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          max_financing_pct?: number
+          max_term_months?: number
+          min_down_payment_pct?: number
+          min_term_months?: number
+          name: string
+          notes?: string | null
+          site_url?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          accepts_fgts?: boolean
+          active?: boolean
+          allows_price?: boolean
+          allows_sac?: boolean
+          annual_rate?: number
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          max_financing_pct?: number
+          max_term_months?: number
+          min_down_payment_pct?: number
+          min_term_months?: number
+          name?: string
+          notes?: string | null
+          site_url?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       financing_settings: {
         Row: {
           default_annual_rate: number
@@ -641,6 +704,8 @@ export type Database = {
         Row: {
           amortization_system: string
           annual_rate: number
+          bank_id: string | null
+          bank_name: string | null
           campaign: string | null
           converted_to_lead: boolean
           created_at: string
@@ -672,6 +737,8 @@ export type Database = {
         Insert: {
           amortization_system: string
           annual_rate: number
+          bank_id?: string | null
+          bank_name?: string | null
           campaign?: string | null
           converted_to_lead?: boolean
           created_at?: string
@@ -703,6 +770,8 @@ export type Database = {
         Update: {
           amortization_system?: string
           annual_rate?: number
+          bank_id?: string | null
+          bank_name?: string | null
           campaign?: string | null
           converted_to_lead?: boolean
           created_at?: string
@@ -732,6 +801,13 @@ export type Database = {
           used_fgts?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "financing_simulations_bank_id_fkey"
+            columns: ["bank_id"]
+            isOneToOne: false
+            referencedRelation: "financing_banks"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "financing_simulations_property_id_fkey"
             columns: ["property_id"]
