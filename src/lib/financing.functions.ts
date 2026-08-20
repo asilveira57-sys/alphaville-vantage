@@ -52,6 +52,97 @@ export const updateFinancingSettings = createServerFn({ method: "POST" })
   });
 
 // ---------------------------------------------------------------------------
+// Bancos parceiros — taxas médias por instituição, editáveis no admin.
+// ---------------------------------------------------------------------------
+
+export const listFinancingBanks = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("financing_banks")
+    .select("*")
+    .eq("active", true)
+    .order("display_order", { ascending: true })
+    .order("name", { ascending: true });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+});
+
+export const listAllFinancingBanks = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("financing_banks")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("name", { ascending: true });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const bankSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().trim().min(2).max(120),
+  slug: z.string().trim().min(2).max(120),
+  logo_url: z.string().trim().max(1000).optional().or(z.literal("")),
+  site_url: z.string().trim().max(1000).optional().or(z.literal("")),
+  annual_rate: z.number().min(0).max(40),
+  min_down_payment_pct: z.number().min(0).max(90),
+  max_financing_pct: z.number().min(10).max(100),
+  min_term_months: z.number().int().min(12).max(480),
+  max_term_months: z.number().int().min(12).max(480),
+  allows_price: z.boolean(),
+  allows_sac: z.boolean(),
+  accepts_fgts: z.boolean(),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
+  display_order: z.number().int().min(0).max(999),
+  active: z.boolean(),
+});
+
+export const upsertFinancingBank = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => bankSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const payload = {
+      name: data.name,
+      slug: data.slug
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, ""),
+      logo_url: clean(data.logo_url),
+      site_url: clean(data.site_url),
+      annual_rate: data.annual_rate,
+      min_down_payment_pct: data.min_down_payment_pct,
+      max_financing_pct: data.max_financing_pct,
+      min_term_months: data.min_term_months,
+      max_term_months: data.max_term_months,
+      allows_price: data.allows_price,
+      allows_sac: data.allows_sac,
+      accepts_fgts: data.accepts_fgts,
+      notes: clean(data.notes),
+      display_order: data.display_order,
+      active: data.active,
+    };
+
+    const q = data.id
+      ? context.supabase.from("financing_banks").update(payload).eq("id", data.id)
+      : context.supabase.from("financing_banks").insert(payload);
+    const { error } = await q;
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const deleteFinancingBank = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("financing_banks").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+// ---------------------------------------------------------------------------
 // Registro de simulação. Chamado sem contato (passo 1, silencioso, para
 // analytics de qual imóvel gera mais simulações) e depois atualizado com
 // os dados de contato quando a pessoa pede para falar com um corretor.
@@ -67,12 +158,15 @@ const simulateSchema = z.object({
   term_months: z.number().int().min(12).max(480),
   annual_rate: z.number().min(0).max(40),
   amortization_system: z.enum(["price", "sac"]),
+  bank_id: z.string().uuid().optional(),
+  bank_name: z.string().max(120).optional(),
   source: z.string().max(80).optional(),
   campaign: z.string().max(160).optional(),
   medium: z.string().max(160).optional(),
   referrer: z.string().max(500).optional(),
   landing_page: z.string().max(500).optional(),
 });
+
 
 export const registerFinancingSimulation = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => simulateSchema.parse(data))
