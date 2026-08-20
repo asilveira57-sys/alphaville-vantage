@@ -341,12 +341,13 @@ export const rematchAllProperties = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const rows = await fetchAllRows<{ id: string }>((f, t) =>
       context.supabase.from("properties").select("id").eq("status", "active").order("id").range(f, t),
     );
     let ok = 0, fail = 0;
     for (const r of rows) {
-      const { error: e } = await context.supabase.rpc("match_property_streets", { p_property_id: r.id });
+      const { error: e } = await supabaseAdmin.rpc("match_property_streets", { p_property_id: r.id });
       if (e) fail++; else ok++;
     }
     return { processed: ok, failed: fail, total: rows.length };
