@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { calculateFinancing, type AmortizationSystem } from "@/lib/financing-calc";
-import { getFinancingSettings, registerFinancingSimulation, convertSimulationToLead } from "@/lib/financing.functions";
+import {
+  getFinancingSettings,
+  listFinancingBanks,
+  registerFinancingSimulation,
+  convertSimulationToLead,
+} from "@/lib/financing.functions";
 
 type Props = {
   propertyId?: string;
@@ -22,7 +27,14 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
     queryFn: () => getFinancingSettings(),
     staleTime: 5 * 60_000,
   });
+  const { data: banks } = useQuery({
+    queryKey: ["financing-banks"],
+    queryFn: () => listFinancingBanks(),
+    staleTime: 5 * 60_000,
+  });
 
+  const [bankId, setBankId] = useState<string>("");
+  const [rateInput, setRateInput] = useState<string>("");
   const [downPaymentPct, setDownPaymentPct] = useState(20);
   const [termMonths, setTermMonths] = useState(360);
   const [usedFgts, setUsedFgts] = useState(false);
@@ -36,8 +48,31 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
   const [leadSent, setLeadSent] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
 
-  const annualRate = settings?.default_annual_rate ?? 11.2;
+  const bank = useMemo(() => (banks ?? []).find((b) => b.id === bankId) ?? null, [banks, bankId]);
+
+  // Ao escolher um banco, os parâmetros passam a respeitar as condições dele.
+  useEffect(() => {
+    if (!bank) return;
+    setRateInput(String(Number(bank.annual_rate)));
+    setDownPaymentPct((p) => Math.max(p, Number(bank.min_down_payment_pct)));
+    setTermMonths((t) => Math.min(Math.max(t, bank.min_term_months), bank.max_term_months));
+    setSystem((s) =>
+      s === "price" && !bank.allows_price ? "sac" : s === "sac" && !bank.allows_sac ? "price" : s,
+    );
+    if (!bank.accepts_fgts) setUsedFgts(false);
+  }, [bank]);
+
+  const defaultRate = settings?.default_annual_rate ?? 11.2;
+  const parsedRate = Number(String(rateInput).replace(",", "."));
+  const annualRate = Number.isFinite(parsedRate) && parsedRate > 0 ? parsedRate : Number(defaultRate);
   const fgtsAmount = settings?.fgts_example_amount ?? 40000;
+
+  const minDown = bank ? Number(bank.min_down_payment_pct) : Number(settings?.min_down_payment_pct ?? 10);
+  const minTerm = bank ? bank.min_term_months : 60;
+  const maxTerm = bank ? bank.max_term_months : Number(settings?.max_term_months ?? 420);
+  const allowPrice = bank ? bank.allows_price : true;
+  const allowSac = bank ? bank.allows_sac : true;
+  const allowFgts = bank ? bank.accepts_fgts : true;
 
   const result = useMemo(
     () =>
@@ -69,6 +104,8 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
           term_months: termMonths,
           annual_rate: annualRate,
           amortization_system: system,
+          bank_id: bank?.id,
+          bank_name: bank?.name,
           source: "property_page_simulator",
           landing_page: typeof window !== "undefined" ? window.location.pathname : undefined,
           referrer: typeof document !== "undefined" ? document.referrer || undefined : undefined,
@@ -81,7 +118,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
     }, 1200);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [downPaymentPct, usedFgts, termMonths, system, annualRate]);
+  }, [downPaymentPct, usedFgts, termMonths, system, annualRate, bankId]);
 
   async function handleLeadSubmit() {
     setLeadError(null);
@@ -89,8 +126,8 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
       setLeadError("Informe seu nome.");
       return;
     }
-    if (!leadPhone.trim() && !leadEmail.trim()) {
-      setLeadError("Informe WhatsApp ou e-mail.");
+    if (!leadEmail.trim()) {
+      setLeadError("Informe o e-mail para receber a simulação completa.");
       return;
     }
     if (!simulationId) {
@@ -106,6 +143,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
       setLeadError(e instanceof Error ? e.message : "Não foi possível enviar agora.");
     }
   }
+
 
   return (
     <div className="border border-black/10 bg-white">
