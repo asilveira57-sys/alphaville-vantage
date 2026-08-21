@@ -300,7 +300,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
             onClick={() => setLeadOpen(true)}
             className="w-full sm:w-auto bg-[#F2DA00] text-[#0D0D0D] px-6 py-3 text-xs font-bold uppercase tracking-widest hover:brightness-95 transition"
           >
-            Receber esta simulação e falar com um corretor
+            Receber a simulação completa por e-mail
           </button>
         )}
 
