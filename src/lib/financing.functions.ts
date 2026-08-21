@@ -190,6 +190,9 @@ export const registerFinancingSimulation = createServerFn({ method: "POST" })
       .insert({
         property_id: data.property_id ?? null,
         property_slug: clean(data.property_slug),
+        bank_id: data.bank_id ?? null,
+        bank_name: clean(data.bank_name),
+
         property_value: data.property_value,
         down_payment: result.downPayment,
         down_payment_pct: data.down_payment_pct,
