@@ -321,14 +321,16 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
               />
             </label>
             <label>
-              <span className={labelClass}>E-mail</span>
+              <span className={labelClass}>E-mail (obrigatório)</span>
               <input
                 className={inputClass}
                 value={leadEmail}
                 type="email"
+                required
                 onChange={(e) => setLeadEmail(e.target.value)}
               />
             </label>
+
             <button
               type="button"
               onClick={handleLeadSubmit}
