@@ -152,15 +152,17 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
         <div className="flex border border-black/15 rounded-lg overflow-hidden text-xs font-semibold uppercase tracking-widest">
           <button
             type="button"
+            disabled={!allowPrice}
             onClick={() => setSystem("price")}
-            className={`px-4 py-2 ${system === "price" ? "bg-[#0D0D0D] text-white" : "bg-white text-[#1A1A1A]/60"}`}
+            className={`px-4 py-2 disabled:opacity-30 ${system === "price" ? "bg-[#0D0D0D] text-white" : "bg-white text-[#1A1A1A]/60"}`}
           >
             Price
           </button>
           <button
             type="button"
+            disabled={!allowSac}
             onClick={() => setSystem("sac")}
-            className={`px-4 py-2 border-l border-black/15 ${system === "sac" ? "bg-[#0D0D0D] text-white" : "bg-white text-[#1A1A1A]/60"}`}
+            className={`px-4 py-2 border-l border-black/15 disabled:opacity-30 ${system === "sac" ? "bg-[#0D0D0D] text-white" : "bg-white text-[#1A1A1A]/60"}`}
           >
             SAC
           </button>
@@ -169,6 +171,45 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
 
       <div className="grid md:grid-cols-2 gap-8 px-6 py-6">
         <div className="space-y-6">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <label>
+              <span className={labelClass}>Banco</span>
+              <select className={inputClass} value={bankId} onChange={(e) => setBankId(e.target.value)}>
+                <option value="">Taxa de referência do mercado</option>
+                {(banks ?? []).map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} · {Number(b.annual_rate).toFixed(2).replace(".", ",")}% a.a.
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className={labelClass}>Taxa anual (% a.a.)</span>
+              <input
+                className={inputClass}
+                inputMode="decimal"
+                value={rateInput === "" ? String(defaultRate) : rateInput}
+                onChange={(e) => setRateInput(e.target.value)}
+              />
+            </label>
+          </div>
+
+          {bank && (
+            <div className="flex items-start gap-3 rounded-lg border border-black/10 bg-[#EAEAE6] p-3">
+              {bank.logo_url ? (
+                <img src={bank.logo_url} alt={`Logomarca ${bank.name}`} className="h-8 w-auto object-contain" loading="lazy" />
+              ) : null}
+              <p className="text-[11px] leading-relaxed text-[#1A1A1A]/70">
+                <strong className="text-[#0D0D0D]">{bank.name}</strong> — entrada mínima{" "}
+                {Number(bank.min_down_payment_pct).toFixed(0)}%, prazo de {Math.round(bank.min_term_months / 12)} a{" "}
+                {Math.round(bank.max_term_months / 12)} anos,{" "}
+                {[bank.allows_price ? "Price" : null, bank.allows_sac ? "SAC" : null].filter(Boolean).join(" e ")}
+                {bank.accepts_fgts ? ", aceita FGTS" : ", não aceita FGTS"}.
+                {bank.notes ? ` ${bank.notes}` : ""}
+              </p>
+            </div>
+          )}
+
           <div>
             <div className="flex justify-between items-baseline">
               <span className={labelClass}>Entrada</span>
@@ -178,7 +219,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
             </div>
             <input
               type="range"
-              min={10}
+              min={minDown}
               max={90}
               value={downPaymentPct}
               onChange={(e) => setDownPaymentPct(Number(e.target.value))}
@@ -193,8 +234,8 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
             </div>
             <input
               type="range"
-              min={60}
-              max={420}
+              min={minTerm}
+              max={maxTerm}
               step={12}
               value={termMonths}
               onChange={(e) => setTermMonths(Number(e.target.value))}
@@ -202,9 +243,10 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
             />
           </div>
 
-          <label className="flex items-center gap-3 text-sm text-[#1A1A1A]/75">
+          <label className={`flex items-center gap-3 text-sm text-[#1A1A1A]/75 ${allowFgts ? "" : "opacity-40"}`}>
             <input
               type="checkbox"
+              disabled={!allowFgts}
               checked={usedFgts}
               onChange={(e) => setUsedFgts(e.target.checked)}
               className="h-4 w-4 accent-[#0D0D0D]"
@@ -213,10 +255,13 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
           </label>
 
           <p className="text-[11px] text-[#1A1A1A]/50 leading-relaxed">
-            Taxa de referência: {annualRate.toFixed(1).replace(".", ",")}% a.a. Simulação informativa, sujeita à
-            aprovação de crédito e às condições da instituição financeira.
+            Taxa considerada: {annualRate.toFixed(2).replace(".", ",")}% a.a.{" "}
+            {bank ? `Média divulgada para ${bank.name}.` : "Média de mercado."} Os valores são apenas uma estimativa
+            informativa — a taxa exata, o prazo e a aprovação dependem da análise de crédito e devem ser confirmados
+            diretamente com o banco.
           </p>
         </div>
+
 
         <div className="bg-[#0D0D0D] text-white p-6 rounded-lg">
           <span className="text-[11px] uppercase tracking-[0.18em] text-white/50">
