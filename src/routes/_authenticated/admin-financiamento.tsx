@@ -121,6 +121,10 @@ function AdminFinanciamento() {
           </div>
         </section>
 
+        <BanksSection />
+
+
+
         <section>
           <div className="flex items-baseline gap-4 mb-4">
             <h2 className="font-serif text-2xl text-ink">Simulações registradas</h2>
