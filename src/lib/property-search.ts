@@ -153,3 +153,31 @@ export function toImoveisSearchParams(
     page: 1,
   };
 }
+
+/**
+ * Remove da frase digitada tudo que já virou filtro estruturado
+ * (finalidade, tipo, quartos, vagas, preço, cidade, bairro) e devolve
+ * apenas o resíduo — normalmente o nome do condomínio/rua procurado.
+ * Ex.: "casa 4 quartos residencial 1" -> "residencial 1"
+ */
+export function residualLocationQuery(raw: string): string {
+  let t = norm(raw ?? "");
+  if (!t.trim()) return "";
+
+  // preço
+  t = t.replace(/at[eé]?\s*r?\$?\s*[\d.,]+\s*(milh[oõ]es?|milhao|mi|mil|m)?\b/g, " ");
+  // quartos / vagas / suites / banheiros
+  t = t.replace(/\d+\s*(quartos?|dormit[oó]rios?|dorm\.?|su[ií]tes?|vagas?|banheiros?)/g, " ");
+  t = t.replace(/\b(quartos?|dormit[oó]rios?|su[ií]tes?|vagas?|banheiros?)\b/g, " ");
+  // finalidade
+  t = t.replace(/\b(alug(uel|ar|a)|loca[cç][aã]o|venda|vender|comprar)\b/g, " ");
+  // tipo de imóvel
+  for (const k of Object.keys(TYPE_MAP)) t = t.replace(new RegExp(`\\b${norm(k)}s?\\b`, "g"), " ");
+  // cidade / bairro já interpretados
+  for (const c of CITIES) for (const k of c.keys) t = t.replace(new RegExp(`\\b${k}\\b`, "g"), " ");
+  for (const b of NEIGHBORHOODS) for (const k of b.keys) t = t.replace(new RegExp(`\\b${k}\\b`, "g"), " ");
+  // conectivos
+  t = t.replace(/\b(em|no|na|nos|nas|com|de|da|do|das|dos|para|pra|e|o|a|os|as|um|uma)\b/g, " ");
+
+  return t.replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
