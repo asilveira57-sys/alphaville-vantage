@@ -80,9 +80,10 @@ export function PremiumCard(props: PremiumCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-6">
-        <h3 className="font-display line-clamp-3 text-[19px] leading-[1.25] text-[#171717] text-balance">
+        <h3 className="font-display line-clamp-2 min-h-[2.5em] text-[19px] leading-[1.25] text-[#171717] text-balance">
           {title}
         </h3>
+
         {description ? (
           <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/60">{description}</p>
         ) : null}
