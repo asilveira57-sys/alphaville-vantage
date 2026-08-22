@@ -113,7 +113,7 @@ function UnitCard({ u }: { u: EmpreendimentoUnit }) {
           alt={u.title}
           loading="lazy"
           decoding="async"
-          className="aspect-[4/3] w-full object-cover"
+          className="aspect-[16/9] w-full object-cover"
         />
       ) : null}
       <div className="flex flex-1 flex-col gap-3 p-5">

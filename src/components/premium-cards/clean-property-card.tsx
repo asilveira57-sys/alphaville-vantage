@@ -71,7 +71,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
       params={{ slug: p.slug } as never}
       className="group flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)] outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-28px_rgba(13,13,13,0.55)] focus-visible:ring-2 focus-visible:ring-[#F2DA00]"
     >
-      <div className="relative aspect-[4/3] shrink-0 overflow-hidden">
+      <div className="relative aspect-[16/9] shrink-0 overflow-hidden">
         <img
           src={src}
           alt={p.title}
@@ -89,7 +89,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
         <p className="line-clamp-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1A1A1A]/50">
           {[p.propertyType, p.neighborhood ?? p.city].filter(Boolean).join(" · ") || "Imóvel"}
         </p>
-        <h3 className="font-display line-clamp-2 text-[19px] leading-[1.25] text-[#171717]">
+        <h3 className="font-display line-clamp-2 min-h-[2.5em] text-[19px] leading-[1.25] text-[#171717]">
           {shortName(p.title)}
         </h3>
         {place ? <p className="line-clamp-1 text-sm text-[#1A1A1A]/55">{place}</p> : null}
