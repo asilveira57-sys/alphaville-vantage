@@ -41,9 +41,10 @@ export function CleanPostCard(props: CleanPostCardProps) {
             {props.eyebrow}
           </span>
         ) : null}
-        <h3 className="font-display line-clamp-3 text-[22px] leading-[1.2] text-[#F5F2EA] text-balance">
+        <h3 className="font-display line-clamp-2 min-h-[2.4em] text-[22px] leading-[1.2] text-[#F5F2EA] text-balance">
           {props.title}
         </h3>
+
         {props.excerpt ? (
           <p className="line-clamp-2 text-sm leading-relaxed text-[#F5F2EA]/60">{props.excerpt}</p>
         ) : null}
