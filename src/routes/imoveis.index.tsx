@@ -237,22 +237,42 @@ function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
         .map((t) => STREET_SYNONYMS[t] ?? t)
         .filter((t) => t && !STOP.has(t) && t !== "__log__");
 
-    const queryTokens = tokenize(s.q);
+    // Só sobra o que ainda não virou filtro (normalmente o condomínio/rua).
+    const residual = residualLocationQuery(s.q);
+    const queryTokens = tokenize(residual || s.q);
 
     if (queryTokens.length > 0) {
-      out = out.filter((p) => {
-        const haystack = tokenize(
-          [p.title, p.condominium_name, p.neighborhood, p.seo_title, p.city, p.region]
-            .filter(Boolean)
-            .join(" "),
-        );
-        // Cada token da query precisa casar (substring bidirecional) com algum token do haystack
-        return queryTokens.every((qt) =>
-          haystack.some((ht) => ht.includes(qt) || qt.includes(ht)),
-        );
-      });
+      // Frase completa, tolerante a conectivos: "residencial 1" casa com
+      // "Residencial 1" mas nunca com "Residencial 11".
+      const phrase = new RegExp(
+        "(^|[^a-z0-9])" +
+          queryTokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[^a-z0-9]{0,3}") +
+          "([^a-z0-9]|$)",
+      );
+      const condoText = (p: PropertyRow) => normalize([p.condo_official, p.condominium_name].filter(Boolean).join(" "));
+      const fullText = (p: PropertyRow) =>
+        normalize([p.title, p.condominium_name, p.condo_official, p.neighborhood, p.seo_title, p.city, p.region].filter(Boolean).join(" "));
+
+      const byCondo = out.filter((p) => phrase.test(condoText(p)));
+      if (byCondo.length) {
+        out = byCondo;
+      } else {
+        const byPhrase = out.filter((p) => phrase.test(fullText(p)));
+        out = byPhrase.length
+          ? byPhrase
+          : out.filter((p) => {
+              const haystack = tokenize(fullText(p));
+              // Números precisam bater exatamente; texto aceita prefixo.
+              return queryTokens.every((qt) =>
+                haystack.some((ht) =>
+                  /^\d+$/.test(qt) ? ht === qt : ht === qt || (qt.length >= 3 && ht.startsWith(qt)),
+                ),
+              );
+            });
+      }
     }
   }
+
   const sorted = [...out];
   if (s.sort === "price_asc") {
     sorted.sort((a, b) => (a.price_sale ?? a.price_rent ?? Infinity) - (b.price_sale ?? b.price_rent ?? Infinity));
