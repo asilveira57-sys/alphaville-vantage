@@ -20,7 +20,7 @@ export function CleanPostCard(props: CleanPostCardProps) {
       {...(props.params ? { params: props.params as never } : {})}
       className="group flex h-full flex-col overflow-hidden rounded-[16px] bg-[#1D1D1D] ring-1 ring-white/10 shadow-[0_18px_45px_-30px_rgba(0,0,0,0.9)] outline-none transition-all duration-300 hover:-translate-y-1 hover:ring-white/20 focus-visible:ring-2 focus-visible:ring-[#F2DA00]"
     >
-      <div className="relative h-[240px] shrink-0 overflow-hidden md:h-[260px]">
+      <div className="relative aspect-[16/9] shrink-0 overflow-hidden">
         <img
           src={src}
           alt={props.title}
