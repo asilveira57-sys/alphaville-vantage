@@ -33,13 +33,14 @@ type AnchorProps = BaseProps & { href: string; to?: never; params?: never; searc
 
 export type PremiumCardProps = LinkedProps | AnchorProps;
 
-/** Media ratio kept close to the property-card standard (4/3) for visual consistency. */
+/** Media ratio follows the 16/9 editorial cover standard so wide covers are never cropped sideways. */
 const aspects: Record<NonNullable<BaseProps["aspectRatio"]>, string> = {
-  portrait: "aspect-[4/3]",
-  landscape: "aspect-[16/10]",
-  square: "aspect-[4/3]",
-  tall: "aspect-[4/3]",
+  portrait: "aspect-[16/9]",
+  landscape: "aspect-[16/9]",
+  square: "aspect-[16/9]",
+  tall: "aspect-[16/9]",
 };
+
 
 export const cleanCardShell =
   "group flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)] outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-28px_rgba(13,13,13,0.55)] focus-visible:ring-2 focus-visible:ring-[#F2DA00]";
@@ -79,9 +80,10 @@ export function PremiumCard(props: PremiumCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-6">
-        <h3 className="font-display line-clamp-3 text-[19px] leading-[1.25] text-[#171717] text-balance">
+        <h3 className="font-display line-clamp-2 min-h-[2.5em] text-[19px] leading-[1.25] text-[#171717] text-balance">
           {title}
         </h3>
+
         {description ? (
           <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/60">{description}</p>
         ) : null}

@@ -171,13 +171,13 @@ export function ComingSoonGrid({ items }: ComingSoonGridProps) {
             key={i}
             className="flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)]"
           >
-            <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-[#EAEAE6]">
+            <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-[#EAEAE6]">
               <span className="absolute left-4 top-4 max-w-[85%] truncate rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
                 {item.eyebrow}
               </span>
             </div>
             <div className="flex flex-1 flex-col gap-3 p-6">
-              <h3 className="font-display line-clamp-3 text-[19px] leading-[1.25] text-[#171717] text-balance">
+              <h3 className="font-display line-clamp-2 min-h-[2.5em] text-[19px] leading-[1.25] text-[#171717] text-balance">
                 {item.title}
               </h3>
               <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/60">
