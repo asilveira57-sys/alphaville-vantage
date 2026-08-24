@@ -7,7 +7,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
-import { interpretQuery } from "@/lib/property-search";
+import { interpretQuery, residualLocationQuery } from "@/lib/property-search";
 import { fetchAllRows } from "@/lib/fetch-all";
 
 type PropertyRow = {
