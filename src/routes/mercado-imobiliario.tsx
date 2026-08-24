@@ -7,9 +7,9 @@ const DEFAULTS = {
   title: "Mercado imobiliário da região",
   lead: "Análises, dados e perspectivas sobre o mercado imobiliário de alto padrão em Alphaville e arredores. Valorização, liquidez e movimentos do segmento residencial e corporativo.",
   cards: [
-    { eyebrow: "Valorização", title: "Condomínios mais valorizados", lead: "Ranking editorial baseado em dados de transação.", to: "/artigos/mercado-condominios-valorizados" },
-    { eyebrow: "Locação", title: "Locação de alto padrão", lead: "Cenário, tickets e perfis de inquilino.", to: "/artigos/mercado-locacao" },
-    { eyebrow: "Corporativo", title: "Mercado corporativo", lead: "Salas comerciais, galpões e o eixo Castelo Branco.", to: "/artigos/mercado-corporativo" },
+    { eyebrow: "Valorização", title: "Condomínios mais valorizados", lead: "Ranking editorial baseado em dados de transação.", to: "/blog/mercado-condominios-valorizados" },
+    { eyebrow: "Locação", title: "Locação de alto padrão", lead: "Cenário, tickets e perfis de inquilino.", to: "/guia/locacao-de-alto-padrao-em-alphaville" },
+    { eyebrow: "Corporativo", title: "Mercado corporativo", lead: "Salas comerciais, galpões e o eixo Castelo Branco.", to: "/blog/mercado-corporativo-eixo-castelo-branco" },
   ],
 };
 
