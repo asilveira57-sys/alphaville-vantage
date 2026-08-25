@@ -268,7 +268,9 @@ export const listGroupProperties = createServerFn({ method: "GET" })
     const [rows, condos, aliases] = await Promise.all([
       fetchAllRows<Record<string, unknown>>(sb, "properties", PROP_SELECT, (q) => {
         let qq = q.eq("status", "active");
-        qq = data.condominiumId ? qq.eq("condominium_id", data.condominiumId) : qq.eq("condominium_name", data.alias);
+        qq = data.condominiumId
+          ? qq.eq("condominium_id", data.condominiumId)
+          : qq.eq("condominium_name", data.alias).is("condominium_id", null);
         return qq.order("title", { ascending: true });
       }),
       fetchAllRows<Record<string, unknown>>(sb, "condominiums", "id,name"),
