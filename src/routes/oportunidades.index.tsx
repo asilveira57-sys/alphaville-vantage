@@ -200,6 +200,16 @@ function OpportunitiesPage() {
           </div>
           <div className="lg:col-span-7">
             <OpportunitySubscribeForm tone="dark" />
+            <p className="mt-8 border-t border-[#EAEAE6]/15 pt-6 text-[12px] leading-relaxed text-[#EAEAE6]/45">
+              É corretor e quer divulgar estas oportunidades?{" "}
+              <Link
+                to={"/area-do-parceiro" as never}
+                className="underline underline-offset-2 hover:text-[#EAEAE6]"
+              >
+                Solicite acesso à área de parceiros
+              </Link>{" "}
+              e receba o material aprovado de cada imóvel.
+            </p>
           </div>
         </div>
       </section>

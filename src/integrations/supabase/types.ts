@@ -889,6 +889,90 @@ export type Database = {
           },
         ]
       }
+      media_kit_access_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          partner_id: string | null
+          property_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          partner_id?: string | null
+          property_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          partner_id?: string | null
+          property_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      partner_profiles: {
+        Row: {
+          agreement_accepted_at: string | null
+          agreement_ip: string | null
+          agreement_version: string | null
+          company: string | null
+          creci: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          phone: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agreement_accepted_at?: string | null
+          agreement_ip?: string | null
+          agreement_version?: string | null
+          company?: string | null
+          creci: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          phone: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agreement_accepted_at?: string | null
+          agreement_ip?: string | null
+          agreement_version?: string | null
+          company?: string | null
+          creci?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       media_library: {
         Row: {
           alt_text: string | null
