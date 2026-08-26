@@ -33,6 +33,28 @@ export const Route = createFileRoute("/_authenticated/admin-condominios")({
 const btn = "border border-ink/20 px-3 py-1.5 text-[10px] uppercase tracking-widest hover:bg-ink/5 disabled:opacity-40";
 const input = "w-full border border-ink/15 bg-white px-3 py-2 text-sm";
 
+const normalizeOptionName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+function dedupeCondoOptions(condos: CondoGroup[]) {
+  const byName = new Map<string, CondoGroup>();
+  for (const condo of condos) {
+    const key = normalizeOptionName(condo.name) || condo.id;
+    const current = byName.get(key);
+    const shouldReplace =
+      !current ||
+      condo.propertiesCount > current.propertiesCount ||
+      (condo.propertiesCount === current.propertiesCount && Boolean(condo.guideId) && !current.guideId);
+    if (shouldReplace) byName.set(key, condo);
+  }
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+}
+
 function AdminCondominios() {
   const qc = useQueryClient();
   const overviewFn = useServerFn(listCondominiumOverview);
@@ -328,6 +350,7 @@ function UnclassifiedTab({
   const notFn = useServerFn(markAliasNotCondominium);
   const [open, setOpen] = useState<string | null>(null);
   const [choice, setChoice] = useState<Record<string, string>>({});
+  const condoOptions = useMemo(() => dedupeCondoOptions(condos), [condos]);
 
   const assign = useMutation({
     mutationFn: (v: { alias: string; condominiumId: string }) => assignFn({ data: v }),
@@ -370,7 +393,7 @@ function UnclassifiedTab({
                 className={`${input} max-w-xs`}
               >
                 <option value="">Vincular a…</option>
-                {condos.map((c) => (
+                {condoOptions.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
@@ -399,7 +422,7 @@ function UnclassifiedTab({
                 {open === a.alias ? "Fechar" : "Imóveis"}
               </button>
             </div>
-            {open === a.alias && <GroupProperties condominiumId={null} alias={a.alias} condos={condos} onDone={onDone} />}
+            {open === a.alias && <GroupProperties condominiumId={null} alias={a.alias} condos={condoOptions} onDone={onDone} />}
           </li>
         ))}
         {aliases.length === 0 && <li className="p-6 text-sm text-muted-foreground">Nada pendente por aqui.</li>}

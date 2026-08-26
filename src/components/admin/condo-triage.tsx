@@ -15,6 +15,28 @@ const btn = "border border-ink/20 px-3 py-1.5 text-[10px] uppercase tracking-wid
 const input = "w-full border border-ink/15 bg-white px-3 py-2 text-sm";
 const PAGE_SIZE = 30;
 
+const normalizeOptionName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+function dedupeCondoOptions(condos: CondoGroup[]) {
+  const byName = new Map<string, CondoGroup>();
+  for (const condo of condos) {
+    const key = normalizeOptionName(condo.name) || condo.id;
+    const current = byName.get(key);
+    const shouldReplace =
+      !current ||
+      condo.propertiesCount > current.propertiesCount ||
+      (condo.propertiesCount === current.propertiesCount && Boolean(condo.guideId) && !current.guideId);
+    if (shouldReplace) byName.set(key, condo);
+  }
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+}
+
 type Props = {
   condominiumId: string | null;
   alias: string | null;
@@ -100,7 +122,7 @@ export function CondoTriage({ condominiumId, alias, condos, onDone }: Props) {
   const toggle = (id: string) => setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
   const condoOptions = useMemo(
-    () => [...condos].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")),
+    () => dedupeCondoOptions(condos),
     [condos],
   );
 
