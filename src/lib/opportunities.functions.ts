@@ -423,9 +423,9 @@ async function assertEditor(ctx: { supabase: RoleChecker; userId: string }) {
     ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" }),
     ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "editor" }),
   ]);
-  console.log("[assertEditor]", ctx.userId, JSON.stringify(admin), JSON.stringify(editor));
   if (!admin.data && !editor.data) throw new Error("Forbidden");
 }
+
 
 
 /**
