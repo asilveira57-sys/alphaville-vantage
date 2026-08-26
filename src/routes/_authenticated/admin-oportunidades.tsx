@@ -24,7 +24,21 @@ export const Route = createFileRoute("/_authenticated/admin-oportunidades")({
     ],
   }),
   component: AdminOportunidades,
+  errorComponent: ({ error }) => (
+    <div className="mx-auto max-w-xl px-6 py-20">
+      <h1 className="font-display text-2xl">Não foi possível abrir a vitrine</h1>
+      <p className="mt-3 text-sm text-muted-foreground">
+        {error.message === "Forbidden"
+          ? "Sua sessão não tem permissão de editor. Saia e entre novamente com a conta administradora."
+          : error.message}
+      </p>
+      <Link to={"/auth" as never} className="mt-6 inline-block text-sm underline">
+        Ir para o login
+      </Link>
+    </div>
+  ),
 });
+
 
 const btn =
   "border border-ink/20 px-3 py-1.5 text-[10px] uppercase tracking-widest hover:bg-ink/5 disabled:opacity-40";
