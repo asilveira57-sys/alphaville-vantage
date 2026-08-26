@@ -59,6 +59,7 @@ import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
 import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
+import { Route as OportunidadesMetodologiaRouteImport } from './routes/oportunidades.metodologia'
 import { Route as OportunidadesSlugRouteImport } from './routes/oportunidades.$slug'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
@@ -99,6 +100,7 @@ import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminRuasRelatoriosRouteImport } from './routes/_authenticated/admin-ruas.relatorios'
 import { Route as AuthenticatedAdminRuasIdRouteImport } from './routes/_authenticated/admin-ruas.$id'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
+import { Route as ApiPublicHooksOpportunityRevaluationRouteImport } from './routes/api/public/hooks/opportunity-revaluation'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 
 const TransparenciaRoute = TransparenciaRouteImport.update({
@@ -351,6 +353,12 @@ const ParceirosSlugRoute = ParceirosSlugRouteImport.update({
   path: '/parceiros/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OportunidadesMetodologiaRoute =
+  OportunidadesMetodologiaRouteImport.update({
+    id: '/metodologia',
+    path: '/metodologia',
+    getParentRoute: () => OportunidadesRoute,
+  } as any)
 const OportunidadesSlugRoute = OportunidadesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -567,6 +575,12 @@ const ApiPublicHooksSeoMonthlyRefreshRoute =
     path: '/api/public/hooks/seo-monthly-refresh',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksOpportunityRevaluationRoute =
+  ApiPublicHooksOpportunityRevaluationRouteImport.update({
+    id: '/api/public/hooks/opportunity-revaluation',
+    path: '/api/public/hooks/opportunity-revaluation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicEditorialImageSplatRoute =
   ApiPublicEditorialImageSplatRouteImport.update({
     id: '/api/public/editorial-image/$',
@@ -643,6 +657,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/oportunidades/$slug': typeof OportunidadesSlugRoute
+  '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
@@ -664,6 +679,7 @@ export interface FileRoutesByFullPath {
   '/audit/': typeof AuthenticatedAuditIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRoutesByTo {
@@ -726,6 +742,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/oportunidades/$slug': typeof OportunidadesSlugRoute
+  '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
@@ -747,6 +764,7 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRoutesById {
@@ -820,6 +838,7 @@ export interface FileRoutesById {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/oportunidades/$slug': typeof OportunidadesSlugRoute
+  '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
@@ -841,6 +860,7 @@ export interface FileRoutesById {
   '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 export interface FileRouteTypes {
@@ -914,6 +934,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/oportunidades/$slug'
+    | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
@@ -935,6 +956,7 @@ export interface FileRouteTypes {
     | '/audit/'
     | '/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -997,6 +1019,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/oportunidades/$slug'
+    | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
@@ -1018,6 +1041,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/cms'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
   id:
     | '__root__'
@@ -1090,6 +1114,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/oportunidades/$slug'
+    | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
@@ -1111,6 +1136,7 @@ export interface FileRouteTypes {
     | '/_authenticated/audit/'
     | '/_authenticated/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
   fileRoutesById: FileRoutesById
 }
@@ -1167,6 +1193,7 @@ export interface RootRouteChildren {
   CondominiosIndexRoute: typeof CondominiosIndexRoute
   ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
+  ApiPublicHooksOpportunityRevaluationRoute: typeof ApiPublicHooksOpportunityRevaluationRoute
   ApiPublicHooksSeoMonthlyRefreshRoute: typeof ApiPublicHooksSeoMonthlyRefreshRoute
 }
 
@@ -1522,6 +1549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceirosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oportunidades/metodologia': {
+      id: '/oportunidades/metodologia'
+      path: '/metodologia'
+      fullPath: '/oportunidades/metodologia'
+      preLoaderRoute: typeof OportunidadesMetodologiaRouteImport
+      parentRoute: typeof OportunidadesRoute
+    }
     '/oportunidades/$slug': {
       id: '/oportunidades/$slug'
       path: '/$slug'
@@ -1802,6 +1836,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSeoMonthlyRefreshRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/opportunity-revaluation': {
+      id: '/api/public/hooks/opportunity-revaluation'
+      path: '/api/public/hooks/opportunity-revaluation'
+      fullPath: '/api/public/hooks/opportunity-revaluation'
+      preLoaderRoute: typeof ApiPublicHooksOpportunityRevaluationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/editorial-image/$': {
       id: '/api/public/editorial-image/$'
       path: '/api/public/editorial-image/$'
@@ -1958,11 +1999,13 @@ const MeioAmbienteRouteWithChildren = MeioAmbienteRoute._addFileChildren(
 
 interface OportunidadesRouteChildren {
   OportunidadesSlugRoute: typeof OportunidadesSlugRoute
+  OportunidadesMetodologiaRoute: typeof OportunidadesMetodologiaRoute
   OportunidadesIndexRoute: typeof OportunidadesIndexRoute
 }
 
 const OportunidadesRouteChildren: OportunidadesRouteChildren = {
   OportunidadesSlugRoute: OportunidadesSlugRoute,
+  OportunidadesMetodologiaRoute: OportunidadesMetodologiaRoute,
   OportunidadesIndexRoute: OportunidadesIndexRoute,
 }
 
@@ -2035,6 +2078,8 @@ const rootRouteChildren: RootRouteChildren = {
   CondominiosIndexRoute: CondominiosIndexRoute,
   ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
+  ApiPublicHooksOpportunityRevaluationRoute:
+    ApiPublicHooksOpportunityRevaluationRoute,
   ApiPublicHooksSeoMonthlyRefreshRoute: ApiPublicHooksSeoMonthlyRefreshRoute,
 }
 export const routeTree = rootRouteImport

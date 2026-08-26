@@ -8,7 +8,10 @@ import {
   listOpportunitiesForAdmin,
   searchPropertiesForOpportunity,
   saveOpportunity,
+  recomputeValuations,
+  setProposalStatus,
   SHOWCASE_MAX_PUBLISHED,
+  type ValuationOutcome,
   type AdminOpportunityRow,
   type SaveOpportunityInput,
 } from "@/lib/opportunities.functions";
@@ -54,10 +57,13 @@ function AdminOportunidades() {
   const listFn = useServerFn(listOpportunitiesForAdmin);
   const searchFn = useServerFn(searchPropertiesForOpportunity);
   const saveFn = useServerFn(saveOpportunity);
+  const recomputeFn = useServerFn(recomputeValuations);
+  const proposalFn = useServerFn(setProposalStatus);
 
   const [q, setQ] = useState("");
   const [results, setResults] = useState<AdminOpportunityRow[]>([]);
   const [editing, setEditing] = useState<AdminOpportunityRow | null>(null);
+  const [outcomes, setOutcomes] = useState<ValuationOutcome[]>([]);
 
   const listQuery = useQuery({
     queryKey: ["admin", "oportunidades"],
@@ -82,6 +88,26 @@ function AdminOportunidades() {
       toast.success("Vitrine atualizada.");
       setEditing(null);
       setResults([]);
+      qc.invalidateQueries({ queryKey: ["admin", "oportunidades"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const recompute = useMutation({
+    mutationFn: () => recomputeFn({ data: {} }),
+    onSuccess: (data) => {
+      setOutcomes(data.results);
+      const withBadge = data.results.filter((r) => r.qualifies).length;
+      toast.success(`${data.results.length} apurados · ${withBadge} com selo de preço.`);
+      qc.invalidateQueries({ queryKey: ["admin", "oportunidades"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const proposal = useMutation({
+    mutationFn: (vars: { propertyId: string; underReview: boolean }) => proposalFn({ data: vars }),
+    onSuccess: () => {
+      toast.success("Sinal de proposta atualizado.");
       qc.invalidateQueries({ queryKey: ["admin", "oportunidades"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -302,6 +328,62 @@ function AdminOportunidades() {
           </section>
         )}
 
+        {/* -------------------------------------------------------- apuração */}
+        <section className="mb-12 border border-ink/15 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="max-w-[62ch]">
+              <h2 className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground">
+                Apuração do selo de preço
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Compara o R$/m² de cada imóvel da curadoria contra a mediana dos comparáveis do
+                acervo e arquiva o resultado. Só recebe selo quem ficar 10% ou mais abaixo da
+                referência, com no mínimo 5 comparáveis. A apuração fica registrada mesmo quando não
+                gera selo.
+              </p>
+            </div>
+            <button
+              type="button"
+              className={btn}
+              disabled={recompute.isPending}
+              onClick={() => recompute.mutate()}
+            >
+              {recompute.isPending ? "Apurando…" : "Reapurar todos"}
+            </button>
+          </div>
+
+          {outcomes.length > 0 && (
+            <ul className="mt-6 divide-y divide-ink/10 border-t border-ink/10 text-sm">
+              {outcomes.map((o) => (
+                <li
+                  key={o.propertyId}
+                  className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-3"
+                >
+                  <span
+                    className={`px-2 py-0.5 text-[9px] uppercase tracking-widest ${
+                      o.qualifies
+                        ? "bg-brand-yellow text-brand-dark"
+                        : "border border-ink/20 text-muted-foreground"
+                    }`}
+                  >
+                    {o.qualifies ? "com selo" : "sem selo"}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">{o.title}</span>
+                  {o.deltaPct != null ? (
+                    <span className="text-xs text-muted-foreground">
+                      {o.deltaPct > 0 ? "+" : ""}
+                      {o.deltaPct.toFixed(1)}% · n={o.sampleSize}
+                    </span>
+                  ) : null}
+                  {o.skippedReason ? (
+                    <span className="w-full text-xs text-muted-foreground">{o.skippedReason}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* ------------------------------------------------------ curadoria */}
         <section>
           <h2 className="mb-3 text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -343,9 +425,27 @@ function AdminOportunidades() {
                       </p>
                     ) : null}
                   </div>
-                  <button type="button" className={btn} onClick={() => setEditing(r)}>
-                    Editar
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className={btn}
+                      disabled={proposal.isPending}
+                      onClick={() =>
+                        proposal.mutate({
+                          propertyId: r.id,
+                          underReview: r.proposal_status !== "under_review",
+                        })
+                      }
+                      title="Liga ou desliga o aviso público de proposta em análise. Expira sozinho em 7 dias."
+                    >
+                      {r.proposal_status === "under_review"
+                        ? "Encerrar proposta"
+                        : "Proposta em análise"}
+                    </button>
+                    <button type="button" className={btn} onClick={() => setEditing(r)}>
+                      Editar
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

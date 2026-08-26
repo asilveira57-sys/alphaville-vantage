@@ -11,6 +11,7 @@ const STATIC_ROUTES = [
   "/guia-barueri", "/guia-santana-de-parnaiba", "/condominios", "/bairros",
   "/escolas", "/restaurantes", "/empresas", "/mercado-imobiliario",
   "/historia", "/meio-ambiente", "/investimentos", "/imoveis",
+  "/oportunidades", "/oportunidades/metodologia",
   "/quem-somos", "/como-trabalhamos", "/servicos", "/areas-de-atuacao",
   "/perguntas-frequentes", "/contato", "/transparencia",
   "/politica-de-atendimento", "/politica-de-privacidade", "/politica-de-cookies",

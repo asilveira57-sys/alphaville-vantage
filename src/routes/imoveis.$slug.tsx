@@ -8,7 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
 import { humanizeOriginalDescription } from "@/lib/property-parser";
 import { OpportunityBanner } from "@/components/opportunities/opportunity-banner";
-import { getOpportunityForProperty, type OpportunityDTO } from "@/lib/opportunities.functions";
+import {
+  getOpportunityForProperty,
+  registerPropertyView,
+  type OpportunityDTO,
+} from "@/lib/opportunities.functions";
+import { useEffect, useRef } from "react";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 
@@ -132,6 +137,25 @@ function PropertyDetail() {
   const p = Route.useLoaderData();
   const sale = fmtPrice(p.price_sale);
   const rent = fmtPrice(p.price_rent);
+
+  // Conta a visita uma vez por sessão do navegador. É o dado por trás do
+  // sinal de "alta procura" — e como esse número vai à tela, recarregar a
+  // página não pode inflá-lo.
+  const counted = useRef<string | null>(null);
+  useEffect(() => {
+    if (!p.id || counted.current === p.id) return;
+    counted.current = p.id;
+
+    const key = `pv:${p.id}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      // Navegador sem storage: conta mesmo assim, é melhor que não contar.
+    }
+
+    void registerPropertyView({ data: { propertyId: p.id } }).catch(() => {});
+  }, [p.id]);
 
   return (
     <SiteLayout>
