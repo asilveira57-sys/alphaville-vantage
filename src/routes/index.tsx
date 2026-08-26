@@ -11,6 +11,12 @@ import { interpretQuery, toImoveisSearchParams } from "@/lib/property-search";
 import { GoogleReviewsSection } from "@/components/google-reviews";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { RadarSection } from "@/components/radar/radar-section";
+import { OpportunityShowcase } from "@/components/opportunities/opportunity-showcase";
+import {
+  listShowcase,
+  HOME_SHOWCASE_SIZE,
+  type OpportunityDTO,
+} from "@/lib/opportunities.functions";
 
 
 import heroImg from "@/assets/hero-architecture.jpg";
@@ -126,13 +132,17 @@ async function fetchRegionImages(): Promise<Record<string, string>> {
 }
 
 async function loadHome() {
-  const [properties, posts, regionCounts, regionImages] = await Promise.all([
+  const [properties, posts, regionCounts, regionImages, opportunities] = await Promise.all([
     fetchFeatured(),
     fetchLatestPosts(),
     fetchRegionCounts(),
     fetchRegionImages(),
+    // A vitrine tem regra de negócio (curadoria, validade, sinais), então roda
+    // no servidor — ao contrário das demais queries da home, que batem no
+    // Supabase direto do browser.
+    listShowcase({ data: { limit: HOME_SHOWCASE_SIZE } }).catch(() => [] as OpportunityDTO[]),
   ]);
-  return { properties, posts, regionCounts, regionImages };
+  return { properties, posts, regionCounts, regionImages, opportunities };
 }
 
 export const Route = createFileRoute("/")({
@@ -183,12 +193,14 @@ const STATS = [
 
 
 function HomePage() {
-  const { properties, posts, regionCounts, regionImages } = Route.useLoaderData() as {
-    properties: FeaturedProperty[];
-    posts: FeaturedPost[];
-    regionCounts: RegionCounts;
-    regionImages: Record<string, string>;
-  };
+  const { properties, posts, regionCounts, regionImages, opportunities } =
+    Route.useLoaderData() as {
+      properties: FeaturedProperty[];
+      posts: FeaturedPost[];
+      regionCounts: RegionCounts;
+      regionImages: Record<string, string>;
+      opportunities: OpportunityDTO[];
+    };
   const navigate = useNavigate();
   const carouselRef = useRef<HTMLDivElement | null>(null);
 
@@ -321,6 +333,11 @@ function HomePage() {
           </form>
         </div>
       </section>
+
+      {/* =============== VITRINE DE OPORTUNIDADES =============== */}
+      <div className="pt-24 md:pt-28">
+        <OpportunityShowcase items={opportunities} />
+      </div>
 
       {/* =============== RADAR S.A. IMÓVEIS =============== */}
       <div className="pt-24 md:pt-28 bg-white">

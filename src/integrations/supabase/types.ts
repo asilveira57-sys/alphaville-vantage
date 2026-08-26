@@ -1028,6 +1028,12 @@ export type Database = {
           lavabos: number | null
           manual_overrides: Json | null
           neighborhood: string | null
+          opportunity_expires_at: string | null
+          opportunity_headline: string | null
+          opportunity_published_at: string | null
+          opportunity_rank: number | null
+          opportunity_reason: string | null
+          opportunity_status: string
           parking: number | null
           parking_covered: number | null
           parking_uncovered: number | null
@@ -1088,6 +1094,12 @@ export type Database = {
           lavabos?: number | null
           manual_overrides?: Json | null
           neighborhood?: string | null
+          opportunity_expires_at?: string | null
+          opportunity_headline?: string | null
+          opportunity_published_at?: string | null
+          opportunity_rank?: number | null
+          opportunity_reason?: string | null
+          opportunity_status?: string
           parking?: number | null
           parking_covered?: number | null
           parking_uncovered?: number | null
@@ -1148,6 +1160,12 @@ export type Database = {
           lavabos?: number | null
           manual_overrides?: Json | null
           neighborhood?: string | null
+          opportunity_expires_at?: string | null
+          opportunity_headline?: string | null
+          opportunity_published_at?: string | null
+          opportunity_rank?: number | null
+          opportunity_reason?: string | null
+          opportunity_status?: string
           parking?: number | null
           parking_covered?: number | null
           parking_uncovered?: number | null
@@ -1187,6 +1205,41 @@ export type Database = {
             columns: ["street_id"]
             isOneToOne: false
             referencedRelation: "streets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_price_history: {
+        Row: {
+          id: string
+          observed_at: string
+          price_rent: number | null
+          price_sale: number | null
+          property_id: string
+          source: string
+        }
+        Insert: {
+          id?: string
+          observed_at?: string
+          price_rent?: number | null
+          price_sale?: number | null
+          property_id: string
+          source?: string
+        }
+        Update: {
+          id?: string
+          observed_at?: string
+          price_rent?: number | null
+          price_sale?: number | null
+          property_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_price_history_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]

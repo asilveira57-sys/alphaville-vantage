@@ -21,6 +21,7 @@ import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-
 import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
 import { Route as PoliticaDeAtendimentoRouteImport } from './routes/politica-de-atendimento'
 import { Route as PerguntasFrequentesRouteImport } from './routes/perguntas-frequentes'
+import { Route as OportunidadesRouteImport } from './routes/oportunidades'
 import { Route as MercadoImobiliarioRouteImport } from './routes/mercado-imobiliario'
 import { Route as MeioAmbienteRouteImport } from './routes/meio-ambiente'
 import { Route as MapaDoSiteRouteImport } from './routes/mapa-do-site'
@@ -47,6 +48,7 @@ import { Route as AlphavilleRouteImport } from './routes/alphaville'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RuasIndexRouteImport } from './routes/ruas.index'
+import { Route as OportunidadesIndexRouteImport } from './routes/oportunidades.index'
 import { Route as MeioAmbienteIndexRouteImport } from './routes/meio-ambiente.index'
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
@@ -57,6 +59,7 @@ import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
 import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
+import { Route as OportunidadesSlugRouteImport } from './routes/oportunidades.$slug'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
 import { Route as MeioAmbienteAreasRouteImport } from './routes/meio-ambiente.areas'
@@ -77,6 +80,7 @@ import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminPendentesRouteImport } from './routes/_authenticated/admin-pendentes'
+import { Route as AuthenticatedAdminOportunidadesRouteImport } from './routes/_authenticated/admin-oportunidades'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
 import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
@@ -155,6 +159,11 @@ const PoliticaDeAtendimentoRoute = PoliticaDeAtendimentoRouteImport.update({
 const PerguntasFrequentesRoute = PerguntasFrequentesRouteImport.update({
   id: '/perguntas-frequentes',
   path: '/perguntas-frequentes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OportunidadesRoute = OportunidadesRouteImport.update({
+  id: '/oportunidades',
+  path: '/oportunidades',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MercadoImobiliarioRoute = MercadoImobiliarioRouteImport.update({
@@ -286,6 +295,11 @@ const RuasIndexRoute = RuasIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RuasRoute,
 } as any)
+const OportunidadesIndexRoute = OportunidadesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OportunidadesRoute,
+} as any)
 const MeioAmbienteIndexRoute = MeioAmbienteIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -336,6 +350,11 @@ const ParceirosSlugRoute = ParceirosSlugRouteImport.update({
   id: '/parceiros/$slug',
   path: '/parceiros/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const OportunidadesSlugRoute = OportunidadesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => OportunidadesRoute,
 } as any)
 const MeioAmbienteLazerRoute = MeioAmbienteLazerRouteImport.update({
   id: '/lazer',
@@ -441,6 +460,12 @@ const AuthenticatedAdminPendentesRoute =
   AuthenticatedAdminPendentesRouteImport.update({
     id: '/admin-pendentes',
     path: '/admin-pendentes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminOportunidadesRoute =
+  AuthenticatedAdminOportunidadesRouteImport.update({
+    id: '/admin-oportunidades',
+    path: '/admin-oportunidades',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminMidiaRoute = AuthenticatedAdminMidiaRouteImport.update({
@@ -574,6 +599,7 @@ export interface FileRoutesByFullPath {
   '/mapa-do-site': typeof MapaDoSiteRoute
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/oportunidades': typeof OportunidadesRouteWithChildren
   '/perguntas-frequentes': typeof PerguntasFrequentesRoute
   '/politica-de-atendimento': typeof PoliticaDeAtendimentoRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
@@ -595,6 +621,7 @@ export interface FileRoutesByFullPath {
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
+  '/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -615,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/oportunidades/$slug': typeof OportunidadesSlugRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
@@ -625,6 +653,7 @@ export interface FileRoutesByFullPath {
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
+  '/oportunidades/': typeof OportunidadesIndexRoute
   '/ruas/': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
@@ -677,6 +706,7 @@ export interface FileRoutesByTo {
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
+  '/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
@@ -695,6 +725,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/oportunidades/$slug': typeof OportunidadesSlugRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
@@ -705,6 +736,7 @@ export interface FileRoutesByTo {
   '/guia': typeof GuiaIndexRoute
   '/imoveis': typeof ImoveisIndexRoute
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
+  '/oportunidades': typeof OportunidadesIndexRoute
   '/ruas': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
@@ -744,6 +776,7 @@ export interface FileRoutesById {
   '/mapa-do-site': typeof MapaDoSiteRoute
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
+  '/oportunidades': typeof OportunidadesRouteWithChildren
   '/perguntas-frequentes': typeof PerguntasFrequentesRoute
   '/politica-de-atendimento': typeof PoliticaDeAtendimentoRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
@@ -765,6 +798,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
+  '/_authenticated/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
   '/_authenticated/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -785,6 +819,7 @@ export interface FileRoutesById {
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
+  '/oportunidades/$slug': typeof OportunidadesSlugRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/ruas/$slug': typeof RuasSlugRoute
@@ -795,6 +830,7 @@ export interface FileRoutesById {
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
+  '/oportunidades/': typeof OportunidadesIndexRoute
   '/ruas/': typeof RuasIndexRoute
   '/_authenticated/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/_authenticated/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
@@ -834,6 +870,7 @@ export interface FileRouteTypes {
     | '/mapa-do-site'
     | '/meio-ambiente'
     | '/mercado-imobiliario'
+    | '/oportunidades'
     | '/perguntas-frequentes'
     | '/politica-de-atendimento'
     | '/politica-de-cookies'
@@ -855,6 +892,7 @@ export interface FileRouteTypes {
     | '/admin-financiamento'
     | '/admin-mapa'
     | '/admin-midia'
+    | '/admin-oportunidades'
     | '/admin-pendentes'
     | '/admin-radar'
     | '/admin-ruas'
@@ -875,6 +913,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/oportunidades/$slug'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
@@ -885,6 +924,7 @@ export interface FileRouteTypes {
     | '/guia/'
     | '/imoveis/'
     | '/meio-ambiente/'
+    | '/oportunidades/'
     | '/ruas/'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
@@ -937,6 +977,7 @@ export interface FileRouteTypes {
     | '/admin-financiamento'
     | '/admin-mapa'
     | '/admin-midia'
+    | '/admin-oportunidades'
     | '/admin-pendentes'
     | '/admin-radar'
     | '/admin-seo'
@@ -955,6 +996,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/oportunidades/$slug'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
@@ -965,6 +1007,7 @@ export interface FileRouteTypes {
     | '/guia'
     | '/imoveis'
     | '/meio-ambiente'
+    | '/oportunidades'
     | '/ruas'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
@@ -1003,6 +1046,7 @@ export interface FileRouteTypes {
     | '/mapa-do-site'
     | '/meio-ambiente'
     | '/mercado-imobiliario'
+    | '/oportunidades'
     | '/perguntas-frequentes'
     | '/politica-de-atendimento'
     | '/politica-de-cookies'
@@ -1024,6 +1068,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-financiamento'
     | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
+    | '/_authenticated/admin-oportunidades'
     | '/_authenticated/admin-pendentes'
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-ruas'
@@ -1044,6 +1089,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
+    | '/oportunidades/$slug'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/ruas/$slug'
@@ -1054,6 +1100,7 @@ export interface FileRouteTypes {
     | '/guia/'
     | '/imoveis/'
     | '/meio-ambiente/'
+    | '/oportunidades/'
     | '/ruas/'
     | '/_authenticated/admin-ruas/$id'
     | '/_authenticated/admin-ruas/relatorios'
@@ -1093,6 +1140,7 @@ export interface RootRouteChildren {
   MapaDoSiteRoute: typeof MapaDoSiteRoute
   MeioAmbienteRoute: typeof MeioAmbienteRouteWithChildren
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
+  OportunidadesRoute: typeof OportunidadesRouteWithChildren
   PerguntasFrequentesRoute: typeof PerguntasFrequentesRoute
   PoliticaDeAtendimentoRoute: typeof PoliticaDeAtendimentoRoute
   PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
@@ -1206,6 +1254,13 @@ declare module '@tanstack/react-router' {
       path: '/perguntas-frequentes'
       fullPath: '/perguntas-frequentes'
       preLoaderRoute: typeof PerguntasFrequentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oportunidades': {
+      id: '/oportunidades'
+      path: '/oportunidades'
+      fullPath: '/oportunidades'
+      preLoaderRoute: typeof OportunidadesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mercado-imobiliario': {
@@ -1390,6 +1445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RuasIndexRouteImport
       parentRoute: typeof RuasRoute
     }
+    '/oportunidades/': {
+      id: '/oportunidades/'
+      path: '/'
+      fullPath: '/oportunidades/'
+      preLoaderRoute: typeof OportunidadesIndexRouteImport
+      parentRoute: typeof OportunidadesRoute
+    }
     '/meio-ambiente/': {
       id: '/meio-ambiente/'
       path: '/'
@@ -1459,6 +1521,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/parceiros/$slug'
       preLoaderRoute: typeof ParceirosSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/oportunidades/$slug': {
+      id: '/oportunidades/$slug'
+      path: '/$slug'
+      fullPath: '/oportunidades/$slug'
+      preLoaderRoute: typeof OportunidadesSlugRouteImport
+      parentRoute: typeof OportunidadesRoute
     }
     '/meio-ambiente/lazer': {
       id: '/meio-ambiente/lazer'
@@ -1598,6 +1667,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-pendentes'
       fullPath: '/admin-pendentes'
       preLoaderRoute: typeof AuthenticatedAdminPendentesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-oportunidades': {
+      id: '/_authenticated/admin-oportunidades'
+      path: '/admin-oportunidades'
+      fullPath: '/admin-oportunidades'
+      preLoaderRoute: typeof AuthenticatedAdminOportunidadesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-midia': {
@@ -1778,6 +1854,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
   AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
+  AuthenticatedAdminOportunidadesRoute: typeof AuthenticatedAdminOportunidadesRoute
   AuthenticatedAdminPendentesRoute: typeof AuthenticatedAdminPendentesRoute
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
@@ -1798,6 +1875,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
   AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,
   AuthenticatedAdminMidiaRoute: AuthenticatedAdminMidiaRoute,
+  AuthenticatedAdminOportunidadesRoute: AuthenticatedAdminOportunidadesRoute,
   AuthenticatedAdminPendentesRoute: AuthenticatedAdminPendentesRoute,
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
@@ -1878,6 +1956,20 @@ const MeioAmbienteRouteWithChildren = MeioAmbienteRoute._addFileChildren(
   MeioAmbienteRouteChildren,
 )
 
+interface OportunidadesRouteChildren {
+  OportunidadesSlugRoute: typeof OportunidadesSlugRoute
+  OportunidadesIndexRoute: typeof OportunidadesIndexRoute
+}
+
+const OportunidadesRouteChildren: OportunidadesRouteChildren = {
+  OportunidadesSlugRoute: OportunidadesSlugRoute,
+  OportunidadesIndexRoute: OportunidadesIndexRoute,
+}
+
+const OportunidadesRouteWithChildren = OportunidadesRoute._addFileChildren(
+  OportunidadesRouteChildren,
+)
+
 interface RuasRouteChildren {
   RuasSlugRoute: typeof RuasSlugRoute
   RuasIndexRoute: typeof RuasIndexRoute
@@ -1916,6 +2008,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapaDoSiteRoute: MapaDoSiteRoute,
   MeioAmbienteRoute: MeioAmbienteRouteWithChildren,
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
+  OportunidadesRoute: OportunidadesRouteWithChildren,
   PerguntasFrequentesRoute: PerguntasFrequentesRoute,
   PoliticaDeAtendimentoRoute: PoliticaDeAtendimentoRoute,
   PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
