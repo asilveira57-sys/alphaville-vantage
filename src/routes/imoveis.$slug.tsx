@@ -7,6 +7,8 @@ import { CleanPropertyCard } from "@/components/premium-cards/clean-property-car
 import { supabase } from "@/integrations/supabase/client";
 import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
 import { humanizeOriginalDescription } from "@/lib/property-parser";
+import { OpportunityBanner } from "@/components/opportunities/opportunity-banner";
+import { getOpportunityForProperty, type OpportunityDTO } from "@/lib/opportunities.functions";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 
@@ -52,8 +54,18 @@ async function fetchProperty(slug: string) {
   };
 }
 
+async function loadProperty(slug: string) {
+  const [property, opportunity] = await Promise.all([
+    fetchProperty(slug),
+    // Curadoria da vitrine: quando existe, a ficha ganha o layout de
+    // oportunidade. A URL continua sendo a mesma — não há segunda página.
+    getOpportunityForProperty({ data: { slug } }).catch(() => null as OpportunityDTO | null),
+  ]);
+  return { ...property, opportunity };
+}
+
 export const Route = createFileRoute("/imoveis/$slug")({
-  loader: ({ params }) => fetchProperty(params.slug),
+  loader: ({ params }) => loadProperty(params.slug),
   head: ({ params, loaderData }) => {
     const p = loaderData;
     const url = `${SITE_URL}/imoveis/${params.slug}`;
@@ -147,6 +159,8 @@ function PropertyDetail() {
         </div>
       </section>
 
+      {p.opportunity ? <OpportunityBanner item={p.opportunity} /> : null}
+
       <section className="px-6 py-12 bg-ink/[0.02]">
         <div className="max-w-6xl mx-auto">
           <PropertyGallery images={p.images} title={p.title} />
@@ -212,6 +226,15 @@ function PropertyDetail() {
         <section className="px-6 py-12 border-t border-ink/8 bg-ink/[0.02]">
           <div className="max-w-6xl mx-auto">
             <FinancingSimulator propertyId={p.id} propertySlug={p.slug} propertyValue={Number(p.price_sale)} />
+            {/* Res. CMN 3.517/2007 art. 3º: informe publicitário de crédito
+                precisa trazer o CET. Enquanto a simulação não puxa condição
+                real de banco, ela se declara não vinculante. */}
+            <p className="mt-6 max-w-[70ch] text-xs leading-relaxed text-muted-foreground">
+              Simulação estimativa e não vinculante, calculada com as taxas de referência
+              cadastradas. Os valores finais dependem de análise de crédito da instituição
+              financeira, que informará o Custo Efetivo Total (CET) — incluindo juros, tributos,
+              tarifas e seguros — antes da contratação.
+            </p>
           </div>
         </section>
       )}
