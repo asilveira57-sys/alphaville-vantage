@@ -46,6 +46,10 @@ CREATE TABLE IF NOT EXISTS public.property_price_history (
 CREATE INDEX IF NOT EXISTS idx_price_history_property
   ON public.property_price_history (property_id, observed_at DESC);
 
+GRANT SELECT ON public.property_price_history TO anon;
+GRANT SELECT ON public.property_price_history TO authenticated;
+GRANT ALL ON public.property_price_history TO service_role;
+
 ALTER TABLE public.property_price_history ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Price history public read" ON public.property_price_history;
