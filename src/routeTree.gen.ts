@@ -82,6 +82,7 @@ import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminPendentesRouteImport } from './routes/_authenticated/admin-pendentes'
+import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin-parceiros'
 import { Route as AuthenticatedAdminOportunidadesRouteImport } from './routes/_authenticated/admin-oportunidades'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
 import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
@@ -95,10 +96,12 @@ import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticated/cms.index'
 import { Route as AuthenticatedAuditIndexRouteImport } from './routes/_authenticated/audit.index'
+import { Route as AuthenticatedAreaDoParceiroIndexRouteImport } from './routes/_authenticated/area-do-parceiro.index'
 import { Route as AuthenticatedAdminRuasIndexRouteImport } from './routes/_authenticated/admin-ruas.index'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
+import { Route as AuthenticatedAreaDoParceiroSlugRouteImport } from './routes/_authenticated/area-do-parceiro.$slug'
 import { Route as AuthenticatedAdminRuasRelatoriosRouteImport } from './routes/_authenticated/admin-ruas.relatorios'
 import { Route as AuthenticatedAdminRuasIdRouteImport } from './routes/_authenticated/admin-ruas.$id'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
@@ -478,6 +481,12 @@ const AuthenticatedAdminPendentesRoute =
     path: '/admin-pendentes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminParceirosRoute =
+  AuthenticatedAdminParceirosRouteImport.update({
+    id: '/admin-parceiros',
+    path: '/admin-parceiros',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminOportunidadesRoute =
   AuthenticatedAdminOportunidadesRouteImport.update({
     id: '/admin-oportunidades',
@@ -549,6 +558,12 @@ const AuthenticatedAuditIndexRoute = AuthenticatedAuditIndexRouteImport.update({
   path: '/audit/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAreaDoParceiroIndexRoute =
+  AuthenticatedAreaDoParceiroIndexRouteImport.update({
+    id: '/area-do-parceiro/',
+    path: '/area-do-parceiro/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminRuasIndexRoute =
   AuthenticatedAdminRuasIndexRouteImport.update({
     id: '/',
@@ -571,6 +586,12 @@ const AuthenticatedAuditIdRoute = AuthenticatedAuditIdRouteImport.update({
   path: '/audit/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAreaDoParceiroSlugRoute =
+  AuthenticatedAreaDoParceiroSlugRouteImport.update({
+    id: '/area-do-parceiro/$slug',
+    path: '/area-do-parceiro/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminRuasRelatoriosRoute =
   AuthenticatedAdminRuasRelatoriosRouteImport.update({
     id: '/relatorios',
@@ -651,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
+  '/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -688,10 +710,12 @@ export interface FileRoutesByFullPath {
   '/ruas/': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
+  '/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
+  '/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit/': typeof AuthenticatedAuditIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
@@ -740,6 +764,7 @@ export interface FileRoutesByTo {
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
+  '/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
@@ -775,10 +800,12 @@ export interface FileRoutesByTo {
   '/ruas': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
+  '/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasIndexRoute
+  '/area-do-parceiro': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit': typeof AuthenticatedAuditIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
@@ -836,6 +863,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/_authenticated/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
+  '/_authenticated/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/_authenticated/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -873,10 +901,12 @@ export interface FileRoutesById {
   '/ruas/': typeof RuasIndexRoute
   '/_authenticated/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/_authenticated/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
+  '/_authenticated/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/_authenticated/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
+  '/_authenticated/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
@@ -934,6 +964,7 @@ export interface FileRouteTypes {
     | '/admin-mapa'
     | '/admin-midia'
     | '/admin-oportunidades'
+    | '/admin-parceiros'
     | '/admin-pendentes'
     | '/admin-radar'
     | '/admin-ruas'
@@ -971,10 +1002,12 @@ export interface FileRouteTypes {
     | '/ruas/'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
+    | '/area-do-parceiro/$slug'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
     | '/admin-ruas/'
+    | '/area-do-parceiro/'
     | '/audit/'
     | '/cms/'
     | '/api/public/editorial-image/$'
@@ -1023,6 +1056,7 @@ export interface FileRouteTypes {
     | '/admin-mapa'
     | '/admin-midia'
     | '/admin-oportunidades'
+    | '/admin-parceiros'
     | '/admin-pendentes'
     | '/admin-radar'
     | '/admin-seo'
@@ -1058,10 +1092,12 @@ export interface FileRouteTypes {
     | '/ruas'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
+    | '/area-do-parceiro/$slug'
     | '/audit/$id'
     | '/cms/$id'
     | '/api/public/indexnow-key.txt'
     | '/admin-ruas'
+    | '/area-do-parceiro'
     | '/audit'
     | '/cms'
     | '/api/public/editorial-image/$'
@@ -1118,6 +1154,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
     | '/_authenticated/admin-oportunidades'
+    | '/_authenticated/admin-parceiros'
     | '/_authenticated/admin-pendentes'
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-ruas'
@@ -1155,10 +1192,12 @@ export interface FileRouteTypes {
     | '/ruas/'
     | '/_authenticated/admin-ruas/$id'
     | '/_authenticated/admin-ruas/relatorios'
+    | '/_authenticated/area-do-parceiro/$slug'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
     | '/api/public/indexnow-key.txt'
     | '/_authenticated/admin-ruas/'
+    | '/_authenticated/area-do-parceiro/'
     | '/_authenticated/audit/'
     | '/_authenticated/cms/'
     | '/api/public/editorial-image/$'
@@ -1736,6 +1775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPendentesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-parceiros': {
+      id: '/_authenticated/admin-parceiros'
+      path: '/admin-parceiros'
+      fullPath: '/admin-parceiros'
+      preLoaderRoute: typeof AuthenticatedAdminParceirosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-oportunidades': {
       id: '/_authenticated/admin-oportunidades'
       path: '/admin-oportunidades'
@@ -1827,6 +1873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/area-do-parceiro/': {
+      id: '/_authenticated/area-do-parceiro/'
+      path: '/area-do-parceiro'
+      fullPath: '/area-do-parceiro/'
+      preLoaderRoute: typeof AuthenticatedAreaDoParceiroIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-ruas/': {
       id: '/_authenticated/admin-ruas/'
       path: '/'
@@ -1853,6 +1906,13 @@ declare module '@tanstack/react-router' {
       path: '/audit/$id'
       fullPath: '/audit/$id'
       preLoaderRoute: typeof AuthenticatedAuditIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/area-do-parceiro/$slug': {
+      id: '/_authenticated/area-do-parceiro/$slug'
+      path: '/area-do-parceiro/$slug'
+      fullPath: '/area-do-parceiro/$slug'
+      preLoaderRoute: typeof AuthenticatedAreaDoParceiroSlugRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-ruas/relatorios': {
@@ -1937,12 +1997,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
   AuthenticatedAdminOportunidadesRoute: typeof AuthenticatedAdminOportunidadesRoute
+  AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
   AuthenticatedAdminPendentesRoute: typeof AuthenticatedAdminPendentesRoute
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
+  AuthenticatedAreaDoParceiroSlugRoute: typeof AuthenticatedAreaDoParceiroSlugRoute
   AuthenticatedAuditIdRoute: typeof AuthenticatedAuditIdRoute
+  AuthenticatedAreaDoParceiroIndexRoute: typeof AuthenticatedAreaDoParceiroIndexRoute
   AuthenticatedAuditIndexRoute: typeof AuthenticatedAuditIndexRoute
 }
 
@@ -1960,12 +2023,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,
   AuthenticatedAdminMidiaRoute: AuthenticatedAdminMidiaRoute,
   AuthenticatedAdminOportunidadesRoute: AuthenticatedAdminOportunidadesRoute,
+  AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
   AuthenticatedAdminPendentesRoute: AuthenticatedAdminPendentesRoute,
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,
+  AuthenticatedAreaDoParceiroSlugRoute: AuthenticatedAreaDoParceiroSlugRoute,
   AuthenticatedAuditIdRoute: AuthenticatedAuditIdRoute,
+  AuthenticatedAreaDoParceiroIndexRoute: AuthenticatedAreaDoParceiroIndexRoute,
   AuthenticatedAuditIndexRoute: AuthenticatedAuditIndexRoute,
 }
 

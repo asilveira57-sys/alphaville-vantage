@@ -61,6 +61,13 @@ const AREAS: Area[] = [
     site: "/oportunidades",
   },
   {
+    title: "Parceiros",
+    description:
+      "Corretores com acesso ao mídia kit das oportunidades: aprovação, revogação e registro de acesso ao material.",
+    admin: "/admin-parceiros",
+    site: "/area-do-parceiro",
+  },
+  {
     title: "Central de condomínios",
     description: "Cadastro oficial, limpeza dos nomes do scrap, unificação de duplicados e criação do guia de cada condomínio.",
     admin: "/admin-condominios",

@@ -847,6 +847,48 @@ export type Database = {
         }
         Relationships: []
       }
+      media_kit_access_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          partner_id: string | null
+          property_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          partner_id?: string | null
+          property_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          partner_id?: string | null
+          property_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_kit_access_log_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_kit_access_log_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_library: {
         Row: {
           alt_text: string | null
@@ -1099,6 +1141,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_profiles: {
+        Row: {
+          agreement_accepted_at: string | null
+          agreement_ip: string | null
+          agreement_version: string | null
+          company: string | null
+          created_at: string
+          creci: string
+          email: string | null
+          full_name: string
+          id: string
+          phone: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agreement_accepted_at?: string | null
+          agreement_ip?: string | null
+          agreement_version?: string | null
+          company?: string | null
+          created_at?: string
+          creci: string
+          email?: string | null
+          full_name: string
+          id?: string
+          phone: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agreement_accepted_at?: string | null
+          agreement_ip?: string | null
+          agreement_version?: string | null
+          company?: string | null
+          created_at?: string
+          creci?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -2043,7 +2142,7 @@ export type Database = {
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "editor" | "user"
+      app_role: "admin" | "editor" | "user" | "parceiro"
       street_guide_status: "draft" | "published" | "hidden"
       street_via_type:
         | "alameda"
@@ -2179,7 +2278,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "editor", "user"],
+      app_role: ["admin", "editor", "user", "parceiro"],
       street_guide_status: ["draft", "published", "hidden"],
       street_via_type: [
         "alameda",
