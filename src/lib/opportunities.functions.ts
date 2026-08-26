@@ -419,12 +419,14 @@ type RoleChecker = {
 };
 
 async function assertEditor(ctx: { supabase: RoleChecker; userId: string }) {
-  const [{ data: isAdmin }, { data: isEditor }] = await Promise.all([
+  const [admin, editor] = await Promise.all([
     ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" }),
     ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "editor" }),
   ]);
-  if (!isAdmin && !isEditor) throw new Error("Forbidden");
+  console.log("[assertEditor]", ctx.userId, JSON.stringify(admin), JSON.stringify(editor));
+  if (!admin.data && !editor.data) throw new Error("Forbidden");
 }
+
 
 /**
  * Vocabulário barrado na leitura da equipe. Alegação de preço é gerada pelo
