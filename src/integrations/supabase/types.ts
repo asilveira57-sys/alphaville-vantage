@@ -972,6 +972,59 @@ export type Database = {
         }
         Relationships: []
       }
+      opportunity_valuations: {
+        Row: {
+          comparables: Json
+          computed_at: string
+          computed_by: string | null
+          delta_pct: number | null
+          id: string
+          method: string
+          property_id: string
+          property_sqm_price: number
+          reference_sqm_price: number
+          sample_size: number
+          source_label: string
+          window_months: number
+        }
+        Insert: {
+          comparables?: Json
+          computed_at?: string
+          computed_by?: string | null
+          delta_pct?: number | null
+          id?: string
+          method: string
+          property_id: string
+          property_sqm_price: number
+          reference_sqm_price: number
+          sample_size: number
+          source_label: string
+          window_months?: number
+        }
+        Update: {
+          comparables?: Json
+          computed_at?: string
+          computed_by?: string | null
+          delta_pct?: number | null
+          id?: string
+          method?: string
+          property_id?: string
+          property_sqm_price?: number
+          reference_sqm_price?: number
+          sample_size?: number
+          source_label?: string
+          window_months?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_valuations_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1041,6 +1094,8 @@ export type Database = {
           price_rent: number | null
           price_sale: number | null
           property_type: string | null
+          proposal_status: string | null
+          proposal_status_at: string | null
           purpose: string | null
           raw: Json | null
           region: string | null
@@ -1107,6 +1162,8 @@ export type Database = {
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
+          proposal_status?: string | null
+          proposal_status_at?: string | null
           purpose?: string | null
           raw?: Json | null
           region?: string | null
@@ -1173,6 +1230,8 @@ export type Database = {
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
+          proposal_status?: string | null
+          proposal_status_at?: string | null
           purpose?: string | null
           raw?: Json | null
           region?: string | null
@@ -1285,6 +1344,32 @@ export type Database = {
             columns: ["street_id"]
             isOneToOne: false
             referencedRelation: "streets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_view_daily: {
+        Row: {
+          day: string
+          property_id: string
+          views: number
+        }
+        Insert: {
+          day?: string
+          property_id: string
+          views?: number
+        }
+        Update: {
+          day?: string
+          property_id?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_view_daily_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -1862,6 +1947,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_property_view: {
+        Args: { p_property_id: string }
+        Returns: undefined
       }
       match_property_streets: {
         Args: { p_property_id: string }

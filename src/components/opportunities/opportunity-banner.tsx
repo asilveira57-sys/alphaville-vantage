@@ -34,7 +34,7 @@ export function OpportunityBanner({ item }: { item: OpportunityDTO }) {
         <div className="lg:col-span-8">
           <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center bg-[#F2DA00] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#0D0D0D]">
-              Vitrine de Oportunidades
+              {item.valuation ? item.valuation.badge : "Vitrine de Oportunidades"}
             </span>
             {item.published_at ? (
               <span className="text-[11px] uppercase tracking-[0.16em] text-[#EAEAE6]/45">
@@ -79,6 +79,15 @@ export function OpportunityBanner({ item }: { item: OpportunityDTO }) {
               </>
             ) : null}
 
+            {item.valuation ? (
+              <p className="mt-4 border-t border-[#EAEAE6]/15 pt-4 text-[12px] leading-relaxed text-[#EAEAE6]/60">
+                Referência de {brl(item.valuation.referenceSqmPrice)}/m²: mediana de{" "}
+                {item.valuation.sampleSize} imóveis comparáveis {item.valuation.methodLabel}, com a
+                mesma tipologia. Fonte: {item.valuation.sourceLabel}. Apurado em{" "}
+                {longDate(item.valuation.computedAt)}.
+              </p>
+            ) : null}
+
             <a
               href={wa}
               target="_blank"
@@ -91,8 +100,11 @@ export function OpportunityBanner({ item }: { item: OpportunityDTO }) {
 
             <p className="mt-5 text-[12px] leading-relaxed text-[#EAEAE6]/50">
               A seleção tem validade e é revista periodicamente.{" "}
-              <Link to={"/oportunidades" as never} className="underline hover:text-[#EAEAE6]">
-                Como escolhemos os imóveis da vitrine
+              <Link
+                to={"/oportunidades/metodologia" as never}
+                className="underline hover:text-[#EAEAE6]"
+              >
+                Ver metodologia
               </Link>
               .
             </p>

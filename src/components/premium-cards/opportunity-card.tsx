@@ -28,11 +28,23 @@ function compact(amount: number) {
  * Mensagem flutuante. Cada frase vem de um dado do sistema, com data —
  * nunca de um campo livre no admin.
  */
+function signalText(signal: OpportunitySignal): string {
+  switch (signal.kind) {
+    case "price_drop":
+      return `Preço reduzido em ${compact(signal.amount)} · ${shortDate(signal.observedAt)}`;
+    case "high_demand":
+      // O número e o período andam junto com a frase: é o que separa
+      // informação de urgência fabricada.
+      return `Alta procura — ${signal.views} visualizações em ${signal.days} dias`;
+    case "proposal":
+      return `Proposta em análise desde ${shortDate(signal.since)}`;
+    case "new":
+      return `Entrou na vitrine em ${shortDate(signal.publishedAt)}`;
+  }
+}
+
 export function SignalPill({ signal }: { signal: OpportunitySignal }) {
-  const text =
-    signal.kind === "price_drop"
-      ? `Preço reduzido em ${compact(signal.amount)} · ${shortDate(signal.observedAt)}`
-      : `Entrou na vitrine em ${shortDate(signal.publishedAt)}`;
+  const text = signalText(signal);
 
   return (
     <span className="inline-flex items-center rounded-sm border-l-[3px] border-[#1B4FD8] bg-white/95 px-3 py-1.5 text-[12px] font-semibold leading-tight text-[#1B4FD8] shadow-[0_6px_18px_-12px_rgba(13,13,13,0.7)] backdrop-blur-sm">
@@ -107,8 +119,8 @@ export function OpportunityCard({
           }
           className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
         />
-        <span className="absolute left-4 top-4 rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
-          Oportunidade
+        <span className="absolute left-4 top-4 max-w-[70%] rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#0D0D0D]">
+          {item.valuation ? item.valuation.badge : "Oportunidade"}
         </span>
         <span className="absolute right-4 top-4 rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#1A1A1A]/70 backdrop-blur-sm">
           {label}
