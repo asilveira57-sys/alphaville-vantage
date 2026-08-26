@@ -5,6 +5,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { OpportunityCard } from "@/components/premium-cards/opportunity-card";
 import { listOpportunities, type OpportunityDTO } from "@/lib/opportunities.functions";
+import { OpportunitySubscribeForm } from "@/components/opportunities/opportunity-subscribe-form";
 
 const SITE_URL = "https://alphaville-vantage.lovable.app";
 
@@ -68,7 +69,7 @@ const FAQ = [
   },
   {
     q: "Posso receber as oportunidades em primeira mão?",
-    a: "Estamos abrindo uma lista para investidores e corretores parceiros. Fale com nossa equipe pelo WhatsApp para entrar.",
+    a: "Sim. Investidores e corretores parceiros podem entrar na lista pelo formulário nesta página e escolher receber por e-mail, por WhatsApp ou pelos dois. Você sai da lista quando quiser.",
   },
 ];
 
@@ -179,6 +180,27 @@ function OpportunitiesPage() {
               </Link>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------- captação */}
+      <section id="lista" className="scroll-mt-20 bg-[#0D0D0D] px-6 py-20 text-[#EAEAE6]">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#F2DA00]">
+              Lista de oportunidades
+            </p>
+            <h2 className="font-display mt-4 max-w-[16ch] text-3xl leading-tight tracking-tight text-balance md:text-4xl">
+              Receba antes de entrar no site
+            </h2>
+            <p className="mt-6 max-w-[46ch] text-[15px] leading-relaxed text-[#EAEAE6]/70">
+              Investidores e corretores parceiros recebem as novas seleções assim que a curadoria
+              fecha. Sem disparo diário: só quando entra imóvel novo na vitrine.
+            </p>
+          </div>
+          <div className="lg:col-span-7">
+            <OpportunitySubscribeForm tone="dark" />
+          </div>
         </div>
       </section>
 

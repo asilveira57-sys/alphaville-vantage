@@ -60,6 +60,7 @@ import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
 import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
 import { Route as OportunidadesMetodologiaRouteImport } from './routes/oportunidades.metodologia'
+import { Route as OportunidadesDescadastroRouteImport } from './routes/oportunidades.descadastro'
 import { Route as OportunidadesSlugRouteImport } from './routes/oportunidades.$slug'
 import { Route as MeioAmbienteLazerRouteImport } from './routes/meio-ambiente.lazer'
 import { Route as MeioAmbienteFaunaRouteImport } from './routes/meio-ambiente.fauna'
@@ -84,6 +85,7 @@ import { Route as AuthenticatedAdminPendentesRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminOportunidadesRouteImport } from './routes/_authenticated/admin-oportunidades'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
 import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
+import { Route as AuthenticatedAdminListaOportunidadesRouteImport } from './routes/_authenticated/admin-lista-oportunidades'
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
@@ -359,6 +361,12 @@ const OportunidadesMetodologiaRoute =
     path: '/metodologia',
     getParentRoute: () => OportunidadesRoute,
   } as any)
+const OportunidadesDescadastroRoute =
+  OportunidadesDescadastroRouteImport.update({
+    id: '/descadastro',
+    path: '/descadastro',
+    getParentRoute: () => OportunidadesRoute,
+  } as any)
 const OportunidadesSlugRoute = OportunidadesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -486,6 +494,12 @@ const AuthenticatedAdminMapaRoute = AuthenticatedAdminMapaRouteImport.update({
   path: '/admin-mapa',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminListaOportunidadesRoute =
+  AuthenticatedAdminListaOportunidadesRouteImport.update({
+    id: '/admin-lista-oportunidades',
+    path: '/admin-lista-oportunidades',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminFinanciamentoRoute =
   AuthenticatedAdminFinanciamentoRouteImport.update({
     id: '/admin-financiamento',
@@ -633,6 +647,7 @@ export interface FileRoutesByFullPath {
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
+  '/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
@@ -657,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/oportunidades/$slug': typeof OportunidadesSlugRoute
+  '/oportunidades/descadastro': typeof OportunidadesDescadastroRoute
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
@@ -720,6 +736,7 @@ export interface FileRoutesByTo {
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
+  '/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
@@ -742,6 +759,7 @@ export interface FileRoutesByTo {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/oportunidades/$slug': typeof OportunidadesSlugRoute
+  '/oportunidades/descadastro': typeof OportunidadesDescadastroRoute
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
@@ -814,6 +832,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
+  '/_authenticated/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
   '/_authenticated/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
@@ -838,6 +857,7 @@ export interface FileRoutesById {
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
   '/meio-ambiente/lazer': typeof MeioAmbienteLazerRoute
   '/oportunidades/$slug': typeof OportunidadesSlugRoute
+  '/oportunidades/descadastro': typeof OportunidadesDescadastroRoute
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
@@ -910,6 +930,7 @@ export interface FileRouteTypes {
     | '/admin-ctas'
     | '/admin-empreendimentos'
     | '/admin-financiamento'
+    | '/admin-lista-oportunidades'
     | '/admin-mapa'
     | '/admin-midia'
     | '/admin-oportunidades'
@@ -934,6 +955,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/oportunidades/$slug'
+    | '/oportunidades/descadastro'
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
@@ -997,6 +1019,7 @@ export interface FileRouteTypes {
     | '/admin-ctas'
     | '/admin-empreendimentos'
     | '/admin-financiamento'
+    | '/admin-lista-oportunidades'
     | '/admin-mapa'
     | '/admin-midia'
     | '/admin-oportunidades'
@@ -1019,6 +1042,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/oportunidades/$slug'
+    | '/oportunidades/descadastro'
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
@@ -1090,6 +1114,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-empreendimentos'
     | '/_authenticated/admin-financiamento'
+    | '/_authenticated/admin-lista-oportunidades'
     | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
     | '/_authenticated/admin-oportunidades'
@@ -1114,6 +1139,7 @@ export interface FileRouteTypes {
     | '/meio-ambiente/fauna'
     | '/meio-ambiente/lazer'
     | '/oportunidades/$slug'
+    | '/oportunidades/descadastro'
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
@@ -1556,6 +1582,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OportunidadesMetodologiaRouteImport
       parentRoute: typeof OportunidadesRoute
     }
+    '/oportunidades/descadastro': {
+      id: '/oportunidades/descadastro'
+      path: '/descadastro'
+      fullPath: '/oportunidades/descadastro'
+      preLoaderRoute: typeof OportunidadesDescadastroRouteImport
+      parentRoute: typeof OportunidadesRoute
+    }
     '/oportunidades/$slug': {
       id: '/oportunidades/$slug'
       path: '/$slug'
@@ -1722,6 +1755,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-mapa'
       fullPath: '/admin-mapa'
       preLoaderRoute: typeof AuthenticatedAdminMapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-lista-oportunidades': {
+      id: '/_authenticated/admin-lista-oportunidades'
+      path: '/admin-lista-oportunidades'
+      fullPath: '/admin-lista-oportunidades'
+      preLoaderRoute: typeof AuthenticatedAdminListaOportunidadesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-financiamento': {
@@ -1893,6 +1933,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
+  AuthenticatedAdminListaOportunidadesRoute: typeof AuthenticatedAdminListaOportunidadesRoute
   AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
   AuthenticatedAdminOportunidadesRoute: typeof AuthenticatedAdminOportunidadesRoute
@@ -1914,6 +1955,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,
   AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
+  AuthenticatedAdminListaOportunidadesRoute:
+    AuthenticatedAdminListaOportunidadesRoute,
   AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,
   AuthenticatedAdminMidiaRoute: AuthenticatedAdminMidiaRoute,
   AuthenticatedAdminOportunidadesRoute: AuthenticatedAdminOportunidadesRoute,
@@ -1999,12 +2042,14 @@ const MeioAmbienteRouteWithChildren = MeioAmbienteRoute._addFileChildren(
 
 interface OportunidadesRouteChildren {
   OportunidadesSlugRoute: typeof OportunidadesSlugRoute
+  OportunidadesDescadastroRoute: typeof OportunidadesDescadastroRoute
   OportunidadesMetodologiaRoute: typeof OportunidadesMetodologiaRoute
   OportunidadesIndexRoute: typeof OportunidadesIndexRoute
 }
 
 const OportunidadesRouteChildren: OportunidadesRouteChildren = {
   OportunidadesSlugRoute: OportunidadesSlugRoute,
+  OportunidadesDescadastroRoute: OportunidadesDescadastroRoute,
   OportunidadesMetodologiaRoute: OportunidadesMetodologiaRoute,
   OportunidadesIndexRoute: OportunidadesIndexRoute,
 }

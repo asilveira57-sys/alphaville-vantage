@@ -98,6 +98,14 @@ export function OpportunityBanner({ item }: { item: OpportunityDTO }) {
               Fale agora com o corretor
             </a>
 
+            <Link
+              to={"/oportunidades" as never}
+              hash="lista"
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 border border-[#EAEAE6]/25 px-6 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#EAEAE6] transition hover:border-[#EAEAE6]/60"
+            >
+              Receber as próximas oportunidades
+            </Link>
+
             <p className="mt-5 text-[12px] leading-relaxed text-[#EAEAE6]/50">
               A seleção tem validade e é revista periodicamente.{" "}
               <Link
