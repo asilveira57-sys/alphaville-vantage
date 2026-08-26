@@ -1047,6 +1047,81 @@ export type Database = {
         }
         Relationships: []
       }
+      opportunity_subscribers: {
+        Row: {
+          audience: string
+          broadcast_added_at: string | null
+          campaign: string | null
+          consent_at: string
+          consent_email: boolean
+          consent_ip: string | null
+          consent_text: string
+          consent_user_agent: string | null
+          consent_whatsapp: boolean
+          created_at: string
+          email: string | null
+          filters: Json
+          id: string
+          landing_page: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          policy_version: string
+          referrer: string | null
+          source: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          broadcast_added_at?: string | null
+          campaign?: string | null
+          consent_at?: string
+          consent_email?: boolean
+          consent_ip?: string | null
+          consent_text: string
+          consent_user_agent?: string | null
+          consent_whatsapp?: boolean
+          created_at?: string
+          email?: string | null
+          filters?: Json
+          id?: string
+          landing_page?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          policy_version: string
+          referrer?: string | null
+          source?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          broadcast_added_at?: string | null
+          campaign?: string | null
+          consent_at?: string
+          consent_email?: boolean
+          consent_ip?: string | null
+          consent_text?: string
+          consent_user_agent?: string | null
+          consent_whatsapp?: boolean
+          created_at?: string
+          email?: string | null
+          filters?: Json
+          id?: string
+          landing_page?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          policy_version?: string
+          referrer?: string | null
+          source?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       opportunity_valuations: {
         Row: {
           comparables: Json

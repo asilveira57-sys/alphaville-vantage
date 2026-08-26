@@ -47,6 +47,20 @@ const AREAS: Area[] = [
     type: "condominio",
   },
   {
+    title: "Vitrine de Oportunidades",
+    description:
+      "Curadoria dos imóveis da vitrine: quem entra, ordem, validade e a apuração do selo de preço.",
+    admin: "/admin-oportunidades",
+    site: "/oportunidades",
+  },
+  {
+    title: "Lista de oportunidades",
+    description:
+      "Contatos que autorizaram receber as oportunidades. Exportação em CSV para a lista de transmissão, feita à mão.",
+    admin: "/admin-lista-oportunidades",
+    site: "/oportunidades",
+  },
+  {
     title: "Central de condomínios",
     description: "Cadastro oficial, limpeza dos nomes do scrap, unificação de duplicados e criação do guia de cada condomínio.",
     admin: "/admin-condominios",
