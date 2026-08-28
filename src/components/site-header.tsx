@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, MessageCircle, Search } from "lucide-react";
-import logoAsset from "@/assets/logo-sa-imoveis.png.asset.json";
+import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
 
 const NAV = [
   { label: "Home", to: "/" },
@@ -46,7 +46,7 @@ export function SiteHeader() {
               alt="S.A Imóveis Alphaville"
               width={180}
               height={48}
-              className="h-11 w-auto brightness-0 invert"
+              className="h-11 w-auto"
               loading="eager"
               decoding="async"
               fetchPriority="high"

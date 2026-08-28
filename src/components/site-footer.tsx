@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, MessageCircle, Mail, MapPin } from "lucide-react";
-import logoAsset from "@/assets/logo-sa-imoveis.png.asset.json";
+import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
 
 export function SiteFooter() {
   return (
@@ -16,7 +16,7 @@ export function SiteFooter() {
                 height={56}
                 loading="lazy"
                 decoding="async"
-                className="h-14 w-auto brightness-0 invert"
+                className="h-14 w-auto"
               />
             </Link>
             <p className="text-sm leading-relaxed text-white/60 max-w-[34ch]">
