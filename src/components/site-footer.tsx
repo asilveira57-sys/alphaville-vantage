@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, MessageCircle, Mail, MapPin } from "lucide-react";
-import logoAsset from "@/assets/logo-sa-imoveis.png.asset.json";
+import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
 
 export function SiteFooter() {
   return (
