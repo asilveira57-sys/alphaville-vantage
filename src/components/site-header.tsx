@@ -46,7 +46,7 @@ export function SiteHeader() {
               alt="S.A Imóveis Alphaville"
               width={180}
               height={48}
-              className="h-11 w-auto brightness-0 invert"
+              className="h-11 w-auto"
               loading="eager"
               decoding="async"
               fetchPriority="high"
