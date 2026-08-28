@@ -283,8 +283,13 @@ async function fetchValuations(
     .in("property_id", ids)
     .order("computed_at", { ascending: false });
 
+  const seen = new Set<string>();
   for (const row of (data ?? []) as unknown as ValuationRow[]) {
-    if (byProperty.has(row.property_id)) continue; // a primeira é a mais recente
+    // A primeira linha de cada imóvel é a apuração mais recente — é ela que
+    // decide se há selo. Se ela não qualifica, o imóvel fica sem selo; uma
+    // apuração antiga qualificada jamais pode reaparecer.
+    if (seen.has(row.property_id)) continue;
+    seen.add(row.property_id);
     const delta = Number(row.delta_pct);
     if (!Number.isFinite(delta) || delta > QUALIFYING_DELTA_PCT) continue;
     if (row.sample_size < MIN_SAMPLE) continue;
