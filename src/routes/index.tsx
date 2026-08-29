@@ -20,10 +20,6 @@ import {
 
 
 import heroImg from "@/assets/hero-architecture.jpg";
-import alphavilleImg from "@/assets/region-alphaville.jpg";
-import tamboreImg from "@/assets/region-tambore.jpg";
-import barueriImg from "@/assets/region-barueri.jpg";
-import santanaImg from "@/assets/region-santana.jpg";
 import interiorImg from "@/assets/article-interior.jpg";
 import gardenImg from "@/assets/article-garden.jpg";
 import clubhouseImg from "@/assets/article-clubhouse.jpg";
@@ -179,10 +175,10 @@ const FALLBACK_ARTICLES = [
 ] as const;
 
 const REGIONS = [
-  { slug: "alphaville", cmsSlug: "guia-alphaville", label: "Alphaville", to: "/guia-alphaville", image: alphavilleImg, description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
-  { slug: "tambore", cmsSlug: "guia-tambore", label: "Tamboré", to: "/guia-tambore", image: tamboreImg, description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
-  { slug: "barueri", cmsSlug: "guia-barueri", label: "Barueri", to: "/guia-barueri", image: barueriImg, description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
-  { slug: "santana", cmsSlug: "guia-santana-de-parnaiba", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", image: santanaImg, description: "Centro histórico tombado, gastronomia e novos condomínios." },
+  { slug: "alphaville", cmsSlug: "guia-alphaville", label: "Alphaville", to: "/guia-alphaville", description: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
+  { slug: "tambore", cmsSlug: "guia-tambore", label: "Tamboré", to: "/guia-tambore", description: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
+  { slug: "barueri", cmsSlug: "guia-barueri", label: "Barueri", to: "/guia-barueri", description: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
+  { slug: "santana", cmsSlug: "guia-santana-de-parnaiba", label: "Santana de Parnaíba", to: "/guia-santana-de-parnaiba", description: "Centro histórico tombado, gastronomia e novos condomínios." },
 ];
 
 const STATS = [
@@ -373,7 +369,7 @@ function HomePage() {
                 slug={r.slug}
                 title={r.label}
                 description={r.description}
-                image={regionImages[r.cmsSlug] ?? r.image}
+                image={regionImages[r.cmsSlug]}
                 count={regionCounts[r.slug] ?? null}
               />
             ))}

@@ -5,10 +5,34 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { PremiumPostCard } from "@/components/premium-cards/post-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { listPublishedPosts } from "@/lib/blog.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 const postsQO = queryOptions({
   queryKey: ["publishedPosts"],
   queryFn: () => listPublishedPosts(),
+});
+
+const GUIDE_SLUGS = [
+  "guia-alphaville",
+  "guia-tambore",
+  "guia-barueri",
+  "guia-santana-de-parnaiba",
+];
+
+const guideImagesQO = queryOptions({
+  queryKey: ["guide-region-card-images"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("editorial_pages")
+      .select("slug,featured_image")
+      .in("slug", GUIDE_SLUGS);
+    if (error) throw new Error(error.message);
+    return Object.fromEntries(
+      (data ?? [])
+        .filter((row) => Boolean(row.featured_image))
+        .map((row) => [row.slug, row.featured_image as string]),
+    );
+  },
 });
 
 const GUIAS = [
@@ -26,10 +50,15 @@ export const Route = createFileRoute("/blog/")({
       { property: "og:title", content: "Blog — S.A Imóveis Alphaville" },
       { property: "og:description", content: "Reportagens editoriais sobre a região de Alphaville." },
       { property: "og:url", content: "/blog" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/blog" }],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(postsQO),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(postsQO),
+    context.queryClient.ensureQueryData(guideImagesQO),
+  ]),
   component: BlogIndex,
   errorComponent: ({ error }) => (
     <SiteLayout>
@@ -41,6 +70,7 @@ export const Route = createFileRoute("/blog/")({
 
 function BlogIndex() {
   const { data: posts } = useSuspenseQuery(postsQO);
+  const { data: guideImages } = useSuspenseQuery(guideImagesQO);
   const [featured, ...rest] = posts;
   const topSecondary = rest.slice(0, 2);
   const recent = rest.slice(2);
@@ -111,7 +141,14 @@ function BlogIndex() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {GUIAS.map((g) => (
-              <PremiumRegionCard key={g.slug} to={g.to} slug={g.slug} title={g.title} description={g.description} />
+              <PremiumRegionCard
+                key={g.slug}
+                to={g.to}
+                slug={g.slug}
+                title={g.title}
+                description={g.description}
+                image={guideImages[g.to.slice(1)]}
+              />
             ))}
           </div>
         </div>

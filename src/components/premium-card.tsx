@@ -21,6 +21,8 @@ type BaseProps = {
   priority?: boolean;
   /** Responsive `sizes` hint — defaults to a 1/2/3-column grid heuristic. */
   sizes?: string;
+  /** Keeps managed cards from silently showing a bundled legacy image. */
+  disableImageFallback?: boolean;
 };
 
 type LinkedProps = BaseProps & {
@@ -51,21 +53,30 @@ export function PremiumCard(props: PremiumCardProps) {
     aspectRatio = "tall", className, fallback, footer, badges,
     priority = false,
     sizes = "(max-width: 768px) 88vw, (max-width: 1200px) 45vw, 30vw",
+    disableImageFallback = false,
   } = props;
-  const src = resolveImage(image, fallback ?? {});
+  const src = disableImageFallback && !image?.trim()
+    ? null
+    : resolveImage(image, fallback ?? {});
 
   const inner = (
     <div className={cn(cleanCardShell, className)}>
       <div className={cn("relative shrink-0 overflow-hidden", aspects[aspectRatio])}>
-        <img
-          src={src}
-          alt={imageAlt}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
-          sizes={sizes}
-          {...(priority ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
-          className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
-        />
+        {src ? (
+          <img
+            src={src}
+            alt={imageAlt}
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+            sizes={sizes}
+            {...(priority ? { fetchPriority: "high" as const } : { fetchPriority: "low" as const })}
+            className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="grid h-full w-full place-items-center bg-canvas text-ink/35" aria-hidden="true">
+            {icon}
+          </div>
+        )}
         {eyebrow ? (
           <span className="absolute left-4 top-4 max-w-[85%] truncate rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
             {eyebrow}
