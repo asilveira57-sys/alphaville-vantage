@@ -112,7 +112,7 @@ function BlogIndex() {
   const filtered = useMemo(() => {
     const needles = norm(q).split(/\s+/).filter(Boolean);
     return pool.filter((p) => {
-      if (tag && !(p.tags ?? []).some((t) => norm(t) === norm(tag))) return false;
+      if (tag && !((p.tags ?? []) as string[]).some((t: string) => norm(t) === norm(tag))) return false;
       if (!needles.length) return true;
       const hay = norm([p.title, p.excerpt ?? "", (p.tags ?? []).join(" ")].join(" "));
       return needles.every((n) => hay.includes(n));
