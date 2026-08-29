@@ -45,7 +45,19 @@ const GUIAS = [
   { slug: "santana", to: "/guia-santana-de-parnaiba", title: "Santana de Parnaíba", description: "Centro histórico tombado, gastronomia e novos condomínios." },
 ];
 
+const blogSearchSchema = z.object({
+  q: fallback(z.string(), "").default(""),
+  tag: fallback(z.string(), "").default(""),
+  page: fallback(z.number().int(), 1).default(1),
+});
+
+const PER_PAGE = 12;
+
+const norm = (s: string) =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
 export const Route = createFileRoute("/blog/")({
+  validateSearch: zodValidator(blogSearchSchema),
   head: () => ({
     meta: [
       { title: "Blog — S.A Imóveis Alphaville" },
