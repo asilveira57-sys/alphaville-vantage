@@ -86,9 +86,50 @@ export const Route = createFileRoute("/blog/")({
 function BlogIndex() {
   const { data: posts } = useSuspenseQuery(postsQO);
   const { data: guideImages } = useSuspenseQuery(guideImagesQO);
+  const { q, tag, page } = Route.useSearch();
+  const navigate = useNavigate({ from: "/blog/" });
+
+  const [term, setTerm] = useState(q);
+  useEffect(() => setTerm(q), [q]);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (term !== q) navigate({ search: (prev) => ({ ...prev, q: term, page: 1 }) });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [term, q, navigate]);
+
   const [featured, ...rest] = posts;
   const topSecondary = rest.slice(0, 2);
-  const recent = rest.slice(2);
+  const isFiltering = Boolean(q.trim() || tag);
+  const pool = isFiltering ? posts : rest.slice(2);
+
+  const allTags = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of posts) for (const t of p.tags ?? []) counts.set(t, (counts.get(t) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([t]) => t);
+  }, [posts]);
+
+  const filtered = useMemo(() => {
+    const needles = norm(q).split(/\s+/).filter(Boolean);
+    return pool.filter((p) => {
+      if (tag && !(p.tags ?? []).some((t) => norm(t) === norm(tag))) return false;
+      if (!needles.length) return true;
+      const hay = norm([p.title, p.excerpt ?? "", (p.tags ?? []).join(" ")].join(" "));
+      return needles.every((n) => hay.includes(n));
+    });
+  }, [pool, q, tag]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const recent = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+  const goPage = (n: number) => {
+    navigate({ search: (prev) => ({ ...prev, page: n }) });
+    if (typeof window !== "undefined") {
+      document.getElementById("ultimas-materias")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
 
   return (
     <SiteLayout>
