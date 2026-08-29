@@ -47,6 +47,7 @@ export function PremiumRegionCard({ to, slug, title, description, image, count }
       cta="Explorar guia"
       aspectRatio="tall"
       fallback={{ type: "region", region: slug }}
+      disableImageFallback
       footer={footer}
     />
   );
