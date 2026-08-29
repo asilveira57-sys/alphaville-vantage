@@ -148,7 +148,7 @@ function BlogIndex() {
       </section>
 
       {/* Matérias em destaque */}
-      {featured && (
+      {featured && !isFiltering && (
         <section className="bg-navy-deep text-canvas px-6 pb-20">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
