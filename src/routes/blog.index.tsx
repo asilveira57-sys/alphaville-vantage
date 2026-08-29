@@ -210,33 +210,126 @@ function BlogIndex() {
         </div>
       </section>
 
-      {/* Posts recentes */}
-      {recent.length > 0 && (
-        <section className="bg-navy-deep text-canvas px-6 py-20 md:py-24">
+      {/* Posts recentes + filtros + paginação */}
+      {posts.length > 0 && (
+        <section id="ultimas-materias" className="bg-navy-deep text-canvas px-6 py-20 md:py-24">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-end justify-between mb-10 gap-4 flex-wrap border-b border-white/10 pb-4">
+            <div className="flex items-end justify-between mb-6 gap-4 flex-wrap border-b border-white/10 pb-4">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-3">Publicações</p>
-                <h2 className="font-serif text-3xl md:text-4xl font-medium">Últimas matérias</h2>
+                <h2 className="font-serif text-3xl md:text-4xl font-medium">
+                  {isFiltering ? "Resultados da busca" : "Últimas matérias"}
+                </h2>
               </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recent.map((p) => (
-                <PremiumPostCard
-                  key={p.id}
-                  to="/blog/$slug"
-                  params={{ slug: p.slug }}
-                  title={p.title}
-                  excerpt={p.excerpt}
-                  image={p.featured_image}
-                  eyebrow={p.tags?.[0] ?? "Editorial"}
-                  publishedAt={p.published_at}
+              <label className="relative w-full sm:w-80">
+                <span className="sr-only">Buscar matérias</span>
+                <input
+                  type="search"
+                  value={term}
+                  onChange={(e) => setTerm(e.target.value)}
+                  placeholder="Buscar por Alphaville, supermercado…"
+                  className="w-full bg-white/5 border border-white/15 focus:border-gold/60 outline-none px-4 py-3 text-sm text-canvas placeholder:text-canvas/40 transition-colors"
                 />
-              ))}
+              </label>
             </div>
+
+            {allTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-8">
+                <button
+                  type="button"
+                  onClick={() => navigate({ search: (prev) => ({ ...prev, tag: "", page: 1 }) })}
+                  className={`px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] border transition-colors ${
+                    !tag ? "border-gold text-gold" : "border-white/15 text-canvas/60 hover:text-canvas"
+                  }`}
+                >
+                  Todas
+                </button>
+                {allTags.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() =>
+                      navigate({ search: (prev) => ({ ...prev, tag: tag === t ? "" : t, page: 1 }) })
+                    }
+                    className={`px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] border transition-colors ${
+                      tag === t ? "border-gold text-gold" : "border-white/15 text-canvas/60 hover:text-canvas"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p className="text-[11px] uppercase tracking-[0.22em] text-canvas/50 mb-8">
+              {filtered.length} {filtered.length === 1 ? "matéria encontrada" : "matérias encontradas"}
+            </p>
+
+            {recent.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recent.map((p) => (
+                  <PremiumPostCard
+                    key={p.id}
+                    to="/blog/$slug"
+                    params={{ slug: p.slug }}
+                    title={p.title}
+                    excerpt={p.excerpt}
+                    image={p.featured_image}
+                    eyebrow={p.tags?.[0] ?? "Editorial"}
+                    publishedAt={p.published_at}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="border border-white/10 py-16 text-center">
+                <p className="font-serif text-2xl mb-2">Nenhuma matéria encontrada</p>
+                <p className="text-sm text-canvas/60">Tente outro termo ou remova os filtros.</p>
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <nav className="mt-12 flex items-center justify-center gap-2 flex-wrap" aria-label="Paginação">
+                <button
+                  type="button"
+                  onClick={() => goPage(safePage - 1)}
+                  disabled={safePage === 1}
+                  className="px-4 py-2 text-[11px] uppercase tracking-[0.18em] border border-white/15 disabled:opacity-30 hover:border-gold/60 transition-colors"
+                >
+                  Anterior
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((n) => n === 1 || n === totalPages || Math.abs(n - safePage) <= 1)
+                  .map((n, idx, arr) => (
+                    <span key={n} className="flex items-center gap-2">
+                      {idx > 0 && arr[idx - 1] !== n - 1 && <span className="text-canvas/40">…</span>}
+                      <button
+                        type="button"
+                        onClick={() => goPage(n)}
+                        aria-current={n === safePage ? "page" : undefined}
+                        className={`min-w-10 px-3 py-2 text-[11px] border transition-colors ${
+                          n === safePage
+                            ? "border-gold text-gold"
+                            : "border-white/15 text-canvas/70 hover:text-canvas"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    </span>
+                  ))}
+                <button
+                  type="button"
+                  onClick={() => goPage(safePage + 1)}
+                  disabled={safePage === totalPages}
+                  className="px-4 py-2 text-[11px] uppercase tracking-[0.18em] border border-white/15 disabled:opacity-30 hover:border-gold/60 transition-colors"
+                >
+                  Próxima
+                </button>
+              </nav>
+            )}
           </div>
         </section>
       )}
+
 
       {posts.length === 0 && (
         <section className="bg-canvas px-6 py-24">
