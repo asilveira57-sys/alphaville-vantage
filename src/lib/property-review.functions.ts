@@ -224,7 +224,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: {
     status?: "ok" | "review" | "error" | "all" | "exempt";
-    filter?: "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off" | null;
+    filter?: "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off" | "missing_photos" | null;
   }) => d)
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
