@@ -176,7 +176,17 @@ function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
   }
   if (s.type) out = out.filter((p) => fuzzyEq(p.property_type, s.type));
   if (s.city) out = out.filter((p) => fuzzyEq(p.city, s.city));
-  if (s.neighborhood) out = out.filter((p) => fuzzyEq(p.neighborhood, s.neighborhood));
+  if (s.neighborhood) {
+    // O termo pode ser um bairro, uma região ou o nome do condomínio
+    // (ex.: "Genesis" é condomínio, não bairro cadastrado).
+    out = out.filter(
+      (p) =>
+        fuzzyEq(p.neighborhood, s.neighborhood) ||
+        fuzzyEq(p.region, s.neighborhood) ||
+        fuzzyEq(p.condo_official, s.neighborhood) ||
+        fuzzyEq(p.condominium_name, s.neighborhood),
+    );
+  }
   if (s.condo) out = out.filter((p) => fuzzyEq(p.condo_official ?? p.condominium_name, s.condo));
   if (s.bedrooms) out = out.filter((p) => (p.bedrooms ?? 0) >= s.bedrooms);
   if (s.parking) {
