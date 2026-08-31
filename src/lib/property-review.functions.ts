@@ -253,6 +253,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
       if (data.filter === "missing_bedrooms") q = q.is("bedrooms", null);
       if (data.filter === "missing_price") q = q.is("price_rent", null).is("price_sale", null);
       if (data.filter === "rent_suspect") q = q.not("price_rent", "is", null).lt("price_rent", 100);
+      if (data.filter === "missing_photos") q = q.eq("images", "[]");
       if (data.filter === "ratio_off") {
         q = q.not("price_rent", "is", null).not("price_sale", "is", null);
       }
