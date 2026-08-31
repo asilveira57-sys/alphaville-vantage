@@ -36,6 +36,8 @@ type PropertyRow = {
   price_rent: number | null;
   last_seen_at: string | null;
   seo_title: string | null;
+  description: string | null;
+  descricao_seo: string | null;
   images: string[];
 };
 
@@ -51,7 +53,7 @@ async function fetchProperties(): Promise<{ items: PropertyRow[]; options: Filte
       supabase
         .from("properties")
         .select(
-          "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,condominium_id,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,images",
+          "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,condominium_id,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,description,descricao_seo,images",
         )
         .eq("status", "active")
         .order("last_seen_at", { ascending: false })
@@ -263,7 +265,7 @@ function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
       );
       const condoText = (p: PropertyRow) => normalize([p.condo_official, p.condominium_name].filter(Boolean).join(" "));
       const fullText = (p: PropertyRow) =>
-        normalize([p.title, p.condominium_name, p.condo_official, p.neighborhood, p.seo_title, p.city, p.region].filter(Boolean).join(" "));
+        normalize([p.title, p.condominium_name, p.condo_official, p.neighborhood, p.seo_title, p.city, p.region, p.description, p.descricao_seo].filter(Boolean).join(" "));
 
       const byCondo = out.filter((p) => phrase.test(condoText(p)));
       if (byCondo.length) {
