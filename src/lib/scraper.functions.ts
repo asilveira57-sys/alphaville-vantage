@@ -262,32 +262,61 @@ function extractPropertyTitle(html: string, url: string): string {
   return title || extractTitle(html);
 }
 
+/**
+ * Recorta o HTML para conter apenas a galeria do próprio imóvel.
+ * A ficha traz, no rodapé, um bloco "Imóveis semelhantes" com fotos de OUTROS
+ * anúncios — capturá-las misturava fotos entre imóveis (terreno com foto de apto).
+ */
+function galleryScope(html: string): string {
+  const start = html.search(/id=["']fotos_imovel["']|class=["'][^"']*fotos_imovel/i);
+  const from = start >= 0 ? start : 0;
+  const rest = html.slice(from);
+  const cut = rest.search(/class=["'][^"']*(semelhantes|relacionados|similares|outros_imoveis)/i);
+  return cut >= 0 ? rest.slice(0, cut) : rest;
+}
+
 function extractImages(html: string, base: string): string[] {
   const set = new Set<string>();
   // Site-chrome assets to skip (logos, icons, WhatsApp badges, photographer avatars, etc.)
   const isChrome = (u: string) =>
     /(logo|logos|icone|placeholder|whats|favicon|mini_|topo_|supremo_|ficha|usuarios\/)/i.test(u);
 
+  const scope = galleryScope(html);
+
   // Prefer real property photos: cdn.uso.com.br/{accountId}/{yyyy}/{mm}/<hash>.jpg
   const reCdn = /https?:\/\/cdn\d*\.uso\.com\.br\/\d+\/\d{4}\/\d{2}\/[^"'\s)]+\.(?:jpe?g|png|webp)/gi;
   let m: RegExpExecArray | null;
-  while ((m = reCdn.exec(html))) {
+  while ((m = reCdn.exec(scope))) {
     if (!isChrome(m[0])) set.add(m[0]);
   }
 
-  // Fallback: any <img src> when no CDN photos were found
+  // Fallback: <img src> dentro da galeria
   if (set.size === 0) {
     const reImg = /<img[^>]+src=["']([^"']+\.(?:jpe?g|png|webp))[^"']*["']/gi;
     let mi: RegExpExecArray | null;
-    while ((mi = reImg.exec(html))) {
+    while ((mi = reImg.exec(scope))) {
       try {
         const u = new URL(mi[1], base).toString();
         if (!isChrome(u)) set.add(u);
       } catch { /* ignore */ }
     }
   }
+
+  // Último recurso: og:image da própria ficha (nunca o HTML inteiro,
+  // que contém as fotos dos imóveis semelhantes).
+  if (set.size === 0) {
+    const og = pickMeta(html, "og:image");
+    if (og) {
+      try {
+        const u = new URL(og.replace(/\/mini_/, "/"), base).toString();
+        if (!/logo|favicon/i.test(u)) set.add(u);
+      } catch { /* ignore */ }
+    }
+  }
+
   return [...set].slice(0, 24);
 }
+
 
 
 function extractNumber(html: string, label: RegExp): number | null {

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/audit/")({
 });
 
 type StatusFilter = "all" | "ok" | "review" | "error" | "exempt";
-type IssueFilter = "" | "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off";
+type IssueFilter = "" | "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off" | "missing_photos";
 
 const PER_PAGE = 50;
 
@@ -107,6 +107,7 @@ function AuditPage() {
             <option value="missing_price">Sem valor</option>
             <option value="rent_suspect">Aluguel &lt; R$ 100 (suspeito)</option>
             <option value="ratio_off">Razão aluguel/venda fora</option>
+            <option value="missing_photos">Sem foto (recaptar)</option>
           </select>
           <span className="ml-auto text-muted-foreground">
             {listQ.isLoading ? "carregando…" : `${items.length} imóveis`}

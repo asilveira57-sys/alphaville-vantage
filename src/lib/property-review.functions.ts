@@ -224,7 +224,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: {
     status?: "ok" | "review" | "error" | "all" | "exempt";
-    filter?: "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off" | null;
+    filter?: "missing_condo" | "missing_city" | "missing_area" | "missing_bedrooms" | "missing_price" | "rent_suspect" | "ratio_off" | "missing_photos" | null;
   }) => d)
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
@@ -233,7 +233,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const COLS =
-      "id,slug,internal_code,title,city,condominium_name,property_type,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_rent,price_sale,descricao_original,descricao_seo,audit_status,audit_issues,audit_exempt,audit_exempt_reason";
+      "id,slug,internal_code,title,city,condominium_name,property_type,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_rent,price_sale,descricao_original,descricao_seo,audit_status,audit_issues,audit_exempt,audit_exempt_reason,images";
 
     const build = (from: number, to: number) => {
       let q = supabaseAdmin
@@ -253,6 +253,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
       if (data.filter === "missing_bedrooms") q = q.is("bedrooms", null);
       if (data.filter === "missing_price") q = q.is("price_rent", null).is("price_sale", null);
       if (data.filter === "rent_suspect") q = q.not("price_rent", "is", null).lt("price_rent", 100);
+      if (data.filter === "missing_photos") q = q.eq("images", "[]");
       if (data.filter === "ratio_off") {
         q = q.not("price_rent", "is", null).not("price_sale", "is", null);
       }
