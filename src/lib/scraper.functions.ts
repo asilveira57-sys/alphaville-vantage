@@ -282,7 +282,6 @@ function extractImages(html: string, base: string): string[] {
     /(logo|logos|icone|placeholder|whats|favicon|mini_|topo_|supremo_|ficha|usuarios\/)/i.test(u);
 
   const scope = galleryScope(html);
-  const hasGallery = /fotos_imovel/i.test(html);
 
   // Prefer real property photos: cdn.uso.com.br/{accountId}/{yyyy}/{mm}/<hash>.jpg
   const reCdn = /https?:\/\/cdn\d*\.uso\.com\.br\/\d+\/\d{4}\/\d{2}\/[^"'\s)]+\.(?:jpe?g|png|webp)/gi;
@@ -315,7 +314,6 @@ function extractImages(html: string, base: string): string[] {
     }
   }
 
-  void hasGallery;
   return [...set].slice(0, 24);
 }
 
