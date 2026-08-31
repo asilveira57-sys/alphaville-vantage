@@ -248,8 +248,10 @@ function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
         .filter((t) => t && !STOP.has(t) && t !== "__log__");
 
     // Só sobra o que ainda não virou filtro (normalmente o condomínio/rua).
+    // Se nada sobrou, a frase inteira já virou filtro estruturado — não
+    // aplicamos busca textual adicional (senão zera o resultado).
     const residual = residualLocationQuery(s.q);
-    const queryTokens = tokenize(residual || s.q);
+    const queryTokens = residual ? tokenize(residual) : [];
 
     if (queryTokens.length > 0) {
       // Frase completa, tolerante a conectivos: "residencial 1" casa com
