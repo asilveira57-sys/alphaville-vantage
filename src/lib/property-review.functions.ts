@@ -233,7 +233,7 @@ export const listAuditProperties = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const COLS =
-      "id,slug,internal_code,title,city,condominium_name,property_type,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_rent,price_sale,descricao_original,descricao_seo,audit_status,audit_issues,audit_exempt,audit_exempt_reason";
+      "id,slug,internal_code,title,city,condominium_name,property_type,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_rent,price_sale,descricao_original,descricao_seo,audit_status,audit_issues,audit_exempt,audit_exempt_reason,images";
 
     const build = (from: number, to: number) => {
       let q = supabaseAdmin
