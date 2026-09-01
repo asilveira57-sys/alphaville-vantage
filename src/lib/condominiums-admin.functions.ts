@@ -321,9 +321,22 @@ export const createCondominium = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ id: string }> => {
     const sb = context.supabase as unknown as SB;
     const name = data.name.trim();
+    const norm = normalizeName(name);
+
+    // Reaproveita condomínio já cadastrado com o mesmo nome (evita duplicatas com 0 imóveis).
+    const { data: all } = await sb.from("condominiums").select("id,name");
+    const same = ((all ?? []) as Array<{ id: string; name: string }>).find(
+      (c) => normalizeName(c.name) === norm,
+    );
+    if (same) {
+      if (data.alias) await linkAlias(sb, data.alias, same.id);
+      return { id: String(same.id) };
+    }
+
     let slug = slugify(name);
     const { data: existing } = await sb.from("condominiums").select("id").eq("slug", slug).maybeSingle();
     if (existing) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
+
 
     const { data: created, error } = await sb
       .from("condominiums")
