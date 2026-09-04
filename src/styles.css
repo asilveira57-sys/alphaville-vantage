@@ -339,7 +339,7 @@
 .home-hero-title {
   font-size: min(clamp(2.25rem, 1.1rem + 3.4vw, 4.75rem), 9.5vh);
   line-height: 1.05;
-  max-width: 20ch;
+  max-width: 24ch;
 }
 .home-hero-lede {
   font-size: clamp(1rem, 0.9rem + 0.25vw, 1.125rem);
