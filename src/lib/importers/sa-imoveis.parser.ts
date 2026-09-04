@@ -256,6 +256,7 @@ function composeTitle(
   type: string | null, condo: string | null, neighborhood: string | null, city: string | null,
 ): string | null {
   const t = type ? type.charAt(0).toUpperCase() + type.slice(1) : null;
-  const parts = [t, condo ? `no ${condo}` : neighborhood ? `no ${neighborhood}` : null, city].filter(Boolean);
-
+  const parts = [t, condo ? `no ${condo}` : neighborhood ? `no ${neighborhood}` : null, city].filter(Boolean) as string[];
+  if (parts.length < 2) return null;
+  return `${parts[0]}${parts[1] ? ` ${parts[1]}` : ""}${parts[2] ? ` — ${parts[2]}` : ""}`;
 }
