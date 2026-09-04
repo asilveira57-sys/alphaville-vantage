@@ -230,21 +230,21 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* =============== HERO + BARRA DE BUSCA =============== */}
-      <section className="relative bg-[#EAEAE6]">
-        <div className="max-w-7xl mx-auto px-6 pt-12 md:pt-20 pb-32 md:pb-40">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
-            <div className="lg:col-span-7">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[#1A1A1A]/60 mb-6">
+      <section className="home-hero relative bg-[#EAEAE6] flex items-center">
+        <div className="home-hero-inner w-full max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-10 lg:gap-12 items-center">
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-[0.28em] text-[#1A1A1A]/60 mb-[clamp(0.75rem,2vh,1.5rem)]">
                 Destaque Editorial
               </p>
-              <h1 className="font-display text-5xl md:text-7xl font-medium leading-[1.02] tracking-tight text-[#0D0D0D] text-balance max-w-[18ch]">
+              <h1 className="home-hero-title font-display font-medium tracking-tight text-[#0D0D0D] text-balance">
                 A evolução silenciosa da arquitetura em Alphaville
               </h1>
-              <p className="mt-8 text-[#1A1A1A]/75 text-lg leading-relaxed max-w-[52ch] text-pretty">
+              <p className="home-hero-lede mt-[clamp(1rem,2.5vh,2rem)] text-[#1A1A1A]/75 leading-relaxed max-w-[56ch] text-pretty">
                 Uma análise profunda sobre como o design contemporâneo está redefinindo o
                 horizonte dos residenciais de alto padrão na região metropolitana de São Paulo.
               </p>
-              <div className="mt-10">
+              <div className="mt-[clamp(1.25rem,3vh,2.5rem)]">
                 <Link
                   to="/blog"
                   className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] font-medium border-b border-[#0D0D0D] pb-1 hover:text-[#0D0D0D]/60"
@@ -253,7 +253,7 @@ function HomePage() {
                 </Link>
               </div>
             </div>
-            <div className="lg:col-span-5">
+            <div className="min-w-0">
               <div className="group overflow-hidden">
                 <img
                   src={heroImg}
@@ -263,8 +263,8 @@ function HomePage() {
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
-                  sizes="(max-width: 1024px) 100vw, 42vw"
-                  className="photo-bw w-full aspect-[3/4] object-cover bg-[#1A1A1A]/10"
+                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  className="home-hero-img photo-bw w-full aspect-[3/2] sm:aspect-[4/3] object-cover object-center bg-[#1A1A1A]/10"
                 />
               </div>
             </div>
