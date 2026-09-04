@@ -250,3 +250,12 @@ export function parseSaImoveis(html: string, url: string): ParserResult {
     },
   };
 }
+
+/** Compõe um título legível quando o anúncio não traz um h1 descritivo. */
+function composeTitle(
+  type: string | null, condo: string | null, neighborhood: string | null, city: string | null,
+): string | null {
+  const t = type ? type.charAt(0).toUpperCase() + type.slice(1) : null;
+  const parts = [t, condo ? `no ${condo}` : neighborhood ? `no ${neighborhood}` : null, city].filter(Boolean);
+  return parts.length >= 2 ? parts.join(" — ") : null;
+}
