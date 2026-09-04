@@ -183,7 +183,13 @@ export function parseSaImoveis(html: string, url: string): ParserResult {
     externalCode,
     // Só aceita código interno plausível (contém dígito); evita ruído do texto.
     internalCode: parsed.internal_code && /\d/.test(parsed.internal_code) ? parsed.internal_code : null,
-    title: (h1 && h1.length > 8 ? h1 : null) ?? ogTitle ?? docTitle ?? h1,
+    // Título: h1 descritivo; senão compõe com tipo + condomínio/bairro + cidade.
+    title: (h1 && h1.length > 12 ? h1 : null) ?? composeTitle(
+      parsed.property_type ?? (path[4] ? path[4].replace(/-/g, " ") : null),
+      condominiumText,
+      parsed.neighborhood ?? (path[3] ? path[3].replace(/-/g, " ") : null),
+      parsed.city ?? (path[2] ? path[2].replace(/-/g, " ") : null),
+    ) ?? h1 ?? ogTitle,
     descriptionHtml,
     descriptionText,
     purpose:
