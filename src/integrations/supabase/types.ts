@@ -1442,6 +1442,71 @@ export type Database = {
           },
         ]
       }
+      property_imports: {
+        Row: {
+          committed_at: string | null
+          created_at: string
+          created_by: string | null
+          draft: Json
+          duplicates: Json
+          external_code: string | null
+          id: string
+          log: Json
+          parser: string
+          property_id: string | null
+          raw: Json
+          source_label: string
+          source_url: string
+          status: string
+          summary: Json
+          updated_at: string
+        }
+        Insert: {
+          committed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          draft?: Json
+          duplicates?: Json
+          external_code?: string | null
+          id?: string
+          log?: Json
+          parser?: string
+          property_id?: string | null
+          raw?: Json
+          source_label?: string
+          source_url: string
+          status?: string
+          summary?: Json
+          updated_at?: string
+        }
+        Update: {
+          committed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          draft?: Json
+          duplicates?: Json
+          external_code?: string | null
+          id?: string
+          log?: Json
+          parser?: string
+          property_id?: string | null
+          raw?: Json
+          source_label?: string
+          source_url?: string
+          status?: string
+          summary?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_imports_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_price_history: {
         Row: {
           id: string
