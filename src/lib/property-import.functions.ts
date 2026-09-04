@@ -326,11 +326,11 @@ export const startPropertyImport = createServerFn({ method: "POST" })
         parser: parser.id,
         external_code: listing.externalCode,
         status: duplicates.exact ? "duplicate" : "pending",
-        draft: draft as unknown as Record<string, unknown>,
-        raw: { listing } as unknown as Record<string, unknown>,
+        draft: draft as any,
+        raw: { listing } as any,
         log: { ...log, ...summary, url, at: new Date().toISOString() },
         summary,
-        duplicates: duplicates as unknown as Record<string, unknown>,
+        duplicates: duplicates as any,
         created_by: context.userId,
       })
       .select("id")
@@ -419,7 +419,7 @@ export const savePropertyImportDraft = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("property_imports")
-      .update({ draft: data.draft as unknown as Record<string, unknown> })
+      .update({ draft: data.draft as any })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { saved: true, at: new Date().toISOString() };
@@ -531,7 +531,7 @@ export const commitPropertyImport = createServerFn({ method: "POST" })
       images.unshift(cover);
     }
 
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       external_ref: externalRef,
       source_url: draft.source.url,
       slug: `${slugify(draft.identification.title ?? "imovel")}-${draft.identification.external_code ?? Date.now()}`,
@@ -586,7 +586,7 @@ export const commitPropertyImport = createServerFn({ method: "POST" })
     }
 
     await supabaseAdmin.from("property_imports")
-      .update({ status: "committed", property_id: propertyId, committed_at: new Date().toISOString(), draft: draft as unknown as Record<string, unknown> })
+      .update({ status: "committed", property_id: propertyId, committed_at: new Date().toISOString(), draft: draft as any })
       .eq("id", data.id);
 
     await supabaseAdmin.from("cms_audit_log").insert({
