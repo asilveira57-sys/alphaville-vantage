@@ -8,6 +8,13 @@
       "when": 1788273632870,
       "tag": "0000_merge_duplicate_condominiums",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788542173298,
+      "tag": "0001_create_property_imports",
+      "breakpoints": true
     }
   ]
 }

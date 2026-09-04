@@ -312,3 +312,13 @@
     filter: grayscale(0%);
   }
 }
+
+/* Campo de formulário padrão do admin (importador por link). */
+.input {
+  width: 100%;
+  border: 1px solid color-mix(in oklab, var(--color-ink) 15%, transparent);
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+.input:focus { outline: none; border-color: var(--color-ink); }
