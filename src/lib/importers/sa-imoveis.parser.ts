@@ -181,8 +181,9 @@ export function parseSaImoveis(html: string, url: string): ParserResult {
     sourceLabel: "S.A. Imóveis — Site atual",
     url,
     externalCode,
-    internalCode: parsed.internal_code,
-    title: h1 ?? ogTitle ?? docTitle,
+    // Só aceita código interno plausível (contém dígito); evita ruído do texto.
+    internalCode: parsed.internal_code && /\d/.test(parsed.internal_code) ? parsed.internal_code : null,
+    title: (h1 && h1.length > 8 ? h1 : null) ?? ogTitle ?? docTitle ?? h1,
     descriptionHtml,
     descriptionText,
     purpose:
