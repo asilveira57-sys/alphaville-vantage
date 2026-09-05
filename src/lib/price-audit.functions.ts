@@ -308,7 +308,9 @@ export const auditarTextos = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { analyzeTexts, fixValuesParagraph, type PropRow } = await import("./price-audit/text-audit");
+    const { analyzeTexts, fixValuesParagraph } = await import("./price-audit/text-audit");
+    type PropRow = import("./price-audit/text-audit").PropRow;
+
 
     const all: PropRow[] = [];
     const CHUNK = 1000;
