@@ -560,7 +560,9 @@ function AdminValoresPage() {
                           {r.property?.slug && (
                             <a href={`/imoveis/${r.property.slug}`} target="_blank" rel="noreferrer" className="underline text-ink">Ver no portal</a>
                           )}
+                          <button onClick={() => setDetailId(r.property_id)} className="underline text-ink">Revisar valores</button>
                         </div>
+
                       </div>
                     </div>
                   ))}
