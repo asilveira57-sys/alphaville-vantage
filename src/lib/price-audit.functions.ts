@@ -714,7 +714,7 @@ export const aplicarDivergenciasMecanicas = createServerFn({ method: "POST" })
     for (const r of candidates) {
       const { error: upErr } = await supabaseAdmin
         .from("properties")
-        .update({ [r.field]: r.found_value })
+        .update({ [r.field as string]: r.found_value } as any)
         .eq("id", r.property_id);
       if (upErr) { erros.push({ id: r.id, motivo: upErr.message }); continue; }
 
