@@ -195,7 +195,20 @@ export function stripMarketing(text: string): string {
  *  P2: características (dorms/suítes/banheiros/vagas + features detectadas)
  *  P3: valores (locação/venda/condomínio/IPTU)
  */
+/** Parágrafo determinístico de valores (P3). Fonte única da verdade. */
+export function buildValuesParagraph(
+  s: Pick<SeoSource, "price_rent" | "price_sale" | "condo_fee" | "iptu">,
+): string {
+  const valBits: string[] = [];
+  if (s.price_rent != null) valBits.push(`Valor da locação: ${fmtBRL(s.price_rent)}.`);
+  if (s.price_sale != null) valBits.push(`Valor de venda: ${fmtBRL(s.price_sale)}.`);
+  if (s.condo_fee != null) valBits.push(`Condomínio: ${fmtBRL(s.condo_fee)}.`);
+  if (s.iptu != null) valBits.push(`IPTU: ${fmtBRL(s.iptu)}.`);
+  return valBits.join(" ");
+}
+
 export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): string {
+
   const type = typeLabel(s.property_type);
   const p = purposeLabel(s.purpose);
   const city = s.city ? cap(s.city) : null;
@@ -248,12 +261,8 @@ export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): st
     p2 = `O imóvel possui ${charBits.slice(0, -1).join(", ")} e ${charBits[charBits.length - 1]}.`;
   }
 
-  const valBits: string[] = [];
-  if (s.price_rent != null) valBits.push(`Valor da locação: ${fmtBRL(s.price_rent)}.`);
-  if (s.price_sale != null) valBits.push(`Valor de venda: ${fmtBRL(s.price_sale)}.`);
-  if (s.condo_fee != null) valBits.push(`Condomínio: ${fmtBRL(s.condo_fee)}.`);
-  if (s.iptu != null) valBits.push(`IPTU: ${fmtBRL(s.iptu)}.`);
-  const p3 = valBits.join(" ");
+  const p3 = buildValuesParagraph(s);
+
 
   return [p1, p2, p3].filter(Boolean).join("\n\n");
 }
