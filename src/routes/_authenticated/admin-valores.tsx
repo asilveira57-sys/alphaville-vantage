@@ -356,6 +356,8 @@ function AdminValoresPage() {
   const [tFilter, setTFilter] = useState<string>("texto_desatualizado");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const selectedIds = Object.keys(selected).filter((k) => selected[k]);
+  const [detailId, setDetailId] = useState<string | null>(null);
+
 
   const textosQ = useQuery({
     queryKey: ["textAudit", tPage, tPageSize, tFilter],
