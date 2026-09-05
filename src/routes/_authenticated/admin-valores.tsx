@@ -500,7 +500,11 @@ function AdminValoresPage() {
               )}
             </section>
 
+            {/* 2b. Triagem das divergências */}
+            <TriagemSection onReview={(id) => setDetailId(id)} />
+
             {/* 3. Resultados */}
+
             <section className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-serif text-2xl text-ink">Resultados</h2>
