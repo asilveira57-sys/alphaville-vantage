@@ -725,6 +725,8 @@ function AdminValoresPage() {
           </section>
         )}
       </div>
+      {detailId && <ComparePanel propertyId={detailId} onClose={() => setDetailId(null)} />}
     </SiteLayout>
   );
+
 }
