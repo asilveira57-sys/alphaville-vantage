@@ -249,7 +249,200 @@ function ComparePanel({ propertyId, onClose }: { propertyId: string; onClose: ()
 }
 
 
+/** Triagem: separa divergências mecânicas (máscara de moeda) das de julgamento. */
+function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }) {
+  const qc = useQueryClient();
+  const triagemFn = useServerFn(triagemDivergencias);
+  const aplicarFn = useServerFn(aplicarDivergenciasMecanicas);
+  const ignorarFn = useServerFn(ignorarDivergencia);
+
+  const [grupo, setGrupo] = useState<"mecanico" | "julgamento" | "ignorado">("mecanico");
+  const [gPage, setGPage] = useState(1);
+  const [gPageSize, setGPageSize] = useState(50);
+  const [sel, setSel] = useState<Record<string, boolean>>({});
+  const selIds = Object.keys(sel).filter((k) => sel[k]);
+
+  const q = useQuery({
+    queryKey: ["priceTriagem", grupo, gPage, gPageSize],
+    queryFn: () => triagemFn({ data: { grupo, page: gPage, pageSize: gPageSize } }),
+  });
+
+  const invalidate = () => {
+    setSel({});
+    qc.invalidateQueries({ queryKey: ["priceTriagem"] });
+    qc.invalidateQueries({ queryKey: ["priceAudit"] });
+    qc.invalidateQueries({ queryKey: ["priceAuditStats"] });
+  };
+
+  const aplicarMut = useMutation({
+    mutationFn: (v: { auditIds?: string[]; todos?: boolean }) => aplicarFn({ data: v }),
+    onSuccess: invalidate,
+  });
+  const ignorarMut = useMutation({
+    mutationFn: (v: { auditId: string; motivo: string }) => ignorarFn({ data: v }),
+    onSuccess: invalidate,
+  });
+
+  const counts = q.data?.counts;
+  const rows = q.data?.rows ?? [];
+  const isMech = grupo === "mecanico";
+
+  return (
+    <section className="border border-ink/10 p-5 space-y-4">
+      <div>
+        <h2 className="font-serif text-2xl text-ink">Triagem das divergências</h2>
+        <p className="text-sm text-muted-foreground max-w-3xl mt-1">
+          Mecânicas são diferenças de exatamente 10x, 100x ou 1000x (tolerância de 0,5%) — erro de máscara de
+          moeda, podem ser aplicadas em lote. As demais exigem decisão uma a uma.
+        </p>
+      </div>
+
+      {counts && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          {[
+            ["Divergências abertas", counts.total - counts.ignorado],
+            ["Grupo mecânico", counts.mecanico],
+            ["Grupo julgamento", counts.julgamento],
+            ["Suspeita de cálculo por m²", counts.suspeita_m2],
+          ].map(([label, value]) => (
+            <div key={label as string} className="border border-ink/10 px-3 py-2">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
+              <div className="font-serif text-2xl text-ink">{(value as number).toLocaleString("pt-BR")}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2">
+        {([["mecanico", "Mecânicas"], ["julgamento", "Julgamento"], ["ignorado", "Ignoradas"]] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => { setGrupo(key); setGPage(1); setSel({}); }}
+            className={`px-3 py-1.5 text-[11px] uppercase tracking-widest border ${
+              grupo === key ? "bg-ink text-canvas border-ink" : "border-ink/15 hover:bg-ink/5"
+            }`}
+          >
+            {label} ({(counts?.[key === "mecanico" ? "mecanico" : key === "julgamento" ? "julgamento" : "ignorado"] ?? 0).toLocaleString("pt-BR")})
+          </button>
+        ))}
+      </div>
+
+      {isMech ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setSel(Object.fromEntries(rows.filter((r: any) => r.aplicavel).map((r: any) => [r.id, true])))}
+            className="border border-ink/15 px-3 py-1.5 text-[11px] uppercase tracking-widest hover:bg-ink/5"
+          >
+            Selecionar página
+          </button>
+          <button onClick={() => setSel({})} className="border border-ink/15 px-3 py-1.5 text-[11px] uppercase tracking-widest hover:bg-ink/5">
+            Limpar
+          </button>
+          <button
+            disabled={!selIds.length || aplicarMut.isPending}
+            onClick={() => aplicarMut.mutate({ auditIds: selIds })}
+            className="bg-ink text-canvas px-4 py-2 text-[11px] uppercase tracking-widest hover:bg-ink/85 disabled:opacity-40"
+          >
+            {aplicarMut.isPending ? "Aplicando…" : `Aplicar selecionadas (${selIds.length})`}
+          </button>
+          <button
+            disabled={aplicarMut.isPending || !counts?.mecanico}
+            onClick={() => {
+              if (confirm(`Aplicar todas as ${counts?.mecanico ?? 0} correções mecânicas?`)) aplicarMut.mutate({ todos: true });
+            }}
+            className="border border-ink/20 px-4 py-2 text-[11px] uppercase tracking-widest hover:bg-ink/5 disabled:opacity-40"
+          >
+            Aplicar todas as mecânicas
+          </button>
+          {aplicarMut.data && (
+            <span className="text-xs text-emerald-700">{aplicarMut.data.aplicados} correções aplicadas.</span>
+          )}
+          {aplicarMut.error && <span className="text-xs text-red-600">{(aplicarMut.error as Error).message}</span>}
+        </div>
+      ) : grupo === "julgamento" ? (
+        <p className="text-xs text-amber-800">
+          Aplicação em lote desativada neste grupo. Use “Revisar valores” em cada linha.
+        </p>
+      ) : null}
+
+      <div className="border border-ink/10 overflow-x-auto">
+        <div className="min-w-[1000px]">
+          <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] uppercase tracking-widest text-muted-foreground border-b border-ink/10">
+            <div className="col-span-1">{isMech ? "Sel." : ""}</div>
+            <div className="col-span-2">Imóvel</div>
+            <div className="col-span-1">Campo</div>
+            <div className="col-span-2">Valor no banco</div>
+            <div className="col-span-2">Fonte oficial</div>
+            <div className="col-span-1">Proporção</div>
+            <div className="col-span-3">Observação / ações</div>
+          </div>
+          {q.isLoading && <div className="px-4 py-8 text-sm text-muted-foreground text-center">Carregando…</div>}
+          {!q.isLoading && rows.length === 0 && (
+            <div className="px-4 py-8 text-sm text-muted-foreground text-center">Nenhuma linha neste grupo.</div>
+          )}
+          {rows.map((r: any) => (
+            <div key={r.id} className="grid grid-cols-12 gap-2 px-3 py-3 text-xs border-b border-ink/5 items-start">
+              <div className="col-span-1">
+                {isMech && r.aplicavel && (
+                  <input
+                    type="checkbox"
+                    checked={!!sel[r.id]}
+                    onChange={(e) => setSel((s) => ({ ...s, [r.id]: e.target.checked }))}
+                  />
+                )}
+              </div>
+              <div className="col-span-2 min-w-0">
+                <div className="font-medium text-ink">{r.property?.internal_code ?? "—"}</div>
+                <div className="text-muted-foreground line-clamp-2">{r.property?.title ?? "—"}</div>
+              </div>
+              <div className="col-span-1">{FIELD_LABEL[r.field] ?? r.field}</div>
+              <div className="col-span-2 font-mono">{formatBRLValue(r.current_value)}</div>
+              <div className="col-span-2 font-mono text-muted-foreground">{r.found_raw ?? formatBRLValue(r.found_value)}</div>
+              <div className="col-span-1"><RatioBadge ratio={r.ratio} /></div>
+              <div className="col-span-3 space-y-1">
+                {r.sqm && (
+                  <div className="bg-amber-100 text-amber-900 px-2 py-1 text-[11px]">
+                    <div className="font-semibold uppercase tracking-wide">{r.sqm.label}</div>
+                    <div className="font-mono">{r.sqm.conta}</div>
+                  </div>
+                )}
+                {r.status === "ignorado" && <div className="text-[11px] text-muted-foreground">Ignorada: {r.reason}</div>}
+                {r.applied && <div className="text-[11px] text-emerald-700">Correção aplicada.</div>}
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => onReview(r.property_id)} className="underline text-ink">Revisar valores</button>
+                  {r.source_url && (
+                    <a href={r.source_url} target="_blank" rel="noreferrer" className="underline text-ink">Anúncio oficial</a>
+                  )}
+                  {r.status !== "ignorado" && (
+                    <button
+                      onClick={() => {
+                        const motivo = prompt("Motivo para ignorar esta divergência:");
+                        if (motivo && motivo.trim()) ignorarMut.mutate({ auditId: r.id, motivo: motivo.trim() });
+                      }}
+                      className="underline text-amber-800"
+                    >
+                      Ignorar
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Pager
+        page={gPage}
+        pageSize={gPageSize}
+        total={q.data?.total ?? 0}
+        onPage={setGPage}
+        onPageSize={(n) => { setGPageSize(n); setGPage(1); }}
+      />
+    </section>
+  );
+}
+
 function AdminValoresPage() {
+
   const qc = useQueryClient();
   const auditFn = useServerFn(auditarValores);
   const listFn = useServerFn(listarAuditoriaValores);
