@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
+import { MoneyInput } from "@/components/ui/money-input";
 import { parseValorBR, formatBRLValue } from "@/lib/price-audit/money";
 import { MONEY_CASES } from "@/lib/price-audit/money.cases";
 import {
@@ -11,7 +12,10 @@ import {
   estatisticasValores,
   auditarTextos,
   corrigirTextosValores,
+  detalheValoresImovel,
+  editarValoresImovel,
 } from "@/lib/price-audit.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin-valores")({
   head: () => ({
