@@ -128,7 +128,7 @@ function AdminValoresPage() {
       const { data } = await supabase
         .from("properties")
         .select("id")
-        .or(`external_ref.eq.${CASO_TESTE_ID},internal_code.eq.CA04269`)
+        .or(`source_url.ilike.%${CASO_TESTE_ID}%,external_ref.ilike.%${CASO_TESTE_ID}%`)
         .limit(1);
       const pid = data?.[0]?.id;
       if (!pid) throw new Error("Imóvel 78812960 não encontrado no banco.");
