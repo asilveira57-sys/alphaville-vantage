@@ -1507,6 +1507,71 @@ export type Database = {
           },
         ]
       }
+      property_price_audit: {
+        Row: {
+          applied: boolean
+          applied_at: string | null
+          applied_by: string | null
+          created_at: string
+          current_value: number | null
+          field: string
+          found_raw: string | null
+          found_value: number | null
+          id: string
+          property_id: string
+          ratio: number | null
+          reason: string | null
+          reverted_at: string | null
+          run_id: string
+          source_url: string | null
+          status: string
+        }
+        Insert: {
+          applied?: boolean
+          applied_at?: string | null
+          applied_by?: string | null
+          created_at?: string
+          current_value?: number | null
+          field: string
+          found_raw?: string | null
+          found_value?: number | null
+          id?: string
+          property_id: string
+          ratio?: number | null
+          reason?: string | null
+          reverted_at?: string | null
+          run_id: string
+          source_url?: string | null
+          status: string
+        }
+        Update: {
+          applied?: boolean
+          applied_at?: string | null
+          applied_by?: string | null
+          created_at?: string
+          current_value?: number | null
+          field?: string
+          found_raw?: string | null
+          found_value?: number | null
+          id?: string
+          property_id?: string
+          ratio?: number | null
+          reason?: string | null
+          reverted_at?: string | null
+          run_id?: string
+          source_url?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_price_audit_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_price_history: {
         Row: {
           id: string
