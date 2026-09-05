@@ -452,6 +452,102 @@ export const corrigirTextosValores = createServerFn({ method: "POST" })
   });
 
 
+/* ------------------------------------------------------------------ *
+ * REVISÃO MANUAL — edição de valores e painel comparativo
+ * ------------------------------------------------------------------ */
+const EDITABLE: PriceField[] = ["price_sale", "price_rent", "condo_fee", "iptu"];
+
+/** Painel comparativo: colunas atuais, valores citados nos textos e último resultado da fonte. */
+export const detalheValoresImovel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { propertyId: string }) => ({ propertyId: d.propertyId }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { analyzeTexts, fixValuesParagraph } = await import("./price-audit/text-audit");
+
+    const { data: p, error } = await supabaseAdmin
+      .from("properties")
+      .select(
+        "id,slug,title,internal_code,source_url,price_sale,price_rent,condo_fee,iptu,descricao_seo,seo_description",
+      )
+      .eq("id", data.propertyId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!p) throw new Error("Imóvel não encontrado.");
+
+    const { data: audit } = await supabaseAdmin
+      .from("property_price_audit")
+      .select("field,found_raw,found_value,status,ratio,created_at")
+      .eq("property_id", p.id)
+      .not("field", "in", "(descricao_seo,seo_description)")
+      .order("created_at", { ascending: false })
+      .limit(40);
+
+    const fonte: Record<string, { found_raw: string | null; found_value: number | null; status: string; created_at: string }> = {};
+    for (const a of audit ?? []) if (!fonte[a.field]) fonte[a.field] = a as any;
+
+    const texts = analyzeTexts(p as any);
+    const fix = fixValuesParagraph(p.descricao_seo, p as any);
+
+    return {
+      property: p,
+      fonte,
+      textos: texts,
+      preview: { antes: fix.before, depois: fix.after, aplicavel: fix.ok, motivo: fix.reason ?? null },
+    };
+  });
+
+/** Grava manualmente um ou mais valores do imóvel, com log de auditoria. */
+export const editarValoresImovel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { propertyId: string; values: Partial<Record<PriceField, number | null>> }) => ({
+    propertyId: d.propertyId,
+    values: Object.fromEntries(
+      Object.entries(d.values ?? {}).filter(([k]) => (EDITABLE as string[]).includes(k)),
+    ) as Partial<Record<PriceField, number | null>>,
+  }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    if (!Object.keys(data.values).length) throw new Error("Nenhum valor informado.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: before, error } = await supabaseAdmin
+      .from("properties")
+      .select("id,price_sale,price_rent,condo_fee,iptu,manual_overrides")
+      .eq("id", data.propertyId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!before) throw new Error("Imóvel não encontrado.");
+
+    const overrides = {
+      ...((before.manual_overrides as Record<string, unknown> | null) ?? {}),
+      ...Object.fromEntries(
+        Object.entries(data.values).map(([k, v]) => [k, { value: v, at: new Date().toISOString(), by: context.userId }]),
+      ),
+    };
+
+    const { error: upErr } = await supabaseAdmin
+      .from("properties")
+      .update({ ...data.values, manual_overrides: overrides })
+      .eq("id", data.propertyId);
+    if (upErr) throw new Error(upErr.message);
+
+    await supabaseAdmin.from("cms_audit_log").insert({
+      actor_id: context.userId,
+      action: "price.value.manual_edit",
+      entity_type: "property",
+      entity_id: data.propertyId,
+      details: {
+        antes: Object.fromEntries(Object.keys(data.values).map((k) => [k, (before as any)[k]])),
+        depois: data.values,
+      },
+    });
+
+    return { ok: true, values: data.values };
+  });
+
+
 export const listarRunsValores = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
