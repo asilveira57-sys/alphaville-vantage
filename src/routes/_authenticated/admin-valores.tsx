@@ -124,6 +124,131 @@ function Pager({
   );
 }
 
+const MONEY_FIELDS = [
+  ["price_sale", "Venda"],
+  ["price_rent", "Aluguel"],
+  ["condo_fee", "Condomínio"],
+  ["iptu", "IPTU"],
+] as const;
+type MoneyField = (typeof MONEY_FIELDS)[number][0];
+
+/** B3 — painel comparativo com edição manual (B2) dos valores do imóvel. */
+function ComparePanel({ propertyId, onClose }: { propertyId: string; onClose: () => void }) {
+  const qc = useQueryClient();
+  const detailFn = useServerFn(detalheValoresImovel);
+  const editFn = useServerFn(editarValoresImovel);
+  const [draft, setDraft] = useState<Partial<Record<MoneyField, number | null>>>({});
+
+  const q = useQuery({
+    queryKey: ["priceAuditDetail", propertyId],
+    queryFn: () => detailFn({ data: { propertyId } }),
+  });
+
+  useEffect(() => {
+    if (!q.data) return;
+    const p = q.data.property as any;
+    setDraft({
+      price_sale: p.price_sale, price_rent: p.price_rent, condo_fee: p.condo_fee, iptu: p.iptu,
+    });
+  }, [q.data]);
+
+  const save = useMutation({
+    mutationFn: () => editFn({ data: { propertyId, values: draft } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["priceAuditDetail", propertyId] });
+      qc.invalidateQueries({ queryKey: ["textAudit"] });
+      qc.invalidateQueries({ queryKey: ["priceAudit"] });
+    },
+  });
+
+  const p: any = q.data?.property;
+  const fonte: any = q.data?.fonte ?? {};
+  const textos: any = q.data?.textos;
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" onClick={onClose}>
+      <div
+        className="w-full max-w-2xl h-full overflow-y-auto bg-canvas p-6 space-y-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Revisão manual</p>
+            <h3 className="font-serif text-2xl text-ink">{p?.internal_code ?? "—"} · {p?.title ?? "…"}</h3>
+          </div>
+          <button onClick={onClose} className="border border-ink/20 px-3 py-1.5 text-xs uppercase tracking-widest hover:bg-ink/5">Fechar</button>
+        </div>
+
+        {q.isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
+        {q.error && <p className="text-sm text-red-600">{(q.error as Error).message}</p>}
+
+        {p && (
+          <>
+            <div className="border border-ink/10">
+              <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] uppercase tracking-widest text-muted-foreground border-b border-ink/10">
+                <div className="col-span-3">Campo</div>
+                <div className="col-span-3">Fonte oficial</div>
+                <div className="col-span-3">Citado no texto</div>
+                <div className="col-span-3">Valor no banco</div>
+              </div>
+              {MONEY_FIELDS.map(([field, label]) => {
+                const src = fonte[field];
+                const hit = textos?.issues?.find((i: any) => i.price_field === field);
+                return (
+                  <div key={field} className="grid grid-cols-12 gap-2 px-3 py-3 text-xs border-b border-ink/5 items-center">
+                    <div className="col-span-3">{label}</div>
+                    <div className="col-span-3 font-mono text-muted-foreground">
+                      {src ? (src.found_raw ?? formatBRLValue(src.found_value)) : "—"}
+                    </div>
+                    <div className={`col-span-3 font-mono ${hit ? "text-red-600 font-semibold" : "text-muted-foreground"}`}>
+                      {hit ? hit.found_raw : "—"}
+                    </div>
+                    <div className="col-span-3">
+                      <MoneyInput
+                        value={draft[field] ?? null}
+                        onChange={(v) => setDraft((d) => ({ ...d, [field]: v }))}
+                        className="border border-ink/15 px-2 py-1"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                disabled={save.isPending}
+                onClick={() => save.mutate()}
+                className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest hover:bg-ink/85 disabled:opacity-50"
+              >
+                {save.isPending ? "Salvando…" : "Salvar valores"}
+              </button>
+              {p.source_url && (
+                <a href={p.source_url} target="_blank" rel="noreferrer" className="underline text-xs text-ink">Ver anúncio oficial</a>
+              )}
+              <a href={`/imoveis/${p.slug}`} target="_blank" rel="noreferrer" className="underline text-xs text-ink">Ver no portal</a>
+              {save.data && <span className="text-xs text-emerald-700">Valores atualizados.</span>}
+              {save.error && <span className="text-xs text-red-600">{(save.error as Error).message}</span>}
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-[10px] uppercase tracking-widest text-muted-foreground">Parágrafo de valores</h4>
+              <div className="grid gap-2 md:grid-cols-2 text-xs font-mono">
+                <div className="bg-red-50 p-3">ANTES: {q.data?.preview.antes ?? "—"}</div>
+                <div className="bg-emerald-50 p-3">DEPOIS: {q.data?.preview.depois ?? "—"}</div>
+              </div>
+              {!q.data?.preview.aplicavel && q.data?.preview.motivo && (
+                <p className="text-xs text-amber-800">{q.data.preview.motivo}</p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 function AdminValoresPage() {
   const qc = useQueryClient();
   const auditFn = useServerFn(auditarValores);
