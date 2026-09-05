@@ -562,3 +562,203 @@ export const listarRunsValores = createServerFn({ method: "GET" })
     for (const r of data ?? []) if (!seen.has(r.run_id)) seen.set(r.run_id, r.created_at);
     return Array.from(seen.entries()).map(([run_id, created_at]) => ({ run_id, created_at }));
   });
+
+/* ------------------------------------------------------------------ *
+ * TRIAGEM DAS DIVERGÊNCIAS — mecânico x julgamento
+ * ------------------------------------------------------------------ */
+const MECH_FACTORS = [10, 100, 1000, 0.1, 0.01, 0.001];
+const MECH_TOL = 0.005;
+
+export function classifyRatio(ratio: number | null | undefined): { grupo: "mecanico" | "julgamento"; fator: number | null } {
+  if (ratio == null || !isFinite(ratio) || ratio <= 0) return { grupo: "julgamento", fator: null };
+  for (const f of MECH_FACTORS) {
+    if (Math.abs(ratio - f) / f <= MECH_TOL) return { grupo: "mecanico", fator: f };
+  }
+  return { grupo: "julgamento", fator: null };
+}
+
+/** Detecta valor de aluguel que parece ter sido calculado por m² (área × preço unitário redondo). */
+export function detectSqmPattern(
+  field: string,
+  currentValue: number | null,
+  areas: { area_total: number | null; area_useful: number | null; area_built: number | null },
+) {
+  if (field !== "price_rent" || !currentValue || currentValue <= 0) return null;
+  const candidates: [string, number | null][] = [
+    ["área total", areas.area_total],
+    ["área útil", areas.area_useful],
+    ["área construída", areas.area_built],
+  ];
+  for (const [label, area] of candidates) {
+    if (!area || area <= 0) continue;
+    const unit = currentValue / area;
+    if (unit < 1 || unit > 500) continue;
+    const step = 0.5;
+    const rounded = Math.round(unit / step) * step;
+    if (rounded <= 0) continue;
+    if (Math.abs(unit - rounded) / rounded <= 0.01) {
+      return {
+        label: `suspeita de cálculo por m² (${label})`,
+        conta: `${area.toLocaleString("pt-BR")} m² × R$ ${rounded.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} = R$ ${(area * rounded).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      };
+    }
+  }
+  return null;
+}
+
+async function latestDivergences(supabaseAdmin: any) {
+  const CHUNK = 1000;
+  const seen = new Map<string, any>();
+  for (let f = 0; ; f += CHUNK) {
+    const { data: page, error } = await supabaseAdmin
+      .from("property_price_audit")
+      .select("*")
+      .in("field", FIELDS)
+      .order("created_at", { ascending: false })
+      .range(f, f + CHUNK - 1);
+    if (error) throw new Error(error.message);
+    for (const r of page ?? []) {
+      const key = `${r.property_id}:${r.field}`;
+      if (!seen.has(key)) seen.set(key, r);
+    }
+    if (!page || page.length < CHUNK) break;
+  }
+  return Array.from(seen.values()).filter((r) => r.status === "divergente" || r.status === "ignorado");
+}
+
+export const triagemDivergencias = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { grupo?: string | null; page?: number; pageSize?: number }) => ({
+    grupo: d?.grupo === "mecanico" || d?.grupo === "julgamento" || d?.grupo === "ignorado" ? d.grupo : "mecanico",
+    page: Math.max(d?.page ?? 1, 1),
+    pageSize: [25, 50, 100, 200].includes(d?.pageSize ?? 50) ? (d!.pageSize as number) : 50,
+  }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const rows = await latestDivergences(supabaseAdmin);
+    const ids = Array.from(new Set(rows.map((r) => r.property_id)));
+    const props: Record<string, any> = {};
+    const CH = 500;
+    for (let i = 0; i < ids.length; i += CH) {
+      const { data: ps } = await supabaseAdmin
+        .from("properties")
+        .select("id,slug,title,internal_code,area_total,area_useful,area_built")
+        .in("id", ids.slice(i, i + CH));
+      for (const p of ps ?? []) props[p.id] = p;
+    }
+
+    const enriched = rows.map((r) => {
+      const p = props[r.property_id] ?? null;
+      const { grupo, fator } = classifyRatio(r.ratio);
+      const sqm = p
+        ? detectSqmPattern(r.field, r.current_value, {
+            area_total: p.area_total, area_useful: p.area_useful, area_built: p.area_built,
+          })
+        : null;
+      return {
+        ...r,
+        property: p,
+        grupo: r.status === "ignorado" ? "ignorado" : grupo,
+        fator,
+        sqm,
+        aplicavel: r.status === "divergente" && grupo === "mecanico" && r.found_value != null && !r.applied,
+      };
+    });
+
+    const counts = {
+      total: enriched.length,
+      mecanico: enriched.filter((r) => r.grupo === "mecanico").length,
+      julgamento: enriched.filter((r) => r.grupo === "julgamento").length,
+      ignorado: enriched.filter((r) => r.grupo === "ignorado").length,
+      suspeita_m2: enriched.filter((r) => r.grupo === "julgamento" && r.sqm).length,
+    };
+
+    const filtered = enriched.filter((r) => r.grupo === data.grupo);
+    filtered.sort((a, b) => Math.abs(b.ratio ?? 0) - Math.abs(a.ratio ?? 0));
+    const from = (data.page - 1) * data.pageSize;
+
+    return {
+      counts,
+      total: filtered.length,
+      page: data.page,
+      pageSize: data.pageSize,
+      rows: filtered.slice(from, from + data.pageSize),
+    };
+  });
+
+/** Aplica em lote apenas correções mecânicas (fator 10/100/1000, tolerância 0,5%). */
+export const aplicarDivergenciasMecanicas = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { auditIds?: string[]; todos?: boolean }) => ({
+    auditIds: (d?.auditIds ?? []).slice(0, 1000),
+    todos: !!d?.todos,
+  }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const all = await latestDivergences(supabaseAdmin);
+    const candidates = all.filter(
+      (r) =>
+        r.status === "divergente" &&
+        !r.applied &&
+        r.found_value != null &&
+        classifyRatio(r.ratio).grupo === "mecanico" &&
+        (data.todos || data.auditIds.includes(r.id)),
+    );
+
+    let aplicados = 0;
+    const erros: { id: string; motivo: string }[] = [];
+    for (const r of candidates) {
+      const { error: upErr } = await supabaseAdmin
+        .from("properties")
+        .update({ [r.field as string]: r.found_value } as any)
+        .eq("id", r.property_id);
+      if (upErr) { erros.push({ id: r.id, motivo: upErr.message }); continue; }
+
+      await supabaseAdmin
+        .from("property_price_audit")
+        .update({ applied: true, applied_at: new Date().toISOString(), applied_by: context.userId })
+        .eq("id", r.id);
+
+      await supabaseAdmin.from("cms_audit_log").insert({
+        actor_id: context.userId,
+        action: "price.value.bulk_mechanical",
+        entity_type: "property",
+        entity_id: r.property_id,
+        details: { campo: r.field, antes: r.current_value, depois: r.found_value, ratio: r.ratio, fonte: r.source_url },
+      });
+      aplicados++;
+    }
+    return { aplicados, candidatos: candidates.length, erros };
+  });
+
+/** Marca uma divergência como ignorada, sem tocar no banco de imóveis. */
+export const ignorarDivergencia = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { auditId: string; motivo: string }) => ({
+    auditId: d.auditId,
+    motivo: (d.motivo ?? "").trim().slice(0, 500),
+  }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    if (!data.motivo) throw new Error("Informe o motivo para ignorar.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await supabaseAdmin
+      .from("property_price_audit")
+      .update({ status: "ignorado", reason: data.motivo })
+      .eq("id", data.auditId);
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("cms_audit_log").insert({
+      actor_id: context.userId,
+      action: "price.value.ignore",
+      entity_type: "property_price_audit",
+      entity_id: data.auditId,
+      details: { motivo: data.motivo },
+    });
+    return { ok: true };
+  });
