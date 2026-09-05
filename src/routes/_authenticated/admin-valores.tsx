@@ -686,6 +686,8 @@ function AdminValoresPage() {
                       <div className="flex flex-wrap gap-3 mt-1">
                         <StatusBadge status={r.status} />
                         <a href={`/imoveis/${r.slug}`} target="_blank" rel="noreferrer" className="underline text-ink">Ver no portal</a>
+                        <button onClick={() => setDetailId(r.id)} className="underline text-ink">Revisar valores</button>
+
                       </div>
                     </div>
                   </div>
