@@ -159,6 +159,7 @@ function AdminPage() {
             <Link to="/admin-auditoria" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Auditoria →</Link>
             <Link to="/admin-pendentes" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Conteúdo pendente →</Link>
             <Link to="/admin-importar-imovel" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Importar por link →</Link>
+            <Link to="/admin-valores" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Auditoria de valores →</Link>
 
             <Link to="/admin-mapa" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">Mapa do sistema →</Link>
 

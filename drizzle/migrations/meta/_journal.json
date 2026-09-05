@@ -15,6 +15,13 @@
       "when": 1788542173298,
       "tag": "0001_create_property_imports",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788605481749,
+      "tag": "0002_create_property_price_audit",
+      "breakpoints": true
     }
   ]
 }

@@ -78,6 +78,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
 import { Route as ArtigosSlugRouteImport } from './routes/artigos.$slug'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
+import { Route as AuthenticatedAdminValoresRouteImport } from './routes/_authenticated/admin-valores'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
@@ -461,6 +462,12 @@ const AuthenticatedCmsRoute = AuthenticatedCmsRouteImport.update({
   path: '/cms',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminValoresRoute =
+  AuthenticatedAdminValoresRouteImport.update({
+    id: '/admin-valores',
+    path: '/admin-valores',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   id: '/admin-seo',
   path: '/admin-seo',
@@ -685,6 +692,7 @@ export interface FileRoutesByFullPath {
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
+  '/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/cms': typeof AuthenticatedCmsRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
@@ -777,6 +785,7 @@ export interface FileRoutesByTo {
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
+  '/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -878,6 +887,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
+  '/_authenticated/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
@@ -980,6 +990,7 @@ export interface FileRouteTypes {
     | '/admin-radar'
     | '/admin-ruas'
     | '/admin-seo'
+    | '/admin-valores'
     | '/cms'
     | '/artigos/$slug'
     | '/bairros/$slug'
@@ -1072,6 +1083,7 @@ export interface FileRouteTypes {
     | '/admin-pendentes'
     | '/admin-radar'
     | '/admin-seo'
+    | '/admin-valores'
     | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
@@ -1172,6 +1184,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-ruas'
     | '/_authenticated/admin-seo'
+    | '/_authenticated/admin-valores'
     | '/_authenticated/cms'
     | '/artigos/$slug'
     | '/bairros/$slug'
@@ -1760,6 +1773,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-valores': {
+      id: '/_authenticated/admin-valores'
+      path: '/admin-valores'
+      fullPath: '/admin-valores'
+      preLoaderRoute: typeof AuthenticatedAdminValoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-seo': {
       id: '/_authenticated/admin-seo'
       path: '/admin-seo'
@@ -2023,6 +2043,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
+  AuthenticatedAdminValoresRoute: typeof AuthenticatedAdminValoresRoute
   AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
   AuthenticatedAreaDoParceiroSlugRoute: typeof AuthenticatedAreaDoParceiroSlugRoute
   AuthenticatedAuditIdRoute: typeof AuthenticatedAuditIdRoute
@@ -2050,6 +2071,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
+  AuthenticatedAdminValoresRoute: AuthenticatedAdminValoresRoute,
   AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,
   AuthenticatedAreaDoParceiroSlugRoute: AuthenticatedAreaDoParceiroSlugRoute,
   AuthenticatedAuditIdRoute: AuthenticatedAuditIdRoute,
