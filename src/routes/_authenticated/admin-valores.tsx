@@ -618,8 +618,35 @@ function AdminValoresPage() {
                 ))}
               </div>
               <div className="flex items-center gap-3">
+                {(() => {
+                  const aplicaveis = (textosQ.data?.rows ?? []).filter((r) => r.aplicavel);
+                  const allOn = aplicaveis.length > 0 && aplicaveis.every((r) => selected[r.id]);
+                  return (
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        disabled={!aplicaveis.length}
+                        checked={allOn}
+                        onChange={(e) =>
+                          setSelected((s) => {
+                            const next = { ...s };
+                            for (const r of aplicaveis) next[r.id] = e.target.checked;
+                            return next;
+                          })
+                        }
+                      />
+                      Selecionar página ({aplicaveis.length})
+                    </label>
+                  );
+                })()}
                 <span className="text-xs text-muted-foreground">{selectedIds.length} selecionados</span>
+                {selectedIds.length > 0 && (
+                  <button onClick={() => setSelected({})} className="text-xs underline text-muted-foreground">
+                    Limpar
+                  </button>
+                )}
                 <button
+
                   disabled={!selectedIds.length || fixMut.isPending}
                   onClick={() => {
                     if (confirm(`Corrigir o parágrafo de valores de ${selectedIds.length} imóvel(is)?`)) fixMut.mutate(selectedIds);
