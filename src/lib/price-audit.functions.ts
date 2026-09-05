@@ -182,44 +182,267 @@ export const auditarValores = createServerFn({ method: "POST" })
 /* ------------------------------------------------------------------ *
  * LEITURA DOS RESULTADOS
  * ------------------------------------------------------------------ */
+const SORTABLE = ["created_at", "field", "current_value", "found_value", "ratio", "status"] as const;
+type SortKey = (typeof SORTABLE)[number];
+
 export const listarAuditoriaValores = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { runId?: string | null; status?: string | null }) => ({
-    runId: d?.runId ?? null,
-    status: d?.status && d.status !== "todos" ? d.status : null,
-  }))
+  .inputValidator(
+    (d: {
+      runId?: string | null;
+      status?: string | null;
+      page?: number;
+      pageSize?: number;
+      sortBy?: string | null;
+      sortDir?: "asc" | "desc" | null;
+    }) => ({
+      runId: d?.runId ?? null,
+      status: d?.status && d.status !== "todos" ? d.status : null,
+      page: Math.max(d?.page ?? 1, 1),
+      pageSize: [25, 50, 100, 200].includes(d?.pageSize ?? 50) ? (d!.pageSize as number) : 50,
+      sortBy: (SORTABLE as readonly string[]).includes(d?.sortBy ?? "") ? (d!.sortBy as SortKey) : ("ratio" as SortKey),
+      sortDir: d?.sortDir === "asc" ? ("asc" as const) : ("desc" as const),
+    }),
+  )
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    let q = supabaseAdmin
-      .from("property_price_audit")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (data.runId) q = q.eq("run_id", data.runId);
+    const base = () => {
+      let q = supabaseAdmin.from("property_price_audit").select("*", { count: "exact" });
+      if (data.runId) q = q.eq("run_id", data.runId);
+      const textFields = ["descricao_seo", "seo_description"];
+      q = q.not("field", "in", `(${textFields.join(",")})`);
+      return q;
+    };
+
+    let q = base();
     if (data.status) q = q.eq("status", data.status);
+    const from = (data.page - 1) * data.pageSize;
+    const { data: rows, count, error } = await q
+      .order(data.sortBy, { ascending: data.sortDir === "asc", nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .range(from, from + data.pageSize - 1);
+    if (error) throw new Error(error.message);
 
-    const all: any[] = [];
-    const CHUNK = 1000;
-    for (let from = 0; ; from += CHUNK) {
-      const { data: page, error } = await q.range(from, from + CHUNK - 1);
-      if (error) throw new Error(error.message);
-      all.push(...(page ?? []));
-      if (!page || page.length < CHUNK) break;
-    }
-
-    const ids = Array.from(new Set(all.map((r) => r.property_id)));
+    const ids = Array.from(new Set((rows ?? []).map((r) => r.property_id)));
     const props: Record<string, { slug: string; title: string; internal_code: string | null }> = {};
-    for (let i = 0; i < ids.length; i += 200) {
+    if (ids.length) {
       const { data: ps } = await supabaseAdmin
         .from("properties")
         .select("id,slug,title,internal_code")
-        .in("id", ids.slice(i, i + 200));
+        .in("id", ids);
       for (const p of ps ?? []) props[p.id] = { slug: p.slug, title: p.title, internal_code: p.internal_code };
     }
 
-    return all.map((r) => ({ ...r, property: props[r.property_id] ?? null }));
+    return {
+      rows: (rows ?? []).map((r) => ({ ...r, property: props[r.property_id] ?? null })),
+      total: count ?? 0,
+      page: data.page,
+      pageSize: data.pageSize,
+    };
   });
+
+/** Contadores por status + estatísticas separando imóveis × campos. */
+export const estatisticasValores = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { runId?: string | null }) => ({ runId: d?.runId ?? null }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const statuses = ["correto", "divergente", "ambiguo", "nao_encontrado", "fonte_indisponivel", "sem_url"];
+    const counts: Record<string, number> = {};
+
+    const countFor = async (status?: string) => {
+      let q = supabaseAdmin
+        .from("property_price_audit")
+        .select("id", { count: "exact", head: true })
+        .not("field", "in", "(descricao_seo,seo_description)");
+      if (data.runId) q = q.eq("run_id", data.runId);
+      if (status) q = q.eq("status", status);
+      const { count } = await q;
+      return count ?? 0;
+    };
+
+    counts.todos = await countFor();
+    for (const s of statuses) counts[s] = await countFor(s);
+
+    // imóveis analisados e imóveis com pelo menos uma divergência
+    const distinct = async (status?: string) => {
+      const set = new Set<string>();
+      const CHUNK = 1000;
+      for (let f = 0; ; f += CHUNK) {
+        let q = supabaseAdmin
+          .from("property_price_audit")
+          .select("property_id")
+          .not("field", "in", "(descricao_seo,seo_description)");
+        if (data.runId) q = q.eq("run_id", data.runId);
+        if (status) q = q.eq("status", status);
+        const { data: page } = await q.range(f, f + CHUNK - 1);
+        for (const r of page ?? []) set.add(r.property_id);
+        if (!page || page.length < CHUNK) break;
+      }
+      return set.size;
+    };
+
+    return {
+      counts,
+      imoveisAnalisados: await distinct(),
+      imoveisComDivergencia: await distinct("divergente"),
+      camposVerificados: counts.todos,
+    };
+  });
+
+/* ------------------------------------------------------------------ *
+ * FASE 2 — VALORES CONGELADOS NOS TEXTOS
+ * ------------------------------------------------------------------ */
+export const auditarTextos = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { page?: number; pageSize?: number; filtro?: string | null; persist?: boolean }) => ({
+    page: Math.max(d?.page ?? 1, 1),
+    pageSize: [25, 50, 100, 200].includes(d?.pageSize ?? 50) ? (d!.pageSize as number) : 50,
+    filtro: d?.filtro && d.filtro !== "todos" ? d.filtro : null,
+    persist: !!d?.persist,
+  }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { analyzeTexts, fixValuesParagraph, type PropRow } = await import("./price-audit/text-audit");
+
+    const all: PropRow[] = [];
+    const CHUNK = 1000;
+    for (let f = 0; ; f += CHUNK) {
+      const { data: page, error } = await supabaseAdmin
+        .from("properties")
+        .select("id,slug,title,internal_code,price_sale,price_rent,condo_fee,iptu,descricao_seo,seo_description")
+        .order("created_at", { ascending: true })
+        .range(f, f + CHUNK - 1);
+      if (error) throw new Error(error.message);
+      all.push(...((page ?? []) as PropRow[]));
+      if (!page || page.length < CHUNK) break;
+    }
+
+    const analyzed = all.map((p) => {
+      const a = analyzeTexts(p);
+      const fix = a.status === "texto_desatualizado" ? fixValuesParagraph(p.descricao_seo, p) : null;
+      return { p, ...a, fix };
+    });
+
+    const stats = {
+      total: analyzed.length,
+      texto_ok: analyzed.filter((a) => a.status === "texto_ok").length,
+      texto_desatualizado: analyzed.filter((a) => a.status === "texto_desatualizado").length,
+      sem_texto: analyzed.filter((a) => a.status === "sem_texto").length,
+    };
+
+    const filtered = data.filtro ? analyzed.filter((a) => a.status === data.filtro) : analyzed;
+    const ordered = [...filtered].sort((a, b) => {
+      const ra = Math.abs(a.issues[0]?.ratio ?? 0);
+      const rb = Math.abs(b.issues[0]?.ratio ?? 0);
+      return rb - ra;
+    });
+    const from = (data.page - 1) * data.pageSize;
+    const pageRows = ordered.slice(from, from + data.pageSize);
+
+    if (data.persist) {
+      const runId = crypto.randomUUID();
+      const inserts = analyzed
+        .filter((a) => a.status === "texto_desatualizado")
+        .flatMap((a) =>
+          a.issues.map((i) => ({
+            run_id: runId,
+            property_id: a.p.id,
+            field: i.text_field,
+            current_value: i.current_value,
+            found_raw: i.found_raw,
+            found_value: i.found_value,
+            ratio: i.ratio,
+            status: "divergente",
+            reason: `Texto desatualizado (${i.label})`,
+          })),
+        );
+      for (let i = 0; i < inserts.length; i += 500) {
+        await supabaseAdmin.from("property_price_audit").insert(inserts.slice(i, i + 500));
+      }
+    }
+
+    return {
+      stats,
+      total: filtered.length,
+      page: data.page,
+      pageSize: data.pageSize,
+      rows: pageRows.map((a) => ({
+        id: a.p.id,
+        slug: a.p.slug,
+        title: a.p.title,
+        internal_code: a.p.internal_code,
+        status: a.status,
+        issues: a.issues,
+        antes: a.fix?.before ?? null,
+        depois: a.fix?.after ?? null,
+        motivo: a.fix?.reason ?? null,
+        aplicavel: !!a.fix?.ok,
+      })),
+    };
+  });
+
+export const corrigirTextosValores = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { propertyIds: string[] }) => ({ propertyIds: (d?.propertyIds ?? []).slice(0, 500) }))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { fixValuesParagraph } = await import("./price-audit/text-audit");
+    const { buildSeoDescription } = await import("./property-seo");
+
+    const results: { id: string; ok: boolean; antes?: string | null; depois?: string | null; motivo?: string }[] = [];
+    if (!data.propertyIds.length) return { results, aplicados: 0 };
+
+    const { data: rows, error } = await supabaseAdmin
+      .from("properties")
+      .select("*")
+      .in("id", data.propertyIds);
+    if (error) throw new Error(error.message);
+
+    let aplicados = 0;
+    for (const p of rows ?? []) {
+      const fix = fixValuesParagraph(p.descricao_seo, p as any);
+      if (!fix.ok || !fix.text) {
+        results.push({ id: p.id, ok: false, motivo: fix.reason ?? "Não aplicável" });
+        continue;
+      }
+      const novaMeta = buildSeoDescription(p as any);
+      const { error: upErr } = await supabaseAdmin
+        .from("properties")
+        .update({
+          descricao_seo: fix.text,
+          seo_description: novaMeta,
+          seo_generated_at: new Date().toISOString(),
+        })
+        .eq("id", p.id);
+      if (upErr) {
+        results.push({ id: p.id, ok: false, motivo: upErr.message });
+        continue;
+      }
+      aplicados++;
+      results.push({ id: p.id, ok: true, antes: fix.before, depois: fix.after });
+      await supabaseAdmin.from("cms_audit_log").insert({
+        actor_id: context.userId,
+        action: "price.text.fix",
+        entity_type: "property",
+        entity_id: p.id,
+        details: {
+          descricao_seo_anterior: p.descricao_seo,
+          seo_description_anterior: p.seo_description,
+          paragrafo_antes: fix.before,
+          paragrafo_depois: fix.after,
+        },
+      });
+    }
+    return { results, aplicados };
+  });
+
 
 export const listarRunsValores = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
