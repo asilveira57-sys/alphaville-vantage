@@ -529,7 +529,7 @@ export const editarValoresImovel = createServerFn({ method: "POST" })
 
     const { error: upErr } = await supabaseAdmin
       .from("properties")
-      .update({ ...data.values, manual_overrides: overrides })
+      .update({ ...data.values, manual_overrides: overrides as any })
       .eq("id", data.propertyId);
     if (upErr) throw new Error(upErr.message);
 
