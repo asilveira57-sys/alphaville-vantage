@@ -248,12 +248,8 @@ export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): st
     p2 = `O imóvel possui ${charBits.slice(0, -1).join(", ")} e ${charBits[charBits.length - 1]}.`;
   }
 
-  const valBits: string[] = [];
-  if (s.price_rent != null) valBits.push(`Valor da locação: ${fmtBRL(s.price_rent)}.`);
-  if (s.price_sale != null) valBits.push(`Valor de venda: ${fmtBRL(s.price_sale)}.`);
-  if (s.condo_fee != null) valBits.push(`Condomínio: ${fmtBRL(s.condo_fee)}.`);
-  if (s.iptu != null) valBits.push(`IPTU: ${fmtBRL(s.iptu)}.`);
-  const p3 = valBits.join(" ");
+  const p3 = buildValuesParagraph(s);
+
 
   return [p1, p2, p3].filter(Boolean).join("\n\n");
 }
