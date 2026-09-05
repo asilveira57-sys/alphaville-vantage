@@ -70,12 +70,21 @@ export type PropRow = {
 export type TextStatus = "texto_ok" | "texto_desatualizado" | "sem_texto";
 
 /** Compara os valores citados nos textos com as colunas atuais. Tolerância R$ 1,00. */
-export function analyzeTexts(p: PropRow): { status: TextStatus; issues: TextIssue[] } {
-  if (!p.descricao_seo && !p.seo_description) return { status: "sem_texto", issues: [] };
+export function analyzeTexts(p: PropRow): { status: TextStatus; issues: TextIssue[]; manualReview: boolean } {
+  if (!p.descricao_seo && !p.seo_description) return { status: "sem_texto", issues: [], manualReview: false };
   const issues: TextIssue[] = [];
   const fields: TextField[] = ["descricao_seo", "seo_description"];
+  let manualReview = false;
   for (const tf of fields) {
-    for (const hit of extractTextValues(p[tf])) {
+    const hits = extractTextValues(p[tf]);
+    const seen = new Map<PriceCol, number>();
+    for (const h of hits) seen.set(h.field, (seen.get(h.field) ?? 0) + 1);
+    for (const hit of hits) {
+      // Rótulo repetido no mesmo texto: não escolhemos por conta própria.
+      if ((seen.get(hit.field) ?? 0) > 1) {
+        manualReview = true;
+        continue;
+      }
       const cur = p[hit.field];
       if (hit.value == null) continue;
       if (cur != null && Math.abs(Number(cur) - hit.value) <= 1) continue;
@@ -90,8 +99,9 @@ export function analyzeTexts(p: PropRow): { status: TextStatus; issues: TextIssu
       });
     }
   }
-  return { status: issues.length ? "texto_desatualizado" : "texto_ok", issues };
+  return { status: issues.length ? "texto_desatualizado" : "texto_ok", issues, manualReview };
 }
+
 
 const HAS_VALUE_LABEL = /(valor\s+de\s+venda|valor\s+da\s+loca[çc][ãa]o|condom[íi]nio\s*:|iptu\s*:)/i;
 
