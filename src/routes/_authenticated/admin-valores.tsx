@@ -14,6 +14,9 @@ import {
   corrigirTextosValores,
   detalheValoresImovel,
   editarValoresImovel,
+  triagemDivergencias,
+  aplicarDivergenciasMecanicas,
+  ignorarDivergencia,
 } from "@/lib/price-audit.functions";
 
 
