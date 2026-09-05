@@ -328,8 +328,14 @@ export const auditarTextos = createServerFn({ method: "POST" })
     const analyzed = all.map((p) => {
       const a = analyzeTexts(p);
       const fix = a.status === "texto_desatualizado" ? fixValuesParagraph(p.descricao_seo, p) : null;
-      return { p, ...a, fix };
+      // Trava A3: se o texto DEPOIS é igual ao ANTES, nada mudou -> texto_ok.
+      const status =
+        a.status === "texto_desatualizado" && fix && fix.before != null && fix.before === (fix.after ?? fix.before)
+          ? ("texto_ok" as const)
+          : a.status;
+      return { p, ...a, status, fix };
     });
+
 
     const stats = {
       total: analyzed.length,
