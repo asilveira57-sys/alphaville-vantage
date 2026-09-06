@@ -31,6 +31,9 @@ export const Route = createFileRoute("/api/public/editorial-image/$")({
             "Content-Type": mime,
             "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable, stale-while-revalidate=86400",
             "Vary": "Accept",
+            "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "sandbox",
+            "Content-Disposition": "inline",
           },
         });
       },
