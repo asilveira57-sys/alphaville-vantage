@@ -45,3 +45,29 @@ export async function recordRun(sb: any, hook: string, details?: Record<string, 
     /* o log jamais deve derrubar a rotina */
   }
 }
+
+/**
+ * Autenticação completa: aceita o segredo do ambiente (CRON_SECRET) ou o
+ * segredo guardado em public.cron_secrets, lido apenas com a chave de serviço.
+ * Nenhum dos dois chega ao navegador.
+ */
+export async function checkCronAuth(request: Request, sb: any): Promise<CronGuardResult> {
+  const provided = request.headers.get("x-cron-secret") ?? "";
+  const candidates: string[] = [];
+  if (process.env.CRON_SECRET) candidates.push(process.env.CRON_SECRET);
+
+  const { data } = await sb.from("cron_secrets").select("secret").eq("name", "cron").maybeSingle();
+  if (data?.secret) candidates.push(data.secret);
+
+  if (candidates.length === 0) {
+    return { ok: false, response: new Response("Cron secret not configured", { status: 503 }) };
+  }
+
+  const a = Buffer.from(provided, "utf8");
+  const match = candidates.some((c) => {
+    const b = Buffer.from(c, "utf8");
+    return a.length === b.length && timingSafeEqual(a, b);
+  });
+  if (!match) return { ok: false, response: new Response("Unauthorized", { status: 401 }) };
+  return { ok: true };
+}

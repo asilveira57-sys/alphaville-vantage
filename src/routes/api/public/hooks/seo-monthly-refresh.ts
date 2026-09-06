@@ -24,9 +24,7 @@ export const Route = createFileRoute("/api/public/hooks/seo-monthly-refresh")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { checkCronSecret, ranRecently, recordRun } = await import("@/lib/cron-auth.server");
-        const guard = checkCronSecret(request);
-        if (!guard.ok) return guard.response;
+        const { checkCronAuth, ranRecently, recordRun } = await import("@/lib/cron-auth.server");
 
         const sb = createClient(
           process.env.SUPABASE_URL!,
