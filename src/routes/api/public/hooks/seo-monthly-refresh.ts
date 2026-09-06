@@ -32,6 +32,9 @@ export const Route = createFileRoute("/api/public/hooks/seo-monthly-refresh")({
           { auth: { persistSession: false, autoRefreshToken: false, storage: undefined } },
         );
 
+        const guard = await checkCronAuth(request, sb);
+        if (!guard.ok) return guard.response;
+
         if (await ranRecently(sb, "seo-monthly-refresh", 10)) {
           return new Response("Too Many Requests", { status: 429 });
         }

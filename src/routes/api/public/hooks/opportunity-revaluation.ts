@@ -22,6 +22,9 @@ export const Route = createFileRoute("/api/public/hooks/opportunity-revaluation"
           auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
         });
 
+        const guard = await checkCronAuth(request, sb);
+        if (!guard.ok) return guard.response;
+
         if (await ranRecently(sb, "opportunity-revaluation", 10)) {
           return new Response("Too Many Requests", { status: 429 });
         }
