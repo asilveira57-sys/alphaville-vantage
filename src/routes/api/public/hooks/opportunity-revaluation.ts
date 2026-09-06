@@ -10,22 +10,27 @@ import { runValuationSweep } from "@/lib/opportunities.functions";
  * um selo apurado em março continuaria na tela em setembro, o que é
  * exatamente o tipo de alegação desatualizada que não se sustenta.
  *
- * Autenticado pelo header apikey, no mesmo padrão do hook de SEO.
+ * Autenticado pelo header x-cron-secret, no mesmo padrão do hook de SEO.
  */
 export const Route = createFileRoute("/api/public/hooks/opportunity-revaluation")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey");
-        if (!apikey || apikey !== process.env.SUPABASE_PUBLISHABLE_KEY) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const { checkCronSecret, ranRecently, recordRun } = await import("@/lib/cron-auth.server");
+        const guard = checkCronSecret(request);
+        if (!guard.ok) return guard.response;
 
         const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
           auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
         });
 
+        if (await ranRecently(sb, "opportunity-revaluation", 10)) {
+          return new Response("Too Many Requests", { status: 429 });
+        }
+
         const { results } = await runValuationSweep(sb as never, { computedBy: null });
+
+        await recordRun(sb, "opportunity-revaluation", { appraised: results.length });
 
         return Response.json({
           ok: true,

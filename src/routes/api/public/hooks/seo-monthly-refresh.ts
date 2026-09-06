@@ -19,21 +19,24 @@ const STATIC_ROUTES = [
 ];
 
 // Endpoint mensal chamado pelo pg_cron.
-// Autenticado pelo header apikey (anon key) — padrão dos cron jobs do projeto.
+// Autenticado pelo header x-cron-secret (segredo próprio, nunca exposto ao navegador).
 export const Route = createFileRoute("/api/public/hooks/seo-monthly-refresh")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey");
-        if (!apikey || apikey !== process.env.SUPABASE_PUBLISHABLE_KEY) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const { checkCronSecret, ranRecently, recordRun } = await import("@/lib/cron-auth.server");
+        const guard = checkCronSecret(request);
+        if (!guard.ok) return guard.response;
 
         const sb = createClient(
           process.env.SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,
           { auth: { persistSession: false, autoRefreshToken: false, storage: undefined } },
         );
+
+        if (await ranRecently(sb, "seo-monthly-refresh", 10)) {
+          return new Response("Too Many Requests", { status: 429 });
+        }
 
         const [props, pages] = await Promise.all([
           sb.from("properties").select("slug").eq("status", "active"),
@@ -66,6 +69,8 @@ export const Route = createFileRoute("/api/public/hooks/seo-monthly-refresh")({
           error: result.error ?? null,
           triggered_by: "cron",
         });
+
+        await recordRun(sb, "seo-monthly-refresh", { urls: urls.length, status: result.status });
 
         return Response.json({
           ok: result.ok,
