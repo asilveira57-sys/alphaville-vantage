@@ -200,6 +200,45 @@ export type Database = {
           },
         ]
       }
+      cron_hook_runs: {
+        Row: {
+          created_at: string
+          details: Json
+          hook: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          hook: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          hook?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      cron_secrets: {
+        Row: {
+          created_at: string
+          name: string
+          secret: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+          secret: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          secret?: string
+        }
+        Relationships: []
+      }
       cta_blocks: {
         Row: {
           active: boolean
