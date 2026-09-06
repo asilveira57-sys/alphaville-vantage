@@ -6,6 +6,10 @@ export const Route = createFileRoute("/api/public/editorial-image/$")({
       GET: async ({ params }) => {
         const path = (params as { _splat?: string })._splat ?? "";
         if (!path) return new Response("Not found", { status: 404 });
+        if (path.includes("..") || path.startsWith("/")) {
+          return new Response("Bad request", { status: 400 });
+        }
+
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabaseAdmin
