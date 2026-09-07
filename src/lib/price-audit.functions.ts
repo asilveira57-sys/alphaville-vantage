@@ -328,13 +328,15 @@ export const auditarTextos = createServerFn({ method: "POST" })
     const analyzed = all.map((p) => {
       const a = analyzeTexts(p);
       const fix = a.status === "texto_desatualizado" ? fixValuesParagraph(p.descricao_seo, p) : null;
-      // Trava A3: se o texto DEPOIS é igual ao ANTES, nada mudou -> texto_ok.
-      const status =
-        a.status === "texto_desatualizado" && fix && fix.before != null && fix.before === (fix.after ?? fix.before)
-          ? ("texto_ok" as const)
-          : a.status;
-      return { p, ...a, status, fix };
+      // A divergência detectada nos textos NUNCA é silenciada: se o corretor
+      // automático não consegue reescrever o parágrafo (valor fora do
+      // parágrafo de valores, divergência em seo_description ou colunas
+      // vazias), o imóvel continua como texto_desatualizado e vai para
+      // revisão manual — apenas sem correção automática disponível.
+      const autoFixAvailable = !!(fix && fix.ok && fix.text);
+      return { p, ...a, status: a.status, fix, autoFixAvailable };
     });
+
 
 
     const stats = {
