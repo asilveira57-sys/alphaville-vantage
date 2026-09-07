@@ -90,15 +90,35 @@ function consentText(consentEmail: boolean, consentWhatsapp: boolean): string {
 export const subscribeToOpportunities = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => subscribeSchema.parse(d))
   .handler(async ({ data }) => {
+    // Robô: devolvemos sucesso e não gravamos nada.
+    if (data.empresa && data.empresa.trim() !== "") return { ok: true, updated: false };
+
+    const guard = await import("./signup-guard.server");
+
     const phone = data.phone ? normalizePhone(data.phone) : null;
+    if (data.phone && (!phone || !guard.localPhoneDigits(data.phone))) {
+      throw new Error("Número de WhatsApp inválido. Use DDD + número.");
+    }
     if (data.consentWhatsapp && !phone) {
       throw new Error("Número de WhatsApp inválido. Use DDD + número.");
     }
 
-    const email = data.email ? data.email.toLowerCase() : null;
+    const email = data.email ? data.email.trim().toLowerCase() : null;
+    if (email && !guard.validEmail(email)) {
+      throw new Error("Informe um e-mail válido.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const headers = getRequest()?.headers;
+
+    const ipHash = guard.hashIp(guard.clientIp(headers));
+    if (await guard.rateLimited(supabaseAdmin as never, ipHash, "oportunidades")) {
+      throw new Error("Muitas tentativas agora. Tente novamente em alguns minutos.");
+    }
+    await guard.recordAttempt(supabaseAdmin as never, ipHash, "oportunidades");
+
+
     const payload = {
       name: data.name,
       email,
