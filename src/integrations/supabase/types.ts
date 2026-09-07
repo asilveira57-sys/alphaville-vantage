@@ -1921,6 +1921,27 @@ export type Database = {
         }
         Relationships: []
       }
+      signup_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip_hash: string
+          kind: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_hash: string
+          kind: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_hash?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       street_aliases: {
         Row: {
           alias: string
