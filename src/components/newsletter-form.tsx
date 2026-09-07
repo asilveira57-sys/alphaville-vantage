@@ -1,58 +1,57 @@
 import { useState } from "react";
 import { Send, Loader2, Check } from "lucide-react";
-import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
-
-const emailSchema = z
-  .string()
-  .trim()
-  .email({ message: "Informe um e-mail válido." })
-  .max(255, { message: "E-mail muito longo." });
+import { useServerFn } from "@tanstack/react-start";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
 
 type Props = { source?: string };
 
 export function NewsletterForm({ source = "home" }: Props) {
+  const subscribeFn = useServerFn(subscribeNewsletter);
   const [email, setEmail] = useState("");
+  const [empresa, setEmpresa] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const parsed = emailSchema.safeParse(email);
-    if (!parsed.success) {
-      setIsError(true);
-      setMessage(parsed.error.issues[0].message);
-      return;
-    }
-
     setStatus("loading");
     setMessage(null);
     setIsError(false);
 
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .insert({ email: parsed.data.toLowerCase(), source });
-
-    if (error && error.code !== "23505") {
+    try {
+      await subscribeFn({ data: { email, source, empresa } });
+      setStatus("done");
+      setEmail("");
+      setMessage("Inscrição confirmada. Obrigado!");
+    } catch (err) {
       setStatus("idle");
       setIsError(true);
-      setMessage("Não foi possível concluir agora. Tente novamente em instantes.");
-      return;
+      setMessage(
+        err instanceof Error && err.message
+          ? err.message
+          : "Não foi possível concluir agora. Tente novamente em instantes.",
+      );
     }
-
-    setStatus("done");
-    setEmail("");
-    setMessage(
-      error?.code === "23505"
-        ? "Este e-mail já está cadastrado. Obrigado!"
-        : "Inscrição confirmada. Obrigado!",
-    );
   };
 
   return (
     <div className="mt-10 max-w-xl mx-auto">
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+        {/* Campo isca anti-robô: invisível e ignorado por humanos. */}
+        <div style={{ display: "none" }} aria-hidden="true">
+          <label>
+            Empresa
+            <input
+              type="text"
+              name="empresa"
+              tabIndex={-1}
+              autoComplete="off"
+              value={empresa}
+              onChange={(e) => setEmpresa(e.target.value)}
+            />
+          </label>
+        </div>
         <label className="flex-1">
           <span className="sr-only">Seu melhor e-mail</span>
           <input

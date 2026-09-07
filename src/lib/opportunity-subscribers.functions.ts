@@ -47,11 +47,13 @@ export function normalizePhone(raw: string): string | null {
 const subscribeSchema = z
   .object({
     name: z.string().trim().min(2).max(120),
-    email: z.string().trim().email().max(180).optional().or(z.literal("")),
+    email: z.string().trim().max(180).optional().or(z.literal("")),
     phone: z.string().trim().max(40).optional().or(z.literal("")),
     audience: z.enum(AUDIENCES),
     consentEmail: z.boolean(),
     consentWhatsapp: z.boolean(),
+    /** Campo isca: humano nunca preenche, robô preenche. */
+    empresa: z.string().max(200).optional(),
     filters: z
       .object({
         regions: z.array(z.string().max(60)).max(10).optional(),
@@ -62,6 +64,7 @@ const subscribeSchema = z
     landingPage: z.string().max(300).optional(),
     campaign: z.string().max(120).optional(),
   })
+
   .refine((d) => d.consentEmail || d.consentWhatsapp, {
     message: "Escolha ao menos um canal para receber as oportunidades.",
     path: ["consentEmail"],
@@ -87,15 +90,35 @@ function consentText(consentEmail: boolean, consentWhatsapp: boolean): string {
 export const subscribeToOpportunities = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => subscribeSchema.parse(d))
   .handler(async ({ data }) => {
+    // Robô: devolvemos sucesso e não gravamos nada.
+    if (data.empresa && data.empresa.trim() !== "") return { ok: true, updated: false };
+
+    const guard = await import("./signup-guard.server");
+
     const phone = data.phone ? normalizePhone(data.phone) : null;
+    if (data.phone && (!phone || !guard.localPhoneDigits(data.phone))) {
+      throw new Error("Número de WhatsApp inválido. Use DDD + número.");
+    }
     if (data.consentWhatsapp && !phone) {
       throw new Error("Número de WhatsApp inválido. Use DDD + número.");
     }
 
-    const email = data.email ? data.email.toLowerCase() : null;
+    const email = data.email ? data.email.trim().toLowerCase() : null;
+    if (email && !guard.validEmail(email)) {
+      throw new Error("Informe um e-mail válido.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const headers = getRequest()?.headers;
+
+    const ipHash = guard.hashIp(guard.clientIp(headers));
+    if (await guard.rateLimited(supabaseAdmin as never, ipHash, "oportunidades")) {
+      throw new Error("Muitas tentativas agora. Tente novamente em alguns minutos.");
+    }
+    await guard.recordAttempt(supabaseAdmin as never, ipHash, "oportunidades");
+
+
     const payload = {
       name: data.name,
       email,
@@ -144,8 +167,10 @@ export const subscribeToOpportunities = createServerFn({ method: "POST" })
     }
 
     const { error } = await supabaseAdmin.from("opportunity_subscribers").insert(payload);
-    if (error) throw new Error(error.message);
-    return { ok: true, updated: false };
+    // Duplicidade é sucesso silencioso: a pessoa já está na lista.
+    if (error && error.code !== "23505") throw new Error(error.message);
+    return { ok: true, updated: error?.code === "23505" };
+
   });
 
 /** Descadastro público. A LGPD art. 8º §5º exige revogação gratuita e facilitada. */
