@@ -37,6 +37,7 @@ export function OpportunitySubscribeForm({ tone = "dark" }: { tone?: Tone }) {
   const [consentWhatsapp, setConsentWhatsapp] = useState(false);
   const [regions, setRegions] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
+  const [empresa, setEmpresa] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const toggle = (list: string[], set: (v: string[]) => void, value: string) =>
@@ -52,6 +53,7 @@ export function OpportunitySubscribeForm({ tone = "dark" }: { tone?: Tone }) {
           audience,
           consentEmail,
           consentWhatsapp,
+          empresa,
           filters: { regions, propertyTypes: types },
           landingPage: typeof window !== "undefined" ? window.location.pathname : undefined,
         },
@@ -109,6 +111,21 @@ export function OpportunitySubscribeForm({ tone = "dark" }: { tone?: Tone }) {
         subscribe.mutate();
       }}
     >
+      {/* Campo isca anti-robô: invisível e ignorado por humanos. */}
+      <div style={{ display: "none" }} aria-hidden="true">
+        <label>
+          Empresa
+          <input
+            type="text"
+            name="empresa"
+            tabIndex={-1}
+            autoComplete="off"
+            value={empresa}
+            onChange={(e) => setEmpresa(e.target.value)}
+          />
+        </label>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label
