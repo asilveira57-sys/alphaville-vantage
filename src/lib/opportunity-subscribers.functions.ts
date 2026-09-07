@@ -167,8 +167,10 @@ export const subscribeToOpportunities = createServerFn({ method: "POST" })
     }
 
     const { error } = await supabaseAdmin.from("opportunity_subscribers").insert(payload);
-    if (error) throw new Error(error.message);
-    return { ok: true, updated: false };
+    // Duplicidade é sucesso silencioso: a pessoa já está na lista.
+    if (error && error.code !== "23505") throw new Error(error.message);
+    return { ok: true, updated: error?.code === "23505" };
+
   });
 
 /** Descadastro público. A LGPD art. 8º §5º exige revogação gratuita e facilitada. */
