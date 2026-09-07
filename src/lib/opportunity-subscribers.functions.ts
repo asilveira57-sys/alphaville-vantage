@@ -47,11 +47,13 @@ export function normalizePhone(raw: string): string | null {
 const subscribeSchema = z
   .object({
     name: z.string().trim().min(2).max(120),
-    email: z.string().trim().email().max(180).optional().or(z.literal("")),
+    email: z.string().trim().max(180).optional().or(z.literal("")),
     phone: z.string().trim().max(40).optional().or(z.literal("")),
     audience: z.enum(AUDIENCES),
     consentEmail: z.boolean(),
     consentWhatsapp: z.boolean(),
+    /** Campo isca: humano nunca preenche, robô preenche. */
+    empresa: z.string().max(200).optional(),
     filters: z
       .object({
         regions: z.array(z.string().max(60)).max(10).optional(),
@@ -62,6 +64,7 @@ const subscribeSchema = z
     landingPage: z.string().max(300).optional(),
     campaign: z.string().max(120).optional(),
   })
+
   .refine((d) => d.consentEmail || d.consentWhatsapp, {
     message: "Escolha ao menos um canal para receber as oportunidades.",
     path: ["consentEmail"],
