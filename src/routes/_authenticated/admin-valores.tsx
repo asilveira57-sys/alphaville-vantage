@@ -320,7 +320,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        {([["mecanico", "Mecânicas"], ["julgamento", "Julgamento"], ["ignorado", "Ignoradas"]] as const).map(([key, label]) => (
+        {([["mecanico", "Mecânicas"], ["julgamento", "Julgamento"], ["ignorado", "Ignoradas"], ["aplicado", "Já corrigidas"]] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => { setGrupo(key); setGPage(1); setSel({}); }}
@@ -328,7 +328,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
               grupo === key ? "bg-ink text-canvas border-ink" : "border-ink/15 hover:bg-ink/5"
             }`}
           >
-            {label} ({(counts?.[key === "mecanico" ? "mecanico" : key === "julgamento" ? "julgamento" : "ignorado"] ?? 0).toLocaleString("pt-BR")})
+            {label} ({((counts as any)?.[key] ?? 0).toLocaleString("pt-BR")})
           </button>
         ))}
       </div>
