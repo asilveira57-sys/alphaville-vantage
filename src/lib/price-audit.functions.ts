@@ -660,7 +660,10 @@ async function latestDivergences(supabaseAdmin: any) {
 export const triagemDivergencias = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { grupo?: string | null; page?: number; pageSize?: number }) => ({
-    grupo: d?.grupo === "mecanico" || d?.grupo === "julgamento" || d?.grupo === "ignorado" ? d.grupo : "mecanico",
+    grupo:
+      d?.grupo === "mecanico" || d?.grupo === "julgamento" || d?.grupo === "ignorado" || d?.grupo === "aplicado"
+        ? d.grupo
+        : "mecanico",
     page: Math.max(d?.page ?? 1, 1),
     pageSize: [25, 50, 100, 200].includes(d?.pageSize ?? 50) ? (d!.pageSize as number) : 50,
   }))
