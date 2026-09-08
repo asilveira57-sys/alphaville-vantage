@@ -262,7 +262,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
   const aplicarFn = useServerFn(aplicarDivergenciasMecanicas);
   const ignorarFn = useServerFn(ignorarDivergencia);
 
-  const [grupo, setGrupo] = useState<"mecanico" | "julgamento" | "ignorado">("mecanico");
+  const [grupo, setGrupo] = useState<"mecanico" | "julgamento" | "ignorado" | "aplicado">("mecanico");
   const [gPage, setGPage] = useState(1);
   const [gPageSize, setGPageSize] = useState(50);
   const [sel, setSel] = useState<Record<string, boolean>>({});
@@ -306,7 +306,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
       {counts && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           {[
-            ["Divergências abertas", counts.total - counts.ignorado],
+            ["Divergências abertas", counts.mecanico + counts.julgamento],
             ["Grupo mecânico", counts.mecanico],
             ["Grupo julgamento", counts.julgamento],
             ["Suspeita de cálculo por m²", counts.suspeita_m2],
@@ -320,7 +320,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        {([["mecanico", "Mecânicas"], ["julgamento", "Julgamento"], ["ignorado", "Ignoradas"]] as const).map(([key, label]) => (
+        {([["mecanico", "Mecânicas"], ["julgamento", "Julgamento"], ["ignorado", "Ignoradas"], ["aplicado", "Já corrigidas"]] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => { setGrupo(key); setGPage(1); setSel({}); }}
@@ -328,7 +328,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
               grupo === key ? "bg-ink text-canvas border-ink" : "border-ink/15 hover:bg-ink/5"
             }`}
           >
-            {label} ({(counts?.[key === "mecanico" ? "mecanico" : key === "julgamento" ? "julgamento" : "ignorado"] ?? 0).toLocaleString("pt-BR")})
+            {label} ({((counts as any)?.[key] ?? 0).toLocaleString("pt-BR")})
           </button>
         ))}
       </div>

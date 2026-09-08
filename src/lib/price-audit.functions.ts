@@ -660,7 +660,10 @@ async function latestDivergences(supabaseAdmin: any) {
 export const triagemDivergencias = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { grupo?: string | null; page?: number; pageSize?: number }) => ({
-    grupo: d?.grupo === "mecanico" || d?.grupo === "julgamento" || d?.grupo === "ignorado" ? d.grupo : "mecanico",
+    grupo:
+      d?.grupo === "mecanico" || d?.grupo === "julgamento" || d?.grupo === "ignorado" || d?.grupo === "aplicado"
+        ? d.grupo
+        : "mecanico",
     page: Math.max(d?.page ?? 1, 1),
     pageSize: [25, 50, 100, 200].includes(d?.pageSize ?? 50) ? (d!.pageSize as number) : 50,
   }))
@@ -691,7 +694,7 @@ export const triagemDivergencias = createServerFn({ method: "POST" })
       return {
         ...r,
         property: p,
-        grupo: r.status === "ignorado" ? "ignorado" : grupo,
+        grupo: r.status === "ignorado" ? "ignorado" : r.applied ? "aplicado" : grupo,
         fator,
         sqm,
         aplicavel: r.status === "divergente" && grupo === "mecanico" && r.found_value != null && !r.applied,
@@ -703,6 +706,7 @@ export const triagemDivergencias = createServerFn({ method: "POST" })
       mecanico: enriched.filter((r) => r.grupo === "mecanico").length,
       julgamento: enriched.filter((r) => r.grupo === "julgamento").length,
       ignorado: enriched.filter((r) => r.grupo === "ignorado").length,
+      aplicado: enriched.filter((r) => r.grupo === "aplicado").length,
       suspeita_m2: enriched.filter((r) => r.grupo === "julgamento" && r.sqm).length,
     };
 
