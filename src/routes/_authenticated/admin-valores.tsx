@@ -262,7 +262,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
   const aplicarFn = useServerFn(aplicarDivergenciasMecanicas);
   const ignorarFn = useServerFn(ignorarDivergencia);
 
-  const [grupo, setGrupo] = useState<"mecanico" | "julgamento" | "ignorado">("mecanico");
+  const [grupo, setGrupo] = useState<"mecanico" | "julgamento" | "ignorado" | "aplicado">("mecanico");
   const [gPage, setGPage] = useState(1);
   const [gPageSize, setGPageSize] = useState(50);
   const [sel, setSel] = useState<Record<string, boolean>>({});
