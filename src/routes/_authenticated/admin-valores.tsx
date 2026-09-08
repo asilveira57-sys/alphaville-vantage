@@ -161,7 +161,10 @@ function ComparePanel({ propertyId, onClose }: { propertyId: string; onClose: ()
       qc.invalidateQueries({ queryKey: ["priceAuditDetail", propertyId] });
       qc.invalidateQueries({ queryKey: ["textAudit"] });
       qc.invalidateQueries({ queryKey: ["priceAudit"] });
+      qc.invalidateQueries({ queryKey: ["priceAuditStats"] });
+      qc.invalidateQueries({ queryKey: ["priceTriagem"] });
     },
+
   });
 
   const p: any = q.data?.property;
