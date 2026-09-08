@@ -535,6 +535,34 @@ export const editarValoresImovel = createServerFn({ method: "POST" })
       .eq("id", data.propertyId);
     if (upErr) throw new Error(upErr.message);
 
+    // Reflete a edição manual nas linhas de auditoria para a tabela atualizar
+    for (const [field, value] of Object.entries(data.values)) {
+      const { data: audits } = await supabaseAdmin
+        .from("property_price_audit")
+        .select("id,found_value,status,applied")
+        .eq("property_id", data.propertyId)
+        .eq("field", field)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      const a = audits?.[0];
+      if (!a) continue;
+      const found = a.found_value as number | null;
+      const num = typeof value === "number" ? value : null;
+      const resolvido =
+        found != null && num != null && found > 0 && Math.abs(num - found) / found <= 0.005;
+      const ratio = found != null && found > 0 && num != null ? num / found : null;
+      await supabaseAdmin
+        .from("property_price_audit")
+        .update({
+          current_value: num,
+          ratio,
+          ...(resolvido
+            ? { status: "ok", applied: true, applied_at: new Date().toISOString(), applied_by: context.userId }
+            : {}),
+        })
+        .eq("id", a.id);
+    }
+
     await supabaseAdmin.from("cms_audit_log").insert({
       actor_id: context.userId,
       action: "price.value.manual_edit",
@@ -547,6 +575,7 @@ export const editarValoresImovel = createServerFn({ method: "POST" })
     });
 
     return { ok: true, values: data.values };
+
   });
 
 
