@@ -306,7 +306,7 @@ function TriagemSection({ onReview }: { onReview: (propertyId: string) => void }
       {counts && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           {[
-            ["Divergências abertas", counts.total - counts.ignorado],
+            ["Divergências abertas", counts.mecanico + counts.julgamento],
             ["Grupo mecânico", counts.mecanico],
             ["Grupo julgamento", counts.julgamento],
             ["Suspeita de cálculo por m²", counts.suspeita_m2],
