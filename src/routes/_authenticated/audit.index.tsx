@@ -104,6 +104,13 @@ function AuditPage() {
         )}
 
         <div className="flex flex-wrap gap-3 items-center text-xs">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Buscar por título, código, condomínio ou cidade…"
+            className="w-full md:w-80 border border-ink/20 bg-transparent px-3 py-1.5 text-xs placeholder:text-muted-foreground focus:outline-none focus:border-ink"
+          />
           <span className="uppercase tracking-widest text-muted-foreground">Status:</span>
           {(["all", "ok", "review", "error", "exempt"] as StatusFilter[]).map((s) => (
             <button key={s} onClick={() => { setStatus(s); setPage(1); setSelected({}); }}
@@ -124,7 +131,7 @@ function AuditPage() {
             <option value="missing_photos">Sem foto (recaptar)</option>
           </select>
           <span className="ml-auto text-muted-foreground">
-            {listQ.isLoading ? "carregando…" : `${items.length} imóveis`}
+            {listQ.isLoading ? "carregando…" : search.trim() ? `${items.length} de ${(listQ.data ?? []).length} imóveis` : `${items.length} imóveis`}
           </span>
         </div>
 
