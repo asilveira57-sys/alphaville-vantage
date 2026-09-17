@@ -223,7 +223,9 @@ function AuditPage() {
             );
           })}
           {!listQ.isLoading && pageItems.length === 0 && (
-            <div className="p-8 text-center text-sm text-muted-foreground">Nenhum imóvel com os filtros selecionados.</div>
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              {search.trim() ? `Nenhum imóvel encontrado para "${search.trim()}".` : "Nenhum imóvel com os filtros selecionados."}
+            </div>
           )}
         </div>
 
