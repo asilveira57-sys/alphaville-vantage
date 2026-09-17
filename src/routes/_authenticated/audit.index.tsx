@@ -17,6 +17,10 @@ type IssueFilter = "" | "missing_condo" | "missing_city" | "missing_area" | "mis
 
 const PER_PAGE = 50;
 
+function normalizeText(s: string) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 function AuditPage() {
   const checkFn = useServerFn(checkIsAdmin);
   const auditFn = useServerFn(getScrapAudit);
@@ -26,6 +30,7 @@ function AuditPage() {
 
   const [status, setStatus] = useState<StatusFilter>("review");
   const [filter, setFilter] = useState<IssueFilter>("");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
@@ -38,7 +43,16 @@ function AuditPage() {
     enabled: !!adminQ.data?.isAdmin,
   });
 
-  const items = useMemo(() => (listQ.data ?? []) as AuditRow[], [listQ.data]);
+  const items = useMemo(() => {
+    const rows = (listQ.data ?? []) as AuditRow[];
+    const q = normalizeText(search.trim());
+    if (!q) return rows;
+    return rows.filter((r) =>
+      [r.title, r.internal_code, r.condominium_name, r.city, r.slug]
+        .filter(Boolean)
+        .some((v) => normalizeText(String(v)).includes(q)),
+    );
+  }, [listQ.data, search]);
   const totalPages = Math.max(1, Math.ceil(items.length / PER_PAGE));
   const currentPage = Math.min(page, totalPages);
   const pageItems = items.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
@@ -90,6 +104,13 @@ function AuditPage() {
         )}
 
         <div className="flex flex-wrap gap-3 items-center text-xs">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Buscar por título, código, condomínio ou cidade…"
+            className="w-full md:w-80 border border-ink/20 bg-transparent px-3 py-1.5 text-xs placeholder:text-muted-foreground focus:outline-none focus:border-ink"
+          />
           <span className="uppercase tracking-widest text-muted-foreground">Status:</span>
           {(["all", "ok", "review", "error", "exempt"] as StatusFilter[]).map((s) => (
             <button key={s} onClick={() => { setStatus(s); setPage(1); setSelected({}); }}
@@ -110,7 +131,7 @@ function AuditPage() {
             <option value="missing_photos">Sem foto (recaptar)</option>
           </select>
           <span className="ml-auto text-muted-foreground">
-            {listQ.isLoading ? "carregando…" : `${items.length} imóveis`}
+            {listQ.isLoading ? "carregando…" : search.trim() ? `${items.length} de ${(listQ.data ?? []).length} imóveis` : `${items.length} imóveis`}
           </span>
         </div>
 
@@ -202,7 +223,9 @@ function AuditPage() {
             );
           })}
           {!listQ.isLoading && pageItems.length === 0 && (
-            <div className="p-8 text-center text-sm text-muted-foreground">Nenhum imóvel com os filtros selecionados.</div>
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              {search.trim() ? `Nenhum imóvel encontrado para "${search.trim()}".` : "Nenhum imóvel com os filtros selecionados."}
+            </div>
           )}
         </div>
 
