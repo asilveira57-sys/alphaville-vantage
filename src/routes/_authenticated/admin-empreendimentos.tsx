@@ -56,6 +56,51 @@ function AdminEmpreendimentos() {
   const checkFn = useServerFn(checkIsAdmin);
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const [slug, setSlug] = useState(MPD_EMPREENDIMENTOS[0]?.slug ?? "");
+  const qc = useQueryClient();
+
+  const editorialListFn = useServerFn(listEditorialPages);
+  const editorialQ = useQuery({
+    queryKey: ["editorialEmpreendimentos"],
+    queryFn: () => editorialListFn({ data: { contentType: "empreendimento" as const } }),
+  });
+  const editorialRows = (editorialQ.data ?? []).filter(
+    (r) => !MPD_EMPREENDIMENTOS.some((e) => e.slug === r.slug),
+  );
+
+  const upsertFn = useServerFn(upsertEditorialPage);
+  const [showNew, setShowNew] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createErr, setCreateErr] = useState<string | null>(null);
+  const [createdInfo, setCreatedInfo] = useState<{ id: string; slug: string } | null>(null);
+
+  async function createEmpreendimento() {
+    const title = newName.trim();
+    if (title.length < 2) return;
+    setCreating(true);
+    setCreateErr(null);
+    setCreatedInfo(null);
+    try {
+      const created = await upsertFn({
+        data: {
+          title,
+          content_type: "empreendimento",
+          status: "draft",
+          html_content: "",
+          allow_empty_content: true,
+        },
+      });
+      await qc.invalidateQueries({ queryKey: ["editorialEmpreendimentos"] });
+      setSlug(created.slug);
+      setCreatedInfo({ id: created.id, slug: created.slug });
+      setShowNew(false);
+      setNewName("");
+    } catch (e) {
+      setCreateErr((e as Error).message);
+    } finally {
+      setCreating(false);
+    }
+  }
 
   if (adminQ.isLoading)
     return (
