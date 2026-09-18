@@ -8,6 +8,7 @@ import { checkIsAdmin } from "@/lib/admin.functions";
 import { uploadEditorialImageFile } from "@/components/image-upload";
 import { MPD_EMPREENDIMENTOS } from "@/lib/empreendimentos-mpd";
 import { PLAN_CATEGORIES } from "@/components/empreendimentos/plans-block";
+import { listEditorialPages, upsertEditorialPage } from "@/lib/editorial.functions";
 
 export const Route = createFileRoute("/_authenticated/admin-empreendimentos")({
   head: () => ({
@@ -55,6 +56,51 @@ function AdminEmpreendimentos() {
   const checkFn = useServerFn(checkIsAdmin);
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
   const [slug, setSlug] = useState(MPD_EMPREENDIMENTOS[0]?.slug ?? "");
+  const qc = useQueryClient();
+
+  const editorialListFn = useServerFn(listEditorialPages);
+  const editorialQ = useQuery({
+    queryKey: ["editorialEmpreendimentos"],
+    queryFn: () => editorialListFn({ data: { contentType: "empreendimento" as const } }),
+  });
+  const editorialRows = (editorialQ.data ?? []).filter(
+    (r) => !MPD_EMPREENDIMENTOS.some((e) => e.slug === r.slug),
+  );
+
+  const upsertFn = useServerFn(upsertEditorialPage);
+  const [showNew, setShowNew] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createErr, setCreateErr] = useState<string | null>(null);
+  const [createdInfo, setCreatedInfo] = useState<{ id: string; slug: string } | null>(null);
+
+  async function createEmpreendimento() {
+    const title = newName.trim();
+    if (title.length < 2) return;
+    setCreating(true);
+    setCreateErr(null);
+    setCreatedInfo(null);
+    try {
+      const created = await upsertFn({
+        data: {
+          title,
+          content_type: "empreendimento",
+          status: "draft",
+          html_content: "",
+          allow_empty_content: true,
+        },
+      });
+      await qc.invalidateQueries({ queryKey: ["editorialEmpreendimentos"] });
+      setSlug(created.slug);
+      setCreatedInfo({ id: created.id, slug: created.slug });
+      setShowNew(false);
+      setNewName("");
+    } catch (e) {
+      setCreateErr((e as Error).message);
+    } finally {
+      setCreating(false);
+    }
+  }
 
   if (adminQ.isLoading)
     return (
@@ -93,13 +139,90 @@ function AdminEmpreendimentos() {
         </div>
 
         <div className="mb-8">
-          <label className={label}>Empreendimento</label>
+          <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <label className={label}>Empreendimento</label>
+            <button type="button" className={btn} onClick={() => setShowNew((v) => !v)}>
+              {showNew ? "Cancelar" : "+ Novo empreendimento"}
+            </button>
+          </div>
+
+          {showNew && (
+            <div className="mb-3 border border-ink/10 p-4">
+              <label className={label}>Nome do empreendimento</label>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  className={`${input} max-w-sm flex-1`}
+                  value={newName}
+                  placeholder="Ex.: Reserva do Alphaville"
+                  autoFocus
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void createEmpreendimento();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className={btn}
+                  disabled={creating || newName.trim().length < 2}
+                  onClick={() => void createEmpreendimento()}
+                >
+                  {creating ? "Criando…" : "Criar"}
+                </button>
+              </div>
+              {createErr && <p className="mt-2 text-xs text-red-600">{createErr}</p>}
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                A página é criada como rascunho em /empreendimentos/&lt;nome&gt;. Depois de criar:
+                escreva o conteúdo no CMS e publique, e cadastre fotos e plantas nas seções abaixo.
+              </p>
+            </div>
+          )}
+
+          {createdInfo && (
+            <div className="mb-3 border border-ink/10 p-4 text-sm">
+              <p className="text-ink">Empreendimento criado e selecionado abaixo.</p>
+              <div className="mt-2 flex flex-wrap gap-4 text-xs">
+                <Link
+                  to="/cms/$id"
+                  params={{ id: createdInfo.id }}
+                  className="uppercase tracking-widest underline"
+                >
+                  Escrever conteúdo no CMS
+                </Link>
+                <a
+                  href={`/empreendimentos/${createdInfo.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="uppercase tracking-widest underline"
+                >
+                  Ver página pública
+                </a>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                A página pública aparece para os visitantes somente depois de publicada no CMS.
+              </p>
+            </div>
+          )}
+
           <select value={slug} onChange={(e) => setSlug(e.target.value)} className={input}>
-            {MPD_EMPREENDIMENTOS.map((e) => (
-              <option key={e.slug} value={e.slug}>
-                {e.name} ({e.slug})
-              </option>
-            ))}
+            <optgroup label="Empreendimentos MPD">
+              {MPD_EMPREENDIMENTOS.map((e) => (
+                <option key={e.slug} value={e.slug}>
+                  {e.name} ({e.slug})
+                </option>
+              ))}
+            </optgroup>
+            {editorialRows.length > 0 && (
+              <optgroup label="Criados no painel">
+                {editorialRows.map((r) => (
+                  <option key={r.slug} value={r.slug}>
+                    {r.title} · {r.status === "published" ? "publicado" : "rascunho"}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </div>
 
