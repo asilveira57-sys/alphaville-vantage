@@ -271,12 +271,45 @@ function AdminIncorporadoras() {
           </form>
         )}
 
+        {/* ------------------------------------------------ página fixa MPD */}
+        <div className="mb-6">
+          <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            Página fixa do site
+          </p>
+          <ul className="border border-ink/10">
+            <li className="flex flex-wrap items-center justify-between gap-4 bg-ink/[0.03] p-4">
+              <div className="min-w-0">
+                <p className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-medium">MPD</span>
+                  <span className="border border-ink/20 px-2 py-0.5 text-[9px] uppercase tracking-widest">
+                    Página fixa
+                  </span>
+                  <span className="border border-ink/20 px-2 py-0.5 text-[9px] uppercase tracking-widest">
+                    Ativo
+                  </span>
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  /parceiros/mpd · 4 empreendimentos (Andrômeda, Terrah, Florá e Neo Alphaville)
+                </p>
+              </div>
+              <a
+                href="/parceiros/mpd"
+                target="_blank"
+                rel="noreferrer"
+                className={btn}
+              >
+                <ExternalLink className="mr-1 inline h-3 w-3" /> Ver página
+              </a>
+            </li>
+          </ul>
+        </div>
+
         {/* ------------------------------------------------ lista */}
         {partners.isLoading ? (
           <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : rows.length === 0 ? (
           <p className="border border-ink/10 p-8 text-center text-sm text-muted-foreground">
-            Nenhum parceiro cadastrado. Clique em "Novo parceiro" para criar o primeiro.
+            Nenhum parceiro cadastrado no painel. Clique em "Novo parceiro" para criar o primeiro.
           </p>
         ) : (
           <ul className="divide-y divide-ink/10 border border-ink/10">
