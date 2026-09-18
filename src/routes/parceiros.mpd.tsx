@@ -3,6 +3,11 @@ import { ArrowUpRight, Building2, CheckCircle2, MessageCircle } from "lucide-rea
 import { SiteLayout } from "@/components/site-layout";
 import { MpdLeadForm } from "@/components/partners/mpd-lead-form";
 import { MPD_EMPREENDIMENTOS_ATIVOS } from "@/lib/empreendimentos-mpd";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getDevelopmentPartner,
+  listPartnerEmpreendimentos,
+} from "@/lib/development-partners.functions";
 
 const URL = "https://alphaville-vantage.lovable.app/parceiros/mpd";
 const TITLE = "MPD Alphaville: empreendimentos e imóveis disponíveis";
