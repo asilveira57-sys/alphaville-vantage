@@ -153,6 +153,7 @@ function AdminPage() {
             <Link to="/admin-ruas" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Ruas →</Link>
             <Link to="/admin-radar" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Radar →</Link>
             <Link to="/admin-empreendimentos" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Empreendimentos →</Link>
+            <Link to="/admin-incorporadoras" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Incorporadoras →</Link>
             <Link to="/admin-midia" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Mídia →</Link>
             <Link to="/admin-cards" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Imagens dos cards →</Link>
             <Link to="/admin-financiamento" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Financiamento →</Link>

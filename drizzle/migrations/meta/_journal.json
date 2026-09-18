@@ -43,6 +43,13 @@
       "when": 1788784038964,
       "tag": "0005_signup_antibot",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789733409424,
+      "tag": "0006_create_development_partners",
+      "breakpoints": true
     }
   ]
 }

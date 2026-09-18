@@ -133,9 +133,14 @@ function AdminEmpreendimentos() {
               das páginas.
             </p>
           </div>
-          <Link to="/admin" className={btn}>
-            ← Admin
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/admin-incorporadoras" className={btn}>
+              Incorporadoras →
+            </Link>
+            <Link to="/admin" className={btn}>
+              ← Admin
+            </Link>
+          </div>
         </div>
 
         <div className="mb-8">

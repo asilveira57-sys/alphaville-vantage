@@ -334,6 +334,42 @@ export type Database = {
           },
         ]
       }
+      development_partners: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          empreendimento_slugs: string[]
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          empreendimento_slugs?: string[]
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          empreendimento_slugs?: string[]
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       editorial_pages: {
         Row: {
           author_id: string | null
