@@ -160,6 +160,8 @@ function MpdPartnerPage() {
             ))}
           </div>
 
+          <ExtraEmpreendimentos />
+
 
           <p className="mt-8 text-xs text-[#1A1A1A]/50">
             Disponibilidade, valores e condições sujeitos à confirmação com a equipe da S.A. Imóveis.
