@@ -247,6 +247,84 @@ function AdminEmpreendimentos() {
   );
 }
 
+/* ---------------- Vínculo com incorporadora ---------------- */
+
+function PartnerLinkSection({ slug }: { slug: string }) {
+  const qc = useQueryClient();
+  const listFn = useServerFn(listDevelopmentPartnersAdmin);
+  const assignFn = useServerFn(assignEmpreendimentoPartner);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const q = useQuery({
+    queryKey: ["devPartnersAdmin"],
+    queryFn: () => listFn(),
+  });
+
+  const partners = q.data ?? [];
+  const current = partners.find((p) => p.empreendimento_slugs.includes(slug));
+
+  async function handleChange(partnerId: string) {
+    setSaving(true);
+    setErr(null);
+    try {
+      await assignFn({
+        data: { empreendimento_slug: slug, partner_id: partnerId || null },
+      });
+      await qc.invalidateQueries({ queryKey: ["devPartnersAdmin"] });
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section className="mb-14 border border-ink/10 p-5">
+      <h2 className="font-serif text-xl text-ink">Incorporadora</h2>
+      <p className="mt-1 mb-4 text-sm text-muted-foreground">
+        Define em qual página de parceiro (/parceiros/…) este empreendimento aparece.
+      </p>
+      {err && <p className="mb-3 text-xs text-red-600">{err}</p>}
+      <div className="flex flex-wrap items-center gap-3">
+        <select
+          className={`${input} max-w-sm`}
+          value={current?.id ?? ""}
+          disabled={saving || q.isLoading}
+          onChange={(e) => void handleChange(e.target.value)}
+        >
+          <option value="">— Nenhuma incorporadora —</option>
+          {partners.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name} (/parceiros/{p.slug}){p.active ? "" : " · inativa"}
+            </option>
+          ))}
+        </select>
+        {saving && <span className="text-xs text-muted-foreground">Salvando…</span>}
+        {current && (
+          <a
+            href={`/parceiros/${current.slug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs uppercase tracking-widest underline"
+          >
+            Ver página da incorporadora
+          </a>
+        )}
+      </div>
+      {partners.length === 0 && !q.isLoading && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Nenhuma incorporadora cadastrada ainda — crie em{" "}
+          <Link to="/admin-incorporadoras" className="underline">
+            Incorporadoras
+          </Link>
+          .
+        </p>
+      )}
+    </section>
+  );
+}
+
 /* ---------------- Galeria ---------------- */
 
 function GallerySection({ slug }: { slug: string }) {
