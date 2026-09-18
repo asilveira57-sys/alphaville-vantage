@@ -8,6 +8,7 @@ import { checkIsAdmin } from "@/lib/admin.functions";
 import { uploadEditorialImageFile } from "@/components/image-upload";
 import { MPD_EMPREENDIMENTOS } from "@/lib/empreendimentos-mpd";
 import { PLAN_CATEGORIES } from "@/components/empreendimentos/plans-block";
+import { listEditorialPages, upsertEditorialPage } from "@/lib/editorial.functions";
 
 export const Route = createFileRoute("/_authenticated/admin-empreendimentos")({
   head: () => ({
