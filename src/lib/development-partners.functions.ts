@@ -141,6 +141,47 @@ export const upsertDevelopmentPartner = createServerFn({ method: "POST" })
     return { ok: true, slug } as const;
   });
 
+// Vincula um empreendimento a UMA incorporadora (ou nenhuma, com partnerId null).
+// Remove o slug de todas as outras para manter o vínculo exclusivo.
+export const assignEmpreendimentoPartner = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        empreendimento_slug: z.string().trim().min(1).max(120),
+        partner_id: z.string().uuid().nullable(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { data: partners, error } = await context.supabase
+      .from("development_partners")
+      .select("id,empreendimento_slugs");
+    if (error) throw new Error(error.message);
+    const now = new Date().toISOString();
+    for (const p of partners ?? []) {
+      const slugs = (p.empreendimento_slugs ?? []) as string[];
+      const has = slugs.includes(data.empreendimento_slug);
+      const isTarget = p.id === data.partner_id;
+      if (has && !isTarget) {
+        await context.supabase
+          .from("development_partners")
+          .update({
+            empreendimento_slugs: slugs.filter((s) => s !== data.empreendimento_slug),
+            updated_at: now,
+          })
+          .eq("id", p.id);
+      } else if (!has && isTarget) {
+        await context.supabase
+          .from("development_partners")
+          .update({ empreendimento_slugs: [...slugs, data.empreendimento_slug], updated_at: now })
+          .eq("id", p.id);
+      }
+    }
+    return { ok: true } as const;
+  });
+
 export const toggleDevelopmentPartner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
