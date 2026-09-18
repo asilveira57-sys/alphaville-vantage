@@ -139,13 +139,90 @@ function AdminEmpreendimentos() {
         </div>
 
         <div className="mb-8">
-          <label className={label}>Empreendimento</label>
+          <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <label className={label}>Empreendimento</label>
+            <button type="button" className={btn} onClick={() => setShowNew((v) => !v)}>
+              {showNew ? "Cancelar" : "+ Novo empreendimento"}
+            </button>
+          </div>
+
+          {showNew && (
+            <div className="mb-3 border border-ink/10 p-4">
+              <label className={label}>Nome do empreendimento</label>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  className={`${input} max-w-sm flex-1`}
+                  value={newName}
+                  placeholder="Ex.: Reserva do Alphaville"
+                  autoFocus
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void createEmpreendimento();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className={btn}
+                  disabled={creating || newName.trim().length < 2}
+                  onClick={() => void createEmpreendimento()}
+                >
+                  {creating ? "Criando…" : "Criar"}
+                </button>
+              </div>
+              {createErr && <p className="mt-2 text-xs text-red-600">{createErr}</p>}
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                A página é criada como rascunho em /empreendimentos/&lt;nome&gt;. Depois de criar:
+                escreva o conteúdo no CMS e publique, e cadastre fotos e plantas nas seções abaixo.
+              </p>
+            </div>
+          )}
+
+          {createdInfo && (
+            <div className="mb-3 border border-ink/10 p-4 text-sm">
+              <p className="text-ink">Empreendimento criado e selecionado abaixo.</p>
+              <div className="mt-2 flex flex-wrap gap-4 text-xs">
+                <Link
+                  to="/cms/$id"
+                  params={{ id: createdInfo.id }}
+                  className="uppercase tracking-widest underline"
+                >
+                  Escrever conteúdo no CMS
+                </Link>
+                <a
+                  href={`/empreendimentos/${createdInfo.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="uppercase tracking-widest underline"
+                >
+                  Ver página pública
+                </a>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                A página pública aparece para os visitantes somente depois de publicada no CMS.
+              </p>
+            </div>
+          )}
+
           <select value={slug} onChange={(e) => setSlug(e.target.value)} className={input}>
-            {MPD_EMPREENDIMENTOS.map((e) => (
-              <option key={e.slug} value={e.slug}>
-                {e.name} ({e.slug})
-              </option>
-            ))}
+            <optgroup label="Empreendimentos MPD">
+              {MPD_EMPREENDIMENTOS.map((e) => (
+                <option key={e.slug} value={e.slug}>
+                  {e.name} ({e.slug})
+                </option>
+              ))}
+            </optgroup>
+            {editorialRows.length > 0 && (
+              <optgroup label="Criados no painel">
+                {editorialRows.map((r) => (
+                  <option key={r.slug} value={r.slug}>
+                    {r.title} · {r.status === "published" ? "publicado" : "rascunho"}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </div>
 
