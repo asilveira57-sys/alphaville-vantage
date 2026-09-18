@@ -210,3 +210,65 @@ function MpdPartnerPage() {
     </SiteLayout>
   );
 }
+
+const FIXED_SLUGS = MPD_EMPREENDIMENTOS_ATIVOS.map((d) => d.slug);
+
+function ExtraEmpreendimentos() {
+  const { data } = useQuery({
+    queryKey: ["development-partner", "mpd", "extra"],
+    queryFn: async () => {
+      const partner = await getDevelopmentPartner({ data: { slug: "mpd" } });
+      const slugs = (partner?.empreendimento_slugs ?? []).filter(
+        (s) => !FIXED_SLUGS.includes(s),
+      );
+      if (slugs.length === 0) return [];
+      return await listPartnerEmpreendimentos({ data: { slugs } });
+    },
+  });
+
+  const items = data ?? [];
+  if (items.length === 0) return null;
+
+  return (
+    <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {items.map((e) => (
+        <article
+          key={e.slug}
+          className="group flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)] transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="relative aspect-[16/9] overflow-hidden bg-[#0D0D0D]">
+            {e.featured_image ? (
+              <img
+                src={e.featured_image}
+                alt={e.title}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center p-6 text-center">
+                <span className="font-display text-[20px] leading-tight text-white/85">
+                  {e.title}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-2.5 p-6">
+            <h3 className="font-display text-[19px] leading-[1.25] text-[#171717]">{e.title}</h3>
+            {e.excerpt ? (
+              <p className="line-clamp-3 text-sm leading-relaxed text-[#1A1A1A]/70">{e.excerpt}</p>
+            ) : null}
+            <Link
+              to="/empreendimentos/$slug"
+              params={{ slug: e.slug }}
+              className="mt-auto inline-flex items-center gap-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0D0D0D] hover:text-[#0D0D0D]/60"
+            >
+              Ver empreendimento
+              <ArrowUpRight className="h-4 w-4" strokeWidth={2.2} />
+            </Link>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
