@@ -230,7 +230,7 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* =============== HERO + BARRA DE BUSCA =============== */}
-      <section className="home-hero relative bg-[#EAEAE6] flex items-center">
+      <section className="home-hero relative bg-[#EAEAE6] flex flex-col lg:flex-row lg:items-center">
         <div className="home-hero-inner w-full max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-10 lg:gap-12 items-center">
             <div className="min-w-0">
@@ -271,8 +271,8 @@ function HomePage() {
           </div>
         </div>
 
-        {/* Barra de busca sobreposta */}
-        <div className="absolute left-1/2 -translate-x-1/2 -bottom-10 w-[min(100%,1120px)] px-6">
+        {/* Barra de busca — em fluxo no mobile, sobreposta no desktop */}
+        <div className="w-full px-6 pb-10 lg:pb-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:-bottom-10 lg:w-[min(100%,1120px)]">
           <form
             action="/imoveis"
             method="get"
@@ -331,19 +331,19 @@ function HomePage() {
       </section>
 
       {/* =============== VITRINE DE OPORTUNIDADES =============== */}
-      <div className="pt-24 md:pt-28">
+      <div className="pt-10 lg:pt-28">
         <OpportunityShowcase items={opportunities} />
       </div>
 
       {/* =============== RADAR S.A. IMÓVEIS =============== */}
-      <div className="pt-24 md:pt-28 bg-white">
+      <div className="pt-14 lg:pt-28 bg-white">
         <RadarSection />
       </div>
 
 
 
       {/* =============== REGIÕES =============== */}
-      <section className="pt-28 md:pt-32 pb-20 md:pb-24 bg-[#EAEAE6] px-6">
+      <section className="pt-16 lg:pt-32 pb-14 lg:pb-24 bg-[#EAEAE6] px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
             <div>
