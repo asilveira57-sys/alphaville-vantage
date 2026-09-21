@@ -291,6 +291,25 @@ function PropertyDetail() {
 
 
       <InstitutionalBlock />
+
+      {/* Contato fixo no rodapé da tela — apenas no celular */}
+      <div className="md:hidden h-20" aria-hidden />
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0D0D0D] text-white border-t border-white/10 px-4 py-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="min-w-0">
+          <p className="text-[9px] uppercase tracking-[0.2em] text-white/50">
+            {sale ? "Venda" : rent ? "Locação" : "Valor"}
+          </p>
+          <p className="truncate font-serif text-base">{sale ?? rent ?? "Consulte"}</p>
+        </div>
+        <a
+          href={`https://wa.me/5511995515053?text=${encodeURIComponent(`Olá! Tenho interesse no imóvel: ${p.title}`)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="shrink-0 inline-flex items-center justify-center bg-[#F2DA00] text-[#0D0D0D] px-5 py-3 text-[11px] font-bold uppercase tracking-widest"
+        >
+          WhatsApp
+        </a>
+      </div>
     </SiteLayout>
   );
 }
