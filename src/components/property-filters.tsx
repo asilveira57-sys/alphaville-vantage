@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
 export type FilterOptions = {
@@ -108,7 +109,22 @@ export function PropertyFilters({
 
   return (
     <section className="bg-brand-dark text-white">
-      <div className="max-w-7xl mx-auto px-6 py-6 md:py-8 space-y-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-8 space-y-3">
+        {/* Abre/fecha os filtros no celular */}
+        <button
+          type="button"
+          onClick={() => setShowFilters((v) => !v)}
+          aria-expanded={showFilters}
+          className="md:hidden w-full flex items-center justify-between gap-3 bg-brand-yellow text-brand-dark font-bold uppercase tracking-widest text-[11px] py-3 px-4 rounded-sm"
+        >
+          <span>
+            {showFilters ? "Fechar filtros" : "Filtrar imóveis"}
+            {activeChips.length > 0 ? ` · ${activeChips.length}` : ""}
+          </span>
+          <span aria-hidden>{showFilters ? "▲" : "▼"}</span>
+        </button>
+
+        <div className={`${showFilters ? "block" : "hidden"} md:block space-y-3`}>
         {/* Linha 1 */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-3">
           <select className={selectCls} value={state.purpose} onChange={(e) => update({ purpose: e.target.value })} aria-label="Finalidade">
