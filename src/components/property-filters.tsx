@@ -91,6 +91,7 @@ export function PropertyFilters({
       },
     });
 
+  const [showFilters, setShowFilters] = useState(false);
   const isRent = state.purpose === "rent" || (state.purpose === "" && options.isRent);
   const steps = priceSteps(options.priceMax || 5_000_000, isRent);
 
@@ -216,6 +217,7 @@ export function PropertyFilters({
             onChange={(e) => update({ q: e.target.value })}
             aria-label="Buscar"
           />
+        </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
