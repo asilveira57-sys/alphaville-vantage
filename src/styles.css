@@ -329,8 +329,8 @@
  * ============================================================ */
 .home-hero {
   --hero-header: 132px;
-  --hero-space-top: clamp(1.5rem, 5vh, 4rem);
-  --hero-space-bottom: clamp(5.5rem, 12vh, 9rem);
+  --hero-space-top: clamp(1.25rem, 4vh, 4rem);
+  --hero-space-bottom: 1.75rem;
 }
 .home-hero-inner {
   padding-top: var(--hero-space-top);
@@ -347,6 +347,8 @@
 
 @media (min-width: 1024px) {
   .home-hero {
+    --hero-space-top: clamp(1.5rem, 5vh, 4rem);
+    --hero-space-bottom: clamp(5.5rem, 12vh, 9rem);
     min-height: min(calc(100svh - var(--hero-header)), 820px);
   }
   .home-hero-img {
