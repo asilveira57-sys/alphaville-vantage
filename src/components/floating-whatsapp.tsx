@@ -60,7 +60,6 @@ export function FloatingWhatsApp() {
   }, [pos]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLAnchorElement>) => {
-    console.log("[wa-float] down", e.pointerId, e.clientX, e.clientY);
     if (e.button !== 0) return;
     const el = btnRef.current;
     if (!el) return;
@@ -79,9 +78,8 @@ export function FloatingWhatsApp() {
     setDragging(true);
     try {
       el.setPointerCapture(e.pointerId);
-      console.log("[wa-float] capture ok", e.pointerId);
-    } catch (err) {
-      console.log("[wa-float] capture falhou", String(err));
+    } catch {
+      // sem pointer capture — o arraste ainda funciona
     }
   }, []);
 
@@ -99,7 +97,6 @@ export function FloatingWhatsApp() {
   }, []);
 
   const handlePointerUp = useCallback((e: React.PointerEvent<HTMLAnchorElement>) => {
-    console.log("[wa-float] up", e.pointerId);
     const d = dragRef.current;
     if (!d || e.pointerId !== d.pointerId) return;
     dragRef.current = null;
@@ -172,6 +169,7 @@ export function FloatingWhatsApp() {
           href={`https://wa.me/${BRAND.whatsapp}`}
           target="_blank"
           rel="noreferrer"
+          draggable={false}
           aria-label="Falar com a S.A Imóveis no WhatsApp"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
