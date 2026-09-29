@@ -243,11 +243,12 @@ async function findDuplicates(admin: any, listing: RawListing, condoId: string |
         return { ...p, score };
       })
       .filter((p: any) => p.score >= 60)
-      .sort((a: any, b: any) => b.score - a.score)
-      .slice(0, 5);
+      .sort((a: any, b: any) => b.score - a.score);
+    otherType = similar.filter((p: any) => !typeMatches(p)).slice(0, 5);
+    similar = similar.filter((p: any) => typeMatches(p)).slice(0, 5);
   }
 
-  return { exact: exact?.[0] ?? null, similar };
+  return { exact: exactRow, exact_type_mismatch: exactTypeMismatch, similar, other_type: otherType };
 }
 
 /* ------------------------------------------------------------------ *
