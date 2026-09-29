@@ -85,6 +85,7 @@ export function FloatingWhatsApp() {
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLAnchorElement>) => {
     const d = dragRef.current;
+    console.log('[wa-float] move', e.pointerId, e.clientX, e.clientY, !!d);
     if (!d || e.pointerId !== d.pointerId) return;
     const dx = e.clientX - d.startX;
     const dy = e.clientY - d.startY;
