@@ -105,7 +105,7 @@ function mapType(raw: string): string {
 
 function parseMoney(raw: string): { min: number; max: number } {
   const n = norm(raw);
-  const nums = [...n.matchAll(/([\d.,]+)\s*(mil|milhao|milhoes|mi)?/g)]
+  const nums = [...n.matchAll(/([\d.,]+)\s*(milhoes|milhao|mil|mi)?/g)]
     .map((m) => {
       const base = Number(m[1].replace(/\./g, "").replace(",", "."));
       if (!Number.isFinite(base) || base === 0) return 0;
