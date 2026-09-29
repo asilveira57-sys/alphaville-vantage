@@ -111,6 +111,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1331471408906765');fbq('track','PageView');`,
       },
       {
+        type: "text/javascript",
+        children: `window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};fetch('/api/public/ga-config').then(function(r){return r.json()}).then(function(c){if(!c.id)return;var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(c.id);document.head.appendChild(s);gtag('js',new Date());gtag('config',c.id);}).catch(function(){});`,
+      },
+      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
