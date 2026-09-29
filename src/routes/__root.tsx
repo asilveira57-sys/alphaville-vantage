@@ -115,6 +115,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: `window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};fetch('/api/public/ga-config').then(function(r){return r.json()}).then(function(c){if(!c.id)return;var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(c.id);document.head.appendChild(s);gtag('js',new Date());gtag('config',c.id);}).catch(function(){});`,
       },
       {
+        type: "text/javascript",
+        children: `(function(){function priv(){return /^\\/(admin|auth|audit|reset-password|area-do-parceiro)/.test(location.pathname)}function send(ga,fb,p){try{window.gtag&&gtag('event',ga,p)}catch(e){}try{window.fbq&&fbq('track',fb,p)}catch(e){}}document.addEventListener('click',function(e){if(priv())return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';var p={page_path:location.pathname,link_text:(a.textContent||'').trim().slice(0,80)};if(/wa\\.me|whatsapp\\.com/i.test(h))send('whatsapp_click','Contact',Object.assign({method:'whatsapp'},p));else if(/^tel:/i.test(h))send('phone_click','Contact',Object.assign({method:'phone'},p));else if(/^mailto:/i.test(h))send('email_click','Contact',Object.assign({method:'email'},p));},true);document.addEventListener('submit',function(e){if(priv())return;var f=e.target;if(!f||!f.querySelector)return;if(!f.querySelector('input[type=email],input[type=tel],input[name*=phone i],input[name*=telefone i],input[name*=email i]'))return;send('generate_lead','Lead',{page_path:location.pathname,form_id:f.id||f.getAttribute('name')||''});},true);})();`,
+      },
+      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
