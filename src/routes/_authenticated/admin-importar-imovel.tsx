@@ -185,7 +185,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
 
   if (!draft) return <SiteLayout><div className="px-6 py-24 text-sm text-muted-foreground">Carregando importação…</div></SiteLayout>;
 
-  const dup = (importQ.data?.duplicates ?? {}) as { exact?: any; similar?: any[] };
+  const dup = (importQ.data?.duplicates ?? {}) as { exact?: any; exact_type_mismatch?: boolean; similar?: any[]; other_type?: any[] };
   const summary = (importQ.data?.summary ?? {}) as Record<string, number | boolean>;
   const checklist = buildChecklist(draft);
   const blocking = checklist.filter((c) => c.required && !c.ok);
