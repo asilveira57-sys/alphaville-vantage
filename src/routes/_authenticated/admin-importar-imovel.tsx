@@ -229,6 +229,11 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
         {dup.exact && (
           <div className="border border-red-300 bg-red-50 p-4 text-sm space-y-2">
             <p className="font-medium text-red-800">Este anúncio já foi importado.</p>
+            {dup.exact_type_mismatch && (
+              <p className="text-xs font-medium text-amber-800 bg-amber-100 border border-amber-300 px-2 py-1">
+                Atenção: parece ser o mesmo imóvel, mas com outro tipo de anúncio (venda × aluguel). Use "Atualizar imóvel existente" para incluir o novo valor sem criar cadastro em dobro.
+              </p>
+            )}
             <p className="text-xs text-red-800">
               {dup.exact.internal_code ? `Código ${dup.exact.internal_code} · ` : ""}
               {[dup.exact.address, dup.exact.neighborhood, dup.exact.city].filter(Boolean).join(", ")}
@@ -258,6 +263,32 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
                     <div className="font-medium truncate">{p.title}</div>
                     <div className="text-muted-foreground truncate">{[p.condominium_name, p.neighborhood].filter(Boolean).join(" · ")}</div>
                     <div>{money(p.price_sale ?? p.price_rent)} · {p.bedrooms ?? "—"} dorm</div>
+                    <button onClick={() => setUseExisting(p.id)} className="mt-1 uppercase tracking-widest underline">
+                      {useExisting === p.id ? "Selecionado" : "Usar imóvel existente"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setUseExisting(null)} className="text-xs uppercase tracking-widest underline">Continuar como novo cadastro</button>
+          </div>
+        )}
+
+        {!dup.exact && (dup.other_type?.length ?? 0) > 0 && (
+          <div className="border border-blue-300 bg-blue-50 p-4 space-y-3">
+            <p className="text-sm font-medium text-blue-900">
+              Mesmo imóvel, outro tipo de anúncio: encontramos cadastros parecidos, mas de {dup.other_type[0]?.price_sale ? "venda" : "aluguel"}. Se for o mesmo imóvel, use "Usar imóvel existente" para incluir o novo valor sem criar cadastro em dobro.
+            </p>
+            <div className="grid md:grid-cols-2 gap-3">
+              {dup.other_type!.map((p: any) => (
+                <div key={p.id} className="border border-blue-300 bg-white p-3 text-xs flex gap-3">
+                  {Array.isArray(p.images) && p.images[0] && (
+                    <img src={String(p.images[0])} alt="" className="w-20 h-16 object-cover" loading="lazy" />
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{p.title}</div>
+                    <div className="text-muted-foreground truncate">{[p.condominium_name, p.neighborhood].filter(Boolean).join(" · ")}</div>
+                    <div>{money(p.price_sale ?? p.price_rent)} · {p.bedrooms ?? "—"} dorm · {p.price_sale ? "Venda" : "Aluguel"}</div>
                     <button onClick={() => setUseExisting(p.id)} className="mt-1 uppercase tracking-widest underline">
                       {useExisting === p.id ? "Selecionado" : "Usar imóvel existente"}
                     </button>
