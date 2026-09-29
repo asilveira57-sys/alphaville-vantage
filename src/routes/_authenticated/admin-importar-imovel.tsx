@@ -277,7 +277,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
         {!dup.exact && (dup.other_type?.length ?? 0) > 0 && (
           <div className="border border-blue-300 bg-blue-50 p-4 space-y-3">
             <p className="text-sm font-medium text-blue-900">
-              Mesmo imóvel, outro tipo de anúncio: encontramos cadastros parecidos, mas de {dup.other_type[0]?.price_sale ? "venda" : "aluguel"}. Se for o mesmo imóvel, use "Usar imóvel existente" para incluir o novo valor sem criar cadastro em dobro.
+              Mesmo imóvel, outro tipo de anúncio: encontramos cadastros parecidos, mas de {dup.other_type?.[0]?.price_sale ? "venda" : "aluguel"}. Se for o mesmo imóvel, use "Usar imóvel existente" para incluir o novo valor sem criar cadastro em dobro.
             </p>
             <div className="grid md:grid-cols-2 gap-3">
               {dup.other_type!.map((p: any) => (
