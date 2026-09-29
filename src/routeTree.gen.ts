@@ -102,6 +102,7 @@ import { Route as AuthenticatedAuditIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAreaDoParceiroIndexRouteImport } from './routes/_authenticated/area-do-parceiro.index'
 import { Route as AuthenticatedAdminRuasIndexRouteImport } from './routes/_authenticated/admin-ruas.index'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
+import { Route as ApiPublicGaConfigRouteImport } from './routes/api/public/ga-config'
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as AuthenticatedAuditIdRouteImport } from './routes/_authenticated/audit.$id'
 import { Route as AuthenticatedAreaDoParceiroSlugRouteImport } from './routes/_authenticated/area-do-parceiro.$slug'
@@ -597,6 +598,11 @@ const ApiPublicIndexnowKeyDottxtRoute =
     path: '/api/public/indexnow-key.txt',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGaConfigRoute = ApiPublicGaConfigRouteImport.update({
+  id: '/api/public/ga-config',
+  path: '/api/public/ga-config',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCmsIdRoute = AuthenticatedCmsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -737,6 +743,7 @@ export interface FileRoutesByFullPath {
   '/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
@@ -830,6 +837,7 @@ export interface FileRoutesByTo {
   '/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
   '/audit/$id': typeof AuthenticatedAuditIdRoute
   '/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasIndexRoute
   '/area-do-parceiro': typeof AuthenticatedAreaDoParceiroIndexRoute
@@ -934,6 +942,7 @@ export interface FileRoutesById {
   '/_authenticated/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
   '/_authenticated/audit/$id': typeof AuthenticatedAuditIdRoute
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
+  '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
   '/_authenticated/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/_authenticated/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
@@ -1038,6 +1047,7 @@ export interface FileRouteTypes {
     | '/area-do-parceiro/$slug'
     | '/audit/$id'
     | '/cms/$id'
+    | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
     | '/admin-ruas/'
     | '/area-do-parceiro/'
@@ -1131,6 +1141,7 @@ export interface FileRouteTypes {
     | '/area-do-parceiro/$slug'
     | '/audit/$id'
     | '/cms/$id'
+    | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
     | '/admin-ruas'
     | '/area-do-parceiro'
@@ -1234,6 +1245,7 @@ export interface FileRouteTypes {
     | '/_authenticated/area-do-parceiro/$slug'
     | '/_authenticated/audit/$id'
     | '/_authenticated/cms/$id'
+    | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
     | '/_authenticated/admin-ruas/'
     | '/_authenticated/area-do-parceiro/'
@@ -1295,6 +1307,7 @@ export interface RootRouteChildren {
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
+  ApiPublicGaConfigRoute: typeof ApiPublicGaConfigRoute
   ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
   ApiPublicHooksOpportunityRevaluationRoute: typeof ApiPublicHooksOpportunityRevaluationRoute
@@ -1954,6 +1967,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIndexnowKeyDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ga-config': {
+      id: '/api/public/ga-config'
+      path: '/api/public/ga-config'
+      fullPath: '/api/public/ga-config'
+      preLoaderRoute: typeof ApiPublicGaConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/cms/$id': {
       id: '/_authenticated/cms/$id'
       path: '/$id'
@@ -2253,6 +2273,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParceirosMpdRoute: ParceirosMpdRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
+  ApiPublicGaConfigRoute: ApiPublicGaConfigRoute,
   ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
   ApiPublicHooksOpportunityRevaluationRoute:
