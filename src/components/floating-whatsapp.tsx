@@ -60,6 +60,7 @@ export function FloatingWhatsApp() {
   }, [pos]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLAnchorElement>) => {
+    console.log("[wa-float] down", e.pointerId, e.clientX, e.clientY);
     if (e.button !== 0) return;
     const el = btnRef.current;
     if (!el) return;
@@ -78,8 +79,9 @@ export function FloatingWhatsApp() {
     setDragging(true);
     try {
       el.setPointerCapture(e.pointerId);
-    } catch {
-      // sem pointer capture — o arraste ainda funciona
+      console.log("[wa-float] capture ok", e.pointerId);
+    } catch (err) {
+      console.log("[wa-float] capture falhou", String(err));
     }
   }, []);
 
@@ -97,6 +99,7 @@ export function FloatingWhatsApp() {
   }, []);
 
   const handlePointerUp = useCallback((e: React.PointerEvent<HTMLAnchorElement>) => {
+    console.log("[wa-float] up", e.pointerId);
     const d = dragRef.current;
     if (!d || e.pointerId !== d.pointerId) return;
     dragRef.current = null;
