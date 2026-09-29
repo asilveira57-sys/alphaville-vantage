@@ -161,6 +161,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
   const [draft, setDraft] = useState<ImportDraft | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [useExisting, setUseExisting] = useState<string | null>(null);
+  const [dupDismissed, setDupDismissed] = useState(false);
   const dirty = useRef(false);
 
   useEffect(() => {
@@ -250,7 +251,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
           </div>
         )}
 
-        {!dup.exact && (dup.similar?.length ?? 0) > 0 && (
+        {!dup.exact && !dupDismissed && (dup.similar?.length ?? 0) > 0 && (
           <div className="border border-amber-300 bg-amber-50 p-4 space-y-3">
             <p className="text-sm font-medium text-amber-900">Encontramos possíveis imóveis duplicados.</p>
             <div className="grid md:grid-cols-2 gap-3">
@@ -270,11 +271,11 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
                 </div>
               ))}
             </div>
-            <button onClick={() => setUseExisting(null)} className="text-xs uppercase tracking-widest underline">Continuar como novo cadastro</button>
+            <button type="button" onClick={() => { setUseExisting(null); setDupDismissed(true); toast.success("Ok! Será salvo como um novo cadastro."); }} className="text-xs uppercase tracking-widest underline cursor-pointer hover:opacity-70">Continuar como novo cadastro</button>
           </div>
         )}
 
-        {!dup.exact && (dup.other_type?.length ?? 0) > 0 && (
+        {!dup.exact && !dupDismissed && (dup.other_type?.length ?? 0) > 0 && (
           <div className="border border-blue-300 bg-blue-50 p-4 space-y-3">
             <p className="text-sm font-medium text-blue-900">
               Mesmo imóvel, outro tipo de anúncio: encontramos cadastros parecidos, mas de {dup.other_type?.[0]?.price_sale ? "venda" : "aluguel"}. Se for o mesmo imóvel, use "Usar imóvel existente" para incluir o novo valor sem criar cadastro em dobro.
@@ -296,7 +297,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
                 </div>
               ))}
             </div>
-            <button onClick={() => setUseExisting(null)} className="text-xs uppercase tracking-widest underline">Continuar como novo cadastro</button>
+            <button type="button" onClick={() => { setUseExisting(null); setDupDismissed(true); toast.success("Ok! Será salvo como um novo cadastro."); }} className="text-xs uppercase tracking-widest underline cursor-pointer hover:opacity-70">Continuar como novo cadastro</button>
           </div>
         )}
 
