@@ -193,8 +193,32 @@ async function findDuplicates(admin: any, listing: RawListing, condoId: string |
     .or(`source_url.eq.${listing.url},external_ref.eq.${externalRef}`)
     .limit(1);
 
+  // Tipo do anúncio importado (venda/aluguel): só sugerimos duplicado quando
+  // o imóvel existente tem anúncio do mesmo tipo. Se for o mesmo imóvel com
+  // outro tipo (ex.: existe aluguel, importando venda), avisamos separado.
+  const importPurpose: "sale" | "rent" | null =
+    listing.purpose === "sale" || listing.purpose === "rent"
+      ? listing.purpose
+      : listing.prices.sale
+        ? "sale"
+        : listing.prices.rent
+          ? "rent"
+          : null;
+  const purposesOf = (p: any): string[] =>
+    [p.price_sale ? "sale" : null, p.price_rent ? "rent" : null].filter(Boolean) as string[];
+  const typeMatches = (p: any): boolean => {
+    if (!importPurpose) return true;
+    const ps = purposesOf(p);
+    if (!ps.length) return true; // sem preço cadastrado: não dá para saber
+    return ps.includes(importPurpose);
+  };
+
+  const exactRow = exact?.[0] ?? null;
+  const exactTypeMismatch = exactRow ? !typeMatches(exactRow) : false;
+
   const area = listing.areas.useful ?? listing.areas.built ?? listing.areas.total;
   let similar: any[] = [];
+  let otherType: any[] = [];
   if (!exact?.length) {
     let q = admin
       .from("properties")
