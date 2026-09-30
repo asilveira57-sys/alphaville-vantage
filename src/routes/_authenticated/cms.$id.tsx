@@ -579,7 +579,9 @@ function CmsEditorPage() {
             ? (["conteudo", "post", "imoveis", "seo"] as const)
             : (["conteudo", "post", "seo"] as const)) as readonly ("conteudo" | "post" | "imoveis" | "seo")[]).map((t) => (
             <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 -mb-px border-b-2 ${tab === t ? "border-ink text-ink" : "border-transparent text-muted-foreground"}`}>
-              {t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : t === "imoveis" ? "Imóveis" : "SEO & Open Graph"}
+              {form.content_type === "empreendimento"
+                ? t === "conteudo" ? "Apresentação" : t === "post" ? "Ficha e projeto" : "SEO & Open Graph"
+                : t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : t === "imoveis" ? "Imóveis" : "SEO & Open Graph"}
             </button>
           ))}
         </div>
@@ -598,10 +600,10 @@ function CmsEditorPage() {
                   placeholder="ex: residencial-1"
                 />
               </Field>
-              <Field label="Resumo curto">
+              <Field label={form.content_type === "empreendimento" ? "Chamada principal" : "Resumo curto"}>
                 <textarea value={form.excerpt} onChange={(e) => set("excerpt", e.target.value)} rows={2} className={inputCls} />
               </Field>
-              <Field label="Conteúdo (HTML)">
+              <Field label={form.content_type === "empreendimento" ? "Visão geral" : "Conteúdo (HTML)"}>
                 {preview ? (
                   <FullPostPreview form={form} />
                 ) : (
@@ -654,7 +656,7 @@ function CmsEditorPage() {
                     <Field label="Região"><input value={form.regiao} onChange={(e) => set("regiao", e.target.value)} className={inputCls} placeholder="Ex.: Alphaville" /></Field>
                     <Field label="Bairro"><input value={form.bairro} onChange={(e) => set("bairro", e.target.value)} className={inputCls} placeholder="Ex.: Alphaville Empresarial" /></Field>
                   </div>
-                  <p className="mt-3 text-[11px] text-muted-foreground">Use as tags para metragens, vagas, entrega e outros destaques da ficha técnica.</p>
+                  <p className="mt-3 text-[11px] text-muted-foreground">Metragens, vagas, entrega, tipologias e análise ficam na aba Ficha e projeto.</p>
                 </div>
               )}
               {form.content_type === "hub" && (
@@ -677,20 +679,20 @@ function CmsEditorPage() {
                   folder="featured"
                 />
               </Field>
-              <Field label="Galeria de imagens">
+              {form.content_type !== "empreendimento" && <Field label="Galeria de imagens">
                 <ImageGalleryUpload
                   value={form.gallery_images}
                   onChange={(urls) => set("gallery_images", urls)}
                 />
-              </Field>
-              <Field label="Tags (vírgula ou Enter)">
+              </Field>}
+              {form.content_type !== "empreendimento" && <Field label="Tags (vírgula ou Enter)">
                 <TagsInput
                   value={form.tags}
                   onChange={(v) => set("tags", v)}
                   placeholder="Ex.: Santana de Parnaíba, Gastronomia"
                 />
-              </Field>
-              <Field label="Bairro relacionado">
+              </Field>}
+              {form.content_type !== "empreendimento" && <Field label="Bairro relacionado">
                 <RelatedSelect
                   value={form.related_neighborhood}
                   onChange={(v) => set("related_neighborhood", v)}
@@ -698,8 +700,8 @@ function CmsEditorPage() {
                   loading={bairrosQ.isLoading}
                   placeholder={bairroOpts.length ? "Selecionar bairro…" : "Nenhuma página de bairro cadastrada"}
                 />
-              </Field>
-              <Field label="Condomínio relacionado">
+              </Field>}
+              {form.content_type !== "empreendimento" && <Field label="Condomínio relacionado">
                 <RelatedSelect
                   value={form.related_condominium}
                   onChange={(v) => set("related_condominium", v)}
@@ -707,7 +709,7 @@ function CmsEditorPage() {
                   loading={condosQ.isLoading}
                   placeholder={condoOpts.length ? "Selecionar condomínio…" : "Nenhum condomínio cadastrado"}
                 />
-              </Field>
+              </Field>}
             </div>
           </div>
         )}
@@ -762,7 +764,7 @@ function CmsEditorPage() {
 
 
         {tab === "post" && (
-          <div className="space-y-8 max-w-4xl">
+          form.content_type === "empreendimento" ? <DevelopmentProjectFields form={form} setForm={setForm} /> : <div className="space-y-8 max-w-4xl">
             <section className="space-y-4">
               <h3 className="text-sm font-medium text-ink">Bloco "Como a S.A. Imóveis pode ajudar"</h3>
               <p className="text-xs text-muted-foreground">Aparece próximo ao final do post. Se ficar em branco, usa a versão padrão.</p>
