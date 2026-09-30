@@ -35,6 +35,31 @@ export const Route = createFileRoute("/_authenticated/cms/$id")({
 
 type HubCard = { eyebrow: string; title: string; lead: string; to: string; image: string };
 type FaqItem = { question: string; answer: string };
+type DevelopmentDetails = {
+  construction: string;
+  realization: string;
+  address: string;
+  delivery: string;
+  land_area: string;
+  units: string;
+  architecture: string;
+  decoration: string;
+  landscaping: string;
+  sizes: string;
+  parking: string;
+  typologies: Array<{ title: string; description: string; detail: string }>;
+  moment_title: string;
+  moment_text: string;
+  analysis_title: string;
+  analysis_text: string;
+};
+
+const EMPTY_DEVELOPMENT_DETAILS: DevelopmentDetails = {
+  construction: "", realization: "", address: "", delivery: "", land_area: "", units: "",
+  architecture: "", decoration: "", landscaping: "", sizes: "", parking: "", typologies: [],
+  moment_title: "Momento do empreendimento", moment_text: "",
+  analysis_title: "Análise da S.A. Imóveis", analysis_text: "",
+};
 
 type FormState = {
   id?: string;
@@ -62,6 +87,7 @@ type FormState = {
   schema_type: "Article" | "BlogPosting" | "Place" | "Residence" | "LocalBusiness";
   hero_eyebrow: string;
   cards: HubCard[];
+  development_details: DevelopmentDetails;
   // Bloco de ajuda
   help_title: string;
   help_text: string;
@@ -109,6 +135,7 @@ const EMPTY: FormState = {
   meta_title: "", meta_description: "", focus_keyword: "", secondary_keywords: [],
   canonical_url: "", og_title: "", og_description: "", og_image: "", schema_type: "Article",
   hero_eyebrow: "", cards: [],
+  development_details: EMPTY_DEVELOPMENT_DETAILS,
   help_title: "", help_text: "", help_button_label: "", help_button_url: "",
   cta_title: "", cta_text: "", cta_button_label: "", cta_button_url: "",
   cidade: "", regiao: "", bairro: "", condominio: "",
@@ -185,6 +212,11 @@ function toFormState(p: any): FormState {
           image: c?.image ?? "",
         }))
       : [],
+    development_details: {
+      ...EMPTY_DEVELOPMENT_DETAILS,
+      ...(p.development_details && typeof p.development_details === "object" ? p.development_details : {}),
+      typologies: Array.isArray(p.development_details?.typologies) ? p.development_details.typologies : [],
+    },
     help_title: p.help_title ?? "",
     help_text: p.help_text ?? "",
     help_button_label: p.help_button_label ?? "",
@@ -349,6 +381,7 @@ function CmsEditorPage() {
           cta_hidden: form.cta_hidden,
           hero_eyebrow: form.hero_eyebrow || null,
           cards: form.cards,
+          development_details: form.development_details,
           help_title: form.help_title || null,
           help_text: form.help_text || null,
           help_button_label: form.help_button_label || null,
@@ -433,6 +466,7 @@ function CmsEditorPage() {
         cta_hidden: f.cta_hidden,
         hero_eyebrow: f.hero_eyebrow || null,
         cards: f.cards,
+        development_details: f.development_details,
         help_title: f.help_title || null,
         help_text: f.help_text || null,
         help_button_label: f.help_button_label || null,

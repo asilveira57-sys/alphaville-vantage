@@ -7,6 +7,8 @@ import {
   MapPin,
   MessageCircle,
   Ruler,
+  Car,
+  HardHat,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
@@ -18,6 +20,24 @@ import { PartnerLeadForm } from "@/components/partners/partner-lead-form";
 import type { DevelopmentPartner } from "@/lib/development-partners.functions";
 
 type FaqItem = { question?: string | null; answer?: string | null };
+type DevelopmentDetails = {
+  construction?: string;
+  realization?: string;
+  address?: string;
+  delivery?: string;
+  land_area?: string;
+  units?: string;
+  architecture?: string;
+  decoration?: string;
+  landscaping?: string;
+  sizes?: string;
+  parking?: string;
+  typologies?: Array<{ title?: string; description?: string; detail?: string }>;
+  moment_title?: string;
+  moment_text?: string;
+  analysis_title?: string;
+  analysis_text?: string;
+};
 
 type EditorialDevelopment = {
   title: string;
@@ -35,6 +55,7 @@ type EditorialDevelopment = {
   faq?: FaqItem[] | null;
   cta_title?: string | null;
   cta_text?: string | null;
+  development_details?: DevelopmentDetails | null;
 };
 
 function compact(values: Array<string | null | undefined>) {
@@ -55,6 +76,22 @@ export function EditorialDevelopmentPage({
   const partnerName = partner?.name || "S.A. Imóveis";
   const partnerSlug = partner?.slug || "sa-imoveis";
   const contactId = `contato-${page.slug}`;
+  const details = page.development_details ?? {};
+  const typologies = (details.typologies ?? []).filter((item) => item.title?.trim());
+  const technical = compact([
+    details.construction ? `Construção|${details.construction}` : null,
+    details.realization ? `Realização|${details.realization}` : null,
+    details.address ? `Endereço|${details.address}` : null,
+    page.bairro ? `Bairro|${page.bairro}` : null,
+    `Status|${status}`,
+    details.delivery ? `Entrega informada|${details.delivery}` : null,
+    details.land_area ? `Área do terreno|${details.land_area}` : null,
+    details.units ? `Total de unidades|${details.units}` : null,
+    details.architecture ? `Arquitetura|${details.architecture}` : null,
+    details.decoration ? `Decoração|${details.decoration}` : null,
+    details.landscaping ? `Paisagismo|${details.landscaping}` : null,
+    partner ? `Incorporadora|${partner.name}` : null,
+  ]);
 
   return (
     <SiteLayout>
@@ -84,12 +121,15 @@ export function EditorialDevelopmentPage({
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-[13px] text-primary-foreground/80">
             <li className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-accent" /> {location}</li>
             <li className="inline-flex items-center gap-2"><Building2 className="h-4 w-4 text-accent" /> {partnerName}</li>
-            {highlights.slice(0, 2).map((highlight, index) => (
+            {details.sizes ? <li className="inline-flex items-center gap-2"><Ruler className="h-4 w-4 text-accent" /> {details.sizes}</li> : null}
+            {details.parking ? <li className="inline-flex items-center gap-2"><Car className="h-4 w-4 text-accent" /> {details.parking}</li> : null}
+            {details.delivery ? <li className="inline-flex items-center gap-2"><CalendarClock className="h-4 w-4 text-accent" /> {details.delivery}</li> : null}
+            {!details.sizes && !details.parking && !details.delivery ? highlights.slice(0, 2).map((highlight, index) => (
               <li key={highlight} className="inline-flex items-center gap-2">
                 {index === 0 ? <Ruler className="h-4 w-4 text-accent" /> : <CalendarClock className="h-4 w-4 text-accent" />}
                 {highlight}
               </li>
-            ))}
+            )) : null}
           </ul>
           <div className="mt-9 flex flex-wrap gap-3">
             <a href={`#${contactId}`} className="inline-flex items-center gap-2 bg-accent px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] text-accent-foreground transition hover:brightness-95">
@@ -124,7 +164,7 @@ export function EditorialDevelopmentPage({
           <aside className="h-fit rounded-[16px] bg-card p-6 text-card-foreground ring-1 ring-ink/10">
             <h2 className="font-display text-2xl">Ficha técnica</h2>
             <dl className="mt-4 divide-y divide-ink/10 text-[15px]">
-              {compact([partner ? `Incorporadora|${partner.name}` : null, `Localização|${location}`, `Status|${status}`, ...highlights.map((item, index) => `${index === 0 ? "Destaque" : `Informação ${index + 1}`}|${item}`)]).map((entry) => {
+              {(technical.length ? technical : compact([`Localização|${location}`, `Status|${status}`, ...highlights.map((item, index) => `${index === 0 ? "Destaque" : `Informação ${index + 1}`}|${item}`)])).map((entry) => {
                 const [key, value] = entry.split("|");
                 return <div key={entry} className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-3"><dt className="min-w-0 text-muted-foreground">{key}</dt><dd className="max-w-[18rem] text-right font-medium">{value}</dd></div>;
               })}
@@ -133,6 +173,16 @@ export function EditorialDevelopmentPage({
           </aside>
         </div>
       </section>
+
+      {typologies.length > 0 ? (
+        <section className="bg-card px-6 py-12 md:py-16">
+          <div className="mx-auto max-w-7xl"><h2 className="font-display text-2xl text-card-foreground md:text-3xl">Tipologias do projeto</h2><div className="mt-8 grid gap-4 md:grid-cols-2">{typologies.map((item, index) => <article key={`${item.title}-${index}`} className="rounded-[8px] bg-canvas p-6 text-ink ring-1 ring-ink/10"><Ruler className="h-4 w-4 text-muted-foreground" /><h3 className="mt-4 font-display text-xl">{item.title}</h3>{item.description ? <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p> : null}{item.detail ? <p className="mt-4 text-xs uppercase text-muted-foreground">{item.detail}</p> : null}</article>)}</div></div>
+        </section>
+      ) : null}
+
+      {details.moment_text || details.analysis_text ? (
+        <section className="bg-canvas px-6 py-12 md:py-16"><div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2">{details.moment_text ? <article className="rounded-[8px] bg-card p-7 ring-1 ring-ink/10"><h2 className="font-display text-2xl text-card-foreground">{details.moment_title || "Momento do empreendimento"}</h2><p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{details.moment_text}</p></article> : null}{details.analysis_text ? <article className="rounded-[8px] bg-brand-dark p-7 text-primary-foreground"><h2 className="font-display text-2xl">{details.analysis_title || "Análise da S.A. Imóveis"}</h2><p className="mt-3 text-[15px] leading-relaxed text-primary-foreground/75">{details.analysis_text}</p></article> : null}</div></section>
+      ) : null}
 
       {highlights.length > 2 ? (
         <section className="bg-card px-6 py-12 md:py-16">
