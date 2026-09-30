@@ -35,6 +35,8 @@ type DevelopmentDetails = {
   typologies?: Array<{ title?: string; description?: string; detail?: string }>;
   moment_title?: string;
   moment_text?: string;
+  location_title?: string;
+  location_text?: string;
   analysis_title?: string;
   analysis_text?: string;
 };
@@ -180,8 +182,8 @@ export function EditorialDevelopmentPage({
         </section>
       ) : null}
 
-      {details.moment_text || details.analysis_text ? (
-        <section className="bg-canvas px-6 py-12 md:py-16"><div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2">{details.moment_text ? <article className="rounded-[8px] bg-card p-7 ring-1 ring-ink/10"><h2 className="font-display text-2xl text-card-foreground">{details.moment_title || "Momento do empreendimento"}</h2><p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{details.moment_text}</p></article> : null}{details.analysis_text ? <article className="rounded-[8px] bg-brand-dark p-7 text-primary-foreground"><h2 className="font-display text-2xl">{details.analysis_title || "Análise da S.A. Imóveis"}</h2><p className="mt-3 text-[15px] leading-relaxed text-primary-foreground/75">{details.analysis_text}</p></article> : null}</div></section>
+      {details.moment_text || details.location_text || details.analysis_text ? (
+        <section className="bg-canvas px-6 py-12 md:py-16"><div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2">{details.moment_text ? <article className="rounded-[8px] bg-card p-7 ring-1 ring-ink/10"><h2 className="font-display text-2xl text-card-foreground">{details.moment_title || "Momento do empreendimento"}</h2><p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{details.moment_text}</p></article> : null}{details.location_text ? <article className="rounded-[8px] bg-card p-7 ring-1 ring-ink/10"><h2 className="font-display text-2xl text-card-foreground">{details.location_title || "Localização"}</h2><p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{details.location_text}</p></article> : null}{details.analysis_text ? <article className="rounded-[8px] bg-brand-dark p-7 text-primary-foreground md:col-span-2"><h2 className="font-display text-2xl">{details.analysis_title || "Análise da S.A. Imóveis"}</h2><p className="mt-3 text-[15px] leading-relaxed text-primary-foreground/75">{details.analysis_text}</p></article> : null}</div></section>
       ) : null}
 
       {highlights.length > 2 ? (

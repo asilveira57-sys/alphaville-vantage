@@ -178,6 +178,8 @@ const developmentDetailsSchema = z.object({
   })).default([]),
   moment_title: z.string().default(""),
   moment_text: z.string().default(""),
+  location_title: z.string().default(""),
+  location_text: z.string().default(""),
   analysis_title: z.string().default(""),
   analysis_text: z.string().default(""),
 }).default({});
