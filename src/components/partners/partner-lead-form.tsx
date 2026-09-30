@@ -21,10 +21,12 @@ export function PartnerLeadForm({
   partnerSlug,
   partnerName,
   empreendimentos,
+  leadSource = "partner_page",
 }: {
   partnerSlug: string;
   partnerName: string;
   empreendimentos: Option[];
+  leadSource?: "partner_page" | "empreendimento_page";
 }) {
   const submit = useServerFn(submitPartnerLead);
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
@@ -62,9 +64,12 @@ export function PartnerLeadForm({
           goal: form.goal,
           budget: form.budget,
           partner: partnerSlug,
-          lead_source: "partner_page",
+          lead_source: leadSource,
           empreendimento_slug: form.empreendimento_slug || undefined,
-          conversion_context: `partner_${partnerSlug}`,
+          conversion_context:
+            leadSource === "empreendimento_page"
+              ? `empreendimento_${form.empreendimento_slug}`
+              : `partner_${partnerSlug}`,
           landing_page: typeof window !== "undefined" ? window.location.pathname : "",
         },
       });

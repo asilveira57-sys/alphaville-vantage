@@ -50,6 +50,20 @@ export const getDevelopmentPartner = createServerFn({ method: "GET" })
     return (row ?? null) as DevelopmentPartner | null;
   });
 
+export const getDevelopmentPartnerForEmpreendimento = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    const { data: rows, error } = await sb
+      .from("development_partners")
+      .select("id,slug,name,logo_url,description,empreendimento_slugs,active,created_at,updated_at")
+      .eq("active", true)
+      .contains("empreendimento_slugs", [data.slug])
+      .limit(1);
+    if (error) throw new Error(error.message);
+    return (rows?.[0] ?? null) as DevelopmentPartner | null;
+  });
+
 export const listPartnerEmpreendimentos = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ slugs: z.array(z.string()).max(50) }).parse(d))
   .handler(async ({ data }) => {

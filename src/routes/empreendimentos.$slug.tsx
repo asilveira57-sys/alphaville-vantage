@@ -3,7 +3,8 @@ import { ArrowLeft, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { getEditorialBySlug } from "@/lib/editorial.functions";
-import { CmsEditorialPage } from "@/components/cms-editorial-page";
+import { getDevelopmentPartnerForEmpreendimento } from "@/lib/development-partners.functions";
+import { EditorialDevelopmentPage } from "@/components/empreendimentos/editorial-development-page";
 
 const SITE = "https://alphaville-vantage.lovable.app";
 
@@ -45,9 +46,12 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
   loader: async ({ params }) => {
     const item = DEVELOPMENTS[params.slug];
     if (item) return { item, cms: null, slug: params.slug };
-    const page = await getEditorialBySlug({ data: { slug: params.slug } });
+    const [page, partner] = await Promise.all([
+      getEditorialBySlug({ data: { slug: params.slug } }),
+      getDevelopmentPartnerForEmpreendimento({ data: { slug: params.slug } }),
+    ]);
     if (!page || page.content_type !== "empreendimento") throw notFound();
-    return { item: null, cms: page, slug: params.slug };
+    return { item: null, cms: page, partner, slug: params.slug };
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) {
@@ -93,9 +97,9 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
 });
 
 function DevelopmentPage() {
-  const { item, cms, slug } = Route.useLoaderData();
+  const { item, cms, partner, slug } = Route.useLoaderData();
   if (!item && cms) {
-    return <CmsEditorialPage page={cms} parentLabel="Empreendimentos" parentTo="/parceiros/mpd" />;
+    return <EditorialDevelopmentPage page={cms} partner={partner} />;
   }
   if (!item) return null;
 
