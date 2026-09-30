@@ -26,7 +26,7 @@ export function EmpreendimentoCoverImage({
       loading="lazy"
       decoding="async"
       sizes="(max-width: 768px) 92vw, 55vw"
-      className="aspect-[16/10] w-full rounded-[16px] object-cover ring-1 ring-[#0D0D0D]/8"
+      className="aspect-[16/10] w-full rounded-[16px] object-cover ring-1 ring-ink/10"
     />
   );
 }

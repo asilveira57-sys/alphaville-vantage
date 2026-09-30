@@ -607,6 +607,22 @@ function CmsEditorPage() {
               <Field label="Ordem de exibição">
                 <input type="number" value={form.display_order} onChange={(e) => set("display_order", Number(e.target.value))} className={inputCls} />
               </Field>
+              {form.content_type === "empreendimento" && (
+                <div className="border border-ink/10 bg-ink/[0.02] p-4">
+                  <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+                    Estes dados alimentam automaticamente a apresentação e a ficha técnica da página no modelo premium.
+                  </p>
+                  <Field label="Status do empreendimento">
+                    <input value={form.hero_eyebrow} onChange={(e) => set("hero_eyebrow", e.target.value)} className={inputCls} placeholder="Ex.: Lançamento, Em construção, Unidades prontas" />
+                  </Field>
+                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <Field label="Cidade"><input value={form.cidade} onChange={(e) => set("cidade", e.target.value)} className={inputCls} placeholder="Ex.: Barueri" /></Field>
+                    <Field label="Região"><input value={form.regiao} onChange={(e) => set("regiao", e.target.value)} className={inputCls} placeholder="Ex.: Alphaville" /></Field>
+                    <Field label="Bairro"><input value={form.bairro} onChange={(e) => set("bairro", e.target.value)} className={inputCls} placeholder="Ex.: Alphaville Empresarial" /></Field>
+                  </div>
+                  <p className="mt-3 text-[11px] text-muted-foreground">Use as tags para metragens, vagas, entrega e outros destaques da ficha técnica.</p>
+                </div>
+              )}
               {form.content_type === "hub" && (
                 <>
                   <Field label="Eyebrow do hero (ex.: Guia Regional)">

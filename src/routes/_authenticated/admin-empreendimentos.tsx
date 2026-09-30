@@ -91,6 +91,22 @@ function AdminEmpreendimentos() {
           content_type: "empreendimento",
           status: "draft",
           html_content: "",
+          hero_eyebrow: "Lançamento",
+          cidade: "Barueri",
+          regiao: "Alphaville",
+          categoria_editorial: "Lançamento",
+          cta_title: `Consulte unidades do ${title}`,
+          cta_text: "Receba informações atualizadas sobre disponibilidade, valores e condições de compra.",
+          faq: [
+            {
+              question: `Onde fica o ${title}?`,
+              answer: "Consulte a localização completa e os detalhes com a equipe da S.A. Imóveis.",
+            },
+            {
+              question: "Como consultar valores e unidades disponíveis?",
+              answer: "Valores, condições de pagamento e unidades disponíveis devem ser confirmados com a equipe da S.A. Imóveis.",
+            },
+          ],
           allow_empty_content: true,
         },
       });
@@ -183,8 +199,8 @@ function AdminEmpreendimentos() {
               </div>
               {createErr && <p className="mt-2 text-xs text-red-600">{createErr}</p>}
               <p className="mt-2 text-[11px] text-muted-foreground">
-                A página é criada como rascunho em /empreendimentos/&lt;nome&gt;. Depois de criar:
-                escreva o conteúdo no CMS e publique, e cadastre fotos e plantas nas seções abaixo.
+                A página é criada como rascunho no modelo completo dos empreendimentos MPD. Depois de criar:
+                preencha resumo, visão geral, localização, destaques, perguntas, fotos e plantas antes de publicar.
               </p>
             </div>
           )}

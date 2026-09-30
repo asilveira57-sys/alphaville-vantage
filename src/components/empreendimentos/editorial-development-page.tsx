@@ -55,19 +55,27 @@ export function EditorialDevelopmentPage({
   const partnerName = partner?.name || "S.A. Imóveis";
   const partnerSlug = partner?.slug || "sa-imoveis";
   const contactId = `contato-${page.slug}`;
-  const partnerHref = partner ? `/parceiros/${partner.slug}` : "/contato";
 
   return (
     <SiteLayout>
       <section className="bg-brand-dark px-6 py-16 text-primary-foreground md:py-24">
         <div className="mx-auto max-w-7xl">
-          <Link
-            to={partner ? "/parceiros/$slug" : "/"}
-            params={partner ? { slug: partner.slug } : undefined}
-            className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary-foreground/60 transition hover:text-accent"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> {partner ? `Empreendimentos ${partner.name}` : "S.A. Imóveis"}
-          </Link>
+          {partner ? (
+            <Link
+              to="/parceiros/$slug"
+              params={{ slug: partner.slug }}
+              className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary-foreground/60 transition hover:text-accent"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Empreendimentos {partner.name}
+            </Link>
+          ) : (
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary-foreground/60 transition hover:text-accent"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> S.A. Imóveis
+            </Link>
+          )}
           <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.25em] text-accent">{status}</p>
           <h1 className="mt-4 max-w-[20ch] font-display text-4xl leading-[1.05] md:text-5xl">{page.title}</h1>
           {page.excerpt ? (
