@@ -388,6 +388,7 @@ export type Database = {
           cta_id: string | null
           cta_text: string | null
           cta_title: string | null
+          development_details: Json
           display_order: number
           excerpt: string | null
           faq: Json
@@ -452,6 +453,7 @@ export type Database = {
           cta_id?: string | null
           cta_text?: string | null
           cta_title?: string | null
+          development_details?: Json
           display_order?: number
           excerpt?: string | null
           faq?: Json
@@ -516,6 +518,7 @@ export type Database = {
           cta_id?: string | null
           cta_text?: string | null
           cta_title?: string | null
+          development_details?: Json
           display_order?: number
           excerpt?: string | null
           faq?: Json

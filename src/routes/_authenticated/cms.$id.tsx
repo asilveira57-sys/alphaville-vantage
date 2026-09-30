@@ -35,6 +35,34 @@ export const Route = createFileRoute("/_authenticated/cms/$id")({
 
 type HubCard = { eyebrow: string; title: string; lead: string; to: string; image: string };
 type FaqItem = { question: string; answer: string };
+type DevelopmentDetails = {
+  construction: string;
+  realization: string;
+  address: string;
+  delivery: string;
+  land_area: string;
+  units: string;
+  architecture: string;
+  decoration: string;
+  landscaping: string;
+  sizes: string;
+  parking: string;
+  typologies: Array<{ title: string; description: string; detail: string }>;
+  moment_title: string;
+  moment_text: string;
+  location_title: string;
+  location_text: string;
+  analysis_title: string;
+  analysis_text: string;
+};
+
+const EMPTY_DEVELOPMENT_DETAILS: DevelopmentDetails = {
+  construction: "", realization: "", address: "", delivery: "", land_area: "", units: "",
+  architecture: "", decoration: "", landscaping: "", sizes: "", parking: "", typologies: [],
+  moment_title: "Momento do empreendimento", moment_text: "",
+  location_title: "Localização", location_text: "",
+  analysis_title: "Análise da S.A. Imóveis", analysis_text: "",
+};
 
 type FormState = {
   id?: string;
@@ -62,6 +90,7 @@ type FormState = {
   schema_type: "Article" | "BlogPosting" | "Place" | "Residence" | "LocalBusiness";
   hero_eyebrow: string;
   cards: HubCard[];
+  development_details: DevelopmentDetails;
   // Bloco de ajuda
   help_title: string;
   help_text: string;
@@ -109,6 +138,7 @@ const EMPTY: FormState = {
   meta_title: "", meta_description: "", focus_keyword: "", secondary_keywords: [],
   canonical_url: "", og_title: "", og_description: "", og_image: "", schema_type: "Article",
   hero_eyebrow: "", cards: [],
+  development_details: EMPTY_DEVELOPMENT_DETAILS,
   help_title: "", help_text: "", help_button_label: "", help_button_url: "",
   cta_title: "", cta_text: "", cta_button_label: "", cta_button_url: "",
   cidade: "", regiao: "", bairro: "", condominio: "",
@@ -185,6 +215,11 @@ function toFormState(p: any): FormState {
           image: c?.image ?? "",
         }))
       : [],
+    development_details: {
+      ...EMPTY_DEVELOPMENT_DETAILS,
+      ...(p.development_details && typeof p.development_details === "object" ? p.development_details : {}),
+      typologies: Array.isArray(p.development_details?.typologies) ? p.development_details.typologies : [],
+    },
     help_title: p.help_title ?? "",
     help_text: p.help_text ?? "",
     help_button_label: p.help_button_label ?? "",
@@ -349,6 +384,7 @@ function CmsEditorPage() {
           cta_hidden: form.cta_hidden,
           hero_eyebrow: form.hero_eyebrow || null,
           cards: form.cards,
+          development_details: form.development_details,
           help_title: form.help_title || null,
           help_text: form.help_text || null,
           help_button_label: form.help_button_label || null,
@@ -433,6 +469,7 @@ function CmsEditorPage() {
         cta_hidden: f.cta_hidden,
         hero_eyebrow: f.hero_eyebrow || null,
         cards: f.cards,
+        development_details: f.development_details,
         help_title: f.help_title || null,
         help_text: f.help_text || null,
         help_button_label: f.help_button_label || null,
@@ -545,7 +582,9 @@ function CmsEditorPage() {
             ? (["conteudo", "post", "imoveis", "seo"] as const)
             : (["conteudo", "post", "seo"] as const)) as readonly ("conteudo" | "post" | "imoveis" | "seo")[]).map((t) => (
             <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 -mb-px border-b-2 ${tab === t ? "border-ink text-ink" : "border-transparent text-muted-foreground"}`}>
-              {t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : t === "imoveis" ? "Imóveis" : "SEO & Open Graph"}
+              {form.content_type === "empreendimento"
+                ? t === "conteudo" ? "Apresentação" : t === "post" ? "Ficha e projeto" : "SEO & Open Graph"
+                : t === "conteudo" ? "Conteúdo" : t === "post" ? "Post & CTA" : t === "imoveis" ? "Imóveis" : "SEO & Open Graph"}
             </button>
           ))}
         </div>
@@ -564,10 +603,10 @@ function CmsEditorPage() {
                   placeholder="ex: residencial-1"
                 />
               </Field>
-              <Field label="Resumo curto">
+              <Field label={form.content_type === "empreendimento" ? "Chamada principal" : "Resumo curto"}>
                 <textarea value={form.excerpt} onChange={(e) => set("excerpt", e.target.value)} rows={2} className={inputCls} />
               </Field>
-              <Field label="Conteúdo (HTML)">
+              <Field label={form.content_type === "empreendimento" ? "Visão geral" : "Conteúdo (HTML)"}>
                 {preview ? (
                   <FullPostPreview form={form} />
                 ) : (
@@ -620,7 +659,7 @@ function CmsEditorPage() {
                     <Field label="Região"><input value={form.regiao} onChange={(e) => set("regiao", e.target.value)} className={inputCls} placeholder="Ex.: Alphaville" /></Field>
                     <Field label="Bairro"><input value={form.bairro} onChange={(e) => set("bairro", e.target.value)} className={inputCls} placeholder="Ex.: Alphaville Empresarial" /></Field>
                   </div>
-                  <p className="mt-3 text-[11px] text-muted-foreground">Use as tags para metragens, vagas, entrega e outros destaques da ficha técnica.</p>
+                  <p className="mt-3 text-[11px] text-muted-foreground">Metragens, vagas, entrega, tipologias e análise ficam na aba Ficha e projeto.</p>
                 </div>
               )}
               {form.content_type === "hub" && (
@@ -649,14 +688,14 @@ function CmsEditorPage() {
                   onChange={(urls) => set("gallery_images", urls)}
                 />
               </Field>
-              <Field label="Tags (vírgula ou Enter)">
+              {form.content_type !== "empreendimento" && <Field label="Tags (vírgula ou Enter)">
                 <TagsInput
                   value={form.tags}
                   onChange={(v) => set("tags", v)}
                   placeholder="Ex.: Santana de Parnaíba, Gastronomia"
                 />
-              </Field>
-              <Field label="Bairro relacionado">
+              </Field>}
+              {form.content_type !== "empreendimento" && <Field label="Bairro relacionado">
                 <RelatedSelect
                   value={form.related_neighborhood}
                   onChange={(v) => set("related_neighborhood", v)}
@@ -664,8 +703,8 @@ function CmsEditorPage() {
                   loading={bairrosQ.isLoading}
                   placeholder={bairroOpts.length ? "Selecionar bairro…" : "Nenhuma página de bairro cadastrada"}
                 />
-              </Field>
-              <Field label="Condomínio relacionado">
+              </Field>}
+              {form.content_type !== "empreendimento" && <Field label="Condomínio relacionado">
                 <RelatedSelect
                   value={form.related_condominium}
                   onChange={(v) => set("related_condominium", v)}
@@ -673,7 +712,7 @@ function CmsEditorPage() {
                   loading={condosQ.isLoading}
                   placeholder={condoOpts.length ? "Selecionar condomínio…" : "Nenhum condomínio cadastrado"}
                 />
-              </Field>
+              </Field>}
             </div>
           </div>
         )}
@@ -728,7 +767,7 @@ function CmsEditorPage() {
 
 
         {tab === "post" && (
-          <div className="space-y-8 max-w-4xl">
+          form.content_type === "empreendimento" ? <DevelopmentProjectFields form={form} setForm={setForm} /> : <div className="space-y-8 max-w-4xl">
             <section className="space-y-4">
               <h3 className="text-sm font-medium text-ink">Bloco "Como a S.A. Imóveis pode ajudar"</h3>
               <p className="text-xs text-muted-foreground">Aparece próximo ao final do post. Se ficar em branco, usa a versão padrão.</p>
@@ -936,6 +975,26 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {children}
     </label>
   );
+}
+
+function DevelopmentProjectFields({ form, setForm }: { form: FormState; setForm: React.Dispatch<React.SetStateAction<FormState>> }) {
+  const d = form.development_details;
+  const setDetail = (key: keyof DevelopmentDetails, value: string) => setForm((current) => ({ ...current, development_details: { ...current.development_details, [key]: value } }));
+  const fields: Array<[keyof DevelopmentDetails, string, string]> = [
+    ["construction", "Construção", "Ex.: MPD Engenharia"], ["realization", "Realização", "Ex.: Incorporadora e parceiros"],
+    ["address", "Endereço", "Ex.: Avenida Sagitário, 215"], ["delivery", "Entrega", "Ex.: Outubro de 2028"],
+    ["land_area", "Área do terreno", "Ex.: 5.184,62 m²"], ["units", "Total de unidades", "Ex.: 115"],
+    ["architecture", "Arquitetura", "Ex.: MCAA"], ["decoration", "Decoração", "Ex.: Carlos Rossi"],
+    ["landscaping", "Paisagismo", "Ex.: Beth Miyazaki"], ["sizes", "Metragens", "Ex.: 90 m² e 123 m²"],
+    ["parking", "Vagas", "Ex.: 2 vagas"],
+  ];
+  const updateTypology = (index: number, patch: Partial<DevelopmentDetails["typologies"][number]>) => setForm((current) => ({ ...current, development_details: { ...current.development_details, typologies: current.development_details.typologies.map((item, i) => i === index ? { ...item, ...patch } : item) } }));
+  return <div className="max-w-5xl space-y-10">
+    <section className="space-y-4"><div><h3 className="text-base font-medium text-ink">Ficha técnica</h3><p className="mt-1 text-xs text-muted-foreground">Campos vazios não aparecem na página pública.</p></div><div className="grid gap-4 md:grid-cols-2">{fields.map(([key, label, placeholder]) => <Field key={key} label={label}><input value={String(d[key] ?? "")} onChange={(e) => setDetail(key, e.target.value)} className={inputCls} placeholder={placeholder} /></Field>)}</div></section>
+    <section className="space-y-4 border-t border-ink/10 pt-8"><div className="flex items-center justify-between gap-4"><div><h3 className="text-base font-medium text-ink">Tipologias do projeto</h3><p className="mt-1 text-xs text-muted-foreground">Cadastre plantas, metragens e configurações separadamente.</p></div><button type="button" onClick={() => setForm((current) => ({ ...current, development_details: { ...current.development_details, typologies: [...current.development_details.typologies, { title: "", description: "", detail: "" }] } }))} className="border border-ink/20 px-4 py-2 text-[10px] uppercase tracking-widest">+ Tipologia</button></div><div className="grid gap-4 md:grid-cols-2">{d.typologies.map((item, index) => <div key={index} className="space-y-3 border border-ink/10 bg-ink/[0.02] p-4"><div className="flex justify-between"><span className="text-[10px] uppercase tracking-widest text-muted-foreground">Tipologia {index + 1}</span><button type="button" onClick={() => setForm((current) => ({ ...current, development_details: { ...current.development_details, typologies: current.development_details.typologies.filter((_, i) => i !== index) } }))} className="text-[10px] uppercase text-red-600">Excluir</button></div><Field label="Nome"><input value={item.title} onChange={(e) => updateTypology(index, { title: e.target.value })} className={inputCls} placeholder="Ex.: Apartamento de 123 m²" /></Field><Field label="Descrição"><textarea value={item.description} onChange={(e) => updateTypology(index, { description: e.target.value })} rows={3} className={inputCls} /></Field><Field label="Detalhes"><input value={item.detail} onChange={(e) => updateTypology(index, { detail: e.target.value })} className={inputCls} placeholder="Ex.: 3 suítes e 2 vagas" /></Field></div>)}</div></section>
+    <section className="space-y-4 border-t border-ink/10 pt-8"><h3 className="text-base font-medium text-ink">Contexto comercial e localização</h3><div className="grid gap-5 md:grid-cols-2"><div className="space-y-3"><Field label="Título do momento"><input value={d.moment_title} onChange={(e) => setDetail("moment_title", e.target.value)} className={inputCls} /></Field><Field label="Momento do empreendimento"><textarea value={d.moment_text} onChange={(e) => setDetail("moment_text", e.target.value)} rows={6} className={inputCls} /></Field></div><div className="space-y-3"><Field label="Título da localização"><input value={d.location_title} onChange={(e) => setDetail("location_title", e.target.value)} className={inputCls} /></Field><Field label="Texto sobre a localização"><textarea value={d.location_text} onChange={(e) => setDetail("location_text", e.target.value)} rows={6} className={inputCls} /></Field></div><div className="space-y-3 md:col-span-2"><Field label="Título da análise"><input value={d.analysis_title} onChange={(e) => setDetail("analysis_title", e.target.value)} className={inputCls} /></Field><Field label="Análise da S.A. Imóveis"><textarea value={d.analysis_text} onChange={(e) => setDetail("analysis_text", e.target.value)} rows={6} className={inputCls} /></Field></div></div></section>
+    <section className="space-y-4 border-t border-ink/10 pt-8"><h3 className="text-base font-medium text-ink">Contato e perguntas frequentes</h3><div className="grid gap-4 md:grid-cols-2"><Field label="Título do contato"><input value={form.cta_title} onChange={(e) => setForm((current) => ({ ...current, cta_title: e.target.value }))} className={inputCls} /></Field><Field label="Texto do contato"><textarea value={form.cta_text} onChange={(e) => setForm((current) => ({ ...current, cta_text: e.target.value }))} rows={3} className={inputCls} /></Field></div><div className="space-y-3">{form.faq.map((item, index) => <div key={index} className="space-y-2 border border-ink/10 p-4"><button type="button" onClick={() => setForm((current) => ({ ...current, faq: current.faq.filter((_, i) => i !== index) }))} className="float-right text-[10px] uppercase text-red-600">Excluir</button><input value={item.question} onChange={(e) => setForm((current) => ({ ...current, faq: current.faq.map((entry, i) => i === index ? { ...entry, question: e.target.value } : entry) }))} className={inputCls} placeholder="Pergunta" /><textarea value={item.answer} onChange={(e) => setForm((current) => ({ ...current, faq: current.faq.map((entry, i) => i === index ? { ...entry, answer: e.target.value } : entry) }))} rows={3} className={inputCls} placeholder="Resposta" /></div>)}<button type="button" onClick={() => setForm((current) => ({ ...current, faq: [...current.faq, { question: "", answer: "" }] }))} className="border border-ink/20 px-4 py-2 text-[10px] uppercase tracking-widest">+ Pergunta</button></div></section>
+  </div>;
 }
 
 function AutoSaveIndicator({

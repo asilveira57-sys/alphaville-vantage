@@ -159,6 +159,31 @@ const cardSchema = z.object({
   image: z.string().optional().nullable(),
 });
 
+const developmentDetailsSchema = z.object({
+  construction: z.string().default(""),
+  realization: z.string().default(""),
+  address: z.string().default(""),
+  delivery: z.string().default(""),
+  land_area: z.string().default(""),
+  units: z.string().default(""),
+  architecture: z.string().default(""),
+  decoration: z.string().default(""),
+  landscaping: z.string().default(""),
+  sizes: z.string().default(""),
+  parking: z.string().default(""),
+  typologies: z.array(z.object({
+    title: z.string().default(""),
+    description: z.string().default(""),
+    detail: z.string().default(""),
+  })).default([]),
+  moment_title: z.string().default(""),
+  moment_text: z.string().default(""),
+  location_title: z.string().default(""),
+  location_text: z.string().default(""),
+  analysis_title: z.string().default(""),
+  analysis_text: z.string().default(""),
+}).default({});
+
 const upsertSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().min(2),
@@ -186,6 +211,7 @@ const upsertSchema = z.object({
   schema_type: z.enum(SCHEMA_TYPES).default("Article"),
   hero_eyebrow: z.string().optional().nullable(),
   cards: z.array(cardSchema).default([]),
+  development_details: developmentDetailsSchema,
   // Bloco "Como a S.A. Imóveis pode ajudar"
   help_title: z.string().optional().nullable(),
   help_text: z.string().optional().nullable(),
