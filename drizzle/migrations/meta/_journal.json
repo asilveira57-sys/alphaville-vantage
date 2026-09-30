@@ -50,6 +50,13 @@
       "when": 1789733409424,
       "tag": "0006_create_development_partners",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790780387158,
+      "tag": "0007_add_editorial_development_details",
+      "breakpoints": true
     }
   ]
 }
