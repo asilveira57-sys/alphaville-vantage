@@ -1,13 +1,13 @@
 // Regeração de textos públicos de SEO usando SEMPRE o condomínio oficial (condominium_id).
 // Nunca usa properties.condominium_name (texto cru do scrap) para texto público.
 // Grava somente: title, seo_title, seo_description, descricao_seo (+ metadados de geração/auditoria).
-import { buildSeoBody, buildSeoTitle, buildSeoDescription, auditProperty, type SeoSource } from "./property-seo";
+import { buildSeoBody, buildSeoTitle, buildSeoDescription, buildInternalTitle, auditProperty, type SeoSource } from "./property-seo";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SB = any;
 
 export const SEO_REGEN_COLS =
-  "id,title,condominium_id,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code,seo_title,seo_description,descricao_seo";
+  "id,title,condominium_id,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code,external_ref,source_url,seo_title,seo_description,descricao_seo";
 
 const NOT_APPLICABLE_SLUG = "nao-se-aplica";
 
@@ -40,7 +40,7 @@ export function buildPublicSeo(src: SeoSource, opening: string | null) {
   const descricao_seo = buildSeoBody(src, opening);
   const seo_title = buildSeoTitle(src);
   const seo_description = buildSeoDescription(src);
-  const title = seo_title.replace(/\s*\|\s*S\.A Im[óo]veis.*$/i, "").trim();
+  const title = buildInternalTitle(src);
   const audit = auditProperty({ ...src, descricao_seo });
   return { title, seo_title, seo_description, descricao_seo, audit };
 }

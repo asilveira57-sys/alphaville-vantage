@@ -610,6 +610,9 @@ export const commitPropertyImport = createServerFn({ method: "POST" })
       propertyId = row.id as string;
     }
 
+    const { regenerateSeoForIds } = await import("./property-seo-regen.server");
+    await regenerateSeoForIds(supabaseAdmin, [propertyId]);
+
     await supabaseAdmin.from("property_imports")
       .update({ status: "committed", property_id: propertyId, committed_at: new Date().toISOString(), draft: draft as any })
       .eq("id", data.id);

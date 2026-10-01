@@ -148,6 +148,15 @@ export const saveManualReview = createServerFn({ method: "POST" })
       .update(update)
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+    const seoFacts = new Set([
+      "condominium_id", "price_sale", "price_rent", "condo_fee", "iptu", "bedrooms", "suites",
+      "parking", "parking_covered", "parking_uncovered", "area_useful", "area_built", "area_total", "neighborhood",
+      "city", "property_type", "purpose",
+    ]);
+    if (Object.keys(data.overrides).some((key) => seoFacts.has(key))) {
+      const { regenerateSeoForIds } = await import("./property-seo-regen.server");
+      await regenerateSeoForIds(supabaseAdmin, [data.id]);
+    }
     return { ok: true };
   });
 

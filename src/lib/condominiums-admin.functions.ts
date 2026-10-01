@@ -456,6 +456,12 @@ export const updateCondominium = createServerFn({ method: "POST" })
     const sb = context.supabase as unknown as SB;
     const { error } = await sb.from("condominiums").update({ name: data.name.trim(), region: data.region }).eq("id", data.id);
     if (error) throw new Error(error.message);
+    const linked = await fetchAllRows<Record<string, unknown>>(sb, "properties", "id", (q) => q.eq("condominium_id", data.id));
+    const ids = linked.map((row) => String(row["id"]));
+    if (ids.length) {
+      const { regenerateSeoForIds } = await import("./property-seo-regen.server");
+      await regenerateSeoForIds(sb, ids);
+    }
     await logCmsAction(context as never, { action: "update", entity_type: "condominium", entity_id: data.id, details: { name: data.name } });
     return { ok: true };
   });
