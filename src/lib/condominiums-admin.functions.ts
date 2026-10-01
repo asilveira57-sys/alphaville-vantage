@@ -374,6 +374,11 @@ async function updateProperties(sb: SB, ids: string[], patch: Record<string, unk
     if (error) throw new Error(error.message);
     affected += (data ?? []).length;
   }
+  // Vínculo de condomínio mudou → regera o texto SEO desses imóveis automaticamente.
+  if ("condominium_id" in patch && ids.length) {
+    const { regenerateSeoForIds } = await import("./property-seo-regen.server");
+    await regenerateSeoForIds(sb, ids);
+  }
   if (ids.length && affected === 0) {
     throw new Error("Nenhum imóvel foi atualizado — verifique se sua conta tem permissão de administrador.");
   }

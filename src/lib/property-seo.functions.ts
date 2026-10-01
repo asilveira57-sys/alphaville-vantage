@@ -79,53 +79,40 @@ export const regenerateSeo = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { SEO_REGEN_COLS, loadOfficialCondoNames, toSeoSource, buildPublicSeo } = await import("./property-seo-regen.server");
+
     const PAGE = 100;
     let processed = 0;
     let updated = 0;
-    const maxItems = data.limit ?? (data.id ? 1 : 5000);
+    const maxItems = data.limit ?? (data.id ? 1 : 100000);
 
     for (let from = 0; processed < maxItems; from += PAGE) {
-      let q = supabaseAdmin
-        .from("properties")
-        .select("id,external_ref,slug,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code")
-        .order("id", { ascending: true })
-        .range(from, from + PAGE - 1);
+      let q = supabaseAdmin.from("properties").select(SEO_REGEN_COLS)
+        .order("id", { ascending: true }).range(from, from + PAGE - 1);
       if (data.id) q = q.eq("id", data.id);
-
       const { data: rows, error } = await q;
       if (error) throw new Error(error.message);
-      const list = (rows ?? []) as unknown as Row[];
+      const list = (rows ?? []) as unknown as Record<string, unknown>[];
       if (!list.length) break;
+      const official = await loadOfficialCondoNames(supabaseAdmin, list.map((r) => r["condominium_id"] as string | null));
 
       for (const row of list) {
         processed++;
-        const src: SeoSource = { ...row, description: row.descricao_original ?? row.description };
+        const src = toSeoSource(row, official);
         const opening = data.useAI ? await generateOpeningWithAI(src) : null;
-
-        const descricao_seo = buildSeoBody(src, opening);
-        const seo_title = buildSeoTitle(src);
-        const seo_description = buildSeoDescription(src);
-
-        // Preserva descricao_original (se ainda não houver, copia da description bruta)
-        const descricao_original = row.descricao_original ?? row.description ?? null;
-
-        const audit = auditProperty({ ...src, descricao_seo });
-        const update: Record<string, unknown> = {
-          descricao_original,
-          descricao_seo,
-          seo_title,
-          seo_description,
+        const out = buildPublicSeo(src, opening);
+        // Grava SOMENTE textos públicos de SEO (+ metadados). Nada de slug, preços, condomínio ou overrides.
+        const { error: upErr } = await supabaseAdmin.from("properties").update({
+          title: out.title,
+          seo_title: out.seo_title,
+          seo_description: out.seo_description,
+          descricao_seo: out.descricao_seo,
           seo_generated_at: new Date().toISOString(),
           seo_used_ai: !!opening,
-          audit_status: audit.status,
-          audit_issues: audit.issues,
-        };
-
-
-        const { error: upErr } = await supabaseAdmin
-          .from("properties").update(update as never).eq("id", row.id);
+          audit_status: out.audit.status,
+          audit_issues: out.audit.issues,
+        } as never).eq("id", row["id"] as string);
         if (!upErr) updated++;
-
         if (processed >= maxItems) break;
       }
 
