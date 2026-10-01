@@ -24,7 +24,7 @@ export async function generateOpeningWithAI(s: SeoSource): Promise<string | null
   const facts = {
     tipo: seoLabels.typeLabel(s.property_type),
     finalidade: seoLabels.purposeLabel(s.purpose).action,
-    condominio: s.condominium_name ? seoLabels.cap(s.condominium_name) : null,
+    condominio: s.condominium_name?.trim() || null, // nome oficial já resolvido
     bairro: s.neighborhood ? seoLabels.cap(s.neighborhood) : null,
     cidade: s.city ? seoLabels.cap(s.city) : null,
     estado: s.state,
@@ -121,9 +121,6 @@ export const regenerateSeo = createServerFn({ method: "POST" })
           audit_issues: audit.issues,
         };
 
-        // Atualiza slug somente se ainda for o legado (com sufixo aleatório do scraper)
-        const niceSlug = buildSeoSlug(src, row.external_ref);
-        if (niceSlug && niceSlug.length > 8) update.slug = niceSlug;
 
         const { error: upErr } = await supabaseAdmin
           .from("properties").update(update as never).eq("id", row.id);

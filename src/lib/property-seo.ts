@@ -58,6 +58,17 @@ function typeLabel(t: string | null): string {
   return map[k] ?? cap(k);
 }
 
+/** Nome oficial do condomínio já resolvido (nunca o texto cru do scrap). */
+function condoName(s: SeoSource): string | null {
+  const n = (s.condominium_name ?? "").trim();
+  return n ? n : null;
+}
+
+/** "condomínio X" — sem duplicar quando o nome já começa com Condomínio/Residencial. */
+export function condoPhrase(name: string): string {
+  return /^(condom[ií]nio|residencial)\b/i.test(name.trim()) ? name.trim() : `condomínio ${name.trim()}`;
+}
+
 function locationPhrase(s: SeoSource): string {
   const city = s.city ? cap(s.city) : null;
   const nb = s.neighborhood ? cap(s.neighborhood) : null;
@@ -90,7 +101,8 @@ export function buildSeoSlug(s: SeoSource, externalRef?: string | null): string 
 export function buildSeoTitle(s: SeoSource): string {
   const type = typeLabel(s.property_type);
   const p = purposeLabel(s.purpose);
-  const condo = s.condominium_name ? ` no ${cap(s.condominium_name)}` : "";
+  const cn = condoName(s);
+  const condo = cn ? ` no ${cn}` : "";
   const loc = s.neighborhood
     ? ` em ${cap(s.neighborhood)}${s.city && s.neighborhood.toLowerCase() !== s.city.toLowerCase() ? `, ${cap(s.city)}` : ""}`
     : s.city ? ` em ${cap(s.city)}` : "";
@@ -102,7 +114,7 @@ export function buildSeoDescription(s: SeoSource): string {
   const p = purposeLabel(s.purpose);
   const loc = locationPhrase(s);
   const parts: string[] = [];
-  parts.push(`${type} ${p.action}${s.condominium_name ? ` no condomínio ${cap(s.condominium_name)}` : ""} em ${loc}.`);
+  parts.push(`${type} ${p.action}${condoName(s) ? ` no ${condoPhrase(condoName(s)!)}` : ""} em ${loc}.`);
   const feats: string[] = [];
   const area = fmtArea(s.area_useful ?? s.area_built ?? s.area_total);
   if (area) feats.push(area);
@@ -212,11 +224,11 @@ export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): st
   const type = typeLabel(s.property_type);
   const p = purposeLabel(s.purpose);
   const city = s.city ? cap(s.city) : null;
-  const condo = s.condominium_name ? cap(s.condominium_name) : null;
+  const condo = condoName(s);
   const nb = s.neighborhood ? cap(s.neighborhood) : null;
 
   const locBits: string[] = [];
-  if (condo) locBits.push(`no condomínio ${condo}`);
+  if (condo) locBits.push(`no ${condoPhrase(condo)}`);
   if (nb && nb.toLowerCase() !== (condo ?? "").toLowerCase()) locBits.push(condo ? `bairro ${nb}` : `em ${nb}`);
   if (city) locBits.push(`em ${city}${s.state ? `/${s.state}` : ""}`);
   const loc = locBits.join(", ");
