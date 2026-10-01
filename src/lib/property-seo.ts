@@ -85,44 +85,60 @@ export function extractPropertyCode(s: Pick<SeoSource, "external_ref" | "source_
   return null;
 }
 
-/** Título factual completo, antes do código interno e da assinatura da marca. */
-export function buildPropertyHeading(s: SeoSource): string {
+/**
+ * Dormitórios/suítes no título ficam DESLIGADOS até o recrawl corrigir as contagens da ficha.
+ * Para religar, troque para true.
+ */
+export const TITLE_INCLUDE_BEDROOMS = false;
+
+/** Área do título: casa = construída; apartamento = útil; terreno = terreno. */
+function titleArea(s: SeoSource): number | null {
+  const t = String(s.property_type ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (/terreno|lote/.test(t)) return positive(s.area_total) ?? positive(s.area_built) ?? positive(s.area_useful);
+  if (/casa|sobrado/.test(t)) return positive(s.area_built) ?? positive(s.area_useful) ?? positive(s.area_total);
+  if (/apart|cobertura|flat|studio|loft/.test(t)) return positive(s.area_useful) ?? positive(s.area_built) ?? positive(s.area_total);
+  return positive(s.area_useful) ?? positive(s.area_built) ?? positive(s.area_total);
+}
+
+type HeadingParts = { head: string; details: string; neighborhood: string | null; city: string | null; hasCondo: boolean };
+
+function headingParts(s: SeoSource): HeadingParts {
   const type = typeLabel(s.property_type);
   const purpose = purposeLabel(s.purpose).action;
   const condo = condoName(s);
   const neighborhood = s.neighborhood ? cap(s.neighborhood) : null;
   const city = s.city ? cap(s.city) : null;
-  const bedrooms = positive(s.bedrooms);
-  const suites = positive(s.suites);
-  const area = positive(s.area_useful) ?? positive(s.area_built) ?? positive(s.area_total);
-
   const location = condo
     ? `no ${cap(condo)}`
     : neighborhood ? `em ${neighborhood}` : city ? `em ${city}` : "";
   const details: string[] = [];
-  if (bedrooms) details.push(`${bedrooms} dorm.${suites ? ` (${suites} ${suites === 1 ? "suíte" : "suítes"})` : ""}`);
+  if (TITLE_INCLUDE_BEDROOMS) {
+    const bedrooms = positive(s.bedrooms);
+    const suites = positive(s.suites);
+    if (bedrooms) details.push(`${bedrooms} dorm.${suites ? ` (${suites} ${suites === 1 ? "suíte" : "suítes"})` : ""}`);
+  }
+  const area = titleArea(s);
   if (area) details.push(`${Number(area).toLocaleString("pt-BR")} m²`);
-  const ending = condo
-    ? [neighborhood, city].filter(Boolean).join(", ")
-    : city;
-
-  return [
-    `${type} ${purpose}${location ? ` ${location}` : ""}`,
-    details.join(", "),
-    ending ? `– ${ending}` : "",
-  ].filter(Boolean).join(", ").replace(/,\s+–/g, " –").replace(/\s+/g, " ").trim();
+  return {
+    head: `${type} ${purpose}${location ? ` ${location}` : ""}`,
+    details: details.join(", "),
+    neighborhood: condo ? neighborhood : null,
+    city,
+    hasCondo: !!condo,
+  };
 }
 
-function truncateWords(text: string, max: number): string {
-  if (text.length <= max) return text;
-  const clipped = text.slice(0, max + 1);
-  const boundary = clipped.lastIndexOf(" ");
-  let out = (boundary > 0 ? clipped.slice(0, boundary) : text.slice(0, max)).replace(/[,:;–-]+$/g, "").trim();
-  if ((out.match(/\(/g)?.length ?? 0) > (out.match(/\)/g)?.length ?? 0)) out = out.replace(/\s*\([^)]*$/, "");
-  return out.replace(/[,:;–-]+$/g, "").trim();
+function joinHeading(p: HeadingParts, withNeighborhood: boolean): string {
+  const ending = [withNeighborhood ? p.neighborhood : null, p.city].filter(Boolean).join(", ");
+  return [p.head, p.details].filter(Boolean).join(", ") + (ending ? ` – ${ending}` : "");
 }
 
-/** Mantém o código no SEO mesmo quando o título factual precisa ser resumido. */
+/** Título factual completo, antes do código interno e da assinatura da marca. */
+export function buildPropertyHeading(s: SeoSource): string {
+  return joinHeading(headingParts(s), true).replace(/\s+/g, " ").trim();
+}
+
+/** Mantém o código no título interno/H1. */
 export function buildInternalTitle(s: SeoSource): string {
   const code = extractPropertyCode(s);
   return `${buildPropertyHeading(s)}${code ? ` – Cód. ${code}` : ""}`;
@@ -168,14 +184,15 @@ export function buildSeoSlug(s: SeoSource, externalRef?: string | null): string 
   return `${base}${tail}`.slice(0, 140).replace(/-+$/g, "");
 }
 
+/** seo_title: até 65 chars antes da marca. Se passar, corta primeiro o código, depois o bairro.
+ *  Nunca corta condomínio nem área. */
 export function buildSeoTitle(s: SeoSource): string {
-  const full = buildInternalTitle(s);
+  const p = headingParts(s);
   const code = extractPropertyCode(s);
   const suffix = code ? ` – Cód. ${code}` : "";
-  const prefix = full.length <= 65
-    ? full
-    : `${truncateWords(buildPropertyHeading(s), Math.max(20, 65 - suffix.length))}${suffix}`;
-  return `${prefix} | S.A Imóveis`;
+  const candidates = [joinHeading(p, true) + suffix, joinHeading(p, true), joinHeading(p, false)];
+  const pick = candidates.find((c) => c.length <= 65) ?? candidates[candidates.length - 1];
+  return `${pick.replace(/\s+/g, " ").trim()} | S.A Imóveis`;
 }
 
 export function buildSeoDescription(s: SeoSource): string {
