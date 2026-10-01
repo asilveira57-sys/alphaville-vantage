@@ -68,7 +68,7 @@ export const Route = createFileRoute("/blog/$slug")({
   component: PostPage,
   errorComponent: ({ error }) => (
     <SiteLayout>
-      <div className="max-w-2xl mx-auto px-6 py-24 text-sm text-red-600">{error.message}</div>
+      <div className="max-w-2xl mx-auto px-6 py-24 text-sm text-red-600">{(error as Error).message}</div>
     </SiteLayout>
   ),
   notFoundComponent: () => (

@@ -65,7 +65,7 @@ export const Route = createFileRoute("/artigos/$slug")({
     <div className="min-h-screen flex items-center justify-center px-6 text-center">
       <div>
         <h1 className="font-serif text-2xl mb-3">Erro ao carregar artigo</h1>
-        <p className="text-sm text-muted-foreground mb-4">{error.message}</p>
+        <p className="text-sm text-muted-foreground mb-4">{(error as Error).message}</p>
         <button onClick={reset} className="text-sm underline">Tentar novamente</button>
       </div>
     </div>

@@ -95,7 +95,7 @@ export const Route = createFileRoute("/imoveis/$slug")({
   errorComponent: ({ error }) => (
     <SiteLayout>
       <section className="px-6 py-24 max-w-3xl mx-auto">
-        <p className="text-sm text-muted-foreground">Não foi possível carregar este imóvel: {error.message}</p>
+        <p className="text-sm text-muted-foreground">Não foi possível carregar este imóvel: {(error as Error).message}</p>
         <Link to="/imoveis" className="mt-6 inline-block text-sm underline">Voltar ao catálogo</Link>
       </section>
     </SiteLayout>

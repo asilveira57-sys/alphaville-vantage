@@ -78,7 +78,7 @@ export const Route = createFileRoute("/condominios/$slug")({
   errorComponent: ({ error }) => (
     <SiteLayout>
       <section className="px-6 py-24 max-w-3xl mx-auto">
-        <p className="text-sm text-muted-foreground">Erro: {error.message}</p>
+        <p className="text-sm text-muted-foreground">Erro: {(error as Error).message}</p>
         <Link to="/condominios" className="mt-6 inline-block text-sm underline">Voltar à lista</Link>
       </section>
     </SiteLayout>
