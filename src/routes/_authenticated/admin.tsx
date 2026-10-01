@@ -28,6 +28,28 @@ function AdminPage() {
   const reprocessFn = useServerFn(reprocessProperties);
   const auditFn = useServerFn(getScrapAudit);
   const seoFn = useServerFn(regenerateSeo);
+  const exportFn = useServerFn(exportPropertiesCsv);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const handleExport = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const res = await exportFn({ data: {} });
+      const day = new Date().toISOString().slice(0, 10);
+      const blob = new Blob([res.csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `imoveis-portal-${day}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : "Falha ao exportar imóveis");
+    } finally {
+      setExporting(false);
+    }
+  };
   const [seoUseAI, setSeoUseAI] = useState(false);
   const [postsPage, setPostsPage] = useState(1);
   const [postsSearch, setPostsSearch] = useState("");
