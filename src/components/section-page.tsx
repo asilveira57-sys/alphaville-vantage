@@ -18,7 +18,6 @@ interface SectionPageProps {
   children?: ReactNode;
 }
 
-const SITE_URL = `${SITE_URL}`;
 
 function buildBreadcrumbJsonLd(breadcrumbs: BreadcrumbItem[]) {
   const items = [

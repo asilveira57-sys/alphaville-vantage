@@ -7,7 +7,6 @@ import { PremiumCard } from "@/components/premium-card";
 import { listPublishedByType } from "@/lib/editorial.functions";
 
 
-const SITE_URL = `${SITE_URL}`;
 
 const QO = queryOptions({
   queryKey: ["editorial", "guia"],

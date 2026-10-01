@@ -17,7 +17,6 @@ import {
 } from "@/lib/opportunities.functions";
 import { useEffect, useRef } from "react";
 
-const SITE_URL = `${SITE_URL}`;
 
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) &&

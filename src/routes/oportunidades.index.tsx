@@ -8,7 +8,6 @@ import { OpportunityCard } from "@/components/premium-cards/opportunity-card";
 import { listOpportunities, type OpportunityDTO } from "@/lib/opportunities.functions";
 import { OpportunitySubscribeForm } from "@/components/opportunities/opportunity-subscribe-form";
 
-const SITE_URL = `${SITE_URL}`;
 
 const TITLE = "Vitrine de Oportunidades — S.A Imóveis Alphaville";
 const DESCRIPTION =

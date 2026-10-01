@@ -9,7 +9,6 @@ import {
   findPropertiesNearStreet,
 } from "@/lib/street-guides.functions";
 
-const SITE_URL = `${SITE_URL}`;
 
 const viaLabelOf = (v: string) =>
   v === "alameda" ? "Alameda"

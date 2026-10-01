@@ -9,7 +9,6 @@ import { PremiumCard } from "@/components/premium-card";
 import { listPublishedStreets, type StreetListItem } from "@/lib/streets.functions";
 import { listPublishedStreetGuides, type StreetGuideListItem } from "@/lib/street-guides.functions";
 
-const SITE_URL = `${SITE_URL}`;
 
 const streetsQO = queryOptions({
   queryKey: ["ruas", "published"],

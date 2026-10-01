@@ -9,7 +9,6 @@ import { CleanPropertyCard } from "@/components/premium-cards/clean-property-car
 import { resolveImage } from "@/lib/image-fallbacks";
 import { supabase } from "@/integrations/supabase/client";
 
-const SITE_URL = `${SITE_URL}`;
 
 async function fetchAlphavilleSnapshot() {
   const [{ count: total }, { count: sale }, { count: rent }, { data: featured }] = await Promise.all([

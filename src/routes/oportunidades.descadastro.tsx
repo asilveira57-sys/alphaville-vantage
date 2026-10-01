@@ -7,7 +7,6 @@ import { Check, Loader2 } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { unsubscribeFromOpportunities } from "@/lib/opportunity-subscribers.functions";
 
-const SITE_URL = `${SITE_URL}`;
 const TITLE = "Sair da lista de oportunidades — S.A Imóveis Alphaville";
 
 export const Route = createFileRoute("/oportunidades/descadastro")({

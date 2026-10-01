@@ -8,7 +8,6 @@ import {
   COMPARABLE_MAX_AGE_MONTHS,
 } from "@/lib/opportunity-valuation";
 
-const SITE_URL = `${SITE_URL}`;
 
 const TITLE = "Metodologia da Vitrine de Oportunidades — S.A Imóveis Alphaville";
 const DESCRIPTION =

@@ -7,7 +7,6 @@ import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { listPublishedByType } from "@/lib/editorial.functions";
 import { supabase } from "@/integrations/supabase/client";
 
-const SITE_URL = `${SITE_URL}`;
 
 const QO = queryOptions({
   queryKey: ["editorial", "bairro"],

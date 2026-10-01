@@ -8,7 +8,6 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { PremiumCondoCard } from "@/components/premium-cards/condo-card";
 import { listPublishedByType } from "@/lib/editorial.functions";
 
-const SITE_URL = `${SITE_URL}`;
 
 const condosQO = queryOptions({
   queryKey: ["editorial", "condominio"],

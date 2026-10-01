@@ -7,7 +7,6 @@ import { EditorialContent } from "@/components/editorial-content";
 import { PremiumCard } from "@/components/premium-card";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 
-const SITE_URL = `${SITE_URL}`;
 
 const pageQO = (slug: string) => queryOptions({
   queryKey: ["editorial", "bairro", slug],

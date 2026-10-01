@@ -6,7 +6,6 @@ import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
 import { listPublishedStreets, type StreetListItem } from "@/lib/streets.functions";
 
-const SITE_URL = `${SITE_URL}`;
 
 const QO = queryOptions({
   queryKey: ["ruas", "published"],

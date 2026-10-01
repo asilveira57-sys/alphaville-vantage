@@ -12,7 +12,6 @@ import {
   listNearbyStreets,
 } from "@/lib/streets.functions";
 
-const SITE_URL = `${SITE_URL}`;
 
 const streetQO = (slug: string) => queryOptions({
   queryKey: ["ruas", "detail", slug],

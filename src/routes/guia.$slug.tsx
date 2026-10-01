@@ -6,7 +6,6 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 
-const SITE_URL = `${SITE_URL}`;
 
 const SECTIONS = [
   { id: "historia", label: "História" },
