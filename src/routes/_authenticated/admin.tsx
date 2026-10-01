@@ -8,7 +8,7 @@ import { checkIsAdmin, grantSelfAdminIfFirst } from "@/lib/admin.functions";
 import { generatePostWithAI } from "@/lib/blog.functions";
 import { listEditorialPages } from "@/lib/editorial.functions";
 import { runScraper, listScraperRuns } from "@/lib/scraper.functions";
-import { reprocessProperties, getScrapAudit } from "@/lib/property-review.functions";
+import { reprocessProperties, getScrapAudit, exportPropertiesCsv } from "@/lib/property-review.functions";
 import { regenerateSeo } from "@/lib/property-seo.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({

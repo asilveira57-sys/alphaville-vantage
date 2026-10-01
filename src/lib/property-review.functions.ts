@@ -315,6 +315,57 @@ export const setAuditExempt = createServerFn({ method: "POST" })
   });
 
 
+const EXPORT_COLS = [
+  "id", "slug", "status", "review_status", "audit_status", "audit_issues", "audit_exempt", "manual_overrides",
+  "external_ref", "source_url", "internal_code",
+  "title", "seo_title", "seo_description", "seo_used_ai", "seo_generated_at",
+  "property_type", "purpose", "is_launch", "furnished",
+  "condominium_name", "condominium_id", "neighborhood", "region", "city", "state",
+  "bedrooms", "suites", "bathrooms", "lavabos", "parking", "parking_covered", "parking_uncovered",
+  "area_useful", "area_built", "area_total",
+  "price_sale", "price_rent", "condo_fee", "iptu",
+  "description", "descricao_seo", "descricao_original",
+  "extracted_at", "last_seen_at", "updated_at",
+] as const;
+
+function csvCell(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "object") return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return `"${String(value).replace(/"/g, '""')}"`;
+}
+
+/**
+ * Exporta TODOS os imóveis em CSV (UTF-8 BOM, separador ";"). Somente leitura.
+ * Não inclui images/raw (pesados). Pagina além do limite de 1000 linhas.
+ */
+export const exportPropertiesCsv = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const rows = await fetchAllRows<Record<string, unknown>>((from, to) =>
+      supabaseAdmin
+        .from("properties")
+        .select(EXPORT_COLS.join(","))
+        .order("id", { ascending: true })
+        .range(from, to) as never,
+    );
+
+    const header = [...EXPORT_COLS, "url_portal"].join(";");
+    const lines = rows.map((r) => {
+      const cells = EXPORT_COLS.map((c) => csvCell(r[c]));
+      cells.push(csvCell(r.slug ? `https://portal.saimoveisalphaville.com.br/imoveis/${r.slug}` : ""));
+      return cells.join(";");
+    });
+
+    return { csv: "﻿" + header + "\n" + lines.join("\n"), count: rows.length };
+  });
+
 /**
  * Carrega um imóvel com TODOS os campos necessários para a tela de revisão.
  */
