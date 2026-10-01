@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/quem-somos";
+const URL = `${SITE_URL}/quem-somos`;
 const TITLE = "Quem Somos — S.A Imóveis Alphaville";
 const DESC =
   "Consultoria imobiliária especializada em Alphaville, Tamboré, Barueri e Santana de Parnaíba. Conheça a Padilha Assessoria em Vendas, propósito, valores e diferenciais.";

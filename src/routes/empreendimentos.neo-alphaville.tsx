@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
@@ -8,7 +9,7 @@ import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-blo
 import { NeoLeadForm } from "@/components/partners/neo-lead-form";
 import neoLogo from "@/assets/neo-alphaville-logo.png.asset.json";
 
-const SITE = "https://alphaville-vantage.lovable.app";
+const SITE = `${SITE_URL}`;
 const URL = `${SITE}/empreendimentos/neo-alphaville`;
 const TITLE = "Neo Alphaville: unidades prontas na Avenida Sagitário";
 const DESC =

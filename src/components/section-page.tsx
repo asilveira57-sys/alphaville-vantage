@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { SiteLayout } from "./site-layout";
@@ -17,7 +18,6 @@ interface SectionPageProps {
   children?: ReactNode;
 }
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 function buildBreadcrumbJsonLd(breadcrumbs: BreadcrumbItem[]) {
   const items = [

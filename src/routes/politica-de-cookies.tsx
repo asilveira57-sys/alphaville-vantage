@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { Link } from "@tanstack/react-router";
@@ -18,13 +19,13 @@ export const Route = createFileRoute("/politica-de-cookies")({
           "Saiba como a S.A Imóveis Alphaville utiliza cookies e tecnologias semelhantes para melhorar a navegação em nosso portal editorial.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://alphaville-vantage.lovable.app/politica-de-cookies" },
+      { property: "og:url", content: `${SITE_URL}/politica-de-cookies` },
       { name: "robots", content: "noindex" },
     ],
     links: [
       {
         rel: "canonical",
-        href: "https://alphaville-vantage.lovable.app/politica-de-cookies",
+        href: `${SITE_URL}/politica-de-cookies`,
       },
     ],
   }),

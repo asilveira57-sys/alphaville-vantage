@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Building2, MessageCircle } from "lucide-react";
@@ -10,7 +11,7 @@ import { CmsEditorialPage } from "@/components/cms-editorial-page";
 import { SiteLayout } from "@/components/site-layout";
 import { PartnerLeadForm } from "@/components/partners/partner-lead-form";
 
-const SITE = "https://alphaville-vantage.lovable.app";
+const SITE = `${SITE_URL}`;
 
 const pageQO = (slug: string) =>
   queryOptions({

@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/politica-de-privacidade";
+const URL = `${SITE_URL}/politica-de-privacidade`;
 const TITLE = "Política de Privacidade — S.A Imóveis Alphaville";
 const DESC =
   "Como a Padilha Assessoria em Vendas coleta, utiliza, armazena e protege dados pessoais conforme a LGPD. Direitos do titular e canal de contato.";

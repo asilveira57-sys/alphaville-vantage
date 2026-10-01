@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
@@ -6,7 +7,6 @@ import { EditorialContent } from "@/components/editorial-content";
 import { PremiumCard } from "@/components/premium-card";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 const pageQO = (slug: string) => queryOptions({
   queryKey: ["editorial", "bairro", slug],

@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -6,7 +7,6 @@ import { Check, Loader2 } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { unsubscribeFromOpportunities } from "@/lib/opportunity-subscribers.functions";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
 const TITLE = "Sair da lista de oportunidades — S.A Imóveis Alphaville";
 
 export const Route = createFileRoute("/oportunidades/descadastro")({

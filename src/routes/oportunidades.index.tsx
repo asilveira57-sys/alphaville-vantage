@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
@@ -7,7 +8,6 @@ import { OpportunityCard } from "@/components/premium-cards/opportunity-card";
 import { listOpportunities, type OpportunityDTO } from "@/lib/opportunities.functions";
 import { OpportunitySubscribeForm } from "@/components/opportunities/opportunity-subscribe-form";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 const TITLE = "Vitrine de Oportunidades — S.A Imóveis Alphaville";
 const DESCRIPTION =

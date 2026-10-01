@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
@@ -11,7 +12,6 @@ import {
   listNearbyStreets,
 } from "@/lib/streets.functions";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 const streetQO = (slug: string) => queryOptions({
   queryKey: ["ruas", "detail", slug],

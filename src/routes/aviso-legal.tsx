@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/aviso-legal";
+const URL = `${SITE_URL}/aviso-legal`;
 const TITLE = "Aviso Legal — S.A Imóveis Alphaville";
 const DESC =
   "Aviso legal sobre a natureza das informações publicadas no portal da S.A Imóveis Alphaville, limitação de responsabilidade e atualização de conteúdos.";

@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/mapa-do-site";
+const URL = `${SITE_URL}/mapa-do-site`;
 const TITLE = "Mapa do Site — S.A Imóveis Alphaville";
 const DESC =
   "Índice completo das páginas do portal S.A Imóveis Alphaville: institucional, serviços, editorial, guias de bairros, condomínios e páginas legais.";

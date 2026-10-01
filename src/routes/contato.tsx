@@ -1,8 +1,9 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 import { Phone, MessageCircle, Mail, MapPin, Clock } from "lucide-react";
 
-const URL = "https://alphaville-vantage.lovable.app/contato";
+const URL = `${SITE_URL}/contato`;
 const TITLE = "Contato — S.A Imóveis Alphaville";
 const DESC =
   "Fale com a S.A Imóveis Alphaville. Endereço em Tamboré, telefones, WhatsApp, e-mail, horários e formulário para atendimento consultivo em Alphaville e região.";

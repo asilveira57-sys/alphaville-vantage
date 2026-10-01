@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/como-trabalhamos";
+const URL = `${SITE_URL}/como-trabalhamos`;
 const TITLE = "Como Trabalhamos — Metodologia S.A Imóveis Alphaville";
 const DESC =
   "Metodologia consultiva da S.A Imóveis Alphaville: escuta, curadoria, visita, negociação, contratos e pós-venda para locação, venda, permuta e administração.";

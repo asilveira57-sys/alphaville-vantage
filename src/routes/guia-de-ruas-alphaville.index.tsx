@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
@@ -5,7 +6,6 @@ import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
 import { listPublishedStreetGuides, type StreetGuideListItem } from "@/lib/street-guides.functions";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 const HUB_SECTIONS: { key: string; title: string; description: string }[] = [
   { key: "alamedas-comerciais", title: "Principais alamedas comerciais de Alphaville", description: "Vias com forte concentração de escritórios, serviços e conveniência ao redor do Centro Comercial." },

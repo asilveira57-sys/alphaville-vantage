@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { useMemo } from "react";
 
 export type SeoValues = {
@@ -25,7 +26,7 @@ export type SeoPanelProps = {
   children?: React.ReactNode;
 };
 
-const SITE = "https://alphaville-vantage.lovable.app";
+const SITE = `${SITE_URL}`;
 
 const input = "w-full border border-ink/15 px-3 py-2 text-sm bg-transparent focus:outline-none focus:border-ink";
 const label = "block text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1.5";

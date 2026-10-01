@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
@@ -7,7 +8,7 @@ import { EmpreendimentoCoverImage } from "@/components/empreendimentos/cover-ima
 import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-block";
 import { AndromedaLeadForm } from "@/components/partners/andromeda-lead-form";
 
-const SITE = "https://alphaville-vantage.lovable.app";
+const SITE = `${SITE_URL}`;
 const URL = `${SITE}/empreendimentos/andromeda-by-mpd`;
 const TITLE = "Andrômeda by MPD em Alphaville: plantas e unidades";
 const DESC =

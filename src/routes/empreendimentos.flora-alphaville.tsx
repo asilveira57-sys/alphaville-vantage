@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat, BedDouble } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
@@ -7,7 +8,7 @@ import { EmpreendimentoCoverImage } from "@/components/empreendimentos/cover-ima
 import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-block";
 import { FloraLeadForm } from "@/components/partners/flora-lead-form";
 
-const SITE = "https://alphaville-vantage.lovable.app";
+const SITE = `${SITE_URL}`;
 const URL = `${SITE}/empreendimentos/flora-alphaville`;
 const TITLE = "Florá Alphaville: apartamentos de 420 m² a 835 m²";
 const DESC =

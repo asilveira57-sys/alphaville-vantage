@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import type { ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, GraduationCap, Route as RouteIcon, UtensilsCrossed, Stethoscope, TrendingUp } from "lucide-react";
@@ -8,7 +9,6 @@ import { CleanPropertyCard } from "@/components/premium-cards/clean-property-car
 import { resolveImage } from "@/lib/image-fallbacks";
 import { supabase } from "@/integrations/supabase/client";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
 
 async function fetchAlphavilleSnapshot() {
   const [{ count: total }, { count: sale }, { count: rent }, { data: featured }] = await Promise.all([
