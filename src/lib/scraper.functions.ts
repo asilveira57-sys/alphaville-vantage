@@ -674,6 +674,16 @@ export const runScraper = createServerFn({ method: "POST" })
           } catch (linkErr) {
             console.error("Auto-link bairro/condomínio falhou", item.url, linkErr instanceof Error ? linkErr.message : String(linkErr));
           }
+          // Texto público sempre a partir do condomínio oficial vinculado (nunca do nome cru do scrap).
+          try {
+            const { data: pr } = await supabaseAdmin.from("properties").select("id").eq("external_ref", item.ref).maybeSingle();
+            if (pr?.id) {
+              const { regenerateSeoForIds } = await import("./property-seo-regen.server");
+              await regenerateSeoForIds(supabaseAdmin, [pr.id]);
+            }
+          } catch (seoErr) {
+            console.error("Regeração SEO pós-vínculo falhou", item.url, seoErr instanceof Error ? seoErr.message : String(seoErr));
+          }
         } catch (e) {
           console.error("Crawler property failed", item.url, e instanceof Error ? e.message : String(e));
           errors++;
