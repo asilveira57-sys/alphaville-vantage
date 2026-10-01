@@ -534,6 +534,8 @@ export const editarValoresImovel = createServerFn({ method: "POST" })
       .update({ ...data.values, manual_overrides: overrides as any })
       .eq("id", data.propertyId);
     if (upErr) throw new Error(upErr.message);
+    const { regenerateSeoForIds } = await import("./property-seo-regen.server");
+    await regenerateSeoForIds(supabaseAdmin, [data.propertyId]);
 
     // Reflete a edição manual nas linhas de auditoria para a tabela atualizar
     for (const [field, value] of Object.entries(data.values)) {
@@ -746,6 +748,7 @@ export const aplicarDivergenciasMecanicas = createServerFn({ method: "POST" })
 
     let aplicados = 0;
     const erros: { id: string; motivo: string }[] = [];
+    const changedPropertyIds = new Set<string>();
     for (const r of candidates) {
       const { error: upErr } = await supabaseAdmin
         .from("properties")
@@ -765,7 +768,12 @@ export const aplicarDivergenciasMecanicas = createServerFn({ method: "POST" })
         entity_id: r.property_id,
         details: { campo: r.field, antes: r.current_value, depois: r.found_value, ratio: r.ratio, fonte: r.source_url },
       });
+      changedPropertyIds.add(r.property_id);
       aplicados++;
+    }
+    if (changedPropertyIds.size) {
+      const { regenerateSeoForIds } = await import("./property-seo-regen.server");
+      await regenerateSeoForIds(supabaseAdmin, Array.from(changedPropertyIds));
     }
     return { aplicados, candidatos: candidates.length, erros };
   });
