@@ -144,6 +144,57 @@ export function buildInternalTitle(s: SeoSource): string {
   return `${buildPropertyHeading(s)}${code ? ` – Cód. ${code}` : ""}`;
 }
 
+/** Nome oficial do condomínio já resolvido (nunca o texto cru do scrap). */
+function condoName(s: SeoSource): string | null {
+  const n = (s.condominium_name ?? "").trim();
+  return n ? n : null;
+}
+
+/** "condomínio X" — sem duplicar quando o nome já começa com Condomínio/Residencial. */
+export function condoPhrase(name: string): string {
+  return /^(condom[ií]nio|residencial)\b/i.test(name.trim()) ? name.trim() : `condomínio ${name.trim()}`;
+}
+
+function locationPhrase(s: SeoSource): string {
+  const city = s.city ? cap(s.city) : null;
+  const nb = s.neighborhood ? cap(s.neighborhood) : null;
+  const st = s.state ?? "";
+  if (nb && city) return `${nb}, ${city}${st ? `/${st}` : ""}`;
+  if (city) return `${city}${st ? `/${st}` : ""}`;
+  if (nb) return nb;
+  return "Alphaville";
+}
+
+export function buildSeoSlug(s: SeoSource, externalRef?: string | null): string {
+  const parts: string[] = [];
+  if (s.property_type) parts.push(typeLabel(s.property_type));
+  const p = purposeLabel(s.purpose);
+  if (s.purpose === "rent") parts.push("locacao");
+  else if (s.purpose === "sale") parts.push("venda");
+  else if (s.purpose === "both") parts.push("venda-locacao");
+  else parts.push(p.noun.toLowerCase());
+  if (s.condominium_name) parts.push(s.condominium_name);
+  else if (s.neighborhood) parts.push(s.neighborhood);
+  if (s.city) parts.push(s.city);
+  const base = parts.join(" ")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+    .slice(0, 110);
+  const tail = externalRef ? `-${externalRef.split("/").filter(Boolean).pop()}` : "";
+  return `${base}${tail}`.slice(0, 140).replace(/-+$/g, "");
+}
+
+/** seo_title: até 65 chars antes da marca. Se passar, corta primeiro o código, depois o bairro.
+ *  Nunca corta condomínio nem área. */
+export function buildSeoTitle(s: SeoSource): string {
+  const p = headingParts(s);
+  const code = extractPropertyCode(s);
+  const suffix = code ? ` – Cód. ${code}` : "";
+  const candidates = [joinHeading(p, true) + suffix, joinHeading(p, true), joinHeading(p, false)];
+  const pick = candidates.find((c) => c.length <= 65) ?? candidates[candidates.length - 1];
+  return `${pick.replace(/\s+/g, " ").trim()} | S.A Imóveis`;
+}
+
 export function buildSeoDescription(s: SeoSource): string {
   const type = typeLabel(s.property_type);
   const p = purposeLabel(s.purpose);
