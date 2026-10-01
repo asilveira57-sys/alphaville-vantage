@@ -35,7 +35,7 @@ function AdminPage() {
     setExporting(true);
     setExportError(null);
     try {
-      const res = await exportFn({ data: {} });
+      const res = await exportFn();
       const day = new Date().toISOString().slice(0, 10);
       const blob = new Blob([res.csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
