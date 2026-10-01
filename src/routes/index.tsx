@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
@@ -156,11 +157,11 @@ export const Route = createFileRoute("/")({
         content:
           "Portal editorial sobre Alphaville, Tamboré, Barueri e Santana de Parnaíba: mercado imobiliário, condomínios, história, gastronomia e cultura de alto padrão.",
       },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: SITE_URL },
       { property: "og:image", content: heroImg },
     ],
     links: [
-      { rel: "canonical", href: "/" },
+      { rel: "canonical", href: SITE_URL },
       { rel: "preload", as: "image", href: heroImg, fetchpriority: "high" },
     ],
   }),
