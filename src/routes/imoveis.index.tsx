@@ -126,7 +126,7 @@ export const Route = createFileRoute("/imoveis/")({
   errorComponent: ({ error }) => (
     <SiteLayout>
       <section className="px-6 py-24 max-w-7xl mx-auto">
-        <p className="text-sm text-muted-foreground">Não foi possível carregar os imóveis: {error.message}</p>
+        <p className="text-sm text-muted-foreground">Não foi possível carregar os imóveis: {(error as Error).message}</p>
       </section>
     </SiteLayout>
   ),

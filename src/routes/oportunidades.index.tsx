@@ -46,7 +46,7 @@ export const Route = createFileRoute("/oportunidades/")({
   component: OpportunitiesPage,
   errorComponent: ({ error }) => (
     <SiteLayout>
-      <div className="mx-auto max-w-2xl px-6 py-24 text-sm text-red-600">{error.message}</div>
+      <div className="mx-auto max-w-2xl px-6 py-24 text-sm text-red-600">{(error as Error).message}</div>
     </SiteLayout>
   ),
 });

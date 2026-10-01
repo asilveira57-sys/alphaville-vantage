@@ -48,7 +48,7 @@ export const Route = createFileRoute("/guia-de-ruas-alphaville/")({
     }],
   }),
   errorComponent: ({ error }) => (
-    <SiteLayout><section className="px-6 py-24 max-w-3xl mx-auto"><p className="text-sm">{error.message}</p></section></SiteLayout>
+    <SiteLayout><section className="px-6 py-24 max-w-3xl mx-auto"><p className="text-sm">{(error as Error).message}</p></section></SiteLayout>
   ),
   notFoundComponent: () => null,
   component: StreetGuidesHub,

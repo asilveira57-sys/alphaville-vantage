@@ -28,9 +28,9 @@ export const Route = createFileRoute("/_authenticated/admin-oportunidades")({
     <div className="mx-auto max-w-xl px-6 py-20">
       <h1 className="font-display text-2xl">Não foi possível abrir a vitrine</h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        {error.message === "Forbidden"
+        {(error as Error).message === "Forbidden"
           ? "Sua sessão não tem permissão de editor. Saia e entre novamente com a conta administradora."
-          : error.message}
+          : (error as Error).message}
       </p>
       <Link to={"/auth" as never} className="mt-6 inline-block text-sm underline">
         Ir para o login
