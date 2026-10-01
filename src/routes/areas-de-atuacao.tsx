@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/areas-de-atuacao";
+const URL = `${SITE_URL}/areas-de-atuacao`;
 const TITLE = "Áreas de Atuação — S.A Imóveis Alphaville";
 const DESC =
   "Onde atuamos: Alphaville, Tamboré, Barueri e Santana de Parnaíba. Cobertura completa de condomínios residenciais, empresariais e comerciais.";

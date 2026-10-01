@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/politica-de-atendimento";
+const URL = `${SITE_URL}/politica-de-atendimento`;
 const TITLE = "Política de Atendimento — S.A Imóveis Alphaville";
 const DESC =
   "Prazos de resposta, canais oficiais, horários e compromissos de qualidade do atendimento da S.A Imóveis Alphaville.";

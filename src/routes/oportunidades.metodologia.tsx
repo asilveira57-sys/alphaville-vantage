@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
@@ -7,7 +8,7 @@ import {
   COMPARABLE_MAX_AGE_MONTHS,
 } from "@/lib/opportunity-valuation";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
+const SITE_URL = `${SITE_URL}`;
 
 const TITLE = "Metodologia da Vitrine de Oportunidades — S.A Imóveis Alphaville";
 const DESCRIPTION =

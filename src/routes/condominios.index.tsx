@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -7,7 +8,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { PremiumCondoCard } from "@/components/premium-cards/condo-card";
 import { listPublishedByType } from "@/lib/editorial.functions";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
+const SITE_URL = `${SITE_URL}`;
 
 const condosQO = queryOptions({
   queryKey: ["editorial", "condominio"],

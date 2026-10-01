@@ -11,7 +11,7 @@
 export const BRAND = {
   name: "S.A Imóveis Alphaville",
   site: "https://saimoveisalphaville.com.br",
-  portal: "https://alphaville-vantage.lovable.app",
+  portal: `${SITE_URL}`,
   whatsapp: "5511995515053",
 
   /** TODO: preencher com o CRECI real da imobiliária, no formato "CRECI 00000-J". */

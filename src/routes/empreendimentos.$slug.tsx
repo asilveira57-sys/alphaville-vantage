@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
@@ -6,7 +7,7 @@ import { getEditorialBySlug } from "@/lib/editorial.functions";
 import { getDevelopmentPartnerForEmpreendimento } from "@/lib/development-partners.functions";
 import { EditorialDevelopmentPage } from "@/components/empreendimentos/editorial-development-page";
 
-const SITE = "https://alphaville-vantage.lovable.app";
+const SITE = `${SITE_URL}`;
 
 const DEVELOPMENTS: Record<
   string,

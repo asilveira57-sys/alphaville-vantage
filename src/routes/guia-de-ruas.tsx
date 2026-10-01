@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -8,7 +9,7 @@ import { PremiumCard } from "@/components/premium-card";
 import { listPublishedStreets, type StreetListItem } from "@/lib/streets.functions";
 import { listPublishedStreetGuides, type StreetGuideListItem } from "@/lib/street-guides.functions";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
+const SITE_URL = `${SITE_URL}`;
 
 const streetsQO = queryOptions({
   queryKey: ["ruas", "published"],

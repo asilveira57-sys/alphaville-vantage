@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { getRedirectFor } from "@/lib/seo.functions";
 import { SiteLayout } from "@/components/site-layout";
@@ -16,7 +17,7 @@ import {
 } from "@/lib/opportunities.functions";
 import { useEffect, useRef } from "react";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
+const SITE_URL = `${SITE_URL}`;
 
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) &&

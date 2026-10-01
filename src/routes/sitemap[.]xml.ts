@@ -1,9 +1,10 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetch-all";
 
-const BASE_URL = "https://alphaville-vantage.lovable.app";
+const BASE_URL = `${SITE_URL}`;
 
 interface SitemapEntry {
   path: string;

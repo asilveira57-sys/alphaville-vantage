@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
@@ -8,7 +9,7 @@ import {
   findPropertiesNearStreet,
 } from "@/lib/street-guides.functions";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
+const SITE_URL = `${SITE_URL}`;
 
 const viaLabelOf = (v: string) =>
   v === "alameda" ? "Alameda"

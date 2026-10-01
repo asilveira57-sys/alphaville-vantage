@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/perguntas-frequentes";
+const URL = `${SITE_URL}/perguntas-frequentes`;
 const TITLE = "Perguntas Frequentes — S.A Imóveis Alphaville";
 const DESC =
   "Tire dúvidas sobre locação, venda, permuta, administração, reforma, documentação, contratos, condomínios e mercado imobiliário em Alphaville e região.";

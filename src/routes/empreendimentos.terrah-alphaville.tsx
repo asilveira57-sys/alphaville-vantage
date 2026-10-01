@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, Building2, MapPin, CalendarClock, Ruler, Car, HardHat, BedDouble } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
@@ -7,7 +8,7 @@ import { EmpreendimentoCoverImage } from "@/components/empreendimentos/cover-ima
 import { EmpreendimentoPlansBlock } from "@/components/empreendimentos/plans-block";
 import { TerrahLeadForm } from "@/components/partners/terrah-lead-form";
 
-const SITE = "https://alphaville-vantage.lovable.app";
+const SITE = `${SITE_URL}`;
 const URL = `${SITE}/empreendimentos/terrah-alphaville`;
 const TITLE = "Terrah Alphaville: plantas de 240 m² a 815 m²";
 const DESC =

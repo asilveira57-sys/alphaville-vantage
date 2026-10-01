@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/transparencia";
+const URL = `${SITE_URL}/transparencia`;
 const TITLE = "Transparência — S.A Imóveis Alphaville";
 const DESC =
   "Compromissos éticos, proteção de dados, confiabilidade das informações e relacionamento aberto com clientes e comunidade.";

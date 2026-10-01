@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Building2, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
@@ -9,7 +10,7 @@ import {
   listPartnerEmpreendimentos,
 } from "@/lib/development-partners.functions";
 
-const URL = "https://alphaville-vantage.lovable.app/parceiros/mpd";
+const URL = `${SITE_URL}/parceiros/mpd`;
 const TITLE = "MPD Alphaville: empreendimentos e imóveis disponíveis";
 const DESC =
   "Veja empreendimentos da MPD em Alphaville, consulte lançamentos, unidades prontas e oportunidades com a equipe da S.A. Imóveis.";

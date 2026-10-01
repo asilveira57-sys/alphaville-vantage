@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/termos-de-uso";
+const URL = `${SITE_URL}/termos-de-uso`;
 const TITLE = "Termos de Uso — S.A Imóveis Alphaville";
 const DESC =
   "Termos e condições de uso do portal da S.A Imóveis Alphaville: responsabilidades, direitos autorais, limitações, links externos e legislação aplicável.";

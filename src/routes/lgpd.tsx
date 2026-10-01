@@ -1,7 +1,8 @@
+import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
 
-const URL = "https://alphaville-vantage.lovable.app/lgpd";
+const URL = `${SITE_URL}/lgpd`;
 const TITLE = "LGPD — Direitos do Titular | S.A Imóveis Alphaville";
 const DESC =
   "Central LGPD da S.A Imóveis Alphaville: exerça seus direitos de acesso, correção, portabilidade, anonimização e exclusão de dados pessoais.";
