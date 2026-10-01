@@ -33,7 +33,8 @@ export async function submitIndexNow(
   let firstError: string | undefined;
   let sent = 0;
 
-  const keyLocation = `https://${host}/api/public/indexnow-key.txt`;
+  // A chave precisa ficar na raiz: o IndexNow só aceita URLs abaixo da pasta do arquivo-chave.
+  const keyLocation = `https://${host}/${key}.txt`;
 
   for (const batch of batches) {
     try {

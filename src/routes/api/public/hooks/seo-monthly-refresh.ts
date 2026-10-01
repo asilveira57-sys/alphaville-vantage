@@ -3,8 +3,8 @@ import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { submitIndexNow } from "@/lib/indexnow.server";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
-const SITE_HOST = "alphaville-vantage.lovable.app";
+const SITE_URL = "https://portal.saimoveisalphaville.com.br";
+const SITE_HOST = "portal.saimoveisalphaville.com.br";
 
 const STATIC_ROUTES = [
   "/", "/blog", "/alphaville", "/guia-alphaville", "/guia-tambore",

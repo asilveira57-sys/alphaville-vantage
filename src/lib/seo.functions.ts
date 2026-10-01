@@ -5,8 +5,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { submitIndexNow } from "./indexnow.server";
 import { fetchAllRows } from "./fetch-all";
 
-const SITE_URL = "https://alphaville-vantage.lovable.app";
-const SITE_HOST = "alphaville-vantage.lovable.app";
+const SITE_URL = "https://portal.saimoveisalphaville.com.br";
+const SITE_HOST = "portal.saimoveisalphaville.com.br";
 
 // Rotas institucionais fixas (mesmo conjunto do sitemap)
 const STATIC_ROUTES = [
