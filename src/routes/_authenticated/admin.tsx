@@ -353,8 +353,17 @@ function AdminPage() {
               <Link to="/audit" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
                 Abrir auditoria →
               </Link>
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={exporting}
+                className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas disabled:opacity-50"
+              >
+                {exporting ? "Exportando…" : "Exportar imóveis (CSV)"}
+              </button>
             </div>
           )}
+          {exportError && <p className="text-xs text-red-600 mb-3">Erro na exportação: {exportError}</p>}
           {scrapeMut.error && <p className="text-xs text-red-600 mb-3">{(scrapeMut.error as Error).message}</p>}
           {scrapeMut.isPending && scrapeProgress && (
             <p className="text-xs text-muted-foreground mb-3">
