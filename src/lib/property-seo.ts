@@ -298,7 +298,7 @@ export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): st
   const nb = s.neighborhood ? cap(s.neighborhood) : null;
 
   const locBits: string[] = [];
-  if (condo) locBits.push(`no ${condoPhrase(condo)}`);
+  if (condo) locBits.push(`no ${condoPhrase(cap(condo))}`);
   if (nb && nb.toLowerCase() !== (condo ?? "").toLowerCase()) locBits.push(condo ? `bairro ${nb}` : `em ${nb}`);
   if (city) locBits.push(`em ${city}${s.state ? `/${s.state}` : ""}`);
   const loc = locBits.join(", ");
