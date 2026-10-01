@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 /**
  * Dados institucionais que precisam aparecer em material publicitário.
  *
