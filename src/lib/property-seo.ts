@@ -117,7 +117,9 @@ function truncateWords(text: string, max: number): string {
   if (text.length <= max) return text;
   const clipped = text.slice(0, max + 1);
   const boundary = clipped.lastIndexOf(" ");
-  return (boundary > 0 ? clipped.slice(0, boundary) : text.slice(0, max)).replace(/[,:;–-]+$/g, "").trim();
+  let out = (boundary > 0 ? clipped.slice(0, boundary) : text.slice(0, max)).replace(/[,:;–-]+$/g, "").trim();
+  if ((out.match(/\(/g)?.length ?? 0) > (out.match(/\)/g)?.length ?? 0)) out = out.replace(/\s*\([^)]*$/, "");
+  return out.replace(/[,:;–-]+$/g, "").trim();
 }
 
 /** Mantém o código no SEO mesmo quando o título factual precisa ser resumido. */
