@@ -8,7 +8,7 @@ import { checkIsAdmin, grantSelfAdminIfFirst } from "@/lib/admin.functions";
 import { generatePostWithAI } from "@/lib/blog.functions";
 import { listEditorialPages } from "@/lib/editorial.functions";
 import { runScraper, listScraperRuns } from "@/lib/scraper.functions";
-import { reprocessProperties, getScrapAudit } from "@/lib/property-review.functions";
+import { reprocessProperties, getScrapAudit, exportPropertiesCsv } from "@/lib/property-review.functions";
 import { regenerateSeo } from "@/lib/property-seo.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -28,6 +28,28 @@ function AdminPage() {
   const reprocessFn = useServerFn(reprocessProperties);
   const auditFn = useServerFn(getScrapAudit);
   const seoFn = useServerFn(regenerateSeo);
+  const exportFn = useServerFn(exportPropertiesCsv);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const handleExport = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const res = await exportFn();
+      const day = new Date().toISOString().slice(0, 10);
+      const blob = new Blob([res.csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `imoveis-portal-${day}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : "Falha ao exportar imóveis");
+    } finally {
+      setExporting(false);
+    }
+  };
   const [seoUseAI, setSeoUseAI] = useState(false);
   const [postsPage, setPostsPage] = useState(1);
   const [postsSearch, setPostsSearch] = useState("");
@@ -331,8 +353,17 @@ function AdminPage() {
               <Link to="/audit" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
                 Abrir auditoria →
               </Link>
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={exporting}
+                className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas disabled:opacity-50"
+              >
+                {exporting ? "Exportando…" : "Exportar imóveis (CSV)"}
+              </button>
             </div>
           )}
+          {exportError && <p className="text-xs text-red-600 mb-3">Erro na exportação: {exportError}</p>}
           {scrapeMut.error && <p className="text-xs text-red-600 mb-3">{(scrapeMut.error as Error).message}</p>}
           {scrapeMut.isPending && scrapeProgress && (
             <p className="text-xs text-muted-foreground mb-3">
