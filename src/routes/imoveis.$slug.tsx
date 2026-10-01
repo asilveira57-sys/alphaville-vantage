@@ -1,4 +1,5 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+import { getRedirectFor } from "@/lib/seo.functions";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PropertyGallery } from "@/components/property-gallery";
@@ -33,6 +34,13 @@ async function fetchProperty(slug: string) {
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(error.message);
+  if (!data || data.status !== "active") {
+    // Endereços antigos (slug trocado/duplicado desativado) respondem 301.
+    const r = await getRedirectFor({ data: { path: `/imoveis/${slug}` } }).catch(() => null);
+    if (r?.new_url && r.new_url !== `/imoveis/${slug}`) {
+      throw redirect({ href: r.new_url, statusCode: r.redirect_type === 302 ? 302 : 301 });
+    }
+  }
   if (!data) throw notFound();
 
   // Veja também: até 3 imóveis no mesmo bairro/tipo, excluindo o atual.

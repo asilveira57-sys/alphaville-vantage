@@ -184,15 +184,18 @@ export function buildSeoSlug(s: SeoSource, externalRef?: string | null): string 
   return `${base}${tail}`.slice(0, 140).replace(/-+$/g, "");
 }
 
-/** seo_title: até 65 chars antes da marca. Se passar, corta primeiro o código, depois o bairro.
- *  Nunca corta condomínio nem área. */
+/** seo_title: alvo ~65 chars. Ordem de corte: marca → bairro → "venda e locação".
+ *  Nunca corta condomínio, área nem código (unicidade vale mais que tamanho). */
 export function buildSeoTitle(s: SeoSource): string {
   const p = headingParts(s);
   const code = extractPropertyCode(s);
   const suffix = code ? ` – Cód. ${code}` : "";
-  const candidates = [joinHeading(p, true) + suffix, joinHeading(p, true), joinHeading(p, false)];
-  const pick = candidates.find((c) => c.length <= 65) ?? candidates[candidates.length - 1];
-  return `${pick.replace(/\s+/g, " ").trim()} | S.A Imóveis`;
+  const norm = (t: string) => t.replace(/\s+/g, " ").trim();
+  const full = norm(joinHeading(p, true) + suffix);
+  const noNb = norm(joinHeading(p, false) + suffix);
+  const compact = noNb.replace("para venda ou locação", "venda e locação");
+  const candidates = [`${full} | S.A Imóveis`, full, noNb, compact];
+  return candidates.find((c) => c.length <= 65) ?? compact;
 }
 
 export function buildSeoDescription(s: SeoSource): string {
