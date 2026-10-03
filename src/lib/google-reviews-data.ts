@@ -19,7 +19,7 @@ export const WRITE_REVIEW_URL = MAPS_URL.replace(
 /** Nota geral exibida na seção. Atualize manualmente. */
 export const GOOGLE_RATING = 5.0;
 /** Quantidade total de avaliações no Google. Atualize manualmente. */
-export const GOOGLE_TOTAL_REVIEWS = 79;
+export const GOOGLE_TOTAL_REVIEWS = 114;
 
 /**
  * Avaliações reais publicadas no Google, cadastradas manualmente (máx. 6).
@@ -27,45 +27,45 @@ export const GOOGLE_TOTAL_REVIEWS = 79;
  */
 export const GOOGLE_REVIEWS: GoogleReview[] = [
   {
-    id: "igor-teixeira",
-    authorName: "Igor Teixeira",
-    rating: 5,
-    date: "2 meses atrás",
-    text: "João me mostrou muitas casa maravilhosas , hoje moro em uma com minha família, certamente uma parte do paraíso !\nSuper indico",
-  },
-  {
-    id: "beatriz-nunes",
-    authorName: "Beatriz nunes",
-    rating: 5,
-    date: "2 meses atrás",
-    text: "Fui muito bem atendida! A equipe é super educada, paciente e realmente se preocupa em ajudar. Tornaram todo o processo muito mais tranquilo. Gratidão!",
-  },
-  {
-    id: "alexandre-silveira",
-    authorName: "Alexandre Silveira",
+    id: "rodrigo-oliveira",
+    authorName: "Rodrigo Oliveira",
     rating: 5,
     date: "um mês atrás",
-    text: "Atendimento Nota 1000. Resolveram minha vida aqui no Green Valley",
+    text: "Tivemos uma ótima experiência com a S.A Imóveis. Foram atenciosos e ágeis na negociação e muito transparentes.",
   },
   {
-    id: "vera-melega",
-    authorName: "Vera Melega",
+    id: "rodrigo-alonso",
+    authorName: "Rodrigo Alonso",
     rating: 5,
-    date: "2 meses atrás",
-    text: "São muito pró ativos, conhecem bem a região e são confiáveis garantindo segurança na transação imobiliária.",
+    date: "um mês atrás",
+    text: "Super recomendo, muitos anos no mercado e super dedicados. Ótimas oportunidades.",
   },
   {
-    id: "carlos-lopes",
-    authorName: "Carlos Lopes",
+    id: "bianca-vilela",
+    authorName: "Bianca Vilela",
     rating: 5,
-    date: "2 meses atrás",
-    text: "Excelente. Profissionais de alta qualidade com atendimento impecável!",
+    date: "um mês atrás",
+    text: "Melhor atendimento!!! Recomendo",
   },
   {
-    id: "kelen-dotto",
-    authorName: "Kelen Dotto",
+    id: "andreza-silva",
+    authorName: "Andreza Silva",
     rating: 5,
-    date: "2 meses atrás",
-    text: "Excelentes corretores.\nImobiliária muito profissional e competente.",
+    date: "um mês atrás",
+    text: "Excelente atendimento! Todos são muito prestativos e atenciosos. Quero destacar especialmente o João e o Gustavo, que são extremamente profissionais, educados e sempre dispostos a ajudar. Recomendo muito a imobiliária! 👏",
+  },
+  {
+    id: "klelia-morais",
+    authorName: "Klélia Maria Morais de Oliveira",
+    rating: 5,
+    date: "um mês atrás",
+    text: "Fiquei super feliz com o atendimento na imobiliária S.A Imóveis Alphaville através do serviço prestado pelos senhores João Carvalho e Milton. Muita segurança, seriedade, transparência e confiança desde o início até o final da negociação. Uma imobiliária com várias opções e bons apartamentos com boa flexibilidade na negociação.",
+  },
+  {
+    id: "bruno-pires",
+    authorName: "Bruno Pires",
+    rating: 5,
+    date: "um mês atrás",
+    text: "Excelente atendimento, profissionais preparados e acima de tudo com muito conhecimento sobre Alphaville, já aluguei apartamento com eles e também tive a experiência de realizar uma compra e tudo ocorreu 100% bem.",
   },
 ];
