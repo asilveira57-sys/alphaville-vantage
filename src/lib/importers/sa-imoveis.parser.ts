@@ -3,7 +3,8 @@
 
 import { parsePropertyText } from "../property-parser";
 import type { ParserResult, RawListing } from "./types";
-import { parseArea, parseMoney, splitStreetNumber } from "./normalize";
+import { splitStreetNumber } from "./normalize";
+import { extractSaFicha } from "./sa-ficha";
 
 export const SA_DOMAINS = ["saimoveisalphaville.com.br", "www.saimoveisalphaville.com.br"];
 
@@ -22,16 +23,6 @@ const CONDO_FEATURES_VOCAB = [
 
 function norm(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-
-function stripTags(input: string): string {
-  return input.replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 function pickMeta(html: string, prop: string): string | null {
@@ -107,11 +98,6 @@ function extractImages(html: string, base: string): string[] {
 function matchVocab(text: string, vocab: string[]): string[] {
   const n = norm(text);
   return vocab.filter((v) => n.includes(norm(v)));
-}
-
-function pickLabeled(text: string, label: RegExp): string | null {
-  const m = text.match(label);
-  return m ? m[1].trim() : null;
 }
 
 export function parseSaImoveis(html: string, url: string): ParserResult {
@@ -224,6 +210,8 @@ export function parseSaImoveis(html: string, url: string): ParserResult {
       htmlLength: html.length,
       imagesFound: images.length,
       fieldsNotFound: notFound,
+      fichaFound: ficha.found,
+      iptuPeriod: ficha.iptuPeriod,
     },
   };
 }
