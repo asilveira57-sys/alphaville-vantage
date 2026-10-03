@@ -1357,6 +1357,7 @@ export type Database = {
           seo_title: string | null
           seo_used_ai: boolean | null
           slug: string
+          source_id: string | null
           source_url: string | null
           state: string | null
           status: string
@@ -1425,6 +1426,7 @@ export type Database = {
           seo_title?: string | null
           seo_used_ai?: boolean | null
           slug: string
+          source_id?: string | null
           source_url?: string | null
           state?: string | null
           status?: string
@@ -1493,6 +1495,7 @@ export type Database = {
           seo_title?: string | null
           seo_used_ai?: boolean | null
           slug?: string
+          source_id?: string | null
           source_url?: string | null
           state?: string | null
           status?: string
