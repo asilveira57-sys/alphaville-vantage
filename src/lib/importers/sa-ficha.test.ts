@@ -61,6 +61,6 @@ describe("detectCondoFromTitle — rejeita palavras de interface", () => {
     expect(parsePropertyText({ title: "condomínio Valor Dormitórios" }).condominium_name).toBeNull();
   });
   it("aceita nome real", () => {
-    expect(parsePropertyText({ title: "Casa no Condomínio Morada dos Lagos" }).condominium_name).toBe("Condomínio Morada dos Lagos");
+    expect(parsePropertyText({ title: "Casa no Condomínio Vila Solaris" }).condominium_name).toBe("Condomínio Vila Solaris");
   });
 });
