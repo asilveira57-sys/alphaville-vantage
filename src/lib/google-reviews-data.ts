@@ -17,7 +17,7 @@ export const WRITE_REVIEW_URL = MAPS_URL.replace(
 );
 
 /** Nota geral exibida na seção. Atualize manualmente. */
-export const GOOGLE_RATING = 4.9;
+export const GOOGLE_RATING = 5.0;
 /** Quantidade total de avaliações no Google. Atualize manualmente. */
 export const GOOGLE_TOTAL_REVIEWS = 79;
 
