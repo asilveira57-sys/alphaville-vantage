@@ -9,7 +9,7 @@ export const RECRAWL_FIELDS = [
   "condo_fee", "iptu",
 ] as const;
 export type RecrawlField = (typeof RECRAWL_FIELDS)[number];
-export type FieldChange = { field: RecrawlField; before: unknown; after: unknown };
+export type FieldChange = { field: RecrawlField; before: string | number | null; after: string | number | null };
 
 export function fichaToFacts(f: SaFicha): Partial<Record<RecrawlField, unknown>> {
   const purpose = f.priceSale && f.priceRent ? "both" : f.priceRent ? "rent" : f.priceSale ? "sale" : null;
@@ -45,7 +45,7 @@ export function diffRecrawl(db: Record<string, unknown>, f: SaFicha): { changes:
     const before = db[field] ?? null;
     if (same(before, after)) continue;
     if (overrides[field] !== undefined) { skippedOverrides.push(field); continue; }
-    changes.push({ field, before, after });
+    changes.push({ field, before: before as string | number | null, after: after as string | number | null });
   }
   return { changes, skippedOverrides };
 }
