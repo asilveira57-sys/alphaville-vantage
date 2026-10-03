@@ -100,16 +100,23 @@ function detectCityState(text: string): { city: string | null; state: string | n
   return { city: null, state: null };
 }
 
+// Palavras de interface (filtros, rótulos) que nunca fazem parte de nome de condomínio.
+const UI_WORDS = /\b(lan[çc]amentos?|metragem|valor(?:es)?|dormit[óo]rios?|vagas?|tipo|cidade|bairro|venda|loca[çc][ãa]o|comprar|alugar|pre[çc]o|busca|filtro)\b/i;
+
 function detectCondoFromTitle(title: string): string | null {
   const patterns = [
     /\b(Tambor[eé]\s*\d+(?:\s*Alphaville)?)/i,
     /\b(Alphaville\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+){0,3})/,
     /\b(Residencial\s+[A-ZÁÉÍÓÚÂÊÔÃ0-9][\wÀ-ÿ]*(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ0-9][\wÀ-ÿ]*){0,3})/,
-    /\b(Condom[ií]nio\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+){0,3})/i,
+    /(?<![\wÀ-ÿ])([Cc]ondom[ií]nio\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃ][\wÀ-ÿ]+){0,3})/,
   ];
   for (const re of patterns) {
     const m = title.match(re);
-    if (m) return m[1].trim().replace(/\s+/g, " ");
+    if (!m) continue;
+    const name = m[1].trim().replace(/\s+/g, " ");
+    // Na dúvida, null: qualquer palavra de interface invalida o nome.
+    if (UI_WORDS.test(name)) return null;
+    return name;
   }
   return null;
 }

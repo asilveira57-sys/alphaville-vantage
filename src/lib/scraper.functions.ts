@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parsePropertyText, computeReviewStatus } from "./property-parser";
+import { extractSaFicha } from "./importers/sa-ficha";
 import { buildSeoBody, buildSeoTitle, buildSeoDescription, buildSeoSlug, auditProperty, type SeoSource } from "./property-seo";
 import { generateOpeningWithAI } from "./property-seo.functions";
 
@@ -474,12 +475,23 @@ export const runScraper = createServerFn({ method: "POST" })
           const slug = `${slugify(title)}-${refTail}`;
 
           // Texto rico para o parser: descrição + porção visível do HTML
-          const bodyText = stripTags(html).slice(0, 8000);
-          const parsed = parsePropertyText({
-            title,
-            description: `${description}\n${bodyText}`,
-            url: item.url,
-          });
+          // Fatos SOMENTE da ficha do imóvel (nunca menu, filtros ou semelhantes).
+          const ficha = extractSaFicha(html, item.url);
+          const bodyText = ficha.descriptionText ?? "";
+          const textParsed = parsePropertyText({ title: "", description: `${description}\n${bodyText}`, url: item.url });
+          const parsed = ficha.found ? {
+            ...textParsed,
+            property_type: ficha.propertyType ?? textParsed.property_type,
+            city: ficha.city, state: ficha.state, neighborhood: ficha.neighborhood,
+            condominium_name: ficha.empreendimento,
+            bedrooms: ficha.bedrooms, suites: ficha.suites, bathrooms: ficha.bathrooms,
+            lavabos: ficha.lavabos, parking: ficha.parking,
+            area_useful: ficha.areaUseful, area_built: ficha.areaBuilt,
+            area_total: ficha.areaTotal ?? ficha.areaLand,
+            price_sale: ficha.priceSale, price_rent: ficha.priceRent,
+            condo_fee: ficha.condoFee, iptu: ficha.iptu,
+            internal_code: ficha.code,
+          } : { ...textParsed, condominium_name: null, internal_code: null };
 
           // Fallbacks de purpose pelos preços extraídos
           let finalPurpose = purpose;
@@ -646,6 +658,7 @@ export const runScraper = createServerFn({ method: "POST" })
             is_launch: applyOverride("is_launch", parsed.is_launch),
             accepts_exchange: applyOverride("accepts_exchange", parsed.accepts_exchange),
             internal_code: applyOverride("internal_code", parsed.internal_code),
+            source_id: ficha.sourceId,
             raw: { html_excerpt: html.slice(0, 4000), body_excerpt: bodyText.slice(0, 4000) },
             status: "active",
             review_status,

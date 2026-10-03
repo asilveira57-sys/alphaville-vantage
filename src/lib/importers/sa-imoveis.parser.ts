@@ -3,7 +3,8 @@
 
 import { parsePropertyText } from "../property-parser";
 import type { ParserResult, RawListing } from "./types";
-import { parseArea, parseMoney, splitStreetNumber } from "./normalize";
+import { splitStreetNumber } from "./normalize";
+import { extractSaFicha } from "./sa-ficha";
 
 export const SA_DOMAINS = ["saimoveisalphaville.com.br", "www.saimoveisalphaville.com.br"];
 
@@ -22,16 +23,6 @@ const CONDO_FEATURES_VOCAB = [
 
 function norm(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-
-function stripTags(input: string): string {
-  return input.replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 function pickMeta(html: string, prop: string): string | null {
@@ -109,22 +100,16 @@ function matchVocab(text: string, vocab: string[]): string[] {
   return vocab.filter((v) => n.includes(norm(v)));
 }
 
-function pickLabeled(text: string, label: RegExp): string | null {
-  const m = text.match(label);
-  return m ? m[1].trim() : null;
-}
-
 export function parseSaImoveis(html: string, url: string): ParserResult {
-  const text = stripTags(html);
   const ld = jsonLd(html);
   const notFound: string[] = [];
   const path = new URL(url).pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+  const ficha = extractSaFicha(html, url);
 
   const ogTitle = pickMeta(html, "og:title");
   const ogDescription = pickMeta(html, "og:description");
   const metaDescription = pickMeta(html, "description");
   const docTitle = html.match(/<title>([^<]*)<\/title>/i)?.[1]?.trim() || null;
-  const h1 = stripTags(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? "") || null;
 
   const purpose: RawListing["purpose"] =
     /^alugar$/i.test(path[0] ?? "") ? "rent"
@@ -132,92 +117,70 @@ export function parseSaImoveis(html: string, url: string): ParserResult {
         : /^(comprar|venda)$/i.test(path[0] ?? "") ? "sale"
           : null;
 
-  const descriptionBlock =
-    html.match(/<div[^>]*(?:id|class)=["'][^"']*(descricao|descrição|texto_imovel)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[2] ?? null;
-  const descriptionHtml = descriptionBlock
-    ? descriptionBlock.replace(/<(script|style|button|nav|form)[\s\S]*?<\/\1>/gi, "").trim()
-    : null;
-  const descriptionText = descriptionHtml ? stripTags(descriptionHtml) : (ogDescription ?? null);
+  // Somente a descrição do próprio imóvel (nunca a página inteira).
+  const descriptionHtml = ficha.descriptionHtml;
+  const descriptionText = ficha.descriptionText ?? ogDescription ?? null;
 
-  // Parser determinístico já existente (números, preços, áreas, tipo).
-  const parsed = parsePropertyText({
-    title: h1 ?? ogTitle ?? "",
-    description: `${descriptionText ?? ""}\n${text.slice(0, 9000)}`,
-    url,
-  });
+  // Complementos que a ficha não traz (vagas cobertas, mobiliado…) vêm só da descrição.
+  const parsed = parsePropertyText({ title: "", description: descriptionText ?? "", url });
 
-  const externalCode = /^\d+$/.test(path.at(-1) ?? "") ? path.at(-1)! : null;
+  const externalCode = ficha.sourceId;
   const cityFromPath = path[2] ? path[2].replace(/-/g, " ") : null;
   const neighborhoodFromPath = path[3] ? path[3].replace(/-/g, " ") : null;
   const stateFromPath = path[1] && /^[a-z]{2}$/i.test(path[1]) ? path[1].toUpperCase() : null;
 
-  const postalCode = text.match(/\b(\d{5}-?\d{3})\b/)?.[1] ?? null;
-  const streetRaw =
-    pickLabeled(text, /\b(?:Endere[çc]o|Logradouro)\s*:?\s*([^|•\n]{5,90})/i) ??
-    text.match(/\b((?:Alameda|Al\.|Avenida|Av\.|Rua|R\.|Estrada|Rodovia|Travessa|Pra[çc]a)\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][^,|•\n]{2,60}(?:,\s*\d{1,6})?)/)?.[1] ??
-    null;
-  const { street, number } = splitStreetNumber(streetRaw);
+  const descText = descriptionText ?? "";
+  const postalCode = descText.match(/\b(\d{5}-\d{3})\b/)?.[1] ?? null;
+  const { street, number } = splitStreetNumber(ficha.street);
+  const condominiumText = ficha.empreendimento;
 
-  const condominiumText =
-    parsed.condominium_name ??
-    pickLabeled(text, /\b(?:Condom[íi]nio|Residencial|Empreendimento)\s*:?\s*([A-Za-zÀ-ÿ0-9'´`\s\-]{3,50})/i);
-
-  const areaLand = parseArea(pickLabeled(text, /\b[ÁA]rea\s+(?:do\s+)?terreno\s*:?\s*([\d.,]+\s*m)/i));
   const prices = {
-    sale: parsed.price_sale,
-    rent: parsed.price_rent,
-    condoFee: parsed.condo_fee ?? parseMoney(pickLabeled(text, /\bCondom[íi]nio\s*:?\s*(R\$\s*[\d.,]+)/i)),
-    iptu: parsed.iptu ?? parseMoney(pickLabeled(text, /\bIPTU\s*:?\s*(R\$\s*[\d.,]+)/i)),
+    sale: ficha.found ? ficha.priceSale : parsed.price_sale,
+    rent: ficha.found ? ficha.priceRent : parsed.price_rent,
+    condoFee: ficha.found ? ficha.condoFee : parsed.condo_fee,
+    iptu: ficha.found ? ficha.iptu : parsed.iptu,
   };
 
-  const featureSource = `${descriptionText ?? ""} ${text.slice(0, 12000)}`;
+  const featureSource = `${descText} ${ficha.features.join(" ")}`;
   const features = matchVocab(featureSource, FEATURES_VOCAB);
   const condoFeatures = matchVocab(featureSource, CONDO_FEATURES_VOCAB);
-
   const images = extractImages(html, url);
+  const propertyTypeText = ficha.propertyType ?? (path[4] ? path[4].replace(/-/g, " ") : null);
 
   const listing: RawListing = {
     parser: "sa-imoveis",
     sourceLabel: "S.A. Imóveis — Site atual",
     url,
     externalCode,
-    // Só aceita código interno plausível (contém dígito); evita ruído do texto.
-    internalCode: parsed.internal_code && /\d/.test(parsed.internal_code) ? parsed.internal_code : null,
-    // Título: h1 descritivo; senão compõe com tipo + condomínio/bairro + cidade.
-    title: (h1 && h1.length > 12 ? h1 : null) ?? composeTitle(
-      parsed.property_type ?? (path[4] ? path[4].replace(/-/g, " ") : null),
-      condominiumText,
-      parsed.neighborhood ?? (path[3] ? path[3].replace(/-/g, " ") : null),
-      parsed.city ?? (path[2] ? path[2].replace(/-/g, " ") : null),
-    ) ?? h1 ?? ogTitle,
+    internalCode: ficha.code,
+    title: composeTitle(propertyTypeText, condominiumText, ficha.neighborhood ?? neighborhoodFromPath, ficha.city ?? cityFromPath) ?? ogTitle,
     descriptionHtml,
     descriptionText,
     purpose:
-      purpose ??
-      (prices.sale && prices.rent ? "both" : prices.rent ? "rent" : prices.sale ? "sale" : null),
-    propertyTypeText: parsed.property_type ?? (path[4] ? path[4].replace(/-/g, " ") : null),
+      (prices.sale && prices.rent ? "both" : prices.rent ? "rent" : prices.sale ? "sale" : null) ?? purpose,
+    propertyTypeText,
     address: {
       postalCode,
-      state: parsed.state ?? stateFromPath,
-      city: parsed.city ?? cityFromPath,
-      neighborhood: parsed.neighborhood ?? neighborhoodFromPath,
+      state: ficha.state ?? stateFromPath,
+      city: ficha.city ?? cityFromPath,
+      neighborhood: ficha.neighborhood ?? neighborhoodFromPath,
       street,
       number,
       complement: null,
       condominiumText,
     },
     areas: {
-      total: parsed.area_total,
-      built: parsed.area_built,
-      useful: parsed.area_useful,
-      land: areaLand,
+      total: ficha.areaTotal,
+      built: ficha.areaBuilt,
+      useful: ficha.areaUseful,
+      land: ficha.areaLand,
     },
     rooms: {
-      bedrooms: parsed.bedrooms,
-      suites: parsed.suites,
-      bathrooms: parsed.bathrooms,
-      lavabos: parsed.lavabos,
-      parking: parsed.parking,
+      bedrooms: ficha.bedrooms,
+      suites: ficha.suites,
+      bathrooms: ficha.bathrooms,
+      lavabos: ficha.lavabos,
+      parking: ficha.parking,
       parkingCovered: parsed.parking_covered,
       parkingUncovered: parsed.parking_uncovered,
     },
@@ -247,6 +210,8 @@ export function parseSaImoveis(html: string, url: string): ParserResult {
       htmlLength: html.length,
       imagesFound: images.length,
       fieldsNotFound: notFound,
+      fichaFound: ficha.found,
+      iptuPeriod: ficha.iptuPeriod,
     },
   };
 }
