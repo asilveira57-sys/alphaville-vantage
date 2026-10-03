@@ -81,6 +81,7 @@ import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cm
 import { Route as AuthenticatedAdminValoresRouteImport } from './routes/_authenticated/admin-valores'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
+import { Route as AuthenticatedAdminRecapturaRouteImport } from './routes/_authenticated/admin-recaptura'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminPendentesRouteImport } from './routes/_authenticated/admin-pendentes'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin-parceiros'
@@ -480,6 +481,12 @@ const AuthenticatedAdminRuasRoute = AuthenticatedAdminRuasRouteImport.update({
   path: '/admin-ruas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRecapturaRoute =
+  AuthenticatedAdminRecapturaRouteImport.update({
+    id: '/admin-recaptura',
+    path: '/admin-recaptura',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminRadarRoute = AuthenticatedAdminRadarRouteImport.update({
   id: '/admin-radar',
   path: '/admin-radar',
@@ -704,6 +711,7 @@ export interface FileRoutesByFullPath {
   '/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
+  '/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/admin-valores': typeof AuthenticatedAdminValoresRoute
@@ -800,6 +808,7 @@ export interface FileRoutesByTo {
   '/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
+  '/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -903,6 +912,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/_authenticated/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
+  '/_authenticated/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin-valores': typeof AuthenticatedAdminValoresRoute
@@ -1008,6 +1018,7 @@ export interface FileRouteTypes {
     | '/admin-parceiros'
     | '/admin-pendentes'
     | '/admin-radar'
+    | '/admin-recaptura'
     | '/admin-ruas'
     | '/admin-seo'
     | '/admin-valores'
@@ -1104,6 +1115,7 @@ export interface FileRouteTypes {
     | '/admin-parceiros'
     | '/admin-pendentes'
     | '/admin-radar'
+    | '/admin-recaptura'
     | '/admin-seo'
     | '/admin-valores'
     | '/artigos/$slug'
@@ -1206,6 +1218,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-parceiros'
     | '/_authenticated/admin-pendentes'
     | '/_authenticated/admin-radar'
+    | '/_authenticated/admin-recaptura'
     | '/_authenticated/admin-ruas'
     | '/_authenticated/admin-seo'
     | '/_authenticated/admin-valores'
@@ -1820,6 +1833,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRuasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-recaptura': {
+      id: '/_authenticated/admin-recaptura'
+      path: '/admin-recaptura'
+      fullPath: '/admin-recaptura'
+      preLoaderRoute: typeof AuthenticatedAdminRecapturaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-radar': {
       id: '/_authenticated/admin-radar'
       path: '/admin-radar'
@@ -2082,6 +2102,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
   AuthenticatedAdminPendentesRoute: typeof AuthenticatedAdminPendentesRoute
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
+  AuthenticatedAdminRecapturaRoute: typeof AuthenticatedAdminRecapturaRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminValoresRoute: typeof AuthenticatedAdminValoresRoute
@@ -2111,6 +2132,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
   AuthenticatedAdminPendentesRoute: AuthenticatedAdminPendentesRoute,
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
+  AuthenticatedAdminRecapturaRoute: AuthenticatedAdminRecapturaRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminValoresRoute: AuthenticatedAdminValoresRoute,
