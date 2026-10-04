@@ -48,17 +48,26 @@ function Page() {
     return { changed, unavailable, overrides, byField: Object.entries(byField).sort((a, b) => b[1] - a[1]) };
   }, [rows]);
 
+  function save(lines: string[], name: string) {
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${name}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+  }
   function downloadCsv() {
     const lines = ["id;url;status;campo;antes;depois"];
     for (const r of rows) {
       if (!r.changes.length) lines.push([r.id, r.url, r.status, "", "", ""].map(cell).join(";"));
       for (const c of r.changes) lines.push([r.id, r.url, r.status, c.field, c.before, c.after].map(cell).join(";"));
+      for (const v of r.reviews) lines.push([r.id, r.url, "revisar", v.field, v.reason, v.origin].map(cell).join(";"));
     }
-    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `recaptura-simulacao-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
+    save(lines, "recaptura-simulacao");
+  }
+  function downloadOverridesCsv() {
+    const lines = ["id;url;campo;valor_manual;valor_na_origem"];
+    for (const r of rows) for (const c of r.overrideConflicts) lines.push([r.id, r.url, c.field, c.manual, c.origin].map(cell).join(";"));
+    save(lines, "ajuste-manual-diferente-da-origem");
   }
 
   const shown = onlyChanged ? rows.filter((r) => r.changes.length) : rows;
@@ -76,6 +85,7 @@ function Page() {
             ? <Button variant="outline" onClick={() => { stop.current = true; }}>Parar</Button>
             : <Button onClick={run}>Rodar simulação</Button>}
           <Button variant="outline" disabled={!rows.length} onClick={downloadCsv}>Baixar CSV</Button>
+          <Button variant="outline" disabled={!rows.length} onClick={downloadOverridesCsv}>CSV ajustes manuais × origem</Button>
         </div>
       </div>
       {err && <p className="text-destructive text-sm">Erro: {err}</p>}
@@ -98,7 +108,8 @@ function Page() {
                 <td className="p-2">{r.status}</td>
                 <td className="p-2 space-y-0.5">
                   {r.changes.map((c) => <div key={c.field}><b>{c.field}</b>: {fmt(c.before)} → {fmt(c.after)}</div>)}
-                  {r.skippedOverrides.length > 0 && <div className="text-muted-foreground">Preservados (manual): {r.skippedOverrides.join(", ")}</div>}
+                  {r.overrideConflicts.map((c) => <div key={"o" + c.field} className="text-muted-foreground">Manual mantido — <b>{c.field}</b>: {fmt(c.manual)} (origem {fmt(c.origin)})</div>)}
+                  {r.reviews.map((v) => <div key={"r" + v.field} className="text-destructive">Revisar <b>{v.field}</b>: {v.reason}{v.origin ? ` (${v.origin})` : ""}</div>)}
                 </td>
               </tr>
             ))}

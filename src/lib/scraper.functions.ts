@@ -489,7 +489,7 @@ export const runScraper = createServerFn({ method: "POST" })
             area_useful: ficha.areaUseful, area_built: ficha.areaBuilt,
             area_total: ficha.areaTotal ?? ficha.areaLand,
             price_sale: ficha.priceSale, price_rent: ficha.priceRent,
-            condo_fee: ficha.condoFee, iptu: ficha.iptu,
+            condo_fee: ficha.condoFee, iptu: ficha.iptu, iptu_period: ficha.iptu != null ? ficha.iptuPeriod : null,
             internal_code: ficha.code,
           } : { ...textParsed, condominium_name: null, internal_code: null };
 

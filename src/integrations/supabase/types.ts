@@ -1328,6 +1328,7 @@ export type Database = {
           images: Json
           internal_code: string | null
           iptu: number | null
+          iptu_period: string | null
           is_launch: boolean | null
           last_seen_at: string | null
           lavabos: number | null
@@ -1397,6 +1398,7 @@ export type Database = {
           images?: Json
           internal_code?: string | null
           iptu?: number | null
+          iptu_period?: string | null
           is_launch?: boolean | null
           last_seen_at?: string | null
           lavabos?: number | null
@@ -1466,6 +1468,7 @@ export type Database = {
           images?: Json
           internal_code?: string | null
           iptu?: number | null
+          iptu_period?: string | null
           is_launch?: boolean | null
           last_seen_at?: string | null
           lavabos?: number | null
