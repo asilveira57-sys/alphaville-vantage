@@ -9,6 +9,8 @@ export type SaFicha = {
   sourceId: string | null;
   code: string | null;
   propertyType: string | null;
+  /** Texto do tipo fora da lista fixa (precisa de revisão). */
+  propertyTypeRaw: string | null;
   street: string | null;
   empreendimento: string | null;
   neighborhood: string | null;
@@ -94,12 +96,26 @@ function block(html: string, cls: string, from = 0): string | null {
 }
 
 const EMPTY: Omit<SaFicha, "sourceId"> = {
-  found: false, code: null, propertyType: null, street: null, empreendimento: null,
+  found: false, code: null, propertyType: null, propertyTypeRaw: null, street: null, empreendimento: null,
   neighborhood: null, city: null, state: null, bedrooms: null, suites: null,
   bathrooms: null, lavabos: null, parking: null, areaUseful: null, areaBuilt: null,
   areaTotal: null, areaLand: null, priceSale: null, priceRent: null, condoFee: null,
   iptu: null, iptuPeriod: null, descriptionText: null, descriptionHtml: null, features: [],
 };
+
+const TYPE_LIST: Record<string, string> = {
+  casa: "casa", apartamento: "apartamento", terreno: "terreno", galpao: "galpão", area: "área",
+  chacara: "chácara", sala: "sala", loja: "loja", predio: "prédio", cobertura: "cobertura",
+  sobrado: "sobrado", studio: "studio",
+};
+export const PROPERTY_TYPES = Object.values(TYPE_LIST);
+
+/** Tipo da lista fixa (com acento) ou null quando o texto não está na lista. */
+export function normalizePropertyType(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const k = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  return TYPE_LIST[k] ?? null;
+}
 
 export function sourceIdFromUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -115,7 +131,11 @@ export function extractSaFicha(html: string, url: string): SaFicha {
   const out: SaFicha = { ...EMPTY, features: [], sourceId, found: true };
 
   const h1 = dados.match(/<h1[^>]*class=["'][^"']*titulo[^"']*["'][^>]*>([\s\S]*?)<\/h1>/i)?.[1];
-  if (h1) out.propertyType = text(h1).toLowerCase() || null;
+  if (h1) {
+    const raw = text(h1);
+    out.propertyType = normalizePropertyType(raw);
+    if (!out.propertyType && raw) out.propertyTypeRaw = raw;
+  }
 
   const ref = dados.match(/class=["']referencia["'][\s\S]*?<span>([^<]+)<\/span>/i)?.[1];
   if (ref && /\d/.test(ref)) out.code = text(ref).toUpperCase();
@@ -138,12 +158,13 @@ export function extractSaFicha(html: string, url: string): SaFicha {
   }
 
   // Valores
-  for (const v of dados.matchAll(/<div class=["']valor["']>([\s\S]*?)<\/div>/gi)) {
+  for (const v of dados.matchAll(/<div class=["']valor\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi)) {
     const inner = v[1];
     const head = text(inner.match(/<(?:h3|small)[^>]*>([\s\S]*?)<\/(?:h3|small)>/i)?.[1] ?? "").toLowerCase();
     const value = money(text(inner));
+    if (/pacote/.test(head)) continue; // pacote (aluguel+condomínio+IPTU) nunca é o aluguel
     if (/^venda/.test(head)) out.priceSale = value;
-    else if (/^loca/.test(head)) out.priceRent = value;
+    else if (/^(loca|alug)/.test(head)) out.priceRent = value;
     else if (/^condom/.test(head)) out.condoFee = value;
     else if (/^iptu/.test(head)) {
       out.iptu = value;
@@ -152,10 +173,9 @@ export function extractSaFicha(html: string, url: string): SaFicha {
     }
   }
 
-  // Detalhes (contagens e áreas). Ausência do item na ficha = 0 (a origem omite zeros).
+  // Detalhes (contagens e áreas). Ausência do item na ficha = null (desconhecido), nunca 0.
   const det = block(dados, "detalhes");
   if (det) {
-    out.bedrooms = 0; out.suites = 0; out.bathrooms = 0; out.lavabos = 0; out.parking = 0;
     for (const d of det.matchAll(/<div class=["']detalhe["']>([\s\S]*?)<\/div>/gi)) {
       const t = text(d[1]).toLowerCase();
       let m: RegExpMatchArray | null;
