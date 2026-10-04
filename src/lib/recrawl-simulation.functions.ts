@@ -2,11 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractSaFicha } from "./importers/sa-ficha";
-import { diffRecrawl, RECRAWL_FIELDS, type FieldChange } from "./importers/recrawl-diff";
+import { diffRecrawl, RECRAWL_FIELDS, type FieldChange, type OverrideConflict, type ReviewFlag } from "./importers/recrawl-diff";
 
 export type RecrawlSimRow = {
   id: string; url: string; status: "mudaria" | "igual" | "indisponivel";
-  changes: FieldChange[]; skippedOverrides: string[];
+  changes: FieldChange[]; skippedOverrides: string[]; overrideConflicts: OverrideConflict[]; reviews: ReviewFlag[];
 };
 
 /** SIMULAÇÃO: lê a origem e compara com o banco. Não grava nada. */
@@ -34,9 +34,9 @@ export const simulateRecrawlBatch = createServerFn({ method: "POST" })
         html = res.ok ? await res.text() : "";
       } catch { /* indisponível */ }
       const f = extractSaFicha(html, url);
-      if (!f.found) return { id: String(r.id), url, status: "indisponivel", changes: [], skippedOverrides: [] };
+      if (!f.found) return { id: String(r.id), url, status: "indisponivel", changes: [], skippedOverrides: [], overrideConflicts: [], reviews: [] };
       const d = diffRecrawl(r, f);
-      return { id: String(r.id), url, status: d.changes.length ? "mudaria" : "igual", changes: d.changes, skippedOverrides: d.skippedOverrides };
+      return { id: String(r.id), url, status: d.changes.length ? "mudaria" : "igual", changes: d.changes, skippedOverrides: d.skippedOverrides, overrideConflicts: d.overrideConflicts, reviews: d.reviews };
     }));
     return { rows: out, total: count ?? 0 };
   });

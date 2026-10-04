@@ -7,7 +7,7 @@ import { buildSeoBody, buildSeoTitle, buildSeoDescription, buildInternalTitle, a
 type SB = any;
 
 export const SEO_REGEN_COLS =
-  "id,title,condominium_id,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,furnished,is_launch,accepts_exchange,internal_code,external_ref,source_url,seo_title,seo_description,descricao_seo";
+  "id,title,condominium_id,description,descricao_original,property_type,purpose,city,state,neighborhood,condominium_name,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,iptu_period,furnished,is_launch,accepts_exchange,internal_code,external_ref,source_url,seo_title,seo_description,descricao_seo";
 
 const NOT_APPLICABLE_SLUG = "nao-se-aplica";
 

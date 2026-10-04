@@ -22,6 +22,7 @@ export type SeoSource = {
   price_rent: number | null;
   condo_fee: number | null;
   iptu: number | null;
+  iptu_period?: string | null;
   furnished: boolean | null;
   is_launch: boolean | null;
   accepts_exchange: boolean | null;
@@ -299,13 +300,13 @@ export function stripMarketing(text: string): string {
  */
 /** Parágrafo determinístico de valores (P3). Fonte única da verdade. */
 export function buildValuesParagraph(
-  s: Pick<SeoSource, "price_rent" | "price_sale" | "condo_fee" | "iptu">,
+  s: Pick<SeoSource, "price_rent" | "price_sale" | "condo_fee" | "iptu" | "iptu_period">,
 ): string {
   const valBits: string[] = [];
   if (s.price_rent != null) valBits.push(`Valor da locação: ${fmtBRL(s.price_rent)}.`);
   if (s.price_sale != null) valBits.push(`Valor de venda: ${fmtBRL(s.price_sale)}.`);
   if (s.condo_fee != null) valBits.push(`Condomínio: ${fmtBRL(s.condo_fee)}.`);
-  if (s.iptu != null) valBits.push(`IPTU: ${fmtBRL(s.iptu)}.`);
+  if (s.iptu != null) valBits.push(`IPTU: ${fmtBRL(s.iptu)}${s.iptu_period === "mensal" ? "/mês" : s.iptu_period === "anual" ? "/ano" : ""}.`);
   return valBits.join(" ");
 }
 
