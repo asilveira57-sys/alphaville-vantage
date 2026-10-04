@@ -30,7 +30,7 @@ export const simulateRecrawlBatch = createServerFn({ method: "POST" })
       const url = String(r.source_url);
       let html = "";
       try {
-        const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; SAImoveisBot)" } });
+        const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36" } });
         html = res.ok ? await res.text() : "";
       } catch { /* indisponível */ }
       const f = extractSaFicha(html, url);
