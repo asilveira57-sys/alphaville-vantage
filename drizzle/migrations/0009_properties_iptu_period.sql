@@ -1,0 +1,1 @@
+ALTER TABLE public.properties ADD COLUMN IF NOT EXISTS iptu_period text CHECK (iptu_period IN ('anual','mensal'));
