@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { simulateRecrawlBatch, type RecrawlSimRow } from "@/lib/recrawl-simulation.functions";
 
 export const Route = createFileRoute("/_authenticated/admin-recaptura")({
@@ -74,6 +76,7 @@ function Page() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 space-y-6">
+      <CityReviewQueue />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <Link to="/admin" className="text-sm text-muted-foreground">← Admin</Link>
@@ -118,5 +121,27 @@ function Page() {
         {shown.length > 500 && <p className="p-2 text-xs text-muted-foreground">Mostrando 500 de {shown.length}. Baixe o CSV para ver todos.</p>}
       </div>
     </div>
+  );
+}
+
+function CityReviewQueue() {
+  const { data } = useQuery({
+    queryKey: ["city-review-queue"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("city_review_queue").select("id,raw_city,source_url,reason,created_at").is("resolved_at", null).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  return (
+    <section className="rounded border p-4">
+      <h2 className="font-semibold">Fila de revisão de cidades ({data?.length ?? 0})</h2>
+      <p className="text-xs text-muted-foreground">Cidades fora da tabela oficial. Não aparecem no filtro da busca até serem corrigidas.</p>
+      {data && data.length > 0 && (
+        <ul className="mt-2 text-sm space-y-1">
+          {data.map((r) => <li key={r.id}>{r.raw_city ?? "(vazio)"} — <a className="underline" href={r.source_url ?? "#"} target="_blank" rel="noreferrer">{r.source_url}</a></li>)}
+        </ul>
+      )}
+    </section>
   );
 }

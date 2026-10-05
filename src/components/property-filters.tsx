@@ -5,6 +5,8 @@ export type FilterOptions = {
   types: string[];
   cities: string[];
   neighborhoods: string[];
+  cityCounts?: Record<string, number>;
+  neighborhoodCounts?: Record<string, number>;
   condos: string[];
   priceMax: number;
   isRent: boolean;
@@ -143,13 +145,13 @@ export function PropertyFilters({
           <select className={selectCls} value={state.city} onChange={(e) => update({ city: e.target.value })} aria-label="Cidade">
             <option value="">Cidade — todas</option>
             {options.cities.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{options.cityCounts?.[c] != null ? `${c} (${options.cityCounts[c]})` : c}</option>
             ))}
           </select>
           <select className={selectCls} value={state.neighborhood} onChange={(e) => update({ neighborhood: e.target.value })} aria-label="Bairro">
             <option value="">Bairro — todos</option>
             {options.neighborhoods.map((b) => (
-              <option key={b} value={b}>{b}</option>
+              <option key={b} value={b}>{options.neighborhoodCounts?.[b] != null ? `${b} (${options.neighborhoodCounts[b]})` : b}</option>
             ))}
           </select>
           <button
@@ -200,7 +202,7 @@ export function PropertyFilters({
           <select className={`${selectCls} md:col-span-2`} value={state.condo} onChange={(e) => update({ condo: e.target.value })} aria-label="Condomínio">
             <option value="">Condomínio — todos</option>
             {options.condos.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{options.cityCounts?.[c] != null ? `${c} (${options.cityCounts[c]})` : c}</option>
             ))}
           </select>
           <select className={selectCls} value={state.areaMin} onChange={(e) => update({ areaMin: Number(e.target.value) })} aria-label="Área mínima">

@@ -78,6 +78,34 @@
       "when": 1791198203426,
       "tag": "0010_recrawl_patches_staging",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791198562135,
+      "tag": "0011_official_cities",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791198622499,
+      "tag": "0012_city_patches_staging",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791198690397,
+      "tag": "0013_properties_status_paused",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791198756021,
+      "tag": "0014_properties_official_city_trigger",
+      "breakpoints": true
     }
   ]
 }
