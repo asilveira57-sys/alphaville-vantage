@@ -1855,6 +1855,27 @@ export type Database = {
         }
         Relationships: []
       }
+      recrawl_patches: {
+        Row: {
+          applied_at: string | null
+          created_at: string
+          id: string
+          patch: Json
+        }
+        Insert: {
+          applied_at?: string | null
+          created_at?: string
+          id: string
+          patch: Json
+        }
+        Update: {
+          applied_at?: string | null
+          created_at?: string
+          id?: string
+          patch?: Json
+        }
+        Relationships: []
+      }
       scraper_runs: {
         Row: {
           error: string | null
