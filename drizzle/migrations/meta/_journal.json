@@ -99,6 +99,13 @@
       "when": 1791198690397,
       "tag": "0013_properties_status_paused",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791198756021,
+      "tag": "0014_properties_official_city_trigger",
+      "breakpoints": true
     }
   ]
 }
