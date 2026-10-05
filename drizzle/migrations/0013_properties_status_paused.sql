@@ -1,0 +1,2 @@
+ALTER TABLE public.properties DROP CONSTRAINT properties_status_check;
+ALTER TABLE public.properties ADD CONSTRAINT properties_status_check CHECK (status = ANY (ARRAY['active','inactive','sold','paused']));
