@@ -41,6 +41,21 @@ export type Database = {
         }
         Relationships: []
       }
+      city_patches: {
+        Row: {
+          city: string
+          id: string
+        }
+        Insert: {
+          city: string
+          id: string
+        }
+        Update: {
+          city?: string
+          id?: string
+        }
+        Relationships: []
+      }
       city_review_queue: {
         Row: {
           created_at: string
