@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      cities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          sort_priority: number
+          uf: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          sort_priority?: number
+          uf: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_priority?: number
+          uf?: string
+        }
+        Relationships: []
+      }
+      city_review_queue: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string | null
+          raw_city: string | null
+          reason: string
+          resolved_at: string | null
+          source_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id?: string | null
+          raw_city?: string | null
+          reason: string
+          resolved_at?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string | null
+          raw_city?: string | null
+          reason?: string
+          resolved_at?: string | null
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "city_review_queue_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cms_audit_log: {
         Row: {
           action: string
