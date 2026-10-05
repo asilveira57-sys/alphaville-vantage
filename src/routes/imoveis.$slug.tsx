@@ -34,7 +34,7 @@ async function fetchProperty(slug: string) {
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data || data.status !== "active") {
+  if (!data || (data.status !== "active" && data.status !== "paused")) {
     // Endereços antigos (slug trocado/duplicado desativado) respondem 301.
     const r = await getRedirectFor({ data: { path: `/imoveis/${slug}` } }).catch(() => null);
     if (r?.new_url && r.new_url !== `/imoveis/${slug}`) {
@@ -95,6 +95,8 @@ export const Route = createFileRoute("/imoveis/$slug")({
         { property: "og:type", content: "product" },
         { property: "og:url", content: url },
         ...(image ? [{ property: "og:image", content: image }] : []),
+        { name: "twitter:card", content: "summary_large_image" },
+        ...(p?.status === "paused" ? [{ name: "robots", content: "noindex, follow" }] : []),
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: jsonLd ? [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }] : [],
@@ -128,6 +130,7 @@ function fmtPurpose(v: string | null) {
 
 function fmtStatus(v: string | null) {
   if (v === "active") return "Ativo";
+  if (v === "paused") return "Indisponível";
   return v ?? null;
 }
 
@@ -167,6 +170,12 @@ function PropertyDetail() {
 
   return (
     <SiteLayout>
+      {p.status === "paused" && (
+        <div role="status" className="bg-brand-yellow text-brand-dark px-6 py-4 text-center text-sm font-semibold">
+          Imóvel indisponível — este anúncio saiu do ar. Veja abaixo imóveis semelhantes ou{" "}
+          <Link to="/imoveis" className="underline">faça uma nova busca</Link>.
+        </div>
+      )}
       <section className="px-6 pt-16 pb-12 border-b border-ink/8">
         <div className="max-w-6xl mx-auto">
           <nav aria-label="Trilha de navegação" className="mb-8">

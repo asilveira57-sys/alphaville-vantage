@@ -5,6 +5,7 @@ import { z } from "zod";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
+import { cityOrder } from "@/lib/cities";
 import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { interpretQuery, residualLocationQuery } from "@/lib/property-search";
@@ -48,7 +49,7 @@ const isUsableImg = (u: string) =>
 const WHATSAPP_NUMBER = "5511995515053";
 
 async function fetchProperties(): Promise<{ items: PropertyRow[]; options: FilterOptions }> {
-  const [data, condoRes] = await Promise.all([
+  const [data, condoRes, citiesRes] = await Promise.all([
     fetchAllRows<Record<string, unknown>>((f, t) =>
       supabase
         .from("properties")
@@ -60,7 +61,14 @@ async function fetchProperties(): Promise<{ items: PropertyRow[]; options: Filte
         .range(f, t),
     ),
     supabase.from("condominiums").select("id,name"),
+    supabase.from("cities").select("name"),
   ]);
+  const officialCities = new Set(((citiesRes.data ?? []) as { name: string }[]).map((c) => c.name));
+  const countBy = (arr: (string | null | undefined)[]) => {
+    const m: Record<string, number> = {};
+    for (const x of arr) if (x && x.trim()) m[x] = (m[x] ?? 0) + 1;
+    return m;
+  };
   const condoNames = new Map<string, string>(
     ((condoRes.data ?? []) as { id: string; name: string }[]).map((c) => [c.id, c.name]),
   );
@@ -79,8 +87,10 @@ async function fetchProperties(): Promise<{ items: PropertyRow[]; options: Filte
 
   const options: FilterOptions = {
     types: uniq(items.map((p) => p.property_type)),
-    cities: uniq(items.map((p) => p.city)),
+    cities: uniq(items.map((p) => p.city)).filter((c) => officialCities.has(c)).sort(cityOrder),
     neighborhoods: uniq(items.map((p) => p.neighborhood)),
+    cityCounts: countBy(items.map((p) => p.city)),
+    neighborhoodCounts: countBy(items.map((p) => p.neighborhood)),
     condos: officialCondos.length ? officialCondos : uniq(items.map((p) => p.condominium_name)),
 
     priceMax: Math.max(
