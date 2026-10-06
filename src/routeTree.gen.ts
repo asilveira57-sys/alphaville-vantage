@@ -50,6 +50,7 @@ import { Route as TransparenciaRouteImport } from './routes/transparencia'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
+import { Route as AuthenticatedAdminConciliacaoRouteImport } from './routes/_authenticated/admin-conciliacao'
 import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_authenticated/admin-condominios'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
@@ -112,6 +113,7 @@ import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/pub
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 import { Route as ApiPublicHooksOpportunityRevaluationRouteImport } from './routes/api/public/hooks/opportunity-revaluation'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
+import { Route as ApiPublicHooksSourceReconciliationRouteImport } from './routes/api/public/hooks/source-reconciliation'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -318,6 +320,12 @@ const AuthenticatedAdminCardsRoute = AuthenticatedAdminCardsRouteImport.update({
   path: '/admin-cards',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminConciliacaoRoute =
+  AuthenticatedAdminConciliacaoRouteImport.update({
+    id: '/admin-conciliacao',
+    path: '/admin-conciliacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCondominiosRoute =
   AuthenticatedAdminCondominiosRouteImport.update({
     id: '/admin-condominios',
@@ -656,6 +664,12 @@ const ApiPublicHooksSeoMonthlyRefreshRoute =
     path: '/api/public/hooks/seo-monthly-refresh',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksSourceReconciliationRoute =
+  ApiPublicHooksSourceReconciliationRouteImport.update({
+    id: '/api/public/hooks/source-reconciliation',
+    path: '/api/public/hooks/source-reconciliation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -698,6 +712,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
+  '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
@@ -760,6 +775,7 @@ export interface FileRoutesByFullPath {
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
+  '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -795,6 +811,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
+  '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
@@ -855,6 +872,7 @@ export interface FileRoutesByTo {
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
+  '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -899,6 +917,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
+  '/_authenticated/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/_authenticated/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
@@ -961,6 +980,7 @@ export interface FileRoutesById {
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
+  '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1005,6 +1025,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-auditoria'
     | '/admin-cards'
+    | '/admin-conciliacao'
     | '/admin-condominios'
     | '/admin-ctas'
     | '/admin-empreendimentos'
@@ -1067,6 +1088,7 @@ export interface FileRouteTypes {
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
+    | '/api/public/hooks/source-reconciliation'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1102,6 +1124,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-auditoria'
     | '/admin-cards'
+    | '/admin-conciliacao'
     | '/admin-condominios'
     | '/admin-ctas'
     | '/admin-empreendimentos'
@@ -1162,6 +1185,7 @@ export interface FileRouteTypes {
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
+    | '/api/public/hooks/source-reconciliation'
   id:
     | '__root__'
     | '/'
@@ -1205,6 +1229,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-auditoria'
     | '/_authenticated/admin-cards'
+    | '/_authenticated/admin-conciliacao'
     | '/_authenticated/admin-condominios'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-empreendimentos'
@@ -1267,6 +1292,7 @@ export interface FileRouteTypes {
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
+    | '/api/public/hooks/source-reconciliation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1325,6 +1351,7 @@ export interface RootRouteChildren {
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
   ApiPublicHooksOpportunityRevaluationRoute: typeof ApiPublicHooksOpportunityRevaluationRoute
   ApiPublicHooksSeoMonthlyRefreshRoute: typeof ApiPublicHooksSeoMonthlyRefreshRoute
+  ApiPublicHooksSourceReconciliationRoute: typeof ApiPublicHooksSourceReconciliationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1614,6 +1641,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-cards'
       fullPath: '/admin-cards'
       preLoaderRoute: typeof AuthenticatedAdminCardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-conciliacao': {
+      id: '/_authenticated/admin-conciliacao'
+      path: '/admin-conciliacao'
+      fullPath: '/admin-conciliacao'
+      preLoaderRoute: typeof AuthenticatedAdminConciliacaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-condominios': {
@@ -2050,6 +2084,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSeoMonthlyRefreshRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/source-reconciliation': {
+      id: '/api/public/hooks/source-reconciliation'
+      path: '/api/public/hooks/source-reconciliation'
+      fullPath: '/api/public/hooks/source-reconciliation'
+      preLoaderRoute: typeof ApiPublicHooksSourceReconciliationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2089,6 +2130,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
+  AuthenticatedAdminConciliacaoRoute: typeof AuthenticatedAdminConciliacaoRoute
   AuthenticatedAdminCondominiosRoute: typeof AuthenticatedAdminCondominiosRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
@@ -2117,6 +2159,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
   AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
+  AuthenticatedAdminConciliacaoRoute: AuthenticatedAdminConciliacaoRoute,
   AuthenticatedAdminCondominiosRoute: AuthenticatedAdminCondominiosRoute,
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmpreendimentosRoute:
@@ -2301,6 +2344,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksOpportunityRevaluationRoute:
     ApiPublicHooksOpportunityRevaluationRoute,
   ApiPublicHooksSeoMonthlyRefreshRoute: ApiPublicHooksSeoMonthlyRefreshRoute,
+  ApiPublicHooksSourceReconciliationRoute:
+    ApiPublicHooksSourceReconciliationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
