@@ -2088,6 +2088,90 @@ export type Database = {
         }
         Relationships: []
       }
+      source_missing: {
+        Row: {
+          first_missed_at: string
+          last_missed_at: string
+          misses: number
+          source_id: string
+        }
+        Insert: {
+          first_missed_at?: string
+          last_missed_at?: string
+          misses?: number
+          source_id: string
+        }
+        Update: {
+          first_missed_at?: string
+          last_missed_at?: string
+          misses?: number
+          source_id?: string
+        }
+        Relationships: []
+      }
+      source_reconciliation_runs: {
+        Row: {
+          details: Json
+          error: string | null
+          errors: Json
+          finished_at: string | null
+          id: string
+          imported: number
+          merged: number
+          missing_in_portal: number | null
+          origin_count: number | null
+          paths_updated: number
+          paused: number
+          portal_active: number | null
+          portal_paused: number | null
+          reactivated: number
+          sitemap_count: number | null
+          started_at: string
+          status: string
+          triggered_by: string
+        }
+        Insert: {
+          details?: Json
+          error?: string | null
+          errors?: Json
+          finished_at?: string | null
+          id?: string
+          imported?: number
+          merged?: number
+          missing_in_portal?: number | null
+          origin_count?: number | null
+          paths_updated?: number
+          paused?: number
+          portal_active?: number | null
+          portal_paused?: number | null
+          reactivated?: number
+          sitemap_count?: number | null
+          started_at?: string
+          status?: string
+          triggered_by?: string
+        }
+        Update: {
+          details?: Json
+          error?: string | null
+          errors?: Json
+          finished_at?: string | null
+          id?: string
+          imported?: number
+          merged?: number
+          missing_in_portal?: number | null
+          origin_count?: number | null
+          paths_updated?: number
+          paused?: number
+          portal_active?: number | null
+          portal_paused?: number | null
+          reactivated?: number
+          sitemap_count?: number | null
+          started_at?: string
+          status?: string
+          triggered_by?: string
+        }
+        Relationships: []
+      }
       street_aliases: {
         Row: {
           alias: string

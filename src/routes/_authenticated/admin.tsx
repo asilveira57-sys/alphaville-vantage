@@ -1,3 +1,4 @@
+import { ReconciliationAlert } from "@/components/admin/reconciliation-alert";
 import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -164,6 +165,7 @@ function AdminPage() {
   return (
     <SiteLayout>
       <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
+        <ReconciliationAlert />
         <div className="flex items-end justify-between">
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Administração</p>
@@ -355,6 +357,9 @@ function AdminPage() {
               </Link>
               <Link to="/admin-recaptura" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
                 Recaptura (simulação) →
+              </Link>
+              <Link to="/admin-conciliacao" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
+                Conciliação diária →
               </Link>
               <button
                 type="button"
