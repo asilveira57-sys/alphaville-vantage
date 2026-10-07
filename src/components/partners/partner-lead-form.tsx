@@ -60,7 +60,7 @@ export function PartnerLeadForm({
         data: {
           lead_name: form.lead_name,
           lead_phone: form.lead_phone,
-          development: selected?.title ?? form.empreendimento_slug ?? partnerName,
+          development: selected?.title || form.empreendimento_slug || partnerName,
           goal: form.goal,
           budget: form.budget,
           partner: partnerSlug,

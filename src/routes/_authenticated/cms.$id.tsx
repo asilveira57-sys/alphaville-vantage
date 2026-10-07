@@ -688,7 +688,7 @@ function CmsEditorPage() {
                   onChange={(urls) => set("gallery_images", urls)}
                 />
               </Field>
-              {form.content_type !== "empreendimento" && <Field label="Tags (vírgula ou Enter)">
+              {<Field label={form.content_type === "empreendimento" ? "Destaques do empreendimento (vírgula ou Enter)" : "Tags (vírgula ou Enter)"}>
                 <TagsInput
                   value={form.tags}
                   onChange={(v) => set("tags", v)}

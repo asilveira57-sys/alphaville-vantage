@@ -6,6 +6,7 @@ export type FilterOptions = {
   cities: string[];
   neighborhoods: string[];
   cityCounts?: Record<string, number>;
+  condoCounts?: Record<string, number>;
   neighborhoodCounts?: Record<string, number>;
   condos: string[];
   priceMax: number;
@@ -202,7 +203,7 @@ export function PropertyFilters({
           <select className={`${selectCls} md:col-span-2`} value={state.condo} onChange={(e) => update({ condo: e.target.value })} aria-label="Condomínio">
             <option value="">Condomínio — todos</option>
             {options.condos.map((c) => (
-              <option key={c} value={c}>{options.cityCounts?.[c] != null ? `${c} (${options.cityCounts[c]})` : c}</option>
+              <option key={c} value={c}>{options.condoCounts?.[c] != null ? `${c} (${options.condoCounts[c]})` : c}</option>
             ))}
           </select>
           <select className={selectCls} value={state.areaMin} onChange={(e) => update({ areaMin: Number(e.target.value) })} aria-label="Área mínima">

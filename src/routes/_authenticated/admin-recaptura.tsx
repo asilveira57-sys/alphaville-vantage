@@ -72,7 +72,7 @@ function Page() {
     save(lines, "ajuste-manual-diferente-da-origem");
   }
 
-  const shown = onlyChanged ? rows.filter((r) => r.changes.length) : rows;
+  const shown = onlyChanged ? rows.filter((r) => r.changes.length || r.reviews.length) : rows;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 space-y-6">
@@ -94,11 +94,11 @@ function Page() {
       {err && <p className="text-destructive text-sm">Erro: {err}</p>}
       {rows.length > 0 && (
         <div className="rounded-lg border p-4 text-sm space-y-2">
-          <p>Lidos {rows.length}{total ? ` de ${total}` : ""}{running ? " (rodando…)" : ""} · Mudariam: <b>{summary.changed}</b> · Indisponíveis na origem: {summary.unavailable} · Ajustes manuais preservados: {summary.overrides}</p>
+          <p>Lidos {rows.length}{total ? ` de ${total}` : ""}{running ? " (rodando…)" : ""} · Mudariam: <b>{summary.changed}</b> · Indisponíveis na origem: {summary.unavailable} · Ajustes manuais preservados: {summary.overrides} · Revisar: <b>{rows.filter((r) => r.reviews.length).length}</b></p>
           <div className="flex flex-wrap gap-2">
             {summary.byField.map(([f, n]) => <span key={f} className="rounded bg-muted px-2 py-0.5">{f}: {n}</span>)}
           </div>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={onlyChanged} onChange={(e) => setOnlyChanged(e.target.checked)} /> Só imóveis que mudariam</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={onlyChanged} onChange={(e) => setOnlyChanged(e.target.checked)} /> Só imóveis que mudariam ou para revisar</label>
         </div>
       )}
       <div className="overflow-x-auto rounded-lg border">

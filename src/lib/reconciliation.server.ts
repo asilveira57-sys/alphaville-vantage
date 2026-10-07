@@ -268,6 +268,7 @@ export async function runReconciliation(sb: SB, opts: RunOptions) {
     const changed = new Set<string>(m.changedUrls);
 
     const portalSids = new Set<string>();
+    const foundSids: string[] = [];
     let paused = 0, reactivated = 0;
     const now = new Date().toISOString();
     for (const r of rows) {
@@ -276,7 +277,7 @@ export async function runReconciliation(sb: SB, opts: RunOptions) {
       portalSids.add(sid);
       const inOrigin = origin.has(sid);
       if (inOrigin) {
-        await sb.from("source_missing").delete().eq("source_id", sid);
+        foundSids.push(sid);
         if (r.status === "paused") {
           const url = pickPath(origin.get(sid)!);
           if (await openOriginPage(url)) {
@@ -295,6 +296,10 @@ export async function runReconciliation(sb: SB, opts: RunOptions) {
       if (stillThere) continue;
       await sb.from("properties").update({ status: "paused" }).eq("id", r.id);
       paused++; changed.add(propUrl(r.slug));
+    }
+
+    for (let i = 0; i < foundSids.length; i += 200) {
+      await sb.from("source_missing").delete().in("source_id", foundSids.slice(i, i + 200));
     }
 
     const missing = [...origin.entries()].filter(([sid]) => !portalSids.has(sid)).map(([, urls]) => pickPath(urls))

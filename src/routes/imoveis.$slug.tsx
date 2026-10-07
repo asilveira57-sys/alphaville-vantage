@@ -169,7 +169,7 @@ function PropertyDetail() {
   }, [p.id]);
 
   return (
-    <SiteLayout>
+    <SiteLayout mobileBottomSpace>
       {p.status === "paused" && (
         <div role="status" className="bg-brand-yellow text-brand-dark px-6 py-4 text-center text-sm font-semibold">
           Imóvel indisponível — este anúncio saiu do ar. Veja abaixo imóveis semelhantes ou{" "}
@@ -310,7 +310,6 @@ function PropertyDetail() {
       <InstitutionalBlock />
 
       {/* Contato fixo no rodapé da tela — apenas no celular */}
-      <div className="md:hidden h-20" aria-hidden />
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0D0D0D] text-white border-t border-white/10 px-4 py-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
           <p className="text-[9px] uppercase tracking-[0.2em] text-white/50">

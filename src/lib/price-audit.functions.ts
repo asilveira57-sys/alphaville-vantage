@@ -547,7 +547,7 @@ export const editarValoresImovel = createServerFn({ method: "POST" })
         .order("created_at", { ascending: false })
         .limit(1);
       const a = audits?.[0];
-      if (!a) continue;
+      if (!a || a.status === "correto") continue;
       const found = a.found_value as number | null;
       const num = typeof value === "number" ? value : null;
       const resolvido =
@@ -559,7 +559,7 @@ export const editarValoresImovel = createServerFn({ method: "POST" })
           current_value: num,
           ratio,
           ...(resolvido
-            ? { status: "ok", applied: true, applied_at: new Date().toISOString(), applied_by: context.userId }
+            ? { applied: true, applied_at: new Date().toISOString(), applied_by: context.userId }
             : {}),
         })
         .eq("id", a.id);
@@ -758,7 +758,7 @@ export const aplicarDivergenciasMecanicas = createServerFn({ method: "POST" })
 
       await supabaseAdmin
         .from("property_price_audit")
-        .update({ applied: true, applied_at: new Date().toISOString(), applied_by: context.userId })
+        .update({ applied: true, current_value: r.found_value, ratio: 1, applied_at: new Date().toISOString(), applied_by: context.userId })
         .eq("id", r.id);
 
       await supabaseAdmin.from("cms_audit_log").insert({

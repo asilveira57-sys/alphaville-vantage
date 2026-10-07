@@ -152,6 +152,17 @@ export const upsertDevelopmentPartner = createServerFn({ method: "POST" })
       if (error.code === "23505") throw new Error("Já existe um parceiro com esse endereço (slug).");
       throw new Error(error.message);
     }
+    // Vínculo exclusivo: remove esses empreendimentos das outras incorporadoras.
+    if (data.empreendimento_slugs.length) {
+      const { data: others } = await context.supabase.from("development_partners")
+        .select("id,empreendimento_slugs").neq("slug", slug);
+      for (const o of others ?? []) {
+        const kept = (o.empreendimento_slugs ?? []).filter((s: string) => !data.empreendimento_slugs.includes(s));
+        if (kept.length !== (o.empreendimento_slugs ?? []).length) {
+          await context.supabase.from("development_partners").update({ empreendimento_slugs: kept }).eq("id", o.id);
+        }
+      }
+    }
     return { ok: true, slug } as const;
   });
 

@@ -91,6 +91,7 @@ async function fetchProperties(): Promise<{ items: PropertyRow[]; options: Filte
     neighborhoods: uniq(items.map((p) => p.neighborhood)),
     cityCounts: countBy(items.map((p) => p.city)),
     neighborhoodCounts: countBy(items.map((p) => p.neighborhood)),
+    condoCounts: countBy(items.map((p) => (officialCondos.length ? p.condo_official : p.condominium_name))),
     condos: officialCondos.length ? officialCondos : uniq(items.map((p) => p.condominium_name)),
 
     priceMax: Math.max(
