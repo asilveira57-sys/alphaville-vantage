@@ -95,10 +95,8 @@ export const subscribeToOpportunities = createServerFn({ method: "POST" })
 
     const guard = await import("./signup-guard.server");
 
-    const phone = data.phone ? normalizePhone(data.phone) : null;
-    if (data.phone && (!phone || !guard.localPhoneDigits(data.phone))) {
-      throw new Error("Número de WhatsApp inválido. Use DDD + número.");
-    }
+    const rawPhone = data.phone ? normalizePhone(data.phone) : null;
+    const phone = rawPhone && guard.localPhoneDigits(data.phone!) ? rawPhone : null;
     if (data.consentWhatsapp && !phone) {
       throw new Error("Número de WhatsApp inválido. Use DDD + número.");
     }

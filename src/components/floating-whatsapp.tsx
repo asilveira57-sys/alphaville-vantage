@@ -125,7 +125,12 @@ export function FloatingWhatsApp() {
       movedRef.current = false;
       e.preventDefault();
       e.stopPropagation();
+      return;
     }
+    const w = window as unknown as { gtag?: (...a: unknown[]) => void; fbq?: (...a: unknown[]) => void };
+    const p = { method: "whatsapp", page_path: location.pathname, link_text: "botao-flutuante" };
+    try { w.gtag?.("event", "whatsapp_click", p); } catch { /* */ }
+    try { w.fbq?.("track", "Contact", p); } catch { /* */ }
   }, []);
 
   if (hidden) return null;
@@ -175,6 +180,7 @@ export function FloatingWhatsApp() {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
           onClick={handleClick}
+          data-track-self=""
           className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_rgba(0,0,0,0.28)] select-none hover:brightness-105"
           style={{ touchAction: "none", cursor: dragging ? "grabbing" : "pointer" }}
           title="Fale conosco no WhatsApp — arraste para mover"

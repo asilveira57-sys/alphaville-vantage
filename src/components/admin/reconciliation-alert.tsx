@@ -8,12 +8,15 @@ export function ReconciliationAlert() {
     queryKey: ["reconciliation-last"],
     queryFn: async () => {
       const { data } = await supabase.from("source_reconciliation_runs")
-        .select("id,status,error,started_at").neq("status", "running")
+        .select("id,status,error,started_at")
         .order("started_at", { ascending: false }).limit(1).maybeSingle();
       return data;
     },
   });
   if (!data || data.status === "ok") return null;
+  // Execução "rodando" há mais de 30 min = interrompida.
+  if (data.status === "running" && Date.now() - new Date(data.started_at).getTime() < 30 * 60_000) return null;
+  if (data.status === "running") data.error = "a execução foi interrompida antes de terminar";
   return (
     <div className="border border-destructive bg-destructive/10 text-destructive px-4 py-3 text-sm flex flex-wrap items-center justify-between gap-2">
       <span>
