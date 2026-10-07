@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { SITE_URL } from "@/lib/site";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parsePropertyText, computeReviewStatus } from "./property-parser";
 import { auditProperty, type SeoSource } from "./property-seo";
@@ -368,7 +369,7 @@ export const exportPropertiesCsv = createServerFn({ method: "POST" })
     const header = [...EXPORT_COLS, "url_portal"].join(";");
     const lines = rows.map((r) => {
       const cells = EXPORT_COLS.map((c) => csvCell(r[c]));
-      cells.push(csvCell(r.slug ? `https://portal.saimoveisalphaville.com.br/imoveis/${r.slug}` : ""));
+      cells.push(csvCell(r.slug ? `${SITE_URL}/imoveis/${r.slug}` : ""));
       return cells.join(";");
     });
 
