@@ -2,9 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { submitIndexNow } from "@/lib/indexnow.server";
+import { SITE_URL, SITE_HOST } from "@/lib/site";
 
-const SITE_URL = "https://portal.saimoveisalphaville.com.br";
-const SITE_HOST = "portal.saimoveisalphaville.com.br";
 
 const STATIC_ROUTES = [
   "/", "/blog", "/alphaville", "/guia-alphaville", "/guia-tambore",

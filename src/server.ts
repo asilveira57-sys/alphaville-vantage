@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { SITE_URL, LEGACY_HOSTS } from "./lib/site";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -39,6 +40,13 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const url = new URL(request.url);
+    if (LEGACY_HOSTS.includes(url.hostname.toLowerCase())) {
+      return new Response(null, {
+        status: 301,
+        headers: { location: `${SITE_URL}${url.pathname}${url.search}` },
+      });
+    }
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
