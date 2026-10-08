@@ -1,7 +1,7 @@
 import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
@@ -272,66 +272,95 @@ function HomePage() {
           </div>
         </div>
 
-        {/* Barra de busca — em fluxo no mobile, sobreposta no desktop */}
-        <div className="w-full px-6 pb-10 lg:pb-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:-bottom-10 lg:w-[min(100%,1120px)]">
-          <form
-            action="/imoveis"
-            method="get"
-            onSubmit={handleHeroSearch}
-            className="bg-white shadow-[0_20px_60px_-20px_rgba(13,13,13,0.35)] ring-1 ring-black/5 grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr_auto] gap-0 divide-y md:divide-y-0 md:divide-x divide-black/10"
-          >
-            <label className="flex flex-col justify-center px-5 py-3">
-              <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
-                Modalidade
-              </span>
-              <select
-                name="modalidade"
-                className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] outline-none"
-                defaultValue=""
-              >
-                <option value="">Venda ou Aluguel</option>
-                <option value="venda">Venda</option>
-                <option value="aluguel">Aluguel</option>
-              </select>
-            </label>
-            <label className="flex flex-col justify-center px-5 py-3">
-              <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
-                Cidade
-              </span>
-              <select
-                name="cidade"
-                className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] outline-none"
-                defaultValue=""
-              >
-                <option value="">Todas as cidades</option>
-                <option>Barueri</option>
-                <option>Santana de Parnaíba</option>
-              </select>
-            </label>
-            <label className="flex flex-col justify-center px-5 py-3">
-              <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
-                Bairro, endereço ou código
-              </span>
-              <input
-                type="search"
-                name="q"
-                placeholder="Ex.: casa com 4 quartos em Santana de Parnaíba"
-                className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] placeholder:text-[#1A1A1A]/40 outline-none"
-              />
-            </label>
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-8 py-4 md:py-0 text-[12px] font-bold uppercase tracking-[0.2em] hover:brightness-95 transition"
+        {/* Pesquisa Inteligente — em fluxo no mobile, sobreposta no desktop */}
+        <div className="w-full px-4 sm:px-6 pb-10 lg:pb-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:-bottom-28 lg:w-[min(100%,1160px)]">
+          <div className="bg-[#0D0D0D] text-white shadow-[0_30px_80px_-25px_rgba(13,13,13,0.6)] p-5 sm:p-7">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+              <div>
+                <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] font-bold text-[#F2DA00]">
+                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2.4} />
+                  Pesquisa Inteligente
+                </span>
+                <p className="mt-2 font-serif text-xl sm:text-2xl leading-tight">
+                  Escreva do seu jeito. A gente entende e filtra para você.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "casa com piscina em Santana de Parnaíba",
+                  "apartamento 2 dormitórios para alugar",
+                  "terreno no Gênesis",
+                ].map((ex) => (
+                  <Link
+                    key={ex}
+                    to="/imoveis"
+                    search={{ q: ex } as never}
+                    className="text-[11px] px-3 py-1.5 border border-white/20 text-white/80 hover:border-[#F2DA00] hover:text-[#F2DA00] transition"
+                  >
+                    {ex}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <form
+              action="/imoveis"
+              method="get"
+              onSubmit={handleHeroSearch}
+              className="bg-white ring-1 ring-[#F2DA00]/40 grid grid-cols-1 md:grid-cols-[1fr_1fr_2.4fr_auto] gap-0 divide-y md:divide-y-0 md:divide-x divide-black/10"
             >
-              <Search className="h-4 w-4" strokeWidth={2.4} />
-              Pesquisar imóveis
-            </button>
-          </form>
+              <label className="flex flex-col justify-center px-5 py-3">
+                <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
+                  Modalidade
+                </span>
+                <select
+                  name="modalidade"
+                  className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] outline-none"
+                  defaultValue=""
+                >
+                  <option value="">Venda ou Aluguel</option>
+                  <option value="venda">Venda</option>
+                  <option value="aluguel">Aluguel</option>
+                </select>
+              </label>
+              <label className="flex flex-col justify-center px-5 py-3">
+                <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
+                  Cidade
+                </span>
+                <select
+                  name="cidade"
+                  className="mt-1 bg-transparent text-sm font-medium text-[#0D0D0D] outline-none"
+                  defaultValue=""
+                >
+                  <option value="">Todas as cidades</option>
+                  <option>Barueri</option>
+                  <option>Santana de Parnaíba</option>
+                </select>
+              </label>
+              <label className="flex flex-col justify-center px-5 py-3">
+                <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
+                  Descreva o imóvel que você procura
+                </span>
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Ex.: casa com 4 quartos e piscina em Santana de Parnaíba"
+                  className="mt-1 bg-transparent text-base font-medium text-[#0D0D0D] placeholder:text-[#1A1A1A]/40 outline-none"
+                />
+              </label>
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-8 py-4 md:py-0 text-[12px] font-bold uppercase tracking-[0.2em] hover:brightness-95 transition"
+              >
+                <Search className="h-4 w-4" strokeWidth={2.4} />
+                Pesquisar
+              </button>
+            </form>
+          </div>
         </div>
       </section>
 
       {/* =============== VITRINE DE OPORTUNIDADES =============== */}
-      <div className="pt-10 lg:pt-28">
+      <div className="pt-10 lg:pt-44">
         <OpportunityShowcase items={opportunities} />
       </div>
 
