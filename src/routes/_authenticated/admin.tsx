@@ -355,6 +355,9 @@ function AdminPage() {
               <Link to="/audit" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
                 Abrir auditoria →
               </Link>
+              <Link to="/admin-leads-pesquisa" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
+                Leads da pesquisa →
+              </Link>
               <Link to="/admin-recaptura" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
                 Recaptura (simulação) →
               </Link>

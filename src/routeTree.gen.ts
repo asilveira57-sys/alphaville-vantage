@@ -57,6 +57,7 @@ import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminImportarImovelRouteImport } from './routes/_authenticated/admin-importar-imovel'
 import { Route as AuthenticatedAdminIncorporadorasRouteImport } from './routes/_authenticated/admin-incorporadoras'
+import { Route as AuthenticatedAdminLeadsPesquisaRouteImport } from './routes/_authenticated/admin-leads-pesquisa'
 import { Route as AuthenticatedAdminListaOportunidadesRouteImport } from './routes/_authenticated/admin-lista-oportunidades'
 import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
@@ -359,6 +360,12 @@ const AuthenticatedAdminIncorporadorasRoute =
   AuthenticatedAdminIncorporadorasRouteImport.update({
     id: '/admin-incorporadoras',
     path: '/admin-incorporadoras',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminLeadsPesquisaRoute =
+  AuthenticatedAdminLeadsPesquisaRouteImport.update({
+    id: '/admin-leads-pesquisa',
+    path: '/admin-leads-pesquisa',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminListaOportunidadesRoute =
@@ -719,6 +726,7 @@ export interface FileRoutesByFullPath {
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
+  '/admin-leads-pesquisa': typeof AuthenticatedAdminLeadsPesquisaRoute
   '/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
@@ -818,6 +826,7 @@ export interface FileRoutesByTo {
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
+  '/admin-leads-pesquisa': typeof AuthenticatedAdminLeadsPesquisaRoute
   '/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
@@ -924,6 +933,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/_authenticated/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/_authenticated/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
+  '/_authenticated/admin-leads-pesquisa': typeof AuthenticatedAdminLeadsPesquisaRoute
   '/_authenticated/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
@@ -1032,6 +1042,7 @@ export interface FileRouteTypes {
     | '/admin-financiamento'
     | '/admin-importar-imovel'
     | '/admin-incorporadoras'
+    | '/admin-leads-pesquisa'
     | '/admin-lista-oportunidades'
     | '/admin-mapa'
     | '/admin-midia'
@@ -1131,6 +1142,7 @@ export interface FileRouteTypes {
     | '/admin-financiamento'
     | '/admin-importar-imovel'
     | '/admin-incorporadoras'
+    | '/admin-leads-pesquisa'
     | '/admin-lista-oportunidades'
     | '/admin-mapa'
     | '/admin-midia'
@@ -1236,6 +1248,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-financiamento'
     | '/_authenticated/admin-importar-imovel'
     | '/_authenticated/admin-incorporadoras'
+    | '/_authenticated/admin-leads-pesquisa'
     | '/_authenticated/admin-lista-oportunidades'
     | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
@@ -1692,6 +1705,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIncorporadorasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-leads-pesquisa': {
+      id: '/_authenticated/admin-leads-pesquisa'
+      path: '/admin-leads-pesquisa'
+      fullPath: '/admin-leads-pesquisa'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsPesquisaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-lista-oportunidades': {
       id: '/_authenticated/admin-lista-oportunidades'
       path: '/admin-lista-oportunidades'
@@ -2137,6 +2157,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
   AuthenticatedAdminImportarImovelRoute: typeof AuthenticatedAdminImportarImovelRoute
   AuthenticatedAdminIncorporadorasRoute: typeof AuthenticatedAdminIncorporadorasRoute
+  AuthenticatedAdminLeadsPesquisaRoute: typeof AuthenticatedAdminLeadsPesquisaRoute
   AuthenticatedAdminListaOportunidadesRoute: typeof AuthenticatedAdminListaOportunidadesRoute
   AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
@@ -2167,6 +2188,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
   AuthenticatedAdminImportarImovelRoute: AuthenticatedAdminImportarImovelRoute,
   AuthenticatedAdminIncorporadorasRoute: AuthenticatedAdminIncorporadorasRoute,
+  AuthenticatedAdminLeadsPesquisaRoute: AuthenticatedAdminLeadsPesquisaRoute,
   AuthenticatedAdminListaOportunidadesRoute:
     AuthenticatedAdminListaOportunidadesRoute,
   AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,

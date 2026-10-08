@@ -1989,6 +1989,60 @@ export type Database = {
         }
         Relationships: []
       }
+      search_leads: {
+        Row: {
+          channel: string
+          consent_contact: boolean
+          consent_text: string | null
+          created_at: string
+          email: string | null
+          filters: Json
+          id: string
+          ip_hash: string | null
+          name: string
+          phone: string | null
+          property_ids: string[]
+          result_count: number
+          search_query: string | null
+          search_url: string
+          user_agent: string | null
+        }
+        Insert: {
+          channel?: string
+          consent_contact?: boolean
+          consent_text?: string | null
+          created_at?: string
+          email?: string | null
+          filters?: Json
+          id?: string
+          ip_hash?: string | null
+          name: string
+          phone?: string | null
+          property_ids?: string[]
+          result_count?: number
+          search_query?: string | null
+          search_url: string
+          user_agent?: string | null
+        }
+        Update: {
+          channel?: string
+          consent_contact?: boolean
+          consent_text?: string | null
+          created_at?: string
+          email?: string | null
+          filters?: Json
+          id?: string
+          ip_hash?: string | null
+          name?: string
+          phone?: string | null
+          property_ids?: string[]
+          result_count?: number
+          search_query?: string | null
+          search_url?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       seo_redirects: {
         Row: {
           active: boolean
