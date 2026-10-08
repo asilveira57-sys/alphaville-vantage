@@ -10,6 +10,7 @@ import { PropertyFilters, type FilterOptions, type FilterState } from "@/compone
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { interpretQuery, residualLocationQuery } from "@/lib/property-search";
 import { fetchAllRows } from "@/lib/fetch-all";
+import { SaveSearchLead } from "@/components/save-search-lead";
 
 type PropertyRow = {
   id: string;
@@ -372,6 +373,17 @@ function ImoveisPage() {
       </section>
 
       <PropertyFilters options={options} state={search} filteredCount={filtered.length} totalCount={total} />
+
+      {filtered.length > 0 && (
+        <section className="px-6 pt-8">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-ink/10 bg-background p-4">
+            <p className="text-sm text-muted-foreground">
+              Gostou desta seleção? Salve os <strong className="text-ink">{filtered.length} imóveis</strong> em PDF e envie para você.
+            </p>
+            <SaveSearchLead items={filtered} total={filtered.length} query={search.q || ""} filters={effectiveSearch as unknown as Record<string, unknown>} />
+          </div>
+        </section>
+      )}
 
       <section className="px-6 py-12 md:py-16">
         <div className="max-w-7xl mx-auto">
