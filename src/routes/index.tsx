@@ -306,7 +306,6 @@ function HomePage() {
                 <option value="">Todas as cidades</option>
                 <option>Barueri</option>
                 <option>Santana de Parnaíba</option>
-                <option>Osasco</option>
               </select>
             </label>
             <label className="flex flex-col justify-center px-5 py-3">
