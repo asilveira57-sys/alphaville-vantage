@@ -172,6 +172,7 @@ function AdminPage() {
             <h1 className="font-serif text-4xl text-ink">Painel editorial</h1>
           </div>
           <div className="flex items-center gap-4">
+            <Link to="/admin-leads" className="bg-[#F2DA00] text-[#0D0D0D] px-4 py-2 text-xs uppercase tracking-widest font-medium hover:brightness-95">Leads (CRM) →</Link>
             <Link to="/cms" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">CMS Editorial →</Link>
             <Link to="/admin-seo" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Central SEO →</Link>
             <Link to="/admin-ruas" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Ruas →</Link>
