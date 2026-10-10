@@ -29,10 +29,12 @@ export const listLeads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const rows = await fetchAllRows<unknown>((from, to) =>
+    const rows: any[] = await fetchAllRows<any>((from, to) =>
       context.supabase.from("leads").select(COLS).order("created_at", { ascending: false }).range(from, to) as any,
     );
-    return JSON.parse(JSON.stringify(rows)) as Array<Omit<LeadRow, "payload"> & { payload: Record<string, string | number | boolean | null> }>;
+    return rows.map((r) => ({ ...r, payload: JSON.stringify(r.payload ?? {}) })) as Array<
+      Omit<LeadRow, "payload"> & { payload: string }
+    >;
   });
 
 export const setLeadStatus = createServerFn({ method: "POST" })

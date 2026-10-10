@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listLeads, setLeadStatus, type LeadRow } from "@/lib/leads.functions";
+import { listLeads, setLeadStatus } from "@/lib/leads.functions";
+type LeadRow = Awaited<ReturnType<typeof listLeads>>[number];
 
 export const Route = createFileRoute("/_authenticated/admin-leads")({
   head: () => ({
@@ -185,7 +186,7 @@ function LeadsPage() {
                   </div>
                   {openId === l.id ? (
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-canvas p-4 text-xs">
-                      {Object.entries(l.payload ?? {})
+                      {Object.entries(JSON.parse(l.payload || "{}") as Record<string, unknown>)
                         .filter(([, v]) => v !== null && v !== "" && !(Array.isArray(v) && !v.length))
                         .map(([k, v]) => (
                           <div key={k} className="min-w-0">
