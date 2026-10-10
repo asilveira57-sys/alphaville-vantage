@@ -1005,6 +1005,63 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          created_at: string
+          email: string | null
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          landing_page: string | null
+          name: string | null
+          payload: Json
+          phone: string | null
+          source: string
+          source_id: string
+          source_label: string
+          source_table: string
+          status: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          landing_page?: string | null
+          name?: string | null
+          payload?: Json
+          phone?: string | null
+          source: string
+          source_id: string
+          source_label: string
+          source_table: string
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          landing_page?: string | null
+          name?: string | null
+          payload?: Json
+          phone?: string | null
+          source?: string
+          source_id?: string
+          source_label?: string
+          source_table?: string
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       media_kit_access_log: {
         Row: {
           action: string
@@ -2614,6 +2671,22 @@ export type Database = {
         Returns: boolean
       }
       unaccent: { Args: { "": string }; Returns: string }
+      upsert_lead: {
+        Args: {
+          p_created: string
+          p_email: string
+          p_id: string
+          p_label: string
+          p_name: string
+          p_page: string
+          p_payload: Json
+          p_phone: string
+          p_source: string
+          p_summary: string
+          p_table: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "editor" | "user" | "parceiro"
