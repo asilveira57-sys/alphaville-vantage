@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Radar, Sparkles } from "lucide-react";
+import { ArrowUpRight, Building2, Radar, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackRadar, readTracking } from "./radar-utils";
 
@@ -60,6 +60,18 @@ export function RadarSection() {
         </div>
         <div className="radar-display hidden md:grid" aria-hidden="true">
           <div className="radar-sweep" />
+          <div className="radar-property radar-property-one">
+            <Building2 strokeWidth={1.5} />
+            <span className="radar-property-dot" />
+          </div>
+          <div className="radar-property radar-property-two">
+            <Building2 strokeWidth={1.5} />
+            <span className="radar-property-dot" />
+          </div>
+          <div className="radar-property radar-property-three">
+            <Building2 strokeWidth={1.5} />
+            <span className="radar-property-dot" />
+          </div>
           <Radar className="relative h-14 w-14 text-accent" strokeWidth={1} />
           <span className="radar-label text-accent text-xs font-semibold">S.A. / RADAR</span>
         </div>
