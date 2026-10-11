@@ -401,7 +401,7 @@
   background: conic-gradient(from 0deg, transparent 270deg, color-mix(in oklab, var(--accent) 16%, transparent) 359deg, var(--accent) 360deg);
   animation: radar-scan 12s linear infinite;
 }
-.radar-label { position: absolute; bottom: 38px; }
+.radar-label { position: absolute; bottom: 18px; }
 .radar-property {
   position: absolute;
   z-index: 1;
