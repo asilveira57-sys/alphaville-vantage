@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
+import { Button } from "@/components/ui/button";
 import { InstitutionalBlock } from "@/components/section-page";
 import { supabase } from "@/integrations/supabase/client";
 import { CleanPostCard } from "@/components/premium-cards/clean-post-card";
@@ -158,7 +159,8 @@ export const Route = createFileRoute("/")({
           "Portal editorial sobre Alphaville, Tamboré, Barueri e Santana de Parnaíba: mercado imobiliário, condomínios, história, gastronomia e cultura de alto padrão.",
       },
       { property: "og:url", content: SITE_URL },
-      { property: "og:image", content: heroImg },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "canonical", href: SITE_URL },
@@ -230,8 +232,8 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* =============== HERO + BARRA DE BUSCA =============== */}
-      <section className="home-hero relative bg-[#EAEAE6] flex flex-col lg:flex-row lg:items-center">
+      {/* =============== DESTAQUE EDITORIAL =============== */}
+      <section className="home-hero relative bg-canvas">
         <div className="home-hero-inner w-full max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-10 lg:gap-12 items-center">
             <div className="min-w-0">
@@ -271,13 +273,15 @@ function HomePage() {
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Pesquisa Inteligente — em fluxo no mobile, sobreposta no desktop */}
-        <div className="w-full px-4 sm:px-6 pb-10 lg:pb-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:-bottom-28 lg:w-[min(100%,1160px)]">
-          <div className="bg-[#0D0D0D] text-white shadow-[0_30px_80px_-25px_rgba(13,13,13,0.6)] p-5 sm:p-7">
+      {/* Pesquisa Inteligente — seção independente do editorial */}
+      <section aria-label="Pesquisa Inteligente" className="bg-canvas px-6 pb-10">
+        <div className="mx-auto w-full max-w-7xl border-t border-ink/20 pt-8 md:pt-10">
+          <div className="bg-primary text-primary-foreground shadow-search p-5 sm:p-7 lg:p-9">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
               <div>
-                <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] font-bold text-[#F2DA00]">
+                <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] font-bold text-accent">
                   <Sparkles className="h-3.5 w-3.5" strokeWidth={2.4} />
                   Pesquisa Inteligente
                 </span>
@@ -295,7 +299,7 @@ function HomePage() {
                     key={ex}
                     to="/imoveis"
                     search={{ q: ex } as never}
-                    className="text-[11px] px-3 py-1.5 border border-white/20 text-white/80 hover:border-[#F2DA00] hover:text-[#F2DA00] transition"
+                    className="text-[11px] px-3 py-1.5 border border-primary-foreground/20 text-primary-foreground/80 hover:border-accent hover:text-accent transition"
                   >
                     {ex}
                   </Link>
@@ -306,7 +310,7 @@ function HomePage() {
               action="/imoveis"
               method="get"
               onSubmit={handleHeroSearch}
-              className="bg-white ring-1 ring-[#F2DA00]/40 grid grid-cols-1 md:grid-cols-[1fr_1fr_2.4fr_auto] gap-0 divide-y md:divide-y-0 md:divide-x divide-black/10"
+              className="bg-card ring-1 ring-accent/40 grid grid-cols-1 md:grid-cols-[1fr_1fr_2.4fr_auto] gap-0 divide-y md:divide-y-0 md:divide-x divide-ink/10"
             >
               <label className="flex flex-col justify-center px-5 py-3">
                 <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-[#1A1A1A]/60">
@@ -347,25 +351,26 @@ function HomePage() {
                   className="mt-1 bg-transparent text-base font-medium text-[#0D0D0D] placeholder:text-[#1A1A1A]/40 outline-none"
                 />
               </label>
-              <button
+              <Button
+                variant="signal"
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-8 py-4 md:py-0 text-[12px] font-bold uppercase tracking-[0.2em] hover:brightness-95 transition"
+                className="h-auto min-h-14 rounded-none px-8 py-4 text-xs font-bold uppercase"
               >
                 <Search className="h-4 w-4" strokeWidth={2.4} />
                 Pesquisar
-              </button>
+              </Button>
             </form>
           </div>
         </div>
       </section>
 
       {/* =============== VITRINE DE OPORTUNIDADES =============== */}
-      <div className="pt-10 lg:pt-44">
+      <div className="pt-6 lg:pt-12">
         <OpportunityShowcase items={opportunities} />
       </div>
 
       {/* =============== RADAR S.A. IMÓVEIS =============== */}
-      <div className="pt-14 lg:pt-28 bg-white">
+      <div className="pt-14 lg:pt-20 bg-canvas">
         <RadarSection />
       </div>
 
