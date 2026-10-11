@@ -401,6 +401,58 @@
   background: conic-gradient(from 0deg, transparent 270deg, color-mix(in oklab, var(--accent) 16%, transparent) 359deg, var(--accent) 360deg);
   animation: radar-scan 12s linear infinite;
 }
-.radar-label { position: absolute; bottom: 38px; }
+.radar-label { position: absolute; bottom: 18px; }
+.radar-property {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid color-mix(in oklab, var(--accent) 65%, transparent);
+  border-radius: 4px;
+  background: var(--primary);
+  color: var(--accent);
+  opacity: 0;
+  transform: scale(0.4) translateY(6px);
+  box-shadow: 0 0 16px color-mix(in oklab, var(--accent) 18%, transparent);
+  animation-duration: 12s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.radar-property svg { width: 72%; height: 72%; }
+.radar-property-one { top: 48px; right: 48px; animation-name: radar-find-one; }
+.radar-property-two { bottom: 45px; right: 42px; width: 52px; height: 52px; animation-name: radar-find-two; }
+.radar-property-three { bottom: 43px; left: 40px; width: 58px; height: 58px; animation-name: radar-find-three; }
+.radar-property-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+@keyframes radar-find-one {
+  0%, 12% { opacity: 0; transform: scale(0.4) translateY(6px); }
+  17% { opacity: 1; transform: scale(1.12) translateY(0); }
+  20%, 91% { opacity: 1; transform: scale(1) translateY(0); }
+  98%, 100% { opacity: 0; transform: scale(0.85) translateY(0); }
+}
+@keyframes radar-find-two {
+  0%, 37% { opacity: 0; transform: scale(0.4) translateY(6px); }
+  42% { opacity: 1; transform: scale(1.12) translateY(0); }
+  45%, 91% { opacity: 1; transform: scale(1) translateY(0); }
+  98%, 100% { opacity: 0; transform: scale(0.85) translateY(0); }
+}
+@keyframes radar-find-three {
+  0%, 62% { opacity: 0; transform: scale(0.4) translateY(6px); }
+  67% { opacity: 1; transform: scale(1.12) translateY(0); }
+  70%, 91% { opacity: 1; transform: scale(1) translateY(0); }
+  98%, 100% { opacity: 0; transform: scale(0.85) translateY(0); }
+}
 @keyframes radar-scan { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .radar-sweep { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .radar-sweep { animation: none; }
+  .radar-property { animation: none; opacity: 1; transform: none; }
+}
