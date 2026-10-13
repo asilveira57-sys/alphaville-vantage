@@ -30,7 +30,7 @@ const fmtPrice = (n: number | null) =>
 async function fetchProperty(slug: string) {
   const { data, error } = await supabase
     .from("properties")
-    .select("*")
+    .select("id,slug,title,status,seo_title,seo_description,property_type,purpose,city,state,neighborhood,region,condominium_name,condominium_id,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,iptu_period,furnished,is_launch,accepts_exchange,description,descricao_seo,descricao_original,internal_code,external_ref,source_url,images,large_image_url")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -48,7 +48,7 @@ async function fetchProperty(slug: string) {
   if (data.neighborhood) {
     const { data: rel } = await supabase
       .from("properties")
-      .select("id,slug,title,seo_title,property_type,price_sale,price_rent,images")
+      .select("id,slug,title,seo_title,property_type,price_sale,price_rent,images,card_image_url")
       .eq("status", "active")
       .eq("neighborhood", data.neighborhood)
       .neq("id", data.id)
@@ -204,7 +204,7 @@ function PropertyDetail() {
 
       <section className="px-6 py-12 bg-ink/[0.02]">
         <div className="max-w-6xl mx-auto">
-          <PropertyGallery images={p.images} title={p.title} />
+          <PropertyGallery images={p.images} title={p.title} firstLarge={p.large_image_url} />
         </div>
       </section>
 
@@ -294,7 +294,7 @@ function PropertyDetail() {
                   key={r.id}
                   slug={r.slug}
                   title={r.seo_title?.replace(/\s*\|\s*S\.A.*$/i, "") ?? r.title}
-                  image={r.images?.[0]}
+                  image={r.card_image_url ?? r.images?.[0]}
                   propertyType={r.property_type}
                   priceSale={r.price_sale}
                   priceRent={r.price_rent}
