@@ -1450,6 +1450,7 @@ export type Database = {
           audit_status: string | null
           bathrooms: number | null
           bedrooms: number | null
+          card_image_url: string | null
           city: string | null
           condo_fee: number | null
           condominium_id: string | null
@@ -1467,6 +1468,7 @@ export type Database = {
           iptu: number | null
           iptu_period: string | null
           is_launch: boolean | null
+          large_image_url: string | null
           last_seen_at: string | null
           lavabos: number | null
           manual_overrides: Json | null
@@ -1503,6 +1505,7 @@ export type Database = {
           street_match_confidence: number | null
           street_match_type: string | null
           suites: number | null
+          thumb_source: string | null
           title: string
           updated_at: string
         }
@@ -1520,6 +1523,7 @@ export type Database = {
           audit_status?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
+          card_image_url?: string | null
           city?: string | null
           condo_fee?: number | null
           condominium_id?: string | null
@@ -1537,6 +1541,7 @@ export type Database = {
           iptu?: number | null
           iptu_period?: string | null
           is_launch?: boolean | null
+          large_image_url?: string | null
           last_seen_at?: string | null
           lavabos?: number | null
           manual_overrides?: Json | null
@@ -1573,6 +1578,7 @@ export type Database = {
           street_match_confidence?: number | null
           street_match_type?: string | null
           suites?: number | null
+          thumb_source?: string | null
           title: string
           updated_at?: string
         }
@@ -1590,6 +1596,7 @@ export type Database = {
           audit_status?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
+          card_image_url?: string | null
           city?: string | null
           condo_fee?: number | null
           condominium_id?: string | null
@@ -1607,6 +1614,7 @@ export type Database = {
           iptu?: number | null
           iptu_period?: string | null
           is_launch?: boolean | null
+          large_image_url?: string | null
           last_seen_at?: string | null
           lavabos?: number | null
           manual_overrides?: Json | null
@@ -1643,6 +1651,7 @@ export type Database = {
           street_match_confidence?: number | null
           street_match_type?: string | null
           suites?: number | null
+          thumb_source?: string | null
           title?: string
           updated_at?: string
         }
@@ -2646,6 +2655,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fuzzy_eq: { Args: { a: string; b: string }; Returns: boolean }
+      fuzzy_norm: { Args: { t: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2662,6 +2673,51 @@ export type Database = {
         Returns: undefined
       }
       normalize_street_text: { Args: { txt: string }; Returns: string }
+      property_search_facets: { Args: never; Returns: Json }
+      search_norm: { Args: { t: string }; Returns: string }
+      search_properties: {
+        Args: {
+          p_area_min?: number
+          p_bedrooms?: number
+          p_city?: string
+          p_condo?: string
+          p_limit?: number
+          p_neighborhood?: string
+          p_offset?: number
+          p_parking?: number
+          p_phrase?: string
+          p_price_max?: number
+          p_price_min?: number
+          p_purpose?: string
+          p_sort?: string
+          p_tokens?: string[]
+          p_type?: string
+        }
+        Returns: {
+          area: number
+          area_built: number
+          area_total: number
+          area_useful: number
+          bedrooms: number
+          card_image_url: string
+          city: string
+          condo_name: string
+          id: string
+          image: string
+          internal_code: string
+          neighborhood: string
+          parking_total: number
+          price_rent: number
+          price_sale: number
+          property_type: string
+          purpose: string
+          region: string
+          slug: string
+          suites: number
+          title: string
+          total: number
+        }[]
+      }
       street_guide_is_publishable: {
         Args: { g: Database["public"]["Tables"]["street_guides"]["Row"] }
         Returns: boolean
