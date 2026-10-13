@@ -96,7 +96,7 @@ async function buildPdf(name: string, query: string, url: string, items: PdfProp
   return doc;
 }
 
-export function SaveSearchLead({ items, total, query, filters }: { items: PdfProperty[]; total: number; query: string; filters: Record<string, unknown> }) {
+export function SaveSearchLead({ loadItems, total, query, filters }: { loadItems: () => Promise<PdfProperty[]>; total: number; query: string; filters: Record<string, unknown> }) {
   const save = useServerFn(saveSearchLead);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -116,6 +116,7 @@ export function SaveSearchLead({ items, total, query, filters }: { items: PdfPro
       // dispara rastreamento de lead
       (window as any).gtag?.("event", "generate_lead", { form: "pesquisa_salva", channel });
       (window as any).fbq?.("track", "Lead", { content_name: "pesquisa_salva" });
+      const items = await loadItems();
       await save({
         data: {
           ...f,

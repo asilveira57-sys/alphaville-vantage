@@ -116,6 +116,7 @@ import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/p
 import { Route as ApiPublicHooksOpportunityRevaluationRouteImport } from './routes/api/public/hooks/opportunity-revaluation'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
 import { Route as ApiPublicHooksSourceReconciliationRouteImport } from './routes/api/public/hooks/source-reconciliation'
+import { Route as ApiPublicPropertyThumbSplatRouteImport } from './routes/api/public/property-thumb.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -683,6 +684,12 @@ const ApiPublicHooksSourceReconciliationRoute =
     path: '/api/public/hooks/source-reconciliation',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPropertyThumbSplatRoute =
+  ApiPublicPropertyThumbSplatRouteImport.update({
+    id: '/api/public/property-thumb/$',
+    path: '/api/public/property-thumb/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -791,6 +798,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
+  '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -890,6 +898,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
+  '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1000,6 +1009,7 @@ export interface FileRoutesById {
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
+  '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1110,6 +1120,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
+    | '/api/public/property-thumb/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1209,6 +1220,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
+    | '/api/public/property-thumb/$'
   id:
     | '__root__'
     | '/'
@@ -1318,6 +1330,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/opportunity-revaluation'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
+    | '/api/public/property-thumb/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1377,6 +1390,7 @@ export interface RootRouteChildren {
   ApiPublicHooksOpportunityRevaluationRoute: typeof ApiPublicHooksOpportunityRevaluationRoute
   ApiPublicHooksSeoMonthlyRefreshRoute: typeof ApiPublicHooksSeoMonthlyRefreshRoute
   ApiPublicHooksSourceReconciliationRoute: typeof ApiPublicHooksSourceReconciliationRoute
+  ApiPublicPropertyThumbSplatRoute: typeof ApiPublicPropertyThumbSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2130,6 +2144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSourceReconciliationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/property-thumb/$': {
+      id: '/api/public/property-thumb/$'
+      path: '/api/public/property-thumb/$'
+      fullPath: '/api/public/property-thumb/$'
+      preLoaderRoute: typeof ApiPublicPropertyThumbSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2389,6 +2410,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksSeoMonthlyRefreshRoute: ApiPublicHooksSeoMonthlyRefreshRoute,
   ApiPublicHooksSourceReconciliationRoute:
     ApiPublicHooksSourceReconciliationRoute,
+  ApiPublicPropertyThumbSplatRoute: ApiPublicPropertyThumbSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

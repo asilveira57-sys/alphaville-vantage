@@ -25,6 +25,9 @@ export type CleanPropertyCardProps = {
   parking?: number | null;
   area?: number | null;
   internalCode?: string | null;
+  /** Miniaturas WebP (600 px / 1200 px) geradas na captura. */
+  imageSrcSet?: string | null;
+  eager?: boolean;
 };
 
 /** Keeps a commercial-looking short name instead of a full street address. */
@@ -74,8 +77,10 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
       <div className="relative aspect-[16/9] shrink-0 overflow-hidden">
         <img
           src={src}
+          srcSet={p.imageSrcSet ?? undefined}
           alt={p.title}
-          loading="lazy"
+          loading={p.eager ? "eager" : "lazy"}
+          {...(p.eager ? { fetchPriority: "high" as const } : {})}
           decoding="async"
           sizes="(max-width: 768px) 88vw, (max-width: 1200px) 45vw, 30vw"
           className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
