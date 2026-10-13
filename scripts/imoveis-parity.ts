@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import { applyFiltersLegacy, type LegacyRow } from "./property-filter-legacy";
-import { toRpcArgs, effectiveSearch, IMOVEIS_DEFAULTS, type ImoveisSearch } from "./property-query";
+import { applyFiltersLegacy, type LegacyRow } from "../src/lib/property-filter-legacy";
+import { toRpcArgs, effectiveSearch, IMOVEIS_DEFAULTS, type ImoveisSearch } from "../src/lib/property-query";
 const sb = createClient(process.env.VITE_SUPABASE_URL!, process.env.VITE_SUPABASE_PUBLISHABLE_KEY!);
 const rows: any[] = [];
 for (let f = 0; ; f += 1000) {
