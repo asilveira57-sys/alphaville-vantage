@@ -1492,6 +1492,8 @@ export type Database = {
           raw: Json | null
           region: string | null
           review_status: string | null
+          search_post: string | null
+          search_pre: string | null
           seo_description: string | null
           seo_generated_at: string | null
           seo_title: string | null
@@ -1565,6 +1567,8 @@ export type Database = {
           raw?: Json | null
           region?: string | null
           review_status?: string | null
+          search_post?: string | null
+          search_pre?: string | null
           seo_description?: string | null
           seo_generated_at?: string | null
           seo_title?: string | null
@@ -1638,6 +1642,8 @@ export type Database = {
           raw?: Json | null
           region?: string | null
           review_status?: string | null
+          search_post?: string | null
+          search_pre?: string | null
           seo_description?: string | null
           seo_generated_at?: string | null
           seo_title?: string | null
