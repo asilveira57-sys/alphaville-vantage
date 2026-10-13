@@ -69,11 +69,14 @@ with ThreadPoolExecutor(16) as ex:
         done.append((pid, src, out[600][0], out[1200][0]))
         sizes.append((info, out[600][1], out[1200][1]))
 
-for i in range(0, len(done), 300):
-    chunk = done[i:i + 300]
-    vals = ",".join("('%s'::uuid,'%s','%s','%s')" % (p, s.replace("'", "''"), c, l) for p, s, c, l in chunk)
-    psql("update properties p set card_image_url=v.c, large_image_url=v.l, thumb_source=v.s "
-         f"from (values {vals}) v(id,s,c,l) where p.id=v.id")
+def save(row):
+    pid, src, card, large = row
+    requests.patch(f"{URL}/rest/v1/properties?id=eq.{pid}", json={"card_image_url": card, "large_image_url": large, "thumb_source": src},
+                   headers={"Authorization": f"Bearer {KEY}", "apikey": KEY, "Prefer": "return=minimal"}, timeout=30).raise_for_status()
+
+
+with ThreadPoolExecutor(16) as ex:
+    list(ex.map(save, done))
 
 print("geradas:", len(done), "falhas:", fail)
 if sizes:
