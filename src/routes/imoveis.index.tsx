@@ -1,109 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { createFileRoute, Link, stripSearchParams } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
-import { supabase } from "@/integrations/supabase/client";
-import { cityOrder } from "@/lib/cities";
-import { PropertyFilters, type FilterOptions, type FilterState } from "@/components/property-filters";
+import { PropertyFilters, type FilterOptions } from "@/components/property-filters";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
-import { interpretQuery, residualLocationQuery } from "@/lib/property-search";
-import { fetchAllRows } from "@/lib/fetch-all";
-import { SaveSearchLead } from "@/components/save-search-lead";
-
-type PropertyRow = {
-  id: string;
-  slug: string;
-  title: string;
-  internal_code: string | null;
-  purpose: "rent" | "sale" | "both" | null;
-  property_type: string | null;
-  city: string | null;
-  neighborhood: string | null;
-  condominium_name: string | null;
-  condominium_id: string | null;
-  condo_official: string | null;
-
-  region: string | null;
-  bedrooms: number | null;
-  suites: number | null;
-  parking: number | null;
-  parking_covered: number | null;
-  parking_uncovered: number | null;
-  area_useful: number | null;
-  area_built: number | null;
-  area_total: number | null;
-  price_sale: number | null;
-  price_rent: number | null;
-  last_seen_at: string | null;
-  seo_title: string | null;
-  description: string | null;
-  descricao_seo: string | null;
-  images: string[];
-};
-
-const isUsableImg = (u: string) =>
-  /^https?:\/\//.test(u) &&
-  !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
-
-const WHATSAPP_NUMBER = "5511995515053";
-
-async function fetchProperties(): Promise<{ items: PropertyRow[]; options: FilterOptions }> {
-  const [data, condoRes, citiesRes] = await Promise.all([
-    fetchAllRows<Record<string, unknown>>((f, t) =>
-      supabase
-        .from("properties")
-        .select(
-          "id,slug,title,internal_code,purpose,property_type,city,neighborhood,condominium_name,condominium_id,region,bedrooms,suites,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,last_seen_at,seo_title,description,descricao_seo,images",
-        )
-        .eq("status", "active")
-        .order("last_seen_at", { ascending: false })
-        .range(f, t),
-    ),
-    supabase.from("condominiums").select("id,name"),
-    supabase.from("cities").select("name"),
-  ]);
-  const officialCities = new Set(((citiesRes.data ?? []) as { name: string }[]).map((c) => c.name));
-  const countBy = (arr: (string | null | undefined)[]) => {
-    const m: Record<string, number> = {};
-    for (const x of arr) if (x && x.trim()) m[x] = (m[x] ?? 0) + 1;
-    return m;
-  };
-  const condoNames = new Map<string, string>(
-    ((condoRes.data ?? []) as { id: string; name: string }[]).map((c) => [c.id, c.name]),
-  );
-  const items = data.map((p) => ({
-    ...p,
-    condo_official: condoNames.get(String((p as { condominium_id?: string | null }).condominium_id ?? "")) ?? null,
-    images: Array.isArray((p as { images?: unknown }).images)
-      ? ((p as { images: string[] }).images).filter(isUsableImg)
-      : [],
-  })) as unknown as PropertyRow[];
-
-  const uniq = (arr: (string | null | undefined)[]) =>
-    Array.from(new Set(arr.filter((x): x is string => !!x && x.trim() !== ""))).sort((a, b) => a.localeCompare(b, "pt-BR"));
-
-  const officialCondos = uniq(items.map((p) => p.condo_official));
-
-  const options: FilterOptions = {
-    types: uniq(items.map((p) => p.property_type)),
-    cities: uniq(items.map((p) => p.city)).filter((c) => officialCities.has(c)).sort(cityOrder),
-    neighborhoods: uniq(items.map((p) => p.neighborhood)),
-    cityCounts: countBy(items.map((p) => p.city)),
-    neighborhoodCounts: countBy(items.map((p) => p.neighborhood)),
-    condoCounts: countBy(items.map((p) => (officialCondos.length ? p.condo_official : p.condominium_name))),
-    condos: officialCondos.length ? officialCondos : uniq(items.map((p) => p.condominium_name)),
-
-    priceMax: Math.max(
-      0,
-      ...items.map((p) => Math.max(p.price_sale ?? 0, p.price_rent ?? 0)),
-    ),
-    isRent: items.some((p) => p.purpose === "rent") && !items.some((p) => p.purpose === "sale"),
-  };
-
-  return { items, options };
-}
+import { SaveSearchLead, type PdfProperty } from "@/components/save-search-lead";
+import { searchProperties, getSearchFacets, PAGE_SIZE, type SearchCard } from "@/lib/property-search.functions";
+import { effectiveSearch, IMOVEIS_DEFAULTS } from "@/lib/property-query";
+import { SITE_URL } from "@/lib/site";
 
 const searchSchema = z.object({
   purpose: fallback(z.string(), "").default(""),
@@ -121,20 +26,30 @@ const searchSchema = z.object({
   page: fallback(z.number().int(), 1).default(1),
 });
 
-const PAGE_SIZE = 15;
-
 export const Route = createFileRoute("/imoveis/")({
   validateSearch: zodValidator(searchSchema),
+  // Parâmetros com valor padrão ficam fora da URL (/imoveis limpo, sem redirecionar).
+  search: { middlewares: [stripSearchParams(IMOVEIS_DEFAULTS as never)] },
+  loaderDeps: ({ search }) => search,
+  loader: async ({ deps }) => {
+    const [result, facets] = await Promise.all([
+      searchProperties({ data: { ...deps, page: Math.max(1, deps.page || 1) } }),
+      getSearchFacets(),
+    ]);
+    return { ...result, facets };
+  },
   head: () => ({
     meta: [
       { title: "Imóveis em Alphaville — S.A Imóveis Alphaville" },
       { name: "description", content: "Catálogo de imóveis para venda e locação em Alphaville, Tamboré, Barueri e Santana de Parnaíba." },
       { property: "og:title", content: "Imóveis em Alphaville" },
       { property: "og:description", content: "Portfólio S.A: casas, apartamentos e lançamentos." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: `${SITE_URL}/imoveis` },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/imoveis" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/imoveis` }],
   }),
-  loader: () => fetchProperties(),
   errorComponent: ({ error }) => (
     <SiteLayout>
       <section className="px-6 py-24 max-w-7xl mx-auto">
@@ -145,15 +60,15 @@ export const Route = createFileRoute("/imoveis/")({
   component: ImoveisPage,
 });
 
-function PropertyCard({ p }: { p: PropertyRow }) {
-  const img = p.images[0];
-  const totalParking = (p.parking_covered ?? 0) + (p.parking_uncovered ?? 0) || p.parking || 0;
-  const area = p.area_useful ?? p.area_built ?? p.area_total;
+function PropertyCard({ p, eager }: { p: SearchCard; eager?: boolean }) {
+  const card = p.card_image_url;
   return (
     <CleanPropertyCard
       slug={p.slug}
       title={p.title}
-      image={img}
+      image={card ?? p.image}
+      imageSrcSet={card ? `${card} 600w, ${card.replace(/-600\.webp$/, "-1200.webp")} 1200w` : null}
+      eager={eager}
       region={p.region ?? p.city}
       neighborhood={p.neighborhood}
       city={p.city}
@@ -161,199 +76,32 @@ function PropertyCard({ p }: { p: PropertyRow }) {
       priceSale={p.price_sale}
       priceRent={p.price_rent}
       bedrooms={p.bedrooms}
-      parking={totalParking || null}
-      area={area}
+      parking={p.parking_total}
+      area={p.area}
       internalCode={p.internal_code}
     />
   );
 }
 
-
-function applyFilters(items: PropertyRow[], s: FilterState): PropertyRow[] {
-  const norm = (v: string | null | undefined) =>
-    (v ?? "")
-      .toString()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
-  const fuzzyEq = (a: string | null | undefined, b: string) => {
-    const na = norm(a);
-    const nb = norm(b);
-    if (!nb) return true;
-    if (!na) return false;
-    return na === nb || na.includes(nb) || nb.includes(na);
-  };
-  let out = items;
-  if (s.purpose) {
-    out = out.filter((p) => p.purpose === s.purpose || p.purpose === "both" || (s.purpose === "both"));
-  }
-  if (s.type) out = out.filter((p) => fuzzyEq(p.property_type, s.type));
-  if (s.city) out = out.filter((p) => fuzzyEq(p.city, s.city));
-  if (s.neighborhood) {
-    // O termo pode ser um bairro, uma região ou o nome do condomínio
-    // (ex.: "Genesis" é condomínio, não bairro cadastrado).
-    out = out.filter(
-      (p) =>
-        fuzzyEq(p.neighborhood, s.neighborhood) ||
-        fuzzyEq(p.region, s.neighborhood) ||
-        fuzzyEq(p.condo_official, s.neighborhood) ||
-        fuzzyEq(p.condominium_name, s.neighborhood),
-    );
-  }
-  if (s.condo) out = out.filter((p) => fuzzyEq(p.condo_official ?? p.condominium_name, s.condo));
-  if (s.bedrooms) out = out.filter((p) => (p.bedrooms ?? 0) >= s.bedrooms);
-  if (s.parking) {
-    out = out.filter((p) => {
-      const t = (p.parking_covered ?? 0) + (p.parking_uncovered ?? 0) || p.parking || 0;
-      return t >= s.parking;
-    });
-  }
-  if (s.priceMin || s.priceMax) {
-    out = out.filter((p) => {
-      const candidates: number[] = [];
-      if (s.purpose === "sale") { if (p.price_sale) candidates.push(p.price_sale); }
-      else if (s.purpose === "rent") { if (p.price_rent) candidates.push(p.price_rent); }
-      else {
-        if (p.price_sale) candidates.push(p.price_sale);
-        if (p.price_rent) candidates.push(p.price_rent);
-      }
-      if (!candidates.length) return false;
-      const v = Math.min(...candidates);
-      if (s.priceMin && v < s.priceMin) return false;
-      if (s.priceMax && v > s.priceMax) return false;
-      return true;
-    });
-  }
-  if (s.areaMin) {
-    out = out.filter((p) => {
-      const a = Math.max(p.area_useful ?? 0, p.area_built ?? 0, p.area_total ?? 0);
-      return a >= s.areaMin;
-    });
-  }
-  if (s.q) {
-    const normalize = (str: string) =>
-      str
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9\s]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-    // Sinônimos de logradouro — colapsam para um marcador ignorado
-    const STREET_SYNONYMS: Record<string, string> = {
-      r: "__log__", rua: "__log__",
-      av: "__log__", avenida: "__log__", ave: "__log__",
-      al: "__log__", alameda: "__log__",
-      tv: "__log__", travessa: "__log__",
-      pc: "__log__", pca: "__log__", praca: "__log__",
-      rod: "__log__", rodovia: "__log__",
-      estr: "__log__", estrada: "__log__",
-      lgo: "__log__", largo: "__log__",
-      via: "__log__",
-    };
-    const STOP = new Set(["de", "da", "do", "das", "dos", "e"]);
-
-    const tokenize = (str: string) =>
-      normalize(str)
-        .split(" ")
-        .map((t) => STREET_SYNONYMS[t] ?? t)
-        .filter((t) => t && !STOP.has(t) && t !== "__log__");
-
-    // Só sobra o que ainda não virou filtro (normalmente o condomínio/rua).
-    // Se nada sobrou, a frase inteira já virou filtro estruturado — não
-    // aplicamos busca textual adicional (senão zera o resultado).
-    const residual = residualLocationQuery(s.q);
-    const queryTokens = residual ? tokenize(residual) : [];
-
-    if (queryTokens.length > 0) {
-      // Frase completa, tolerante a conectivos: "residencial 1" casa com
-      // "Residencial 1" mas nunca com "Residencial 11".
-      const phrase = new RegExp(
-        "(^|[^a-z0-9])" +
-          queryTokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[^a-z0-9]{0,3}") +
-          "([^a-z0-9]|$)",
-      );
-      const condoText = (p: PropertyRow) => normalize([p.condo_official, p.condominium_name].filter(Boolean).join(" "));
-      const fullText = (p: PropertyRow) =>
-        normalize([p.title, p.condominium_name, p.condo_official, p.neighborhood, p.seo_title, p.city, p.region, p.description, p.descricao_seo].filter(Boolean).join(" "));
-
-      const byCondo = out.filter((p) => phrase.test(condoText(p)));
-      if (byCondo.length) {
-        out = byCondo;
-      } else {
-        const byPhrase = out.filter((p) => phrase.test(fullText(p)));
-        out = byPhrase.length
-          ? byPhrase
-          : out.filter((p) => {
-              const haystack = tokenize(fullText(p));
-              // Números precisam bater exatamente; texto aceita prefixo.
-              return queryTokens.every((qt) =>
-                haystack.some((ht) =>
-                  /^\d+$/.test(qt) ? ht === qt : ht === qt || (qt.length >= 3 && ht.startsWith(qt)),
-                ),
-              );
-            });
-      }
-    }
-  }
-
-  const sorted = [...out];
-  if (s.sort === "price_asc") {
-    sorted.sort((a, b) => (a.price_sale ?? a.price_rent ?? Infinity) - (b.price_sale ?? b.price_rent ?? Infinity));
-  } else if (s.sort === "price_desc") {
-    sorted.sort((a, b) => (b.price_sale ?? b.price_rent ?? 0) - (a.price_sale ?? a.price_rent ?? 0));
-  } else if (s.sort === "area_desc") {
-    sorted.sort((a, b) => {
-      const ax = Math.max(a.area_useful ?? 0, a.area_built ?? 0, a.area_total ?? 0);
-      const bx = Math.max(b.area_useful ?? 0, b.area_built ?? 0, b.area_total ?? 0);
-      return bx - ax;
-    });
-  } else {
-    sorted.sort((a, b) => (b.last_seen_at ?? "").localeCompare(a.last_seen_at ?? ""));
-  }
-  return sorted;
-}
-
 function ImoveisPage() {
-  const { items, options } = Route.useLoaderData();
+  const { items, total: filteredCount, facets } = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
+  const options: FilterOptions = facets;
+  const total = facets.total;
 
-  // Aplica o motor central de interpretação sobre a frase digitada em q,
-  // preenchendo apenas os filtros que o usuário ainda não escolheu manualmente.
-  const effectiveSearch = useMemo<FilterState>(() => {
-    if (!search.q) return search;
-    const parsed = interpretQuery(search.q);
-    return {
-      ...search,
-      purpose: search.purpose || parsed.purpose || "",
-      type: search.type || parsed.type || "",
-      city: search.city || parsed.city || "",
-      neighborhood: search.neighborhood || parsed.neighborhood || "",
-      bedrooms: search.bedrooms || parsed.bedrooms || 0,
-      parking: search.parking || parsed.parking || 0,
-      priceMax: search.priceMax || parsed.priceMax || 0,
-    };
-  }, [search]);
-
-  const filtered = useMemo(() => applyFilters(items, effectiveSearch), [items, effectiveSearch]);
-  const total = items.length;
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filteredCount / PAGE_SIZE));
   const currentPage = Math.min(Math.max(1, search.page || 1), totalPages);
-  const startIdx = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = filtered.slice(startIdx, startIdx + PAGE_SIZE);
 
   const goToPage = (p: number) => {
-    navigate({
-      search: (prev: Record<string, unknown>) => ({ ...prev, page: p }),
-      resetScroll: false,
-    });
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    navigate({ search: (prev) => ({ ...prev, page: p }), resetScroll: false });
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // PDF: busca até 30 imóveis da pesquisa só quando o visitante pede.
+  const loadPdfItems = async (): Promise<PdfProperty[]> => {
+    const r = await searchProperties({ data: { ...search, page: 1, limit: 30 } });
+    return r.items;
   };
 
   return (
@@ -372,33 +120,33 @@ function ImoveisPage() {
         </div>
       </section>
 
-      <PropertyFilters options={options} state={search} filteredCount={filtered.length} totalCount={total} />
+      <PropertyFilters options={options} state={search} filteredCount={filteredCount} totalCount={total} />
 
-      {filtered.length > 0 && (
+      {filteredCount > 0 && (
         <section className="px-6 pt-8">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-ink/10 bg-background p-4">
             <p className="text-sm text-muted-foreground">
-              Gostou desta seleção? Salve os <strong className="text-ink">{filtered.length} imóveis</strong> em PDF e envie para você.
+              Gostou desta seleção? Salve os <strong className="text-ink">{filteredCount} imóveis</strong> em PDF e envie para você.
             </p>
-            <SaveSearchLead items={filtered} total={filtered.length} query={search.q || ""} filters={effectiveSearch as unknown as Record<string, unknown>} />
+            <SaveSearchLead loadItems={loadPdfItems} total={filteredCount} query={search.q || ""} filters={effectiveSearch(search) as unknown as Record<string, unknown>} />
           </div>
         </section>
       )}
 
       <section className="px-6 py-12 md:py-16">
         <div className="max-w-7xl mx-auto">
-          {filtered.length === 0 ? (
+          {filteredCount === 0 ? (
             <div className="text-center py-16 border border-dashed border-ink/15">
               <p className="font-serif text-2xl text-ink mb-2">Nenhum imóvel encontrado</p>
               <p className="text-sm text-muted-foreground mb-6">Tente remover algum filtro para ver mais opções.</p>
-              <Link to="/imoveis" search={{ purpose: "", type: "", city: "", neighborhood: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "", page: 1 }} className="inline-block bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest">
+              <Link to="/imoveis" search={IMOVEIS_DEFAULTS as never} className="inline-block bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest">
                 Limpar filtros
               </Link>
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {pageItems.map((p) => <PropertyCard key={p.id} p={p} />)}
+                {items.map((p, i) => <PropertyCard key={p.id} p={p} eager={i === 0} />)}
               </div>
               {totalPages > 1 && (
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
