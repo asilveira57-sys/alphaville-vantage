@@ -44,7 +44,7 @@ async function fetchProperty(slug: string) {
   if (!data) throw notFound();
 
   // Veja também: até 3 imóveis no mesmo bairro/tipo, excluindo o atual.
-  let related: Array<{ id: string; slug: string; title: string; seo_title: string | null; property_type: string | null; price_sale: number | null; price_rent: number | null; images: string[] }> = [];
+  let related: Array<{ id: string; slug: string; title: string; seo_title: string | null; property_type: string | null; price_sale: number | null; price_rent: number | null; images: string[]; card_image_url?: string | null }> = [];
   if (data.neighborhood) {
     const { data: rel } = await supabase
       .from("properties")
