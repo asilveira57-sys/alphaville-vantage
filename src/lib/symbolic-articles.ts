@@ -250,7 +250,7 @@ export const SYMBOLIC_ARTICLES: Record<string, SymbolicArticle> = {
     parent: { label: "Mercado imobiliário", to: "/mercado-imobiliario" },
     html: p(`
       <h2 id="metodologia">Metodologia</h2>
-      <p>Combinamos dados públicos de registro, observação de anúncios e conversas com corretores ativos no segmento de alto padrão.</p>
+      <p>Combinamos dados públicos de registro, observação de anúncios e conversas com profissionais ativos no segmento de alto padrão.</p>
       <h2 id="leitura">Leitura do ciclo</h2>
       <p>Condomínios com escassez de terrenos e arquitetura contemporânea lideram a valorização recente.</p>
       <p><em>Versão simbólica — o ranking completo será publicado em breve.</em></p>

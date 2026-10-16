@@ -95,7 +95,7 @@ export function OpportunityBanner({ item }: { item: OpportunityDTO }) {
               className="mt-6 inline-flex w-full items-center justify-center gap-2 bg-[#F2DA00] px-6 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D] transition hover:brightness-95"
             >
               <MessageCircle className="h-4 w-4" strokeWidth={2.4} />
-              Fale agora com o corretor
+              Fale agora com a imobiliária
             </a>
 
             <Link

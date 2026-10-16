@@ -233,7 +233,7 @@ function PropertyDetail() {
                 rel="noreferrer"
                 className="mt-8 inline-flex items-center gap-2 bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest hover:brightness-95 transition"
               >
-                Mais detalhes deste imóvel no site da corretora ↗
+                Mais detalhes deste imóvel no site da imobiliária ↗
               </a>
             )}
           </div>

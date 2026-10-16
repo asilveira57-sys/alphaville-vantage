@@ -65,7 +65,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
     subject: "Seu Radar S.A está ativo",
     heading: "{nome}, seu radar está ativo",
     intro: "Recebemos o seu perfil. Nossa equipe vai procurar os imóveis certos para o seu momento.",
-    outro: "Um corretor vai entrar em contato em breve.",
+    outro: "Nossa equipe vai entrar em contato em breve.",
     cta_label: "Falar no WhatsApp",
     cta_url: "https://wa.me/5511995515053",
   },

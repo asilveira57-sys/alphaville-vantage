@@ -138,7 +138,7 @@ export function EditorialDevelopmentPage({
               Consultar unidades disponíveis
             </a>
             <a href={`#${contactId}`} className="inline-flex items-center gap-2 border border-primary-foreground/25 px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary-foreground transition hover:border-accent hover:text-accent">
-              <MessageCircle className="h-4 w-4" /> Falar com um corretor
+              <MessageCircle className="h-4 w-4" /> Falar com a imobiliária
             </a>
           </div>
         </div>

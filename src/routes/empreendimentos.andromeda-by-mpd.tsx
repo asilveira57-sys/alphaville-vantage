@@ -143,7 +143,7 @@ function AndromedaPage() {
               href="#contato-andromeda"
               className="inline-flex items-center gap-2 border border-white/25 px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white transition hover:border-[#F2DA00] hover:text-[#F2DA00]"
             >
-              <MessageCircle className="h-4 w-4" /> Falar com um corretor
+              <MessageCircle className="h-4 w-4" /> Falar com a imobiliária
             </a>
           </div>
         </div>
