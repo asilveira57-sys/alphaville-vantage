@@ -23,7 +23,7 @@ export function SiteHeader() {
       {/* Faixa fina de contato — fundo preto, acento amarelo */}
       <div className="bg-[#0D0D0D] text-white/70 text-[10px] sm:text-[11px] tracking-[0.18em] uppercase border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-1.5 flex items-center justify-between gap-3">
-          <span className="hidden sm:inline">S.A Imóveis Alphaville · Corretora oficial da região</span>
+          <span className="hidden sm:inline">S.A Imóveis Alphaville · Imobiliária oficial da região</span>
           <div className="flex items-center gap-4 sm:gap-5 ml-auto">
             <a href="tel:+5511947888299" className="inline-flex items-center gap-1.5 hover:text-[#F2DA00] transition-colors">
               <Phone className="h-3 w-3 shrink-0" /> (11) 94788-8299

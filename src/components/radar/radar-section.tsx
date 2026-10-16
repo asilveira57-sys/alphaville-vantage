@@ -43,7 +43,7 @@ export function RadarSection() {
           className="font-display text-4xl md:text-5xl font-medium leading-[1.12] text-balance"
         >
           <span className="text-accent">Ative o seu Radar.</span><br />
-          Coloque nossos corretores para encontrar o imóvel certo para você.
+          Coloque a nossa equipe para encontrar o imóvel certo para você.
         </h2>
         <p className="mt-6 max-w-[55ch] text-primary-foreground/75 text-base md:text-lg leading-relaxed">
           Seu momento, suas prioridades. Nossa equipe e inteligência artificial conectam

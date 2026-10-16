@@ -22,7 +22,7 @@ export const CTA_TYPE_LABELS: Record<string, string> = {
   vender_imovel: "Vender imóvel",
   alugar_imovel: "Alugar imóvel",
   anunciar_imovel: "Anunciar imóvel",
-  falar_com_corretor: "Falar com corretor",
+  falar_com_corretor: "Falar com a imobiliária",
   receber_opcoes: "Receber opções",
   conhecer_condominio: "Conhecer um condomínio",
   conhecer_regiao: "Conhecer uma região",

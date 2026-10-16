@@ -348,7 +348,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
 
         {leadSent && (
           <p className="text-sm text-[#1A1A1A]/80">
-            Simulação registrada. Um corretor entra em contato com as condições reais deste imóvel.
+            Simulação registrada. Nossa equipe entra em contato com as condições reais deste imóvel.
           </p>
         )}
       </div>
