@@ -53,6 +53,7 @@ import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminConciliacaoRouteImport } from './routes/_authenticated/admin-conciliacao'
 import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_authenticated/admin-condominios'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
+import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminImportarImovelRouteImport } from './routes/_authenticated/admin-importar-imovel'
@@ -341,6 +342,12 @@ const AuthenticatedAdminCtasRoute = AuthenticatedAdminCtasRouteImport.update({
   path: '/admin-ctas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminEmailsRoute =
+  AuthenticatedAdminEmailsRouteImport.update({
+    id: '/admin-emails',
+    path: '/admin-emails',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminEmpreendimentosRoute =
   AuthenticatedAdminEmpreendimentosRouteImport.update({
     id: '/admin-empreendimentos',
@@ -742,6 +749,7 @@ export interface FileRoutesByFullPath {
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
+  '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
@@ -845,6 +853,7 @@ export interface FileRoutesByTo {
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
+  '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
@@ -955,6 +964,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/_authenticated/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
+  '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/_authenticated/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
@@ -1067,6 +1077,7 @@ export interface FileRouteTypes {
     | '/admin-conciliacao'
     | '/admin-condominios'
     | '/admin-ctas'
+    | '/admin-emails'
     | '/admin-empreendimentos'
     | '/admin-financiamento'
     | '/admin-importar-imovel'
@@ -1170,6 +1181,7 @@ export interface FileRouteTypes {
     | '/admin-conciliacao'
     | '/admin-condominios'
     | '/admin-ctas'
+    | '/admin-emails'
     | '/admin-empreendimentos'
     | '/admin-financiamento'
     | '/admin-importar-imovel'
@@ -1279,6 +1291,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-conciliacao'
     | '/_authenticated/admin-condominios'
     | '/_authenticated/admin-ctas'
+    | '/_authenticated/admin-emails'
     | '/_authenticated/admin-empreendimentos'
     | '/_authenticated/admin-financiamento'
     | '/_authenticated/admin-importar-imovel'
@@ -1715,6 +1728,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-ctas'
       fullPath: '/admin-ctas'
       preLoaderRoute: typeof AuthenticatedAdminCtasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-emails': {
+      id: '/_authenticated/admin-emails'
+      path: '/admin-emails'
+      fullPath: '/admin-emails'
+      preLoaderRoute: typeof AuthenticatedAdminEmailsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-empreendimentos': {
@@ -2214,6 +2234,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminConciliacaoRoute: typeof AuthenticatedAdminConciliacaoRoute
   AuthenticatedAdminCondominiosRoute: typeof AuthenticatedAdminCondominiosRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
+  AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
   AuthenticatedAdminImportarImovelRoute: typeof AuthenticatedAdminImportarImovelRoute
@@ -2245,6 +2266,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminConciliacaoRoute: AuthenticatedAdminConciliacaoRoute,
   AuthenticatedAdminCondominiosRoute: AuthenticatedAdminCondominiosRoute,
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
+  AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,
   AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
