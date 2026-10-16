@@ -48,7 +48,7 @@ export const saveSearchLead = createServerFn({ method: "POST" })
     }
     await guard.recordAttempt(supabaseAdmin as never, ipHash, "pesquisa");
 
-    const { error } = await supabaseAdmin.from("search_leads").insert({
+    const { data: row, error } = await supabaseAdmin.from("search_leads").insert({
       name: data.name,
       email,
       phone,
@@ -62,8 +62,10 @@ export const saveSearchLead = createServerFn({ method: "POST" })
       consent_text: data.consent ? SEARCH_LEAD_CONSENT : null,
       ip_hash: ipHash,
       user_agent: headers?.get("user-agent") ?? null,
-    });
+    }).select("id").single();
     if (error) throw new Error(error.message);
+    const { dispatchLeadEmails } = await import("./lead-emails.server");
+    await dispatchLeadEmails("search_leads", row.id);
     return { ok: true };
   });
 

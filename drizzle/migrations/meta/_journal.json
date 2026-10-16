@@ -148,6 +148,13 @@
       "when": 1791908068929,
       "tag": "0020_property_search_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792148788937,
+      "tag": "0021_email_templates_admin",
+      "breakpoints": true
     }
   ]
 }

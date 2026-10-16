@@ -663,6 +663,75 @@ export type Database = {
           },
         ]
       }
+      email_dispatch_log: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          lead_id: string | null
+          recipient: string
+          status: string
+          template_name: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          recipient: string
+          status: string
+          template_name: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          recipient?: string
+          status?: string
+          template_name?: string
+        }
+        Relationships: []
+      }
+      email_template_settings: {
+        Row: {
+          cta_label: string | null
+          cta_url: string | null
+          enabled: boolean
+          heading: string | null
+          intro: string | null
+          outro: string | null
+          recipient_override: string | null
+          subject: string | null
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          cta_label?: string | null
+          cta_url?: string | null
+          enabled?: boolean
+          heading?: string | null
+          intro?: string | null
+          outro?: string | null
+          recipient_override?: string | null
+          subject?: string | null
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          cta_label?: string | null
+          cta_url?: string | null
+          enabled?: boolean
+          heading?: string | null
+          intro?: string | null
+          outro?: string | null
+          recipient_override?: string | null
+          subject?: string | null
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       empreendimento_media: {
         Row: {
           active: boolean

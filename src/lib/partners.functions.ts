@@ -37,7 +37,7 @@ export const submitPartnerLead = createServerFn({ method: "POST" })
 
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("real_estate_radar_leads").insert({
+    const { data: ins, error } = await supabaseAdmin.from("real_estate_radar_leads").insert({
       lead_name: data.lead_name,
       lead_phone: phone,
       interest_type: data.goal === "investir" ? "investimento" : "moradia",
@@ -53,8 +53,10 @@ export const submitPartnerLead = createServerFn({ method: "POST" })
       form_version: "partner-1.0",
       landing_page: data.landing_page || null,
       profile_summary: `Interesse em ${data.development} (${data.goal})${data.budget ? ` — faixa ${data.budget}` : ""}`,
-    });
+    }).select("id").single();
 
     if (error) throw new Error("Não foi possível enviar agora. Tente novamente em instantes.");
+    const { dispatchLeadEmails } = await import("./lead-emails.server");
+    await dispatchLeadEmails("real_estate_radar_leads", ins.id);
     return { ok: true } as const;
   });

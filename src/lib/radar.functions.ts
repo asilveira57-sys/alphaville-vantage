@@ -102,6 +102,8 @@ export const submitRadarLead = createServerFn({ method: "POST" })
         console.error("[radar] update lead failed", error.message);
         throw new Error("Não foi possível registrar agora. Tente novamente.");
       }
+      const { dispatchLeadEmails } = await import("./lead-emails.server");
+      await dispatchLeadEmails("real_estate_radar_leads", existingId);
       return { ok: true as const, id: existingId, deduplicated: true, summary: payload.profile_summary };
     }
 
@@ -114,6 +116,8 @@ export const submitRadarLead = createServerFn({ method: "POST" })
       console.error("[radar] insert lead failed", error.message);
       throw new Error("Não foi possível registrar agora. Tente novamente.");
     }
+    const { dispatchLeadEmails } = await import("./lead-emails.server");
+    await dispatchLeadEmails("real_estate_radar_leads", inserted.id);
     return { ok: true as const, id: inserted.id, deduplicated: false, summary: payload.profile_summary };
   });
 

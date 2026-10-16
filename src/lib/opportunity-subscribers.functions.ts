@@ -161,12 +161,18 @@ export const subscribeToOpportunities = createServerFn({ method: "POST" })
         })
         .eq("id", row.id);
       if (error) throw new Error(error.message);
+      const { dispatchLeadEmails } = await import("./lead-emails.server");
+      await dispatchLeadEmails("opportunity_subscribers", row.id);
       return { ok: true, updated: true };
     }
 
-    const { error } = await supabaseAdmin.from("opportunity_subscribers").insert(payload);
+    const { data: ins, error } = await supabaseAdmin.from("opportunity_subscribers").insert(payload).select("id").single();
     // Duplicidade é sucesso silencioso: a pessoa já está na lista.
     if (error && error.code !== "23505") throw new Error(error.message);
+    if (ins?.id) {
+      const { dispatchLeadEmails } = await import("./lead-emails.server");
+      await dispatchLeadEmails("opportunity_subscribers", ins.id);
+    }
     return { ok: true, updated: error?.code === "23505" };
 
   });
