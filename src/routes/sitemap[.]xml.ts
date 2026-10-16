@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetch-all";
+import { SYMBOLIC_ARTICLES } from "@/lib/symbolic-articles";
 
 const BASE_URL = `${SITE_URL}`;
 
@@ -110,6 +111,30 @@ export const Route = createFileRoute("/sitemap.xml")({
           "/empreendimentos/neo-alphaville",
         ]) {
           entries.push({ path: p, changefreq: "weekly", priority: "0.8" });
+        }
+
+        // Hubs e subpáginas estáticas que faltavam
+        for (const p of ["/guia", "/meio-ambiente/areas", "/meio-ambiente/fauna", "/meio-ambiente/lazer"]) {
+          entries.push({ path: p, changefreq: "monthly", priority: "0.6" });
+        }
+
+        // Artigos institucionais fixos
+        for (const slug of Object.keys(SYMBOLIC_ARTICLES)) {
+          entries.push({ path: `/artigos/${slug}`, changefreq: "monthly", priority: "0.6" });
+        }
+
+        // Incorporadoras cadastradas (páginas /parceiros/:slug)
+        const partners = await fetchAllRows<{ slug: string; updated_at: string | null }>((f, t) =>
+          supabase.from("development_partners").select("slug,updated_at").eq("active", true)
+            .order("slug", { ascending: true }).range(f, t),
+        );
+        {
+          const have = new Set(entries.map((e) => e.path));
+          for (const p of partners) {
+            const path = `/parceiros/${p.slug}`;
+            if (have.has(path)) continue;
+            entries.push({ path, lastmod: p.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.7" });
+          }
         }
 
         // Condomínios cadastrados (módulo próprio)
