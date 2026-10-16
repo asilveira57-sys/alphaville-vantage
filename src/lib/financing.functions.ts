@@ -283,6 +283,8 @@ export const convertSimulationToLead = createServerFn({ method: "POST" })
       throw new Error("Não foi possível registrar seus dados agora.");
     }
 
+    const { dispatchLeadEmails } = await import("./lead-emails.server");
+    await dispatchLeadEmails("financing_simulations", data.simulation_id);
     return { ok: true as const };
   });
 

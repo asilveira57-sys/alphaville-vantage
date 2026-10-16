@@ -30,13 +30,19 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
     }
     await recordAttempt(supabaseAdmin as never, ipHash, "newsletter");
 
-    const { error } = await supabaseAdmin
+    const { data: row, error } = await supabaseAdmin
       .from("newsletter_subscribers")
-      .insert({ email, source: data.source ?? "home" });
+      .insert({ email, source: data.source ?? "home" })
+      .select("id")
+      .single();
 
     // Duplicidade é sucesso silencioso: a pessoa já está na lista.
     if (error && error.code !== "23505") {
       throw new Error("Não foi possível concluir agora. Tente novamente em instantes.");
+    }
+    if (row?.id) {
+      const { dispatchLeadEmails } = await import("./lead-emails.server");
+      await dispatchLeadEmails("newsletter_subscribers", row.id);
     }
     return { ok: true, already: error?.code === "23505" };
   });
