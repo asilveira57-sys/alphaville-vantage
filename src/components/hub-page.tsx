@@ -2,7 +2,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { SectionPage, ComingSoonGrid, type BreadcrumbItem } from "./section-page";
 import { EditorialContent } from "./editorial-content";
-import { getEditorialBySlug } from "@/lib/editorial.functions";
+import { getEditorialBySlug, getFeaturedImagesBySlugs } from "@/lib/editorial.functions";
 
 export type HubCard = {
   eyebrow: string;
@@ -19,10 +19,26 @@ export type HubDefaults = {
   cards: HubCard[];
 };
 
+const linkedSlug = (to?: string) => {
+  const m = /^\/(?:artigos|blog|guia)\/([^/?#]+)/.exec(to ?? "");
+  return m ? m[1] : null;
+};
+
 export const hubQO = (slug: string) =>
   queryOptions({
     queryKey: ["editorial", "hub", slug],
-    queryFn: () => getEditorialBySlug({ data: { slug } }),
+    queryFn: async () => {
+      const page = await getEditorialBySlug({ data: { slug } });
+      const cards = page && Array.isArray((page as any).cards) ? ((page as any).cards as HubCard[]) : [];
+      const slugs = cards
+        .filter((c) => !c.image?.trim())
+        .map((c) => linkedSlug(c.to))
+        .filter((s): s is string => !!s);
+      const linkedImages = slugs.length
+        ? await getFeaturedImagesBySlugs({ data: { slugs } })
+        : {};
+      return page ? { ...page, linkedImages } : page;
+    },
     staleTime: 0,
     refetchOnMount: "always",
   });
@@ -54,6 +70,7 @@ export function HubPageView({ slug, defaults, breadcrumbs, children }: Props) {
           image: c.image ?? null,
         }))
       : defaults.cards;
+  const linkedImages = ((data as any)?.linkedImages ?? {}) as Record<string, string>;
 
   return (
     <SectionPage eyebrow={eyebrow} title={title} lead={lead} breadcrumbs={breadcrumbs}>
@@ -69,7 +86,7 @@ export function HubPageView({ slug, defaults, breadcrumbs, children }: Props) {
           title: c.title,
           lead: c.lead,
           to: c.to as never,
-          image: c.image ?? null,
+          image: c.image?.trim() || linkedImages[linkedSlug(c.to) ?? ""] || null,
         }))}
       />
       {children}

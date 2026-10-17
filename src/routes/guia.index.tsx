@@ -5,6 +5,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
 import { listPublishedByType } from "@/lib/editorial.functions";
+import { regionGuideImagesQO } from "@/components/guia-cross-nav";
 
 
 
@@ -14,7 +15,10 @@ const QO = queryOptions({
 });
 
 export const Route = createFileRoute("/guia/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(QO),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(QO),
+    context.queryClient.ensureQueryData(regionGuideImagesQO),
+  ]),
   head: () => ({
     meta: [
       { title: "Guias de bairros — Alphaville, Tamboré, Barueri e Santana de Parnaíba" },
@@ -34,14 +38,15 @@ export const Route = createFileRoute("/guia/")({
 });
 
 const STATIC_GUIDES = [
-  { to: "/guia-alphaville", title: "Guia Alphaville", excerpt: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
-  { to: "/guia-tambore", title: "Guia Tamboré", excerpt: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
-  { to: "/guia-barueri", title: "Guia Barueri", excerpt: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
-  { to: "/guia-santana-de-parnaiba", title: "Guia Santana de Parnaíba", excerpt: "Centro histórico tombado, gastronomia e novos condomínios." },
+  { slug: "guia-alphaville", to: "/guia-alphaville", title: "Guia Alphaville", excerpt: "Dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil." },
+  { slug: "guia-tambore", to: "/guia-tambore", title: "Guia Tamboré", excerpt: "Residenciais de luxo, clubes, escolas e mercado em valorização." },
+  { slug: "guia-barueri", to: "/guia-barueri", title: "Guia Barueri", excerpt: "Polo corporativo: história, benefícios fiscais, empresas e mobilidade." },
+  { slug: "guia-santana-de-parnaiba", to: "/guia-santana-de-parnaiba", title: "Guia Santana de Parnaíba", excerpt: "Centro histórico tombado, gastronomia e novos condomínios." },
 ] as const;
 
 function GuiaIndex() {
   const { data: items } = useSuspenseQuery(QO);
+  const { data: regionImages } = useSuspenseQuery(regionGuideImagesQO);
   return (
     <SectionPage
       eyebrow="Guias"
@@ -54,14 +59,14 @@ function GuiaIndex() {
           <PremiumCard
             key={g.to}
             to={g.to as never}
-            image={null}
+            image={regionImages[g.slug] ?? null}
             imageAlt={g.title}
             eyebrow="Guia Regional"
             title={g.title}
             description={g.excerpt}
             cta="Abrir guia"
             aspectRatio="tall"
-            fallback={{ type: "region", seed: g.to }}
+            disableImageFallback
           />
         ))}
         {items.map((g) => (

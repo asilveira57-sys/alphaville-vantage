@@ -10,7 +10,8 @@ const ALL = [
   { slug: "guia-santana-de-parnaiba", to: "/guia-santana-de-parnaiba", title: "Santana de Parnaíba", excerpt: "Centro histórico tombado e novos condomínios." },
 ] as const;
 
-const regionImagesQO = queryOptions({
+/** Main (featured) image of each regional guide, as set in the CMS. */
+export const regionGuideImagesQO = queryOptions({
   queryKey: ["editorial", "region-card-images"],
   queryFn: async () => {
     const rows = await listPublishedByType({ data: { type: "hub" } });
@@ -25,7 +26,7 @@ const regionImagesQO = queryOptions({
 
 export function GuiaCrossNav({ currentTo }: { currentTo: string }) {
   const others = ALL.filter((g) => g.to !== currentTo);
-  const { data: images = {} } = useQuery(regionImagesQO);
+  const { data: images = {} } = useQuery(regionGuideImagesQO);
   return (
     <div className="mt-20 pt-12 border-t border-ink/10">
       <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
@@ -44,7 +45,7 @@ export function GuiaCrossNav({ currentTo }: { currentTo: string }) {
             description={g.excerpt}
             cta="Abrir guia"
             aspectRatio="tall"
-            fallback={{ type: "region", seed: g.to }}
+            disableImageFallback
           />
         ))}
       </div>
