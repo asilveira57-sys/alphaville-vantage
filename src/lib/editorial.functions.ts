@@ -87,6 +87,23 @@ export const getEditorialBySlug = createServerFn({ method: "GET" })
     return row;
   });
 
+/** Main (featured) images of published pages, keyed by slug — used so cards show the page's own cover. */
+export const getFeaturedImagesBySlugs = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ slugs: z.array(z.string().min(1)).max(100) }).parse(d))
+  .handler(async ({ data }) => {
+    if (!data.slugs.length) return {} as Record<string, string>;
+    const sb = publicClient();
+    const { data: rows, error } = await sb
+      .from("editorial_pages")
+      .select("slug,featured_image")
+      .eq("status", "published")
+      .in("slug", data.slugs);
+    if (error) throw new Error(error.message);
+    const out: Record<string, string> = {};
+    for (const r of rows ?? []) if (r.featured_image?.trim()) out[r.slug] = r.featured_image;
+    return out;
+  });
+
 export const listRelated = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({
     type: z.enum(CONTENT_TYPES),
