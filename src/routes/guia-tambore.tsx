@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HubPageView, hubQO } from "@/components/hub-page";
-import { GuiaCrossNav } from "@/components/guia-cross-nav";
+import { GuiaCrossNav, regionGuideImagesQO } from "@/components/guia-cross-nav";
 
 const SLUG = "guia-tambore";
 const DEFAULTS = {
@@ -15,7 +15,10 @@ const DEFAULTS = {
 };
 
 export const Route = createFileRoute("/guia-tambore")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(hubQO(SLUG)),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(hubQO(SLUG)),
+    context.queryClient.ensureQueryData(regionGuideImagesQO),
+  ]),
   head: () => ({
     meta: [
       { title: "Guia Tamboré — S.A Imóveis Alphaville" },
