@@ -70,6 +70,7 @@ export function HubPageView({ slug, defaults, breadcrumbs, children }: Props) {
           image: c.image ?? null,
         }))
       : defaults.cards;
+  const linkedImages = ((data as any)?.linkedImages ?? {}) as Record<string, string>;
 
   return (
     <SectionPage eyebrow={eyebrow} title={title} lead={lead} breadcrumbs={breadcrumbs}>
@@ -85,7 +86,7 @@ export function HubPageView({ slug, defaults, breadcrumbs, children }: Props) {
           title: c.title,
           lead: c.lead,
           to: c.to as never,
-          image: c.image ?? null,
+          image: c.image?.trim() || linkedImages[linkedSlug(c.to) ?? ""] || null,
         }))}
       />
       {children}
