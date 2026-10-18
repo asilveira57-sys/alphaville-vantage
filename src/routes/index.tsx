@@ -60,7 +60,7 @@ async function fetchFeatured(): Promise<FeaturedProperty[]> {
   const { data, error } = await supabase
     .from("properties")
     .select(
-      "slug,title,internal_code,price_sale,price_rent,images,last_seen_at,neighborhood,city,region,bedrooms,parking,area_useful,area_total,property_type",
+      "slug,title,internal_code,price_sale,price_rent,images,last_seen_at,neighborhood,city,region,bedrooms,parking,area_useful,area_total,property_type,card_image_url",
     )
     .eq("status", "active")
     .order("last_seen_at", { ascending: false })
@@ -74,7 +74,7 @@ async function fetchFeatured(): Promise<FeaturedProperty[]> {
       internal_code: p.internal_code,
       price_sale: p.price_sale,
       price_rent: p.price_rent,
-      image: imgs[0] ?? null,
+      image: (p as { card_image_url?: string | null }).card_image_url ?? imgs[0] ?? null,
       neighborhood: p.neighborhood,
       city: p.city,
       region: p.region,
