@@ -285,7 +285,7 @@ function PartnerArea() {
                       className="group flex h-full gap-4 border border-ink/12 p-4 transition hover:border-ink/35"
                     >
                       {k.image ? (
-                        <img
+                        <img width={800} height={600} decoding="async"
                           src={k.image}
                           alt=""
                           loading="lazy"

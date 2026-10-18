@@ -122,7 +122,7 @@ function MpdPartnerPage() {
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#0D0D0D]">
                   {d.image ? (
-                    <img
+                    <img width={800} height={600}
                       src={d.image}
                       alt={`${d.name} — ${d.location}`}
                       loading="lazy"
@@ -244,7 +244,7 @@ function ExtraEmpreendimentos() {
         >
           <div className="relative aspect-[16/9] overflow-hidden bg-[#0D0D0D]">
             {e.featured_image ? (
-              <img
+              <img width={800} height={600}
                 src={e.featured_image}
                 alt={e.title}
                 loading="lazy"

@@ -187,7 +187,7 @@ function FloraPage() {
               empreendimentoSlug="flora-alphaville"
               alt="Florá Alphaville, no Alphagran Alphaville, Barueri"
               fallback={HERO_IMAGE ? (
-              <img
+              <img width={800} height={600}
                 src={HERO_IMAGE}
                 alt="Florá Alphaville, no Alphagran Alphaville, Barueri"
                 loading="lazy"
@@ -211,7 +211,7 @@ function FloraPage() {
             {GALLERY.length > 0 ? (
               <div className="mt-4 grid grid-cols-3 gap-3">
                 {GALLERY.map((g) => (
-                  <img
+                  <img width={800} height={600}
                     key={g.url}
                     src={g.url}
                     alt={g.alt}

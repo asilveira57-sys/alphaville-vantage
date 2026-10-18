@@ -361,7 +361,7 @@ function EditRua() {
               <div className="space-y-3">
                 {form.gallery_images.map((g, i) => (
                   <div key={g.url + i} className="flex gap-4 border border-ink/10 p-3">
-                    <img src={g.url} alt={g.alt} className="h-24 w-32 object-cover border border-ink/10" />
+                    <img width={800} height={600} loading="lazy" decoding="async" src={g.url} alt={g.alt} className="h-24 w-32 object-cover border border-ink/10" />
                     <div className="flex-1 space-y-2">
                       <div>
                         <label className={label}>Texto alternativo (alt)</label>

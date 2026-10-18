@@ -153,7 +153,7 @@ export function HubCardsEditor({
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Imagem do card</span>
             <div className="flex items-center gap-3">
               {c.image ? (
-                <img src={c.image} alt="" className="h-14 w-20 object-cover border border-ink/10" />
+                <img width={800} height={600} loading="lazy" decoding="async" src={c.image} alt="" className="h-14 w-20 object-cover border border-ink/10" />
               ) : (
                 <div className="h-14 w-20 border border-dashed border-ink/20 grid place-items-center text-[10px] text-muted-foreground">
                   auto

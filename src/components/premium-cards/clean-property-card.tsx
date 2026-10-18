@@ -1,6 +1,7 @@
 import { ArrowUpRight, BedDouble, Car, Ruler } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { resolveImage } from "@/lib/image-fallbacks";
+import { resized, onImgFallback } from "@/lib/img-resize";
 
 const fmt = (n: number | null | undefined) =>
   n == null
@@ -76,8 +77,12 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
     >
       <div className="relative aspect-[16/9] shrink-0 overflow-hidden">
         <img
-          src={src}
-          srcSet={p.imageSrcSet ?? undefined}
+          src={p.imageSrcSet ? src : (p.image ? resized(src, 600) ?? src : src)}
+          srcSet={p.imageSrcSet ?? (p.image && !/property-thumb/.test(src) ? `${resized(src, 600)} 600w, ${resized(src, 1200)} 1200w` : undefined)}
+          data-orig={src}
+          onError={onImgFallback}
+          width={600}
+          height={338}
           alt={p.title}
           loading={p.eager ? "eager" : "lazy"}
           {...(p.eager ? { fetchPriority: "high" as const } : {})}

@@ -2,6 +2,7 @@ import * as React from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { resized, onImgFallback } from "@/lib/img-resize";
 
 type Props = {
   images: string[];
@@ -12,7 +13,8 @@ type Props = {
 
 export function PropertyGallery({ images, title, firstLarge }: Props) {
   const [full, setFull] = React.useState<number | null>(null);
-  const shown = (i: number) => (i === 0 && firstLarge ? firstLarge : images[i]);
+  const shown = (i: number) => (i === 0 && firstLarge ? firstLarge : resized(images[i], 1200) ?? images[i]);
+  const thumb = (i: number) => resized(images[i], 240) ?? images[i];
   const [mainRef, mainApi] = useEmblaCarousel({ loop: true });
   const [thumbsRef, thumbsApi] = useEmblaCarousel({
     containScroll: "keepSnaps",
@@ -60,7 +62,7 @@ export function PropertyGallery({ images, title, firstLarge }: Props) {
     <div className="space-y-3">
       {full !== null && (
         <div className="fixed inset-0 z-[90] bg-brand-dark flex items-center justify-center" role="dialog" aria-label="Galeria em tela cheia" onClick={() => setFull(null)}>
-          <img src={images[full]} alt={`${title} — imagem ${full + 1}`} className="max-h-full max-w-full object-contain" />
+          <img src={images[full]} alt={`${title} — imagem ${full + 1}`} decoding="async" className="max-h-full max-w-full object-contain" />
           <button type="button" aria-label="Fechar" onClick={() => setFull(null)} className="absolute top-4 right-4 grid place-items-center h-11 w-11 bg-brand-yellow text-brand-dark">
             <X className="h-5 w-5" />
           </button>
@@ -80,13 +82,18 @@ export function PropertyGallery({ images, title, firstLarge }: Props) {
               <div key={i} className="relative min-w-0 shrink-0 grow-0 basis-full">
                 <img
                   src={shown(i)}
+                  data-orig={src}
+                  onError={onImgFallback}
                   alt={`${title} — imagem ${i + 1}`}
+                  width={1200}
+                  height={750}
                   loading={i === 0 ? "eager" : "lazy"}
                   decoding="async"
                   sizes="(max-width: 1024px) 100vw, 960px"
                   {...(i === 0 ? { fetchPriority: "high" as const } : {})}
                   className="w-full aspect-[16/10] object-contain bg-brand-dark"
                 />
+
               </div>
             ))}
           </div>
@@ -139,9 +146,14 @@ export function PropertyGallery({ images, title, firstLarge }: Props) {
                 )}
               >
                 <img
-                  src={shown(i)}
+                  src={thumb(i)}
+                  data-orig={src}
+                  onError={onImgFallback}
                   alt=""
+                  width={240}
+                  height={180}
                   loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover bg-ink/10"
                 />
               </button>

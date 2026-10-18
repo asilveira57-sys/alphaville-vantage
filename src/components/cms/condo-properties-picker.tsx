@@ -13,7 +13,7 @@ const brl = (n: number | null) =>
 
 function Thumb({ p }: { p: CondoPropertyDTO }) {
   return p.image ? (
-    <img src={p.image} alt="" className="h-14 w-20 shrink-0 rounded object-cover" loading="lazy" />
+    <img width={800} height={600} decoding="async" src={p.image} alt="" className="h-14 w-20 shrink-0 rounded object-cover" loading="lazy" />
   ) : (
     <div className="h-14 w-20 shrink-0 rounded bg-ink/10" />
   );

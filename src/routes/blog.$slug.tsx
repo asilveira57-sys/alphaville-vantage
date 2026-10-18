@@ -112,7 +112,7 @@ function PostPage() {
     <SiteLayout>
       {/* Cover with overlay */}
       <header className="relative isolate bg-navy-deep text-canvas">
-        <img
+        <img width={800} height={600}
           src={cover}
           alt={post.title}
           loading="eager"
@@ -228,7 +228,7 @@ function PostPage() {
                     className="group block border border-ink/10 hover:border-ink/30 transition-colors"
                   >
                     <div className="aspect-[4/3] overflow-hidden bg-ink/5">
-                      <img
+                      <img width={800} height={600}
                         src={img}
                         alt={r.title}
                         loading="lazy"

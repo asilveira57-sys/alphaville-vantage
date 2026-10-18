@@ -158,7 +158,7 @@ function StreetGuidePage() {
       {/* HERO */}
       <section className="relative bg-navy-deep text-canvas overflow-hidden">
         {guide.og_image && (
-          <img src={guide.og_image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+          <img width={800} height={600} loading="lazy" decoding="async" src={guide.og_image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
         )}
         <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,17,35,0.65)_0%,rgba(8,14,28,0.95)_100%)]" />
         <div className="relative max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-16">

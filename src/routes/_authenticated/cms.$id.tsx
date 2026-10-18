@@ -1045,7 +1045,7 @@ function FullPostPreview({ form }: { form: FormState }) {
         Pré-visualização — não publicada
       </div>
       <header className="relative isolate bg-navy-deep text-canvas">
-        <img src={cover} alt={form.title} className="absolute inset-0 h-full w-full object-cover opacity-60" />
+        <img width={800} height={600} loading="lazy" decoding="async" src={cover} alt={form.title} className="absolute inset-0 h-full w-full object-cover opacity-60" />
         <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,14,28,0.35)_0%,rgba(8,14,28,0.75)_60%,rgba(8,14,28,0.95)_100%)]" />
         <div className="relative max-w-3xl mx-auto px-6 pt-16 pb-14">
           <span className="inline-flex items-center rounded-full bg-navy/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold ring-1 ring-gold/30 backdrop-blur">

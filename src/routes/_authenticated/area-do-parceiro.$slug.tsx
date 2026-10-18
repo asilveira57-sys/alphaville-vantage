@@ -275,7 +275,7 @@ function MediaKitPage() {
             </p>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {p.images.slice(0, 8).map((src) => (
-                <img
+                <img width={800} height={600} decoding="async"
                   key={src}
                   src={src}
                   alt=""

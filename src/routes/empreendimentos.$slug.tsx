@@ -126,7 +126,7 @@ function DevelopmentPage() {
 
       <section className="bg-[#EAEAE6] px-6 py-16">
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.1fr_0.9fr]">
-          <img
+          <img width={800} height={600}
             src={resolveImage(null, { type: "condo", region: "alphaville", seed: slug })}
             alt={`${item.name} — ${item.location}`}
             loading="lazy"

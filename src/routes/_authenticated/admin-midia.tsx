@@ -134,7 +134,7 @@ function AdminMedia() {
                   {listQ.data!.items.map((m) => (
                     <button key={m.id} type="button" onClick={() => { setSelected(m); setErr(null); }}
                       className={`text-left border transition ${selected?.id === m.id ? "border-ink" : "border-ink/10 hover:border-ink/40"}`}>
-                      <img src={m.url} alt={m.alt_text ?? ""} loading="lazy"
+                      <img decoding="async" src={m.url} alt={m.alt_text ?? ""} loading="lazy"
                         width={m.width ?? undefined} height={m.height ?? undefined}
                         className="w-full aspect-square object-cover" />
                       <p className="px-2 py-1 text-[10px] truncate text-muted-foreground">{m.original_filename}</p>
@@ -215,7 +215,7 @@ function MediaDetails({
 
   return (
     <div className="space-y-3 text-sm">
-      <img src={item.url} alt={item.alt_text ?? ""} className="w-full object-cover border border-ink/10" loading="lazy" />
+      <img width={800} height={600} decoding="async" src={item.url} alt={item.alt_text ?? ""} className="w-full object-cover border border-ink/10" loading="lazy" />
       <p className="text-[11px] text-muted-foreground break-all">{item.original_filename}</p>
       <p className="text-[11px] text-muted-foreground">
         {item.width && item.height ? `${item.width}×${item.height} · ` : ""}

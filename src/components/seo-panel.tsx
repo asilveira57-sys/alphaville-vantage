@@ -139,7 +139,7 @@ export function SeoPanel({
             <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground px-4 pt-3">Facebook / LinkedIn</p>
             <div className="aspect-[1200/630] bg-ink/5 mt-2">
               {effective.image
-                ? <img src={effective.image} alt="" className="h-full w-full object-cover" loading="lazy" />
+                ? <img width={800} height={600} decoding="async" src={effective.image} alt="" className="h-full w-full object-cover" loading="lazy" />
                 : <div className="h-full w-full grid place-items-center text-[11px] text-muted-foreground">Sem imagem social</div>}
             </div>
             <div className="p-3">
@@ -152,7 +152,7 @@ export function SeoPanel({
           <div className="border border-ink/15 p-4 bg-[#e5ddd5]">
             <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">WhatsApp</p>
             <div className="bg-white rounded-lg overflow-hidden max-w-[320px] shadow-sm">
-              {effective.image && <img src={effective.image} alt="" className="w-full aspect-[1200/630] object-cover" loading="lazy" />}
+              {effective.image && <img width={800} height={600} decoding="async" src={effective.image} alt="" className="w-full aspect-[1200/630] object-cover" loading="lazy" />}
               <div className="p-3">
                 <p className="text-[13px] font-medium text-ink line-clamp-2">{effective.ogTitle}</p>
                 <p className="text-[11px] text-muted-foreground line-clamp-2">{effective.ogDescription}</p>

@@ -49,7 +49,7 @@ export function CmsEditorialPage({
       {page.featured_image && (
         <section className="px-6 py-12 bg-ink/[0.02]">
           <div className="max-w-5xl mx-auto">
-            <img src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" decoding="async" />
+            <img width={800} height={600} src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" decoding="async" />
           </div>
         </section>
       )}

@@ -155,7 +155,7 @@ function StreetDetail() {
       <div className="space-y-20">
         {street.hero_image && (
           <figure className="max-w-4xl">
-            <img
+            <img width={800} height={600} decoding="async"
               src={street.hero_image}
               alt={street.hero_image_alt || street.name}
               loading="lazy"
@@ -186,7 +186,7 @@ function StreetDetail() {
                 if (!url) return null;
                 return (
                   <figure key={url + i}>
-                    <img src={url} alt={(typeof g === "object" && g?.alt) || street.name} loading="lazy"
+                    <img width={800} height={600} decoding="async" src={url} alt={(typeof g === "object" && g?.alt) || street.name} loading="lazy"
                       className="w-full object-cover aspect-[4/3] border border-ink/10" />
                     {typeof g === "object" && g?.caption && (
                       <figcaption className="mt-2 text-xs text-muted-foreground">{g.caption}</figcaption>

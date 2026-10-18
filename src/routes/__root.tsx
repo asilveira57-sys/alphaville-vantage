@@ -146,7 +146,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <body>
         {/* Meta Pixel — fallback noscript (obrigatório ficar no body) */}
         <noscript>
-          <img
+          <img loading="lazy" decoding="async"
             height="1"
             width="1"
             style={{ display: "none" }}

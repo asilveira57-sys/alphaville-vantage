@@ -84,7 +84,7 @@ export function EmpreendimentoGalleryBlock({
             className="block w-full"
             aria-label="Ampliar imagem"
           >
-            <img
+            <img width={800} height={600}
               src={current.url}
               alt={alt}
               loading={index === 0 ? "eager" : "lazy"}
@@ -145,7 +145,7 @@ export function EmpreendimentoGalleryBlock({
                   i === index ? "border-[#F2DA00]" : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
-                <img src={m.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                <img width={800} height={600} src={m.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
               </button>
             ))}
           </div>
@@ -167,7 +167,7 @@ export function EmpreendimentoGalleryBlock({
           >
             <X className="h-7 w-7" />
           </button>
-          <img
+          <img width={800} height={600} loading="lazy" decoding="async"
             src={current.url}
             alt={alt}
             className="max-h-[88vh] max-w-[94vw] object-contain"

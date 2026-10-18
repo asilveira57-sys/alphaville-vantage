@@ -20,7 +20,7 @@ export function EmpreendimentoCoverImage({
   if (!cover) return <>{fallback}</>;
 
   return (
-    <img
+    <img width={800} height={600}
       src={cover.url}
       alt={cover.alt_text || cover.title || alt}
       loading="lazy"

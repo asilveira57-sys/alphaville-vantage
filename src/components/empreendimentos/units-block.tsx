@@ -108,7 +108,7 @@ function UnitCard({ u }: { u: EmpreendimentoUnit }) {
       className="group flex flex-col overflow-hidden rounded-[14px] bg-white ring-1 ring-[#0D0D0D]/8 transition hover:ring-[#0D0D0D]/25"
     >
       {img ? (
-        <img
+        <img width={800} height={600}
           src={img}
           alt={u.title}
           loading="lazy"
