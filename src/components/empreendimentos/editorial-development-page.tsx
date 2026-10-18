@@ -151,7 +151,7 @@ export function EditorialDevelopmentPage({
               empreendimentoSlug={page.slug}
               alt={`${page.title} — ${location}`}
               fallback={page.featured_image ? (
-                <img src={page.featured_image} alt={`${page.title} — ${location}`} decoding="async" sizes="(max-width: 768px) 92vw, 55vw" className="aspect-[16/10] w-full rounded-[16px] object-cover ring-1 ring-ink/10" />
+                <img width={800} height={600} loading="lazy" src={page.featured_image} alt={`${page.title} — ${location}`} decoding="async" sizes="(max-width: 768px) 92vw, 55vw" className="aspect-[16/10] w-full rounded-[16px] object-cover ring-1 ring-ink/10" />
               ) : (
                 <div className="grid aspect-[16/10] w-full place-items-center rounded-[16px] bg-ink/5 text-center ring-1 ring-ink/10">
                   <div><Building2 className="mx-auto h-8 w-8 text-ink/35" /><p className="mt-3 font-display text-xl text-ink">{page.title}</p><p className="mt-1 text-xs uppercase tracking-[0.18em] text-ink/45">Imagens oficiais em breve</p></div>

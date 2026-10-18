@@ -445,7 +445,7 @@ function GallerySection({ slug }: { slug: string }) {
         {rows.map((m, i) => (
           <div key={m.id} className="grid gap-4 border border-ink/10 p-3 md:grid-cols-[120px_1fr]">
             <div className="space-y-2">
-              <img src={m.url} alt="" className="h-24 w-full border border-ink/10 object-cover" />
+              <img width={800} height={600} loading="lazy" decoding="async" src={m.url} alt="" className="h-24 w-full border border-ink/10 object-cover" />
               <div className="flex gap-1">
                 <button className={btn} onClick={() => void move(i, -1)} disabled={i === 0}>
                   ↑
@@ -738,7 +738,7 @@ function PlanImageField({
       <label className={label}>{text}</label>
       <div className="flex items-center gap-3">
         {value ? (
-          <img src={value} alt="" className="h-14 w-14 border border-ink/10 object-cover" />
+          <img width={800} height={600} loading="lazy" decoding="async" src={value} alt="" className="h-14 w-14 border border-ink/10 object-cover" />
         ) : (
           <div className="grid h-14 w-14 place-items-center border border-dashed border-ink/20 text-[10px] text-muted-foreground">
             vazio

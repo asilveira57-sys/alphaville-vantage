@@ -104,7 +104,7 @@ function GuiaPage() {
 
       {page.featured_image && (
         <section className="px-6 py-12 bg-ink/[0.02]">
-          <div className="max-w-5xl mx-auto"><img src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" /></div>
+          <div className="max-w-5xl mx-auto"><img width={800} height={600} decoding="async" src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" /></div>
         </section>
       )}
 
@@ -139,7 +139,7 @@ function GuiaPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {related.map((r) => (
                 <Link key={r.id} to="/guia/$slug" params={{ slug: r.slug }} className="group block">
-                  {r.featured_image && <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-3"><img src={r.featured_image} alt={r.title} className="w-full h-full object-cover" loading="lazy" /></div>}
+                  {r.featured_image && <div className="aspect-[4/3] bg-ink/5 overflow-hidden mb-3"><img width={800} height={600} decoding="async" src={r.featured_image} alt={r.title} className="w-full h-full object-cover" loading="lazy" /></div>}
                   <h3 className="font-serif text-lg group-hover:underline">{r.title}</h3>
                   {r.excerpt && <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{r.excerpt}</p>}
                 </Link>

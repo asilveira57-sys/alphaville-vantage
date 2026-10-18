@@ -48,7 +48,7 @@ export function ImageUpload({ value, onUploaded, folder = "uploads", label = "Im
     <div className={className}>
       <div className="flex items-center gap-3">
         {value ? (
-          <img src={value} alt="" className="h-16 w-16 object-cover border border-ink/15" />
+          <img width={800} height={600} loading="lazy" decoding="async" src={value} alt="" className="h-16 w-16 object-cover border border-ink/15" />
         ) : (
           <div className="h-16 w-16 border border-dashed border-ink/20 flex items-center justify-center text-[10px] text-muted-foreground">
             sem imagem
@@ -121,7 +121,7 @@ export function ImageGalleryUpload({
       <div className="flex flex-wrap gap-2 mb-2">
         {value.map((url, i) => (
           <div key={url + i} className="relative group">
-            <img src={url} alt="" className="h-20 w-20 object-cover border border-ink/15" />
+            <img width={800} height={600} loading="lazy" decoding="async" src={url} alt="" className="h-20 w-20 object-cover border border-ink/15" />
             <button
               type="button"
               onClick={() => onChange(value.filter((_, idx) => idx !== i))}

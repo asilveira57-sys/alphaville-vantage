@@ -324,7 +324,7 @@ function PropertyRow({
     >
       <input type="checkbox" checked={selected} onChange={onToggle} className="h-4 w-4" aria-label={`Selecionar ${p.title}`} />
       {p.image ? (
-        <img src={p.image} alt="" className="h-12 w-16 shrink-0 rounded object-cover" loading="lazy" />
+        <img width={800} height={600} decoding="async" src={p.image} alt="" className="h-12 w-16 shrink-0 rounded object-cover" loading="lazy" />
       ) : (
         <div className="h-12 w-16 shrink-0 rounded bg-ink/10" />
       )}

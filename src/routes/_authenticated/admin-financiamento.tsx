@@ -383,7 +383,7 @@ function BanksSection() {
             {(banks ?? []).map((b) => (
               <tr key={b.id} className="border-t border-ink/10">
                 <td className="px-4 py-3 flex items-center gap-3">
-                  {b.logo_url ? <img src={b.logo_url} alt={b.name} className="h-6 w-auto object-contain" /> : null}
+                  {b.logo_url ? <img width={800} height={600} loading="lazy" decoding="async" src={b.logo_url} alt={b.name} className="h-6 w-auto object-contain" /> : null}
                   {b.name}
                 </td>
                 <td className="px-4 py-3 text-right">{Number(b.annual_rate).toFixed(2).replace(".", ",")}%</td>

@@ -92,7 +92,7 @@ export function MediaPicker({ open, folder = "geral", onClose, onSelect }: Props
                   onClick={() => { onSelect(m); onClose(); }}
                   className="group text-left border border-ink/10 hover:border-ink transition"
                 >
-                  <img src={m.url} alt={m.alt_text ?? ""} loading="lazy"
+                  <img decoding="async" src={m.url} alt={m.alt_text ?? ""} loading="lazy"
                     width={m.width ?? undefined} height={m.height ?? undefined}
                     className="w-full aspect-square object-cover" />
                   <p className="px-2 py-1 text-[10px] truncate text-muted-foreground">{m.original_filename}</p>

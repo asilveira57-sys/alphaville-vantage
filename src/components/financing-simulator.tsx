@@ -197,7 +197,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
           {bank && (
             <div className="flex items-start gap-3 rounded-lg border border-black/10 bg-[#EAEAE6] p-3">
               {bank.logo_url ? (
-                <img src={bank.logo_url} alt={`Logomarca ${bank.name}`} className="h-8 w-auto object-contain" loading="lazy" />
+                <img width={800} height={600} decoding="async" src={bank.logo_url} alt={`Logomarca ${bank.name}`} className="h-8 w-auto object-contain" loading="lazy" />
               ) : null}
               <p className="text-[11px] leading-relaxed text-[#1A1A1A]/70">
                 <strong className="text-[#0D0D0D]">{bank.name}</strong> — entrada mínima{" "}

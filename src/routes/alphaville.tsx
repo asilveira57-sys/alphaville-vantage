@@ -84,7 +84,7 @@ function AlphavillePage() {
     <SiteLayout>
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-navy-deep text-canvas">
-        <img
+        <img width={800} height={600} decoding="async"
           src={heroImg}
           alt="Alphaville — vista aérea"
           className="absolute inset-0 h-full w-full object-cover opacity-45"

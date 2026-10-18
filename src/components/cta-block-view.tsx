@@ -37,7 +37,7 @@ export function CtaBlockView({
   return (
     <aside className={`${s.wrap} p-8 md:p-12`}>
       <div className="max-w-3xl">
-        {imageUrl && <img src={imageUrl} alt="" loading="lazy" className="h-12 w-auto mb-6 object-contain" />}
+        {imageUrl && <img width={800} height={600} decoding="async" src={imageUrl} alt="" loading="lazy" className="h-12 w-auto mb-6 object-contain" />}
         <h2 className={`font-serif text-2xl md:text-3xl ${s.title} text-balance`}>{title}</h2>
         {text && <p className={`mt-3 text-sm leading-relaxed ${s.body} whitespace-pre-line`}>{text}</p>}
         {(buttonLabel && buttonUrl) || (secondaryLabel && secondaryUrl) ? (

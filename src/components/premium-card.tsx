@@ -63,7 +63,7 @@ export function PremiumCard(props: PremiumCardProps) {
     <div className={cn(cleanCardShell, className)}>
       <div className={cn("relative shrink-0 overflow-hidden", aspects[aspectRatio])}>
         {src ? (
-          <img
+          <img width={800} height={600}
             src={src}
             alt={imageAlt}
             loading={priority ? "eager" : "lazy"}

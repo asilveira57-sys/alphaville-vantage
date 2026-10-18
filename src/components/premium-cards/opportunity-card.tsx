@@ -108,7 +108,7 @@ export function OpportunityCard({
       <div
         className={`relative shrink-0 overflow-hidden ${size === "large" ? "aspect-[4/3]" : "aspect-[16/9]"}`}
       >
-        <img
+        <img width={800} height={600}
           src={src}
           alt={item.title}
           loading={priority ? "eager" : "lazy"}

@@ -148,7 +148,7 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey, mediaFol
     if (!editor) return;
     // Insert as figure with caption when provided, otherwise standalone img.
     if (p.caption) {
-      const html = `<figure><img src="${escapeAttr(p.src)}" alt="${escapeAttr(p.alt)}" loading="lazy" /><figcaption>${escapeText(p.caption)}</figcaption></figure><p></p>`;
+      const html = `<figure><img width={800} height={600} decoding="async" src="${escapeAttr(p.src)}" alt="${escapeAttr(p.alt)}" loading="lazy" /><figcaption>${escapeText(p.caption)}</figcaption></figure><p></p>`;
       editor.chain().focus().insertContent(html).run();
     } else {
       editor.chain().focus().setImage({ src: p.src, alt: p.alt }).run();

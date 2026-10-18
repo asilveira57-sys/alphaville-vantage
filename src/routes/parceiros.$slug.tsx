@@ -108,7 +108,7 @@ function DynamicPartnerLanding({ slug }: { slug: string }) {
             Empreendimentos · {partner.name}
           </p>
           {partner.logo_url ? (
-            <img
+            <img width={800} height={600} loading="lazy" decoding="async"
               src={partner.logo_url}
               alt={`Logotipo ${partner.name}`}
               className="mb-6 h-14 w-auto object-contain"
@@ -162,7 +162,7 @@ function DynamicPartnerLanding({ slug }: { slug: string }) {
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-[#0D0D0D]">
                     {d.featured_image ? (
-                      <img
+                      <img width={800} height={600}
                         src={d.featured_image}
                         alt={d.title}
                         loading="lazy"

@@ -119,7 +119,7 @@ export function EmpreendimentoPlansBlock({
                     />
                   </div>
                 ) : t.image_url ? (
-                  <img src={t.image_url} alt={labelFor(t)} loading="lazy" className="w-full object-cover" />
+                  <img width={800} height={600} decoding="async" src={t.image_url} alt={labelFor(t)} loading="lazy" className="w-full object-cover" />
                 ) : null}
                 <figcaption className="mt-2 text-sm text-[#1A1A1A]/70">
                   {labelFor(t)}
@@ -143,7 +143,7 @@ export function EmpreendimentoPlansBlock({
                     }`}
                   >
                     {(p.thumb_url || p.image_url) && (
-                      <img
+                      <img width={800} height={600} decoding="async"
                         src={p.thumb_url || p.image_url || ""}
                         alt=""
                         loading="lazy"
@@ -164,7 +164,7 @@ export function EmpreendimentoPlansBlock({
             {current && (
               <figure>
                 {current.image_url && (
-                  <img
+                  <img width={800} height={600}
                     src={current.image_url}
                     alt={labelFor(current)}
                     loading="lazy"

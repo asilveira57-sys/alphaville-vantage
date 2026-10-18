@@ -149,7 +149,7 @@ function AdminCards() {
               <div key={keyOf(it)} className="border border-ink/15 flex flex-col">
                 <div className="aspect-[4/3] bg-ink/[0.04] grid place-items-center overflow-hidden">
                   {it.image ? (
-                    <img src={it.image} alt={it.label} loading="lazy" className="h-full w-full object-cover" />
+                    <img width={800} height={600} decoding="async" src={it.image} alt={it.label} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
                     <span className="text-[10px] uppercase tracking-widest text-muted-foreground">sem imagem</span>
                   )}

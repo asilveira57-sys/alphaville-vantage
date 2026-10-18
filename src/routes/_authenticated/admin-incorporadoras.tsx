@@ -317,7 +317,7 @@ function AdminIncorporadoras() {
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-4 p-4">
                 <div className="flex min-w-0 items-center gap-3">
                   {p.logo_url ? (
-                    <img src={p.logo_url} alt="" className="h-10 w-10 shrink-0 object-contain" />
+                    <img width={800} height={600} loading="lazy" decoding="async" src={p.logo_url} alt="" className="h-10 w-10 shrink-0 object-contain" />
                   ) : null}
                   <div className="min-w-0">
                     <p className="flex flex-wrap items-center gap-2 text-sm">

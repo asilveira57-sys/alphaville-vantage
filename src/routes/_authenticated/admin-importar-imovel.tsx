@@ -259,7 +259,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
               {dup.similar!.map((p: any) => (
                 <div key={p.id} className="border border-amber-300 bg-white p-3 text-xs flex gap-3">
                   {Array.isArray(p.images) && p.images[0] && (
-                    <img src={String(p.images[0])} alt="" className="w-20 h-16 object-cover" loading="lazy" />
+                    <img width={800} height={600} decoding="async" src={String(p.images[0])} alt="" className="w-20 h-16 object-cover" loading="lazy" />
                   )}
                   <div className="min-w-0">
                     <div className="font-medium truncate">{p.title}</div>
@@ -285,7 +285,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
               {dup.other_type!.map((p: any) => (
                 <div key={p.id} className="border border-blue-300 bg-white p-3 text-xs flex gap-3">
                   {Array.isArray(p.images) && p.images[0] && (
-                    <img src={String(p.images[0])} alt="" className="w-20 h-16 object-cover" loading="lazy" />
+                    <img width={800} height={600} decoding="async" src={String(p.images[0])} alt="" className="w-20 h-16 object-cover" loading="lazy" />
                   )}
                   <div className="min-w-0">
                     <div className="font-medium truncate">{p.title}</div>
@@ -466,7 +466,7 @@ function ReviewScreen({ id, onClose }: { id: string; onClose: () => void }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {draft.images.map((src, i) => (
               <div key={src} className={`border ${i === draft.cover_index ? "border-ink" : "border-ink/10"} p-1 space-y-1`}>
-                <img src={src} alt="" className="w-full aspect-[16/9] object-cover" loading="lazy" />
+                <img width={800} height={600} decoding="async" src={src} alt="" className="w-full aspect-[16/9] object-cover" loading="lazy" />
                 <div className="flex justify-between text-[10px] uppercase tracking-widest">
                   <button onClick={() => patch((d) => { d.cover_index = i; return d; })} className="hover:underline">
                     {i === draft.cover_index ? "Principal" : "Tornar principal"}

@@ -183,7 +183,7 @@ function NeoPage() {
               alt="Neo Alphaville, na Avenida Sagitário, Alphaville Empresarial, Barueri"
               fallback={HERO_IMAGE ? (
               <div className="grid aspect-[16/10] w-full place-items-center rounded-[16px] bg-white p-10 ring-1 ring-[#0D0D0D]/8">
-                <img
+                <img width={800} height={600}
                   src={HERO_IMAGE}
                   alt="Neo Alphaville, na Avenida Sagitário, Alphaville Empresarial, Barueri"
                   loading="lazy"
@@ -208,7 +208,7 @@ function NeoPage() {
             {GALLERY.length > 0 ? (
               <div className="mt-4 grid grid-cols-3 gap-3">
                 {GALLERY.map((g) => (
-                  <img
+                  <img width={800} height={600}
                     key={g.url}
                     src={g.url}
                     alt={g.alt}
