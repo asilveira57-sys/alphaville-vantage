@@ -1,3 +1,4 @@
+import { resized, onImgFallback } from "@/lib/img-resize";
 import { Link, type LinkProps } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
@@ -64,7 +65,10 @@ export function PremiumCard(props: PremiumCardProps) {
       <div className={cn("relative shrink-0 overflow-hidden", aspects[aspectRatio])}>
         {src ? (
           <img width={800} height={600}
-            src={src}
+          data-orig={src}
+          onError={onImgFallback}
+          srcSet={/^https?:/.test(src ?? "") ? `${resized(src, 600)} 600w, ${resized(src, 1200)} 1200w` : undefined}
+            src={resized(src, 600) ?? src}
             alt={imageAlt}
             loading={priority ? "eager" : "lazy"}
             decoding="async"

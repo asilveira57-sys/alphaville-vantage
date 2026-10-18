@@ -1,3 +1,4 @@
+import { resized, onImgFallback } from "@/lib/img-resize";
 import { ArrowUpRight, BedDouble, Car, Ruler } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { resolveImage } from "@/lib/image-fallbacks";
@@ -109,7 +110,10 @@ export function OpportunityCard({
         className={`relative shrink-0 overflow-hidden ${size === "large" ? "aspect-[4/3]" : "aspect-[16/9]"}`}
       >
         <img width={800} height={600}
-          src={src}
+          data-orig={src}
+          onError={onImgFallback}
+          srcSet={/^https?:/.test(src ?? "") ? `${resized(src, 600)} 600w, ${resized(src, 1200)} 1200w` : undefined}
+          src={resized(src, 600) ?? src}
           alt={item.title}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
