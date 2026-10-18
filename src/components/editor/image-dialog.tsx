@@ -62,7 +62,7 @@ export function ImageDialog({
         <div className="p-5 space-y-4">
           {src && (
             <div className="border border-ink/10 p-2 bg-ink/[0.02]">
-              <img width={800} height={600} loading="lazy" decoding="async" src={src} alt={alt || "preview"} className="max-h-48 mx-auto object-contain" />
+              <img src={src} alt={alt || "preview"} className="max-h-48 mx-auto object-contain" />
             </div>
           )}
           <div className="flex gap-2">
