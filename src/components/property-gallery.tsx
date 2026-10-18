@@ -2,6 +2,7 @@ import * as React from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { resized, onImgFallback } from "@/lib/img-resize";
 
 type Props = {
   images: string[];
@@ -12,7 +13,8 @@ type Props = {
 
 export function PropertyGallery({ images, title, firstLarge }: Props) {
   const [full, setFull] = React.useState<number | null>(null);
-  const shown = (i: number) => (i === 0 && firstLarge ? firstLarge : images[i]);
+  const shown = (i: number) => (i === 0 && firstLarge ? firstLarge : resized(images[i], 1200) ?? images[i]);
+  const thumb = (i: number) => resized(images[i], 240) ?? images[i];
   const [mainRef, mainApi] = useEmblaCarousel({ loop: true });
   const [thumbsRef, thumbsApi] = useEmblaCarousel({
     containScroll: "keepSnaps",
