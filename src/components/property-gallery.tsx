@@ -62,7 +62,7 @@ export function PropertyGallery({ images, title, firstLarge }: Props) {
     <div className="space-y-3">
       {full !== null && (
         <div className="fixed inset-0 z-[90] bg-brand-dark flex items-center justify-center" role="dialog" aria-label="Galeria em tela cheia" onClick={() => setFull(null)}>
-          <img width={800} height={600} loading="lazy" src={images[full]} alt={`${title} — imagem ${full + 1}`} decoding="async" className="max-h-full max-w-full object-contain" />
+          <img src={images[full]} alt={`${title} — imagem ${full + 1}`} decoding="async" className="max-h-full max-w-full object-contain" />
           <button type="button" aria-label="Fechar" onClick={() => setFull(null)} className="absolute top-4 right-4 grid place-items-center h-11 w-11 bg-brand-yellow text-brand-dark">
             <X className="h-5 w-5" />
           </button>
