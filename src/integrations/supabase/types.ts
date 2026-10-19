@@ -2748,6 +2748,7 @@ export type Database = {
         Returns: undefined
       }
       normalize_street_text: { Args: { txt: string }; Returns: string }
+      property_main_image: { Args: { p_images: Json }; Returns: string }
       property_search_facets: { Args: never; Returns: Json }
       search_norm: { Args: { t: string }; Returns: string }
       search_properties: {
@@ -2818,6 +2819,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      wsrv_url: { Args: { p_url: string; p_w: number }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "editor" | "user" | "parceiro"
