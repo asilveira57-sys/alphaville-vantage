@@ -155,6 +155,13 @@
       "when": 1792148788937,
       "tag": "0021_email_templates_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792415709560,
+      "tag": "0022_auto_property_thumbs",
+      "breakpoints": true
     }
   ]
 }
