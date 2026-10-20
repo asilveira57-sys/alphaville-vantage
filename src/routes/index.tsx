@@ -58,7 +58,7 @@ export const Route = createFileRoute("/")({
       { rel: "preload", as: "image", href: heroImg, fetchpriority: "high" },
     ],
   }),
-  loader: () => loadHome(),
+  loader: () => getHomeData(),
   component: HomePage,
 });
 
