@@ -2739,6 +2739,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      home_region_counts: { Args: never; Returns: Json }
       increment_property_view: {
         Args: { p_property_id: string }
         Returns: undefined

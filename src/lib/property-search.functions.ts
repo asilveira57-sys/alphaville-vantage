@@ -8,7 +8,7 @@ import { cityOrder } from "./cities";
 
 export const PAGE_SIZE = 15;
 
-function publicClient() {
+export function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
   return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
     auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
