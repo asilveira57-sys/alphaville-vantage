@@ -162,6 +162,13 @@
       "when": 1792415709560,
       "tag": "0022_auto_property_thumbs",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792492865974,
+      "tag": "0023_home_region_counts_rpc",
+      "breakpoints": true
     }
   ]
 }
