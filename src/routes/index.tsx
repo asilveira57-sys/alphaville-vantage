@@ -5,7 +5,12 @@ import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
 import { InstitutionalBlock } from "@/components/section-page";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  getHomeData,
+  type FeaturedProperty,
+  type FeaturedPost,
+  type RegionCounts,
+} from "@/lib/home.functions";
 import { CleanPostCard } from "@/components/premium-cards/clean-post-card";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
@@ -26,122 +31,8 @@ import interiorImg from "@/assets/article-interior.jpg";
 import gardenImg from "@/assets/article-garden.jpg";
 import clubhouseImg from "@/assets/article-clubhouse.jpg";
 
-type FeaturedProperty = {
-  slug: string;
-  title: string;
-  internal_code: string | null;
-  price_sale: number | null;
-  price_rent: number | null;
-  image: string | null;
-  neighborhood: string | null;
-  city: string | null;
-  region: string | null;
-  bedrooms: number | null;
-  parking: number | null;
-  area: number | null;
-  property_type: string | null;
-};
-
-type FeaturedPost = {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string | null;
-  featured_image: string | null;
-  tags: string[] | null;
-};
-
-type RegionCounts = Record<string, number>;
-
-const isUsableImg = (u: string) =>
-  /^https?:\/\//.test(u) && !/(logo|favicon|whats|placeholder|topo_contato)/i.test(u);
-
-async function fetchFeatured(): Promise<FeaturedProperty[]> {
-  const { data, error } = await supabase
-    .from("properties")
-    .select(
-      "slug,title,internal_code,price_sale,price_rent,images,last_seen_at,neighborhood,city,region,bedrooms,parking,area_useful,area_total,property_type,card_image_url",
-    )
-    .eq("status", "active")
-    .order("last_seen_at", { ascending: false })
-    .limit(24);
-  if (error) return [];
-  const rows = (data ?? []).map((p) => {
-    const imgs = Array.isArray(p.images) ? (p.images as string[]).filter(isUsableImg) : [];
-    return {
-      slug: p.slug,
-      title: p.title,
-      internal_code: p.internal_code,
-      price_sale: p.price_sale,
-      price_rent: p.price_rent,
-      image: (p as { card_image_url?: string | null }).card_image_url ?? imgs[0] ?? null,
-      neighborhood: p.neighborhood,
-      city: p.city,
-      region: p.region,
-      bedrooms: p.bedrooms,
-      parking: p.parking,
-      area: p.area_useful ?? p.area_total ?? null,
-      property_type: p.property_type,
-    } as FeaturedProperty;
-  });
-  return rows.filter((p) => p.image).slice(0, 8);
-}
-
-async function fetchLatestPosts(): Promise<FeaturedPost[]> {
-  const { data, error } = await supabase
-    .from("editorial_pages")
-    .select("id,slug,title,excerpt,featured_image,tags,published_at")
-    .eq("status", "published")
-    .eq("content_type", "blog")
-    .order("published_at", { ascending: false })
-    .limit(3);
-  if (error) return [];
-  return (data ?? []) as FeaturedPost[];
-}
-
-async function fetchRegionCounts(): Promise<RegionCounts> {
-  const regions = ["alphaville", "tambore", "barueri", "santana"] as const;
-  const entries = await Promise.all(
-    regions.map(async (key) => {
-      const pattern =
-        key === "santana" ? "%santana%" : key === "tambore" ? "%tambor%" : `%${key}%`;
-      const { count } = await supabase
-        .from("properties")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "active")
-        .or(`region.ilike.${pattern},city.ilike.${pattern},neighborhood.ilike.${pattern}`);
-      return [key, count ?? 0] as const;
-    }),
-  );
-  return Object.fromEntries(entries);
-}
-
-/** Imagens dos cards de região vindas do CMS (Admin → Imagens dos cards). */
-async function fetchRegionImages(): Promise<Record<string, string>> {
-  const { data } = await supabase
-    .from("editorial_pages")
-    .select("slug,featured_image")
-    .in("slug", ["guia-alphaville", "guia-tambore", "guia-barueri", "guia-santana-de-parnaiba"]);
-  const map: Record<string, string> = {};
-  for (const row of (data ?? []) as Array<{ slug: string; featured_image: string | null }>) {
-    if (row.featured_image) map[row.slug] = row.featured_image;
-  }
-  return map;
-}
-
-async function loadHome() {
-  const [properties, posts, regionCounts, regionImages, opportunities] = await Promise.all([
-    fetchFeatured(),
-    fetchLatestPosts(),
-    fetchRegionCounts(),
-    fetchRegionImages(),
-    // A vitrine tem regra de negócio (curadoria, validade, sinais), então roda
-    // no servidor — ao contrário das demais queries da home, que batem no
-    // Supabase direto do browser.
-    listShowcase({ data: { limit: HOME_SHOWCASE_SIZE } }).catch(() => [] as OpportunityDTO[]),
-  ]);
-  return { properties, posts, regionCounts, regionImages, opportunities };
-}
+// Os dados da home (destaques, posts, contagens por região, imagens dos cards
+// e vitrine) vêm do servidor com cache de 5 minutos — ver src/lib/home.functions.ts.
 
 export const Route = createFileRoute("/")({
   head: () => ({
