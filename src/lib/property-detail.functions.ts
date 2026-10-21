@@ -28,10 +28,47 @@ export type RelatedProperty = {
 const PROPERTY_SELECT =
   "id,slug,title,status,seo_title,seo_description,property_type,purpose,city,state,neighborhood,region,condominium_name,condominium_id,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,iptu_period,furnished,is_launch,accepts_exchange,description,descricao_seo,descricao_original,internal_code,external_ref,source_url,images,large_image_url";
 
-type PropertyRow = Record<string, unknown> & { id: string; neighborhood: string | null; property_type: string | null; images: unknown };
-
-export type PropertyDetailDTO = Omit<PropertyRow, "images"> & {
+export type PropertyDetailDTO = {
+  id: string;
+  slug: string;
+  title: string;
+  status: string;
+  seo_title: string | null;
+  seo_description: string | null;
+  property_type: string | null;
+  purpose: string | null;
+  city: string | null;
+  state: string | null;
+  neighborhood: string | null;
+  region: string | null;
+  condominium_name: string | null;
+  condominium_id: string | null;
+  bedrooms: number | null;
+  suites: number | null;
+  bathrooms: number | null;
+  lavabos: number | null;
+  parking: number | null;
+  parking_covered: number | null;
+  parking_uncovered: number | null;
+  area_useful: number | null;
+  area_built: number | null;
+  area_total: number | null;
+  price_sale: number | null;
+  price_rent: number | null;
+  condo_fee: number | null;
+  iptu: number | null;
+  iptu_period: string | null;
+  furnished: boolean | null;
+  is_launch: boolean | null;
+  accepts_exchange: boolean | null;
+  description: string | null;
+  descricao_seo: string | null;
+  descricao_original: string | null;
+  internal_code: string | null;
+  external_ref: string | null;
+  source_url: string | null;
   images: string[];
+  large_image_url: string | null;
   related: RelatedProperty[];
 };
 
