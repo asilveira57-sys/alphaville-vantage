@@ -82,17 +82,16 @@ async function fetchProperty(slug: string): Promise<PropertyDetailDTO | null> {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
-  const row = data as unknown as PropertyRow;
 
   // Veja também: até 3 imóveis no mesmo bairro/tipo, excluindo o atual.
   let related: RelatedProperty[] = [];
-  if (row.neighborhood) {
+  if (data.neighborhood) {
     const { data: rel } = await publicClient()
       .from("properties")
       .select("id,slug,title,seo_title,property_type,price_sale,price_rent,images,card_image_url")
       .eq("status", "active")
-      .eq("neighborhood", row.neighborhood)
-      .neq("id", row.id)
+      .eq("neighborhood", data.neighborhood)
+      .neq("id", data.id)
       .order("last_seen_at", { ascending: false })
       .limit(6);
     related = ((rel ?? []) as unknown as Array<RelatedProperty & { images: unknown }>)
@@ -104,10 +103,10 @@ async function fetchProperty(slug: string): Promise<PropertyDetailDTO | null> {
   }
 
   return {
-    ...row,
-    images: Array.isArray(row.images) ? (row.images as string[]).filter(isUsableImg) : [],
+    ...data,
+    images: Array.isArray(data.images) ? (data.images as string[]).filter(isUsableImg) : [],
     related,
-  } as PropertyDetailDTO;
+  } as unknown as PropertyDetailDTO;
 }
 
 export const getPropertyBySlug = createServerFn({ method: "GET" })
