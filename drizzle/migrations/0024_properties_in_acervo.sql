@@ -1,0 +1,2 @@
+ALTER TABLE public.properties ADD COLUMN in_acervo boolean NOT NULL DEFAULT false;
+COMMENT ON COLUMN public.properties.in_acervo IS 'Fotos originais copiadas para o bucket acervo; a rotina diária nunca remove essas cópias.';
