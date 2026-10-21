@@ -38,6 +38,43 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+// Páginas e áreas com conteúdo por usuário nunca levam cache de borda.
+const NO_CACHE_PREFIXES = [
+  "/admin",
+  "/cms",
+  "/auth",
+  "/audit",
+  "/area-do-parceiro",
+  "/reset-password",
+  "/api",
+  "/lovable",
+];
+
+// Cache-Control das respostas públicas: HTML curto com stale-while-revalidate
+// (a borda serve a página guardada enquanto busca uma nova) e arquivos
+// estáticos com hash no nome (/assets/) com cache longo e imutável.
+function withCacheHeaders(request: Request, response: Response): Response {
+  if (request.method !== "GET" && request.method !== "HEAD") return response;
+  if (response.status !== 200 || response.headers.has("set-cookie")) return response;
+  if (response.headers.has("cache-control")) return response;
+
+  const path = new URL(request.url).pathname;
+  let value: string | null = null;
+  if (path.startsWith("/assets/") || path === "/favicon.png") {
+    value = "public, max-age=31536000, immutable";
+  } else if (
+    !NO_CACHE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`)) &&
+    (response.headers.get("content-type") ?? "").includes("text/html")
+  ) {
+    value = "public, max-age=60, stale-while-revalidate=300";
+  }
+  if (!value) return response;
+
+  const res = new Response(response.body, response);
+  res.headers.set("Cache-Control", value);
+  return res;
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     const url = new URL(request.url);
@@ -50,7 +87,7 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return withCacheHeaders(request, await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
