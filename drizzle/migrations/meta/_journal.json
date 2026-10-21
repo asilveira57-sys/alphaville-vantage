@@ -169,6 +169,13 @@
       "when": 1792492865974,
       "tag": "0023_home_region_counts_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792580714801,
+      "tag": "0024_properties_in_acervo",
+      "breakpoints": true
     }
   ]
 }

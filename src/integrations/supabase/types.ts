@@ -1533,6 +1533,7 @@ export type Database = {
           furnished: boolean | null
           id: string
           images: Json
+          in_acervo: boolean
           internal_code: string | null
           iptu: number | null
           iptu_period: string | null
@@ -1608,6 +1609,7 @@ export type Database = {
           furnished?: boolean | null
           id?: string
           images?: Json
+          in_acervo?: boolean
           internal_code?: string | null
           iptu?: number | null
           iptu_period?: string | null
@@ -1683,6 +1685,7 @@ export type Database = {
           furnished?: boolean | null
           id?: string
           images?: Json
+          in_acervo?: boolean
           internal_code?: string | null
           iptu?: number | null
           iptu_period?: string | null
