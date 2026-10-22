@@ -26,7 +26,7 @@ export type RelatedProperty = {
 };
 
 const PROPERTY_SELECT =
-  "id,slug,title,status,seo_title,seo_description,property_type,purpose,city,state,neighborhood,region,condominium_name,condominium_id,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,iptu_period,furnished,is_launch,accepts_exchange,description,descricao_seo,descricao_original,internal_code,external_ref,source_url,images,large_image_url";
+  "id,slug,title,status,seo_title,seo_description,property_type,purpose,city,state,neighborhood,region,condominium_name,condominium_id,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,condo_fee,iptu,iptu_period,furnished,is_launch,accepts_exchange,description,descricao_seo,descricao_original,internal_code,external_ref,source_url,images,large_image_url,in_acervo";
 
 export type PropertyDetailDTO = {
   id: string;
@@ -69,6 +69,7 @@ export type PropertyDetailDTO = {
   source_url: string | null;
   images: string[];
   large_image_url: string | null;
+  in_acervo: boolean;
   related: RelatedProperty[];
 };
 

@@ -29,7 +29,7 @@ const isUsableImg = (u: string) =>
 const slugify = (s: string) =>
   s
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/\p{M}/gu, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
@@ -86,6 +86,33 @@ async function fetchPhoto(url: string): Promise<{ bytes: Uint8Array; contentType
 
 const idInput = (d: { propertyId: string }) =>
   z.object({ propertyId: z.string().uuid() }).parse(d);
+
+export const searchPropertiesForPhotoTools = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { q: string }) =>
+    z.object({ q: z.string().trim().min(2).max(120) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context as unknown as Ctx);
+    const q = data.q.replace(/[%,]/g, " ");
+    const like = `%${q}%`;
+    const { data: rows, error } = await context.supabase
+      .from("properties")
+      .select("id,slug,title,internal_code,source_id,status,in_acervo,images")
+      .or(`internal_code.ilike.${like},source_id.ilike.${like},slug.ilike.${like},title.ilike.${like}`)
+      .order("updated_at", { ascending: false })
+      .limit(20);
+    if (error) throw new Error(error.message);
+    return (rows ?? []).map((r: any) => ({
+      id: r.id as string,
+      slug: r.slug as string,
+      title: r.title as string,
+      code: (r.internal_code || r.source_id || "") as string,
+      status: r.status as string,
+      inAcervo: Boolean(r.in_acervo),
+      photos: Array.isArray(r.images) ? r.images.filter(isUsableImg).length : 0,
+    }));
+  });
 
 export const downloadPropertyPhotosZip = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
