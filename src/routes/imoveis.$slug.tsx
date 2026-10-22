@@ -16,6 +16,7 @@ import {
   type OpportunityDTO,
 } from "@/lib/opportunities.functions";
 import { useEffect, useRef } from "react";
+import { PropertyPhotoTools } from "@/components/admin/property-photo-tools";
 
 
 const fmtPrice = (n: number | null) =>
@@ -171,6 +172,9 @@ function PropertyDetail() {
       <section className="px-6 py-12 bg-ink/[0.02]">
         <div className="max-w-6xl mx-auto">
           <PropertyGallery images={p.images} title={p.title} firstLarge={p.large_image_url} />
+          <div className="mt-4">
+            <PropertyPhotoTools propertyId={p.id} inAcervo={p.in_acervo} />
+          </div>
         </div>
       </section>
 
