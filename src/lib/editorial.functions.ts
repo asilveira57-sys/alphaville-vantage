@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sanitizeHtml, stripChatCitationsDeep } from "./sanitize-html";
 import { fetchAllRows } from "./fetch-all";
+import type { Database } from "@/integrations/supabase/types";
 
 type AdminEditorialRow = {
   id: string;
