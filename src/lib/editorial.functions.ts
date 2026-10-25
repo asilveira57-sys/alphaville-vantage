@@ -300,7 +300,7 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
       featured_image: data.featured_image || null,
       author_id: context.userId,
       published_at: data.status === "published" ? new Date().toISOString() : null,
-    };
+    });
     delete payload.allow_empty_content;
     if (!data.id) delete payload.id;
     const { data: row, error } = await context.supabase
