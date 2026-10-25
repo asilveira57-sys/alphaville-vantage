@@ -2,7 +2,7 @@ import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
-import { resolveImage } from "@/lib/image-fallbacks";
+import { BrandPlaceholder } from "@/components/brand-placeholder";
 import { getEditorialBySlug } from "@/lib/editorial.functions";
 import { getDevelopmentPartnerForEmpreendimento } from "@/lib/development-partners.functions";
 import { EditorialDevelopmentPage } from "@/components/empreendimentos/editorial-development-page";
@@ -126,14 +126,9 @@ function DevelopmentPage() {
 
       <section className="bg-[#EAEAE6] px-6 py-16">
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.1fr_0.9fr]">
-          <img width={800} height={600}
-            src={resolveImage(null, { type: "condo", region: "alphaville", seed: slug })}
-            alt={`${item.name} — ${item.location}`}
-            loading="lazy"
-            decoding="async"
-            sizes="(max-width: 768px) 92vw, 55vw"
-            className="aspect-[16/10] w-full rounded-[16px] object-cover ring-1 ring-[#0D0D0D]/8"
-          />
+          <div className="aspect-[16/10] w-full overflow-hidden rounded-[16px] ring-1 ring-[#0D0D0D]/8">
+            <BrandPlaceholder title={item.name} eyebrow={item.location} />
+          </div>
           <div className="space-y-4 text-[15px] leading-relaxed text-[#1A1A1A]/75">
             <h2 className="font-display text-2xl text-[#171717]">Informações gerais</h2>
             <p><strong className="text-[#171717]">Localização:</strong> {item.location}</p>
