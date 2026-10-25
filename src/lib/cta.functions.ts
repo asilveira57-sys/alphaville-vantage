@@ -1,3 +1,4 @@
+import { stripChatCitationsDeep } from "./sanitize-html";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -182,7 +183,7 @@ export const upsertCta = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertEditor(context);
-    const payload = { ...data, created_by: context.userId };
+    const payload = stripChatCitationsDeep({ ...data, created_by: context.userId });
     const { data: row, error } = data.id
       ? await context.supabase.from("cta_blocks").update(payload).eq("id", data.id).select("*").single()
       : await context.supabase.from("cta_blocks").insert(payload).select("*").single();

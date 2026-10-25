@@ -19,6 +19,7 @@ import { LinkDialog } from "./editor/link-dialog";
 import { ImageDialog, type ImagePayload } from "./editor/image-dialog";
 import { MediaPicker } from "./media/media-picker";
 import { uploadToLibrary } from "@/lib/media-upload";
+import { stripChatCitations } from "@/lib/sanitize-html";
 
 type Props = {
   value: string;
@@ -62,11 +63,23 @@ export function HtmlEditor({ value, onChange, placeholder, documentKey, mediaFol
     content: value || "<p></p>",
     editorProps: {
       attributes: { class: "editorial ProseMirror min-h-[480px] px-6 py-5 focus:outline-none" },
-      handlePaste: (_view, event) => {
+      handlePaste: (view, event) => {
         const files = filesFromDataTransfer(event.clipboardData);
-        if (files.length === 0) return false;
+        if (files.length > 0) {
+          event.preventDefault();
+          void uploadAndInsert(files);
+          return true;
+        }
+        // Limpa marcas de citação de IA (contentReference, oaicite, 【…】 etc.) ao colar.
+        const html = event.clipboardData?.getData("text/html") || "";
+        const text = event.clipboardData?.getData("text/plain") || "";
+        const source = html || text;
+        if (!source) return false;
+        const cleaned = stripChatCitations(source);
+        if (cleaned === source) return false;
         event.preventDefault();
-        void uploadAndInsert(files);
+        if (html) view.pasteHTML(cleaned);
+        else view.pasteText(cleaned);
         return true;
       },
       handleDrop: (_view, event) => {

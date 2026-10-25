@@ -1,3 +1,4 @@
+import { stripChatCitationsDeep } from "./sanitize-html";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -256,11 +257,11 @@ export const upsertStreetGuide = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const slug = (data.slug || slugify(data.name)).trim();
-    const payload: Record<string, unknown> = {
+    const payload: Record<string, unknown> = stripChatCitationsDeep({
       ...data,
       slug,
       created_by: context.userId,
-    };
+    });
     if (!data.id) delete payload.id;
     const { data: row, error } = await context.supabase
       .from("street_guides")
