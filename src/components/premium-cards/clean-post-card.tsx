@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { resolveImage } from "@/lib/image-fallbacks";
+import { BrandPlaceholder } from "@/components/brand-placeholder";
 
 export type CleanPostCardProps = {
   to: string;
@@ -12,7 +13,7 @@ export type CleanPostCardProps = {
 };
 
 export function CleanPostCard(props: CleanPostCardProps) {
-  const src = resolveImage(props.image, { type: "post", seed: props.title });
+  const src = resolveImage(props.image);
 
   return (
     <Link
@@ -21,14 +22,14 @@ export function CleanPostCard(props: CleanPostCardProps) {
       className="group flex h-full flex-col overflow-hidden rounded-[16px] bg-[#1D1D1D] ring-1 ring-white/10 shadow-[0_18px_45px_-30px_rgba(0,0,0,0.9)] outline-none transition-all duration-300 hover:-translate-y-1 hover:ring-white/20 focus-visible:ring-2 focus-visible:ring-[#F2DA00]"
     >
       <div className="relative aspect-[16/9] shrink-0 overflow-hidden">
-        <img width={800} height={600}
+        {src ? <img width={800} height={600}
           src={src}
           alt={props.title}
           loading="lazy"
           decoding="async"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
-        />
+        /> : <BrandPlaceholder title={props.title} tone="dark" />}
         <div
           aria-hidden
           className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.35)_100%)]"
