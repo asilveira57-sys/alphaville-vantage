@@ -176,6 +176,13 @@
       "when": 1792580714801,
       "tag": "0024_properties_in_acervo",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792939648098,
+      "tag": "0025_real_photo_fallbacks",
+      "breakpoints": true
     }
   ]
 }

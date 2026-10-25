@@ -2739,6 +2739,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      card_image:
+        | {
+            Args: { e: Database["public"]["Tables"]["editorial_pages"]["Row"] }
+            Returns: string
+          }
+        | {
+            Args: { s: Database["public"]["Tables"]["streets"]["Row"] }
+            Returns: string
+          }
       fuzzy_eq: { Args: { a: string; b: string }; Returns: boolean }
       fuzzy_norm: { Args: { t: string }; Returns: string }
       has_role: {
@@ -2753,9 +2762,25 @@ export type Database = {
         Args: { p_property_id: string }
         Returns: undefined
       }
+      is_real_image: { Args: { u: string }; Returns: boolean }
+      latest_property_photo: {
+        Args: { _condo: string; _neighborhood: string; _street: string }
+        Returns: string
+      }
       match_property_streets: {
         Args: { p_property_id: string }
         Returns: undefined
+      }
+      missing_real_photos: {
+        Args: never
+        Returns: {
+          detail: string
+          id: string
+          kind: string
+          slug: string
+          status: string
+          title: string
+        }[]
       }
       normalize_street_text: { Args: { txt: string }; Returns: string }
       property_main_image: { Args: { p_images: Json }; Returns: string }
