@@ -74,7 +74,7 @@ function GuiaIndex() {
             key={g.id}
             to={"/guia/$slug" as never}
             params={{ slug: g.slug } as never}
-            image={g.featured_image ?? null}
+            image={g.card_image ?? null}
             imageAlt={g.title}
             eyebrow="Guia"
             title={g.title}

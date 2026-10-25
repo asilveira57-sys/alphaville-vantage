@@ -30,7 +30,7 @@ export const Route = createFileRoute("/bairros/$slug")({
     if (!p) return { meta: [{ title: "Bairro — S.A Imóveis Alphaville" }] };
     const title = p.meta_title ?? `${p.title} — S.A Imóveis Alphaville`;
     const description = p.meta_description ?? p.excerpt ?? "";
-    const image = p.og_image ?? p.featured_image ?? undefined;
+    const image = absoluteImageUrl(firstRealImage(p.og_image, largeVariant(p.card_image)), SITE_URL) ?? undefined;
     return {
       meta: [
         { title },
@@ -90,9 +90,9 @@ function BairroPage() {
         </div>
       </section>
 
-      {page.featured_image && (
+      {page.card_image && (
         <section className="px-6 py-12 bg-ink/[0.02]">
-          <div className="max-w-5xl mx-auto"><img width={800} height={600} decoding="async" src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" /></div>
+          <div className="max-w-5xl mx-auto"><img width={800} height={600} decoding="async" src={largeVariant(page.card_image) ?? page.card_image} alt={page.title} className="w-full h-auto" loading="lazy" /></div>
         </section>
       )}
 
@@ -110,7 +110,7 @@ function BairroPage() {
                   key={r.id}
                   to={"/bairros/$slug" as never}
                   params={{ slug: r.slug } as never}
-                  image={r.featured_image}
+                  image={r.card_image}
                   imageAlt={r.title}
                   eyebrow={r.related_neighborhood ?? "Bairro"}
                   title={r.title}
