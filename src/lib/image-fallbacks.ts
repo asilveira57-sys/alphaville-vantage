@@ -41,3 +41,11 @@ export function absoluteImageUrl(src: string | null | undefined, siteUrl: string
   if (src.startsWith("/")) return `${siteUrl.replace(/\/$/, "")}${src}`;
   return null;
 }
+
+/** For property card photos (600 px), returns the 1200 px variant for page heroes. */
+export function largeVariant(src: string | null): string | null {
+  if (!src) return src;
+  if (/\/property-thumb\/.+-600\.webp$/.test(src)) return src.replace(/-600\.webp$/, "-1200.webp");
+  if (/wsrv\.nl/.test(src)) return src.replace(/([?&])w=600\b/, "$1w=1200");
+  return src;
+}

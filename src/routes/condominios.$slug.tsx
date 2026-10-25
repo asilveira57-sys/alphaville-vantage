@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/site";
+import { absoluteImageUrl, firstRealImage, largeVariant } from "@/lib/image-fallbacks";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
@@ -48,7 +49,8 @@ export const Route = createFileRoute("/condominios/$slug")({
     if (!p) return { meta: [{ title: "Condomínio — S.A Imóveis Alphaville" }] };
     const title = p.meta_title ?? `${p.title} — S.A Imóveis Alphaville`;
     const description = p.meta_description ?? p.excerpt ?? "";
-    const image = p.og_image ?? p.featured_image ?? undefined;
+    // Same photo order as the cards: guide photo → condominium photo → latest active property photo.
+    const image = absoluteImageUrl(firstRealImage(p.og_image, largeVariant(p.card_image)), SITE_URL) ?? undefined;
     return {
       meta: [
         { title },
@@ -57,7 +59,8 @@ export const Route = createFileRoute("/condominios/$slug")({
         { property: "og:description", content: p.og_description ?? description },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
-        ...(image ? [{ property: "og:image", content: image }] : []),
+        ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
+        { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
       ],
       links: [{ rel: "canonical", href: p.canonical_url || url }],
       scripts: [{
@@ -131,10 +134,10 @@ function CondoPage() {
         </div>
       </section>
 
-      {page.featured_image && (
+      {page.card_image && (
         <section className="px-6 py-12 bg-ink/[0.02]">
           <div className="max-w-5xl mx-auto">
-            <img width={800} height={600} decoding="async" src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" />
+            <img width={1200} height={675} decoding="async" src={largeVariant(page.card_image) ?? page.card_image} alt={page.title} className="w-full h-auto" loading="lazy" />
           </div>
         </section>
       )}
@@ -181,7 +184,7 @@ function CondoPage() {
                   key={r.id}
                   slug={r.slug}
                   title={r.title}
-                  image={r.featured_image}
+                  image={r.card_image}
                   neighborhood={r.related_neighborhood}
                   excerpt={r.excerpt}
                 />
