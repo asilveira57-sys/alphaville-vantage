@@ -6,6 +6,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { PostHelpBlock } from "@/components/post-help-block";
 import { ResolvedCta } from "@/components/resolved-cta";
 import { resolveImage } from "@/lib/image-fallbacks";
+import { BrandPlaceholder } from "@/components/brand-placeholder";
 import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
 import { getRedirectFor } from "@/lib/seo.functions";
 
@@ -83,7 +84,7 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function PostPage() {
   const { post, related } = Route.useLoaderData() as { post: any; related: any[] };
-  const cover = resolveImage(post.featured_image, { type: "post", seed: post.slug });
+  const cover = resolveImage(post.featured_image);
   const category = post.categoria_editorial || post.tags?.[0] || "Editorial";
   const date = fmtDate(post.published_at);
   const readMin = typeof post.reading_minutes === "number" && post.reading_minutes > 0
@@ -112,7 +113,7 @@ function PostPage() {
     <SiteLayout>
       {/* Cover with overlay */}
       <header className="relative isolate bg-navy-deep text-canvas">
-        <img width={800} height={600}
+        {cover ? <img width={800} height={600}
           src={cover}
           alt={post.title}
           loading="eager"
@@ -120,7 +121,7 @@ function PostPage() {
           fetchPriority="high"
           sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover opacity-60"
-        />
+        /> : null}
         <div
           aria-hidden
           className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,14,28,0.35)_0%,rgba(8,14,28,0.75)_60%,rgba(8,14,28,0.95)_100%)]"
@@ -219,7 +220,7 @@ function PostPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {related.map((r: any) => {
-                const img = resolveImage(r.featured_image, { type: "post", seed: r.slug });
+                const img = resolveImage(r.featured_image);
                 return (
                   <Link
                     key={r.id}
@@ -228,14 +229,14 @@ function PostPage() {
                     className="group block border border-ink/10 hover:border-ink/30 transition-colors"
                   >
                     <div className="aspect-[4/3] overflow-hidden bg-ink/5">
-                      <img width={800} height={600}
+                      {img ? <img width={800} height={600}
                         src={img}
                         alt={r.title}
                         loading="lazy"
                         decoding="async"
                         sizes="(max-width: 768px) 100vw, 33vw"
                         className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-                      />
+                      /> : <BrandPlaceholder title={r.title} />}
                     </div>
                     <div className="p-5">
                       <h3 className="font-serif text-lg text-ink leading-tight group-hover:underline">{r.title}</h3>

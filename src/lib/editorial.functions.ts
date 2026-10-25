@@ -61,7 +61,7 @@ export const listPublishedByType = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const sb = publicClient();
     let q = sb.from("editorial_pages")
-      .select("id,slug,title,excerpt,content_type,featured_image,tags,related_neighborhood,display_order,published_at,is_featured")
+      .select("id,slug,title,excerpt,content_type,featured_image,card_image,tags,related_neighborhood,display_order,published_at,is_featured")
       .eq("status", "published")
       .eq("content_type", data.type)
       .order("display_order", { ascending: true })
@@ -70,8 +70,14 @@ export const listPublishedByType = createServerFn({ method: "GET" })
     if (data.limit) q = q.limit(data.limit);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    return (rows ?? []) as unknown as Array<PublicCardRow & { tags: string[] | null; display_order: number | null; published_at: string | null; is_featured: boolean | null }>;
   });
+
+/** Public card row. card_image = real photo resolved in the database (guide photo → condominium photo → latest active property photo), or null. */
+type PublicCardRow = {
+  id: string; slug: string; title: string; excerpt: string | null; content_type: string;
+  featured_image: string | null; card_image: string | null; related_neighborhood: string | null;
+};
 
 export const getEditorialBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ slug: z.string().min(1) }).parse(d))
@@ -79,12 +85,13 @@ export const getEditorialBySlug = createServerFn({ method: "GET" })
     const sb = publicClient();
     const { data: row, error } = await sb
       .from("editorial_pages")
-      .select("*")
+      .select("*,card_image")
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return row;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped public client; includes computed card_image
+    return row as any;
   });
 
 /** Main (featured) images of published pages, keyed by slug — used so cards show the page's own cover. */
@@ -114,7 +121,7 @@ export const listRelated = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const sb = publicClient();
     let q = sb.from("editorial_pages")
-      .select("id,slug,title,excerpt,featured_image,content_type,related_neighborhood")
+      .select("id,slug,title,excerpt,featured_image,card_image,content_type,related_neighborhood")
       .eq("status", "published")
       .eq("content_type", data.type)
       .limit(data.limit);
@@ -122,7 +129,7 @@ export const listRelated = createServerFn({ method: "GET" })
     if (data.neighborhood) q = q.eq("related_neighborhood", data.neighborhood);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    return (rows ?? []) as unknown as PublicCardRow[];
   });
 
 // ---------- ADMIN ----------

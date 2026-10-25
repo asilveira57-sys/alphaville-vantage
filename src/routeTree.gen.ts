@@ -70,6 +70,7 @@ import { Route as AuthenticatedAdminPendentesRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminRecapturaRouteImport } from './routes/_authenticated/admin-recaptura'
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
+import { Route as AuthenticatedAdminSemFotoRouteImport } from './routes/_authenticated/admin-sem-foto'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
 import { Route as AuthenticatedAdminValoresRouteImport } from './routes/_authenticated/admin-valores'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
@@ -440,6 +441,12 @@ const AuthenticatedAdminRuasRoute = AuthenticatedAdminRuasRouteImport.update({
   path: '/admin-ruas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminSemFotoRoute =
+  AuthenticatedAdminSemFotoRouteImport.update({
+    id: '/admin-sem-foto',
+    path: '/admin-sem-foto',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   id: '/admin-seo',
   path: '/admin-seo',
@@ -773,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
+  '/admin-sem-foto': typeof AuthenticatedAdminSemFotoRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -877,6 +885,7 @@ export interface FileRoutesByTo {
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
+  '/admin-sem-foto': typeof AuthenticatedAdminSemFotoRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/artigos/$slug': typeof ArtigosSlugRoute
@@ -990,6 +999,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
+  '/_authenticated/admin-sem-foto': typeof AuthenticatedAdminSemFotoRoute
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
@@ -1104,6 +1114,7 @@ export interface FileRouteTypes {
     | '/admin-radar'
     | '/admin-recaptura'
     | '/admin-ruas'
+    | '/admin-sem-foto'
     | '/admin-seo'
     | '/admin-valores'
     | '/cms'
@@ -1208,6 +1219,7 @@ export interface FileRouteTypes {
     | '/admin-pendentes'
     | '/admin-radar'
     | '/admin-recaptura'
+    | '/admin-sem-foto'
     | '/admin-seo'
     | '/admin-valores'
     | '/artigos/$slug'
@@ -1320,6 +1332,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-recaptura'
     | '/_authenticated/admin-ruas'
+    | '/_authenticated/admin-sem-foto'
     | '/_authenticated/admin-seo'
     | '/_authenticated/admin-valores'
     | '/_authenticated/cms'
@@ -1862,6 +1875,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRuasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-sem-foto': {
+      id: '/_authenticated/admin-sem-foto'
+      path: '/admin-sem-foto'
+      fullPath: '/admin-sem-foto'
+      preLoaderRoute: typeof AuthenticatedAdminSemFotoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-seo': {
       id: '/_authenticated/admin-seo'
       path: '/admin-seo'
@@ -2271,6 +2291,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRecapturaRoute: typeof AuthenticatedAdminRecapturaRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
+  AuthenticatedAdminSemFotoRoute: typeof AuthenticatedAdminSemFotoRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminValoresRoute: typeof AuthenticatedAdminValoresRoute
   AuthenticatedCmsRoute: typeof AuthenticatedCmsRouteWithChildren
@@ -2306,6 +2327,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRecapturaRoute: AuthenticatedAdminRecapturaRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
+  AuthenticatedAdminSemFotoRoute: AuthenticatedAdminSemFotoRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminValoresRoute: AuthenticatedAdminValoresRoute,
   AuthenticatedCmsRoute: AuthenticatedCmsRouteWithChildren,

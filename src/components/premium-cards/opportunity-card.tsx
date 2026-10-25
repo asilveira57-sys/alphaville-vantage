@@ -2,6 +2,7 @@ import { resized, onImgFallback } from "@/lib/img-resize";
 import { ArrowUpRight, BedDouble, Car, Ruler } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { resolveImage } from "@/lib/image-fallbacks";
+import { BrandPlaceholder } from "@/components/brand-placeholder";
 import type { OpportunityDTO, OpportunitySignal } from "@/lib/opportunities.functions";
 
 const brl = (n: number | null | undefined, digits = 0) =>
@@ -75,11 +76,7 @@ export function OpportunityCard({
   const price = brl(item.price_sale) ?? brl(item.price_rent) ?? "Sob consulta";
   const label = item.price_sale ? "Venda" : item.price_rent ? "Locação" : "Consulta";
   const place = [item.neighborhood, item.city].filter(Boolean).join(", ");
-  const src = resolveImage(item.image, {
-    type: "property",
-    region: item.region ?? item.city,
-    seed: item.slug,
-  });
+  const src = resolveImage(item.image);
 
   const specs: { icon: React.ReactNode; label: string }[] = [];
   if (item.bedrooms)
@@ -109,7 +106,7 @@ export function OpportunityCard({
       <div
         className={`relative shrink-0 overflow-hidden ${size === "large" ? "aspect-[4/3]" : "aspect-[16/9]"}`}
       >
-        <img width={800} height={600}
+        {src ? <img width={800} height={600}
           data-orig={src}
           onError={onImgFallback}
           srcSet={/^https?:/.test(src ?? "") ? `${resized(src, 600)} 600w, ${resized(src, 1200)} 1200w` : undefined}
@@ -122,7 +119,7 @@ export function OpportunityCard({
             size === "large" ? "(max-width: 900px) 92vw, 46vw" : "(max-width: 768px) 88vw, 31vw"
           }
           className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
-        />
+        /> : <BrandPlaceholder title={item.title} />}
         <span className="absolute left-4 top-4 max-w-[70%] rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#0D0D0D]">
           {item.valuation ? item.valuation.badge : "Oportunidade"}
         </span>

@@ -121,7 +121,7 @@ function StreetCard({ street }: { street: StreetListItem }) {
     <PremiumCard
       to={"/ruas/$slug" as never}
       params={{ slug: street.slug } as never}
-      image={street.hero_image || null}
+      image={street.card_image}
       imageAlt={street.name}
       eyebrow={`${typeLabel(street.street_type)}${local ? ` · ${local}` : ""}`}
       title={street.name}

@@ -128,7 +128,7 @@ function CondosPage() {
                   key={c.id}
                   slug={c.slug}
                   title={c.title}
-                  image={c.featured_image}
+                  image={c.card_image}
                   neighborhood={c.related_neighborhood}
                   excerpt={c.excerpt}
                 />

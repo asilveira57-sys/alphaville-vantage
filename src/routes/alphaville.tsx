@@ -6,7 +6,8 @@ import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
-import { resolveImage } from "@/lib/image-fallbacks";
+// Official hero photo of the /alphaville page (not a substitute for a missing photo).
+import alphavilleHero from "@/assets/region-alphaville.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -62,7 +63,7 @@ export const Route = createFileRoute("/alphaville")({
 
 function AlphavillePage() {
   const { total, sale, rent, featured } = Route.useLoaderData();
-  const heroImg = resolveImage(null, { type: "region", region: "alphaville" });
+  const heroImg = alphavilleHero;
 
   const topics: Array<{
     to: string;

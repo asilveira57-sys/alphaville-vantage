@@ -102,7 +102,7 @@ function BairrosPage() {
                   slug={c.slug}
                   title={c.title}
                   description={c.excerpt ?? undefined}
-                  image={c.featured_image}
+                  image={c.card_image}
                 />
               ))}
             </div>

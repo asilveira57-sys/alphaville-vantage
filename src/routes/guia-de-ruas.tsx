@@ -119,7 +119,7 @@ function toEntries(streets: StreetListItem[], guides: StreetGuideListItem[]): En
     city: s.city,
     neighborhood: s.neighborhood,
     description: s.short_description,
-    image: s.hero_image,
+    image: s.card_image,
     featured: s.featured,
     source: "rua",
   }));

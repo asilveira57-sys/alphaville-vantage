@@ -2,6 +2,7 @@ import { ArrowUpRight, BedDouble, Car, Ruler } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { resized, onImgFallback } from "@/lib/img-resize";
+import { BrandPlaceholder } from "@/components/brand-placeholder";
 
 const fmt = (n: number | null | undefined) =>
   n == null
@@ -46,11 +47,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
   const price = sale ?? rent ?? "Sob consulta";
   const label = sale ? "Venda" : rent ? "Locação" : "Consulta";
   const place = [p.neighborhood, p.city].filter(Boolean).join(", ");
-  const src = resolveImage(p.image, {
-    type: "property",
-    region: p.region ?? p.city,
-    seed: p.slug,
-  });
+  const src = resolveImage(p.image);
 
   const specs: { icon: React.ReactNode; label: string }[] = [];
   if (p.bedrooms)
@@ -76,9 +73,9 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
       className="group flex h-full flex-col overflow-hidden rounded-[16px] bg-white ring-1 ring-[#0D0D0D]/8 shadow-[0_14px_35px_-28px_rgba(13,13,13,0.6)] outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-28px_rgba(13,13,13,0.55)] focus-visible:ring-2 focus-visible:ring-[#F2DA00]"
     >
       <div className="relative aspect-[16/9] shrink-0 overflow-hidden">
-        <img
-          src={p.imageSrcSet ? src : (p.image ? resized(src, 600) ?? src : src)}
-          srcSet={p.imageSrcSet ?? (p.image && !/property-thumb/.test(src) ? `${resized(src, 600)} 600w, ${resized(src, 1200)} 1200w` : undefined)}
+        {src ? <img
+          src={p.imageSrcSet ? src : resized(src, 600) ?? src}
+          srcSet={p.imageSrcSet ?? (!/property-thumb/.test(src) ? `${resized(src, 600)} 600w, ${resized(src, 1200)} 1200w` : undefined)}
           data-orig={src}
           onError={onImgFallback}
           width={600}
@@ -89,7 +86,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
           decoding="async"
           sizes="(max-width: 768px) 88vw, (max-width: 1200px) 45vw, 30vw"
           className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
-        />
+        /> : <BrandPlaceholder title={shortName(p.title)} />}
         <span className="absolute left-4 top-4 rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
           {label}
         </span>

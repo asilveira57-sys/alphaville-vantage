@@ -41,6 +41,8 @@ export type StreetListItem = {
   state: string | null;
   short_description: string | null;
   hero_image: string | null;
+  /** Real photo: street photo → latest active property photo on the street → null (neutral background). */
+  card_image: string | null;
   featured: boolean;
   updated_at: string;
   published_at: string | null;
@@ -52,13 +54,13 @@ export const listPublishedStreets = createServerFn({ method: "GET" })
   .handler(async () => {
     const sb = publicClient();
     const { data, error } = await sb.from("streets")
-      .select("id,slug,name,official_name,street_type,neighborhood,city,state,short_description,hero_image,featured,updated_at,published_at")
+      .select("id,slug,name,official_name,street_type,neighborhood,city,state,short_description,hero_image,card_image,featured,updated_at,published_at")
       .eq("status", "published")
       .eq("active", true)
       .order("featured", { ascending: false })
       .order("name", { ascending: true });
     if (error) throw new Error(error.message);
-    return (data ?? []) as StreetListItem[];
+    return (data ?? []) as unknown as StreetListItem[];
   });
 
 export const getStreetBySlug = createServerFn({ method: "GET" })
@@ -66,13 +68,14 @@ export const getStreetBySlug = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: row, error } = await sb.from("streets")
-      .select("*")
+      .select("*,card_image")
       .eq("slug", data.slug)
       .eq("status", "published")
       .eq("active", true)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return row;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped public client; includes computed card_image
+    return row as any;
   });
 
 /**
@@ -95,7 +98,7 @@ export const findPropertiesOnStreet = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!street) return { tier: "empty" as const, items: [] as any[] };
 
-    const cols = "id,slug,title,property_type,neighborhood,city,region,price_sale,price_rent,bedrooms,suites,parking,area_useful,area_built,area_total,images,internal_code,purpose,condominium_id,address,street_id";
+    const cols = "id,slug,title,property_type,neighborhood,city,region,price_sale,price_rent,bedrooms,suites,parking,area_useful,area_built,area_total,images,internal_code,purpose,condominium_id,address,street_id,card_image_url";
 
     const sanitize = (rows: any[]) => rows.map((p) => ({
       ...p,
@@ -148,12 +151,12 @@ export const listNearbyStreets = createServerFn({ method: "GET" })
       .eq("slug", data.slug).maybeSingle();
     if (!street) return [];
     let q = sb.from("streets")
-      .select("id,slug,name,street_type,neighborhood,city,hero_image,short_description")
+      .select("id,slug,name,street_type,neighborhood,city,hero_image,card_image,short_description")
       .eq("status", "published").eq("active", true).neq("id", street.id).limit(data.limit);
     if (street.neighborhood) q = q.eq("neighborhood", street.neighborhood);
     else if (street.city) q = q.eq("city", street.city);
     const { data: rows } = await q;
-    return rows ?? [];
+    return (rows ?? []) as unknown as Array<{ id: string; slug: string; name: string; street_type: string | null; neighborhood: string | null; city: string | null; hero_image: string | null; card_image: string | null; short_description: string | null }>;
   });
 
 // ---------- ADMIN ----------

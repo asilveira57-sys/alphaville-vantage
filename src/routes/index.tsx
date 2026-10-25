@@ -27,9 +27,6 @@ import {
 
 
 import heroImg from "@/assets/hero-architecture.jpg";
-import interiorImg from "@/assets/article-interior.jpg";
-import gardenImg from "@/assets/article-garden.jpg";
-import clubhouseImg from "@/assets/article-clubhouse.jpg";
 
 // Os dados da home (destaques, posts, contagens por região, imagens dos cards
 // e vitrine) vêm do servidor com cache de 5 minutos — ver src/lib/home.functions.ts.
@@ -63,9 +60,9 @@ export const Route = createFileRoute("/")({
 });
 
 const FALLBACK_ARTICLES = [
-  { eyebrow: "Mercado", title: "Tendências de valorização no Tamboré", lead: "Entenda os fatores que impulsionaram o crescimento de dois dígitos no último semestre.", image: interiorImg, alt: "Sala de estar minimalista em apartamento de alto padrão em Tamboré." },
-  { eyebrow: "História", title: "50 anos de Alphaville: de fazenda a metrópole", lead: "Uma retrospectiva sobre o projeto urbanístico que mudou Barueri para sempre.", image: gardenImg, alt: "Jardim arborizado em condomínio fechado de Alphaville." },
-  { eyebrow: "Guia", title: "A nova cena gastronômica de Santana de Parnaíba", lead: "Onde a tradição colonial encontra a sofisticação da culinária contemporânea.", image: clubhouseImg, alt: "Clube de golfe contemporâneo na região de Alphaville." },
+  { eyebrow: "Mercado", title: "Tendências de valorização no Tamboré", lead: "Entenda os fatores que impulsionaram o crescimento de dois dígitos no último semestre.", image: null, alt: "Sala de estar minimalista em apartamento de alto padrão em Tamboré." },
+  { eyebrow: "História", title: "50 anos de Alphaville: de fazenda a metrópole", lead: "Uma retrospectiva sobre o projeto urbanístico que mudou Barueri para sempre.", image: null, alt: "Jardim arborizado em condomínio fechado de Alphaville." },
+  { eyebrow: "Guia", title: "A nova cena gastronômica de Santana de Parnaíba", lead: "Onde a tradição colonial encontra a sofisticação da culinária contemporânea.", image: null, alt: "Clube de golfe contemporâneo na região de Alphaville." },
 ] as const;
 
 const REGIONS = [

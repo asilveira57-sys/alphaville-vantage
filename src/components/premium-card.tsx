@@ -3,6 +3,7 @@ import { Link, type LinkProps } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { resolveImage, type FallbackKind } from "@/lib/image-fallbacks";
+import { BrandPlaceholder } from "@/components/brand-placeholder";
 import { cn } from "@/lib/utils";
 
 type BaseProps = {
@@ -56,9 +57,9 @@ export function PremiumCard(props: PremiumCardProps) {
     sizes = "(max-width: 768px) 88vw, (max-width: 1200px) 45vw, 30vw",
     disableImageFallback = false,
   } = props;
-  const src = disableImageFallback && !image?.trim()
-    ? null
-    : resolveImage(image, fallback ?? {});
+  // No generic photos: without a real image the card shows the neutral brand background.
+  void fallback; void disableImageFallback;
+  const src = resolveImage(image);
 
   const inner = (
     <div className={cn(cleanCardShell, className)}>
@@ -77,9 +78,7 @@ export function PremiumCard(props: PremiumCardProps) {
             className="h-full w-full object-cover object-center transition-transform duration-[320ms] ease-out group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="grid h-full w-full place-items-center bg-canvas text-ink/35" aria-hidden="true">
-            {icon}
-          </div>
+          <BrandPlaceholder title={title} />
         )}
         {eyebrow ? (
           <span className="absolute left-4 top-4 max-w-[85%] truncate rounded-full bg-[#F2DA00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0D0D0D]">
