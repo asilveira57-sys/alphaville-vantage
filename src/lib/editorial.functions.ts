@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { sanitizeHtml } from "./sanitize-html";
+import { sanitizeHtml, stripChatCitationsDeep } from "./sanitize-html";
 import { fetchAllRows } from "./fetch-all";
 
 type AdminEditorialRow = {
