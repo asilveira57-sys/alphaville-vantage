@@ -1562,6 +1562,8 @@ export type Database = {
           raw: Json | null
           region: string | null
           review_status: string | null
+          search_condo_norm: string | null
+          search_hay: string | null
           search_post: string | null
           search_pre: string | null
           seo_description: string | null
@@ -1638,6 +1640,8 @@ export type Database = {
           raw?: Json | null
           region?: string | null
           review_status?: string | null
+          search_condo_norm?: string | null
+          search_hay?: string | null
           search_post?: string | null
           search_pre?: string | null
           seo_description?: string | null
@@ -1714,6 +1718,8 @@ export type Database = {
           raw?: Json | null
           region?: string | null
           review_status?: string | null
+          search_condo_norm?: string | null
+          search_hay?: string | null
           search_post?: string | null
           search_pre?: string | null
           seo_description?: string | null
@@ -2798,6 +2804,8 @@ export type Database = {
           total: number
         }[]
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       street_guide_is_publishable: {
         Args: { g: Database["public"]["Tables"]["street_guides"]["Row"] }
         Returns: boolean
