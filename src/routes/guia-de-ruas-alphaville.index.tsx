@@ -120,7 +120,7 @@ function StreetCard({ guide }: { guide: StreetGuideListItem }) {
     <PremiumCard
       to={"/guia-de-ruas-alphaville/$slug" as never}
       params={{ slug: guide.slug } as never}
-      image={null}
+      image={guide.og_image ?? null}
       imageAlt={guide.name}
       eyebrow={`${viaLabel}${local ? ` · ${local}` : ""}`}
       title={guide.name}

@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/site";
+import { absoluteImageUrl, firstRealImage, largeVariant } from "@/lib/image-fallbacks";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/ruas/$slug")({
     const title = s.seo_title || `${s.name} — ${s.neighborhood ?? s.city ?? "Alphaville"}`;
     const desc = s.seo_description || s.short_description || `Imóveis, informações e entorno da ${s.name}${s.neighborhood ? `, em ${s.neighborhood}` : ""}.`;
     const url = `${SITE_URL}/ruas/${params.slug}`;
-    const social = s.social_image || s.hero_image || null;
+    const social = absoluteImageUrl(firstRealImage(s.social_image, largeVariant(s.card_image)), SITE_URL);
     const robots = `${s.robots_index === false ? "noindex" : "index"},${s.robots_follow === false ? "nofollow" : "follow"}`;
     return {
       meta: [
@@ -153,10 +154,10 @@ function StreetDetail() {
       ]}
     >
       <div className="space-y-20">
-        {street.hero_image && (
+        {street.card_image && (
           <figure className="max-w-4xl">
             <img width={800} height={600} decoding="async"
-              src={street.hero_image}
+              src={largeVariant(street.card_image) ?? street.card_image}
               alt={street.hero_image_alt || street.name}
               loading="lazy"
               className="w-full object-cover aspect-[16/9] border border-ink/10"
@@ -236,7 +237,7 @@ function StreetDetail() {
                     key={p.id}
                     to={"/imoveis/$slug" as never}
                     params={{ slug: p.slug } as never}
-                    image={p.images?.[0] ?? null}
+                    image={p.card_image_url ?? p.images?.[0] ?? null}
                     imageAlt={p.title}
                     eyebrow={[p.property_type, p.neighborhood].filter(Boolean).join(" · ")}
                     title={p.title}
@@ -288,7 +289,7 @@ function StreetDetail() {
                     key={n.id}
                     to={"/ruas/$slug" as never}
                     params={{ slug: n.slug } as never}
-                    image={n.hero_image || null}
+                    image={n.card_image}
                     imageAlt={n.name}
                     eyebrow={`${typeLabel(n.street_type)}${nlocal ? ` · ${nlocal}` : ""}`}
                     title={n.name}
