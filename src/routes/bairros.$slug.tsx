@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/site";
+import { absoluteImageUrl, firstRealImage, largeVariant } from "@/lib/image-fallbacks";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
