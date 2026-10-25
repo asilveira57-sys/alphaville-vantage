@@ -4,7 +4,6 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sanitizeHtml, stripChatCitationsDeep } from "./sanitize-html";
 import { fetchAllRows } from "./fetch-all";
-import type { Database } from "@/integrations/supabase/types";
 
 type AdminEditorialRow = {
   id: string;
@@ -91,7 +90,8 @@ export const getEditorialBySlug = createServerFn({ method: "GET" })
       .eq("status", "published")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return row as unknown as (Database["public"]["Tables"]["editorial_pages"]["Row"] & { card_image: string | null }) | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped public client; includes computed card_image
+    return row as any;
   });
 
 /** Main (featured) images of published pages, keyed by slug — used so cards show the page's own cover. */

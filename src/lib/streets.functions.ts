@@ -4,7 +4,6 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { fetchAllRows } from "./fetch-all";
-import type { Database } from "@/integrations/supabase/types";
 
 export const STREET_TYPES = [
   "rua",
@@ -75,7 +74,8 @@ export const getStreetBySlug = createServerFn({ method: "GET" })
       .eq("active", true)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return row as unknown as (Database["public"]["Tables"]["streets"]["Row"] & { card_image: string | null }) | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped public client; includes computed card_image
+    return row as any;
   });
 
 /**
