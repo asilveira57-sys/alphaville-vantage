@@ -293,7 +293,7 @@ export const upsertEditorialPage = createServerFn({ method: "POST" })
       }
     }
 
-    const payload: Record<string, unknown> = {
+    const payload: Record<string, unknown> = stripChatCitationsDeep({
       ...data,
       slug,
       html_content: htmlContent,

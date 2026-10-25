@@ -237,7 +237,7 @@ export const upsertStreet = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const slug = (data.slug || slugify(data.name)).trim();
-    const payload: Record<string, unknown> = { ...data, slug, created_by: context.userId };
+    const payload: Record<string, unknown> = stripChatCitationsDeep({ ...data, slug, created_by: context.userId });
     if (!data.id) delete payload.id;
     if (data.status === "published") payload.published_at = new Date().toISOString();
     const { data: row, error } = await context.supabase
