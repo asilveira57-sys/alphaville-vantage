@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import path from "node:path";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   tanstackStart: {
@@ -14,6 +15,48 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    plugins: [
+      VitePWA({
+        registerType: "prompt",
+        injectRegister: null,
+        manifest: false,
+        filename: "sw.js",
+        devOptions: { enabled: false },
+        workbox: {
+          globPatterns: ["assets/**/*.{js,css,woff2}", "offline.html", "icon-192.png"],
+          navigateFallback: null,
+          cleanupOutdatedCaches: true,
+          skipWaiting: false,
+          clientsClaim: true,
+          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+          runtimeCaching: [
+            {
+              urlPattern: ({ url, request }) =>
+                request.mode === "navigate" &&
+                url.origin === self.location.origin &&
+                !/^\/(admin|cms|auth|audit|reset-password|area-do-parceiro|api|_serverFn|lovable|~oauth)/.test(url.pathname),
+              handler: "NetworkFirst",
+              options: {
+                cacheName: "sa-pages",
+                networkTimeoutSeconds: 6,
+                expiration: { maxEntries: 40, maxAgeSeconds: 7 * 24 * 3600 },
+                plugins: [{ handlerDidError: async () => (await caches.match("/offline.html")) ?? Response.error() }],
+              },
+            },
+            {
+              urlPattern: ({ url }) => url.origin === self.location.origin && url.pathname.startsWith("/api/public/property-thumb/"),
+              handler: "CacheFirst",
+              options: { cacheName: "sa-thumbs", expiration: { maxEntries: 300, maxAgeSeconds: 30 * 24 * 3600 } },
+            },
+            {
+              urlPattern: ({ url }) => url.origin === "https://fonts.gstatic.com",
+              handler: "CacheFirst",
+              options: { cacheName: "sa-fonts", expiration: { maxEntries: 20, maxAgeSeconds: 365 * 24 * 3600 } },
+            },
+          ],
+        },
+      }),
+    ],
     resolve: {
       alias: {
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),

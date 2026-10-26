@@ -1,3 +1,4 @@
+import { useInstallPrompt } from "@/components/pwa-prompts";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Phone, MessageCircle, Search, Menu, X } from "lucide-react";
@@ -120,10 +121,25 @@ export function SiteHeader() {
                   {item.label}
                 </Link>
               ))}
+              <InstallAppItem />
             </div>
           </nav>
         )}
       </div>
     </header>
+  );
+}
+
+function InstallAppItem() {
+  const { canInstall, install } = useInstallPrompt();
+  if (!canInstall) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => void install()}
+      className="block w-full text-left py-3.5 text-[12px] tracking-[0.2em] uppercase font-medium text-[#F2DA00]"
+    >
+      Instalar app
+    </button>
   );
 }
