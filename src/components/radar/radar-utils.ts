@@ -34,7 +34,7 @@ export function readTracking(): RadarTracking {
   if (typeof window === "undefined") return {};
   const p = new URLSearchParams(window.location.search);
   return {
-    source: p.get("utm_source") ?? "homepage_radar",
+    source: p.get("utm_source") ?? (window.location.pathname.startsWith("/radar") ? "radar_page" : "homepage_radar"),
     campaign: p.get("utm_campaign") ?? undefined,
     medium: p.get("utm_medium") ?? undefined,
     content: p.get("utm_content") ?? undefined,

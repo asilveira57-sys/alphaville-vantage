@@ -205,7 +205,7 @@ export function RadarFlow({ variant = "page", initialInterest, onClose }: Props)
 
   return (
     <Shell isModal={isModal} dialogRef={dialogRef} onBackdrop={handleClose}>
-        <div className="sticky top-0 z-10 bg-[#EAEAE6]/95 backdrop-blur px-5 md:px-10 pt-5 pb-4 border-b border-black/10">
+        <div className={`${isModal ? "sticky top-0 z-10 md:rounded-t-2xl" : "rounded-t-2xl"} bg-[#EAEAE6]/95 backdrop-blur px-5 md:px-10 pt-5 pb-4 border-b border-black/10`}>
           <div className="flex items-center justify-between gap-4">
             <p className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/60">
               Radar S.A. Imóveis
@@ -228,7 +228,7 @@ export function RadarFlow({ variant = "page", initialInterest, onClose }: Props)
 
         <div className="px-5 md:px-10 py-8 md:py-10">
           {status === "success" ? (
-            <RadarSuccess items={summaryItems} onClose={isModal ? () => onClose?.() : undefined} search={radarToPropertySearch(interest, answers)} />
+            <RadarSuccess items={summaryItems} onClose={() => onClose?.()} search={radarToPropertySearch(interest, answers)} />
           ) : step === 0 ? (
             <div>
               <h3 className="font-display text-2xl md:text-3xl font-medium text-[#0D0D0D]">
@@ -271,7 +271,7 @@ export function RadarFlow({ variant = "page", initialInterest, onClose }: Props)
         </div>
 
         {status !== "success" ? (
-          <div className="sticky bottom-0 bg-[#EAEAE6]/95 backdrop-blur border-t border-black/10 px-5 md:px-10 py-4 flex items-center justify-between gap-3">
+          <div className={`${isModal ? "sticky bottom-0" : "rounded-b-2xl"} bg-[#EAEAE6]/95 backdrop-blur border-t border-black/10 px-5 md:px-10 py-4 flex items-center justify-between gap-3`}>
             <button
               type="button"
               onClick={goBack}
