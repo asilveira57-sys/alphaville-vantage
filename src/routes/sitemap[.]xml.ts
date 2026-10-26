@@ -57,7 +57,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/aviso-legal", changefreq: "yearly", priority: "0.4" },
           { path: "/mapa-do-site", changefreq: "monthly", priority: "0.5" },
           { path: "/radar", changefreq: "monthly", priority: "0.8" },
-          ...RADAR_PAGES.map((p) => ({ path: `/radar/${p.slug}`, changefreq: "monthly", priority: "0.7" })),
+          ...RADAR_PAGES.map((p) => ({ path: `/radar/${p.slug}`, changefreq: "monthly" as const, priority: "0.7" })),
         ];
 
         // Dynamic: imóveis ativos
