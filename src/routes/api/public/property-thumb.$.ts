@@ -21,25 +21,35 @@ export const Route = createFileRoute("/api/public/property-thumb/$")({
         const name = (params as { _splat?: string })._splat ?? "";
         if (!NAME.test(name)) return new Response("Not found", { status: 404 });
 
+        // Falha no cache de borda nunca pode derrubar a miniatura.
         const cache = edgeCache();
         if (cache) {
-          const hit = await cache.match(request);
-          if (hit) return hit;
+          try {
+            const hit = await cache.match(request);
+            if (hit) return hit;
+          } catch (e) {
+            console.error("[property-thumb] cache.match", e);
+          }
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabaseAdmin.storage.from("property-images").download(`thumbs/${name}`);
         if (error || !data) return new Response("Not found", { status: 404 });
 
-        const res = new Response(data, {
-          headers: {
-            "Content-Type": "image/webp",
-            "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
-            "X-Content-Type-Options": "nosniff",
-          },
-        });
-        if (cache) await cache.put(request, res.clone());
-        return res;
+        const bytes = await data.arrayBuffer();
+        const headers = {
+          "Content-Type": "image/webp",
+          "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
+          "X-Content-Type-Options": "nosniff",
+        };
+        if (cache) {
+          try {
+            await cache.put(request, new Response(bytes, { headers }));
+          } catch (e) {
+            console.error("[property-thumb] cache.put", e);
+          }
+        }
+        return new Response(bytes, { headers });
       },
     },
   },
