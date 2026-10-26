@@ -120,6 +120,7 @@ export function SiteHeader() {
                   {item.label}
                 </Link>
               ))}
+              <InstallAppItem />
             </div>
           </nav>
         )}
