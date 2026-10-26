@@ -1,3 +1,4 @@
+import { RADAR_PAGES } from "@/lib/radar-pages";
 import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
@@ -55,6 +56,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/termos-de-uso", changefreq: "yearly", priority: "0.4" },
           { path: "/aviso-legal", changefreq: "yearly", priority: "0.4" },
           { path: "/mapa-do-site", changefreq: "monthly", priority: "0.5" },
+          { path: "/radar", changefreq: "monthly", priority: "0.8" },
+          ...RADAR_PAGES.map((p) => ({ path: `/radar/${p.slug}`, changefreq: "monthly", priority: "0.7" })),
         ];
 
         // Dynamic: imóveis ativos

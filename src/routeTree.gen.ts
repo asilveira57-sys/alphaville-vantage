@@ -102,6 +102,8 @@ import { Route as OportunidadesDescadastroRouteImport } from './routes/oportunid
 import { Route as OportunidadesMetodologiaRouteImport } from './routes/oportunidades.metodologia'
 import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
+import { Route as RadarIndexRouteImport } from './routes/radar.index'
+import { Route as RadarObjetivoRouteImport } from './routes/radar.$objetivo'
 import { Route as RuasIndexRouteImport } from './routes/ruas.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
 import { Route as AuthenticatedAdminRuasIndexRouteImport } from './routes/_authenticated/admin-ruas.index'
@@ -611,6 +613,16 @@ const ParceirosMpdRoute = ParceirosMpdRouteImport.update({
   path: '/parceiros/mpd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RadarIndexRoute = RadarIndexRouteImport.update({
+  id: '/radar/',
+  path: '/radar/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RadarObjetivoRoute = RadarObjetivoRouteImport.update({
+  id: '/radar/$objetivo',
+  path: '/radar/$objetivo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RuasIndexRoute = RuasIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -804,6 +816,7 @@ export interface FileRoutesByFullPath {
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
+  '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -813,6 +826,7 @@ export interface FileRoutesByFullPath {
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/oportunidades/': typeof OportunidadesIndexRoute
+  '/radar/': typeof RadarIndexRoute
   '/ruas/': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
@@ -908,6 +922,7 @@ export interface FileRoutesByTo {
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
+  '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros': typeof BairrosIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -917,6 +932,7 @@ export interface FileRoutesByTo {
   '/imoveis': typeof ImoveisIndexRoute
   '/meio-ambiente': typeof MeioAmbienteIndexRoute
   '/oportunidades': typeof OportunidadesIndexRoute
+  '/radar': typeof RadarIndexRoute
   '/ruas': typeof RuasIndexRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
@@ -1023,6 +1039,7 @@ export interface FileRoutesById {
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
+  '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -1032,6 +1049,7 @@ export interface FileRoutesById {
   '/imoveis/': typeof ImoveisIndexRoute
   '/meio-ambiente/': typeof MeioAmbienteIndexRoute
   '/oportunidades/': typeof OportunidadesIndexRoute
+  '/radar/': typeof RadarIndexRoute
   '/ruas/': typeof RuasIndexRoute
   '/_authenticated/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/_authenticated/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
@@ -1138,6 +1156,7 @@ export interface FileRouteTypes {
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
+    | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros/'
     | '/blog/'
@@ -1147,6 +1166,7 @@ export interface FileRouteTypes {
     | '/imoveis/'
     | '/meio-ambiente/'
     | '/oportunidades/'
+    | '/radar/'
     | '/ruas/'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
@@ -1242,6 +1262,7 @@ export interface FileRouteTypes {
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
+    | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros'
     | '/blog'
@@ -1251,6 +1272,7 @@ export interface FileRouteTypes {
     | '/imoveis'
     | '/meio-ambiente'
     | '/oportunidades'
+    | '/radar'
     | '/ruas'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
@@ -1356,6 +1378,7 @@ export interface FileRouteTypes {
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
+    | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros/'
     | '/blog/'
@@ -1365,6 +1388,7 @@ export interface FileRouteTypes {
     | '/imoveis/'
     | '/meio-ambiente/'
     | '/oportunidades/'
+    | '/radar/'
     | '/ruas/'
     | '/_authenticated/admin-ruas/$id'
     | '/_authenticated/admin-ruas/relatorios'
@@ -1434,8 +1458,10 @@ export interface RootRouteChildren {
   EmpreendimentosTerrahAlphavilleRoute: typeof EmpreendimentosTerrahAlphavilleRoute
   ParceirosSlugRoute: typeof ParceirosSlugRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
+  RadarObjetivoRoute: typeof RadarObjetivoRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
+  RadarIndexRoute: typeof RadarIndexRoute
   ApiPublicGaConfigRoute: typeof ApiPublicGaConfigRoute
   ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
@@ -2099,6 +2125,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceirosMpdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/radar/': {
+      id: '/radar/'
+      path: '/radar'
+      fullPath: '/radar/'
+      preLoaderRoute: typeof RadarIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/radar/$objetivo': {
+      id: '/radar/$objetivo'
+      path: '/radar/$objetivo'
+      fullPath: '/radar/$objetivo'
+      preLoaderRoute: typeof RadarObjetivoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ruas/': {
       id: '/ruas/'
       path: '/'
@@ -2487,8 +2527,10 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosTerrahAlphavilleRoute: EmpreendimentosTerrahAlphavilleRoute,
   ParceirosSlugRoute: ParceirosSlugRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
+  RadarObjetivoRoute: RadarObjetivoRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
+  RadarIndexRoute: RadarIndexRoute,
   ApiPublicGaConfigRoute: ApiPublicGaConfigRoute,
   ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,

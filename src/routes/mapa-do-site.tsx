@@ -1,5 +1,7 @@
 import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RADAR_PAGES } from "@/lib/radar-pages";
+import { interestLabel } from "@/lib/radar-config";
 import { SectionPage } from "@/components/section-page";
 
 const URL = `${SITE_URL}/mapa-do-site`;
@@ -48,6 +50,13 @@ const SECTIONS: { title: string; links: { to: string; label: string }[] }[] = [
       { to: "/empresas", label: "Empresas" },
       { to: "/escolas", label: "Escolas" },
       { to: "/restaurantes", label: "Restaurantes" },
+    ],
+  },
+  {
+    title: "Radar S.A. Imóveis",
+    links: [
+      { to: "/radar", label: "Radar — todos os objetivos" },
+      ...RADAR_PAGES.map((p) => ({ to: `/radar/${p.slug}`, label: interestLabel(p.interest) })),
     ],
   },
   {
