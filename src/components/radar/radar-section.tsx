@@ -1,12 +1,11 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Building2, Radar, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackRadar, readTracking } from "./radar-utils";
 
-const RadarModal = lazy(() => import("./radar-modal").then((m) => ({ default: m.RadarModal })));
 
 export function RadarSection() {
-  const [open, setOpen] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const viewedRef = useRef(false);
 
@@ -50,12 +49,13 @@ export function RadarSection() {
           você aos imóveis e oportunidades que fazem sentido para você.
         </p>
         <Button
+          asChild
           variant="signal"
-          type="button"
-          onClick={() => setOpen(true)}
           className="mt-9 h-14 w-full sm:w-auto px-7 rounded-sm text-sm font-bold motion-safe:transition-transform motion-safe:hover:-translate-y-1"
         >
-          <Sparkles aria-hidden="true" /> Ativar meu Radar <ArrowUpRight aria-hidden="true" />
+          <Link to="/radar" onClick={() => trackRadar("radar_cta_clicked", readTracking())}>
+            <Sparkles aria-hidden="true" /> Ativar meu Radar <ArrowUpRight aria-hidden="true" />
+          </Link>
         </Button>
         </div>
         <div className="radar-display hidden md:grid" aria-hidden="true">
@@ -77,11 +77,6 @@ export function RadarSection() {
         </div>
       </div>
 
-      {open ? (
-        <Suspense fallback={null}>
-          <RadarModal open={open} onClose={() => setOpen(false)} />
-        </Suspense>
-      ) : null}
     </section>
   );
 }

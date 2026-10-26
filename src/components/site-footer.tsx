@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from "react";
+import { RADAR_PAGES } from "@/lib/radar-pages";
+import { interestLabel } from "@/lib/radar-config";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Phone, MessageCircle, Mail, MapPin } from "lucide-react";
 import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
@@ -44,7 +46,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-brand-dark text-white/80">
       <div className="max-w-7xl mx-auto px-6 pt-20 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 md:gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-10 md:gap-12 mb-16">
           <div className="md:col-span-1">
             <Link to="/" className="inline-block mb-6">
               <img
@@ -90,6 +92,13 @@ export function SiteFooter() {
             <li><Link to="/guia-barueri" className="hover:text-brand-yellow">Barueri</Link></li>
             <li><Link to="/guia-santana-de-parnaiba" className="hover:text-brand-yellow">Santana de Parnaíba</Link></li>
             <li><Link to="/guia-de-ruas" className="hover:text-brand-yellow">Guia de ruas e avenidas</Link></li>
+          </FooterGroup>
+
+          <FooterGroup title="Radar S.A.">
+            <li><Link to="/radar" className="hover:text-brand-yellow">Ativar meu Radar</Link></li>
+            {RADAR_PAGES.map((p) => (
+              <li key={p.slug}><Link to="/radar/$objetivo" params={{ objetivo: p.slug }} className="hover:text-brand-yellow">{interestLabel(p.interest)}</Link></li>
+            ))}
           </FooterGroup>
 
           <FooterGroup title="Fale conosco" defaultOpen>
