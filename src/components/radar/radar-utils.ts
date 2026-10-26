@@ -1,5 +1,6 @@
 // Utilitários compartilhados do Radar (analytics, UTMs, máscaras, persistência local).
 import { RADAR_FORM_VERSION } from "@/lib/radar-config";
+import { isAppSession } from "@/lib/pwa";
 
 export const RADAR_STORAGE_KEY = "sa_radar_progress_v1";
 
@@ -36,7 +37,7 @@ export function readTracking(): RadarTracking {
   return {
     source: p.get("utm_source") ?? (window.location.pathname.startsWith("/radar") ? "radar_page" : "homepage_radar"),
     campaign: p.get("utm_campaign") ?? undefined,
-    medium: p.get("utm_medium") ?? undefined,
+    medium: p.get("utm_medium") ?? (isAppSession() ? "app" : undefined),
     content: p.get("utm_content") ?? undefined,
     term: p.get("utm_term") ?? undefined,
     referrer: document.referrer || undefined,
