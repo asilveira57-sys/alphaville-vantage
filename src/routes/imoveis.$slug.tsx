@@ -199,7 +199,7 @@ function PropertyDetail() {
             {/* Oculto temporariamente: site principal migrou de plataforma (URLs antigas dão 404). */}
             {false && p.source_url && (
               <a
-                href={p.source_url}
+                href={p.source_url ?? undefined}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-8 inline-flex items-center gap-2 bg-brand-yellow text-brand-dark px-5 py-3 text-xs font-bold uppercase tracking-widest hover:brightness-95 transition"
