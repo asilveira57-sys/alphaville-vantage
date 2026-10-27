@@ -29,6 +29,7 @@ const SECTIONS: { title: string; links: { to: string; label: string }[] }[] = [
     title: "Imóveis e regiões",
     links: [
       { to: "/imoveis", label: "Imóveis" },
+      { to: "/simulador-de-financiamento", label: "Simulador de financiamento" },
       { to: "/bairros", label: "Bairros" },
       { to: "/condominios", label: "Condomínios" },
       { to: "/alphaville", label: "Alphaville" },

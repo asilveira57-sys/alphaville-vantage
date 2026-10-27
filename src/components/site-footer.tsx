@@ -70,6 +70,7 @@ export function SiteFooter() {
             <li><Link to="/historia" className="hover:text-brand-yellow">Nossa história</Link></li>
             <li><Link to="/como-trabalhamos" className="hover:text-brand-yellow">Como trabalhamos</Link></li>
             <li><Link to="/servicos" className="hover:text-brand-yellow">Serviços</Link></li>
+            <li><Link to="/simulador-de-financiamento" className="hover:text-brand-yellow">Simulador de financiamento</Link></li>
             <li><Link to="/areas-de-atuacao" className="hover:text-brand-yellow">Áreas de atuação</Link></li>
             <li><Link to="/transparencia" className="hover:text-brand-yellow">Transparência</Link></li>
             <li><Link to="/perguntas-frequentes" className="hover:text-brand-yellow">FAQ</Link></li>

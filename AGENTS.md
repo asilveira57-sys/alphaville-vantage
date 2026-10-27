@@ -13,3 +13,4 @@
 - Radar questionnaire logic lives only in src/components/radar/radar-flow.tsx (page and modal variants); per-objective page copy/slugs live in src/lib/radar-pages.ts, which also feeds sitemap, mapa do site and footer.
 - Installable app (PWA): vite-plugin-pwa generateSW emits /sw.js; registration only via src/lib/pwa.ts and only on SITE_HOST (never preview/iframe/dev), so stale caches can't reach the editor.
 - PWA and browser icons are static files under public/icons with public/favicon.ico; keep manifest, shortcuts, head links and Workbox precache in sync so uploaded brand icons are used consistently.
+- FinancingSimulator has an opt-in standalone mode for the financing page; property-detail defaults stay unchanged, and standalone submissions use the existing financing simulation-to-lead workflow to keep CRM and emails unified.

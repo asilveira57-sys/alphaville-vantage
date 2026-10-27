@@ -40,6 +40,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/meio-ambiente", changefreq: "monthly", priority: "0.6" },
           { path: "/investimentos", changefreq: "weekly", priority: "0.8" },
           { path: "/imoveis", changefreq: "daily", priority: "0.9" },
+          { path: "/simulador-de-financiamento", lastmod: "2026-10-27", changefreq: "monthly", priority: "0.8" },
           { path: "/oportunidades", changefreq: "daily", priority: "0.9" },
           { path: "/oportunidades/metodologia", changefreq: "monthly", priority: "0.5" },
           { path: "/quem-somos", changefreq: "monthly", priority: "0.7" },

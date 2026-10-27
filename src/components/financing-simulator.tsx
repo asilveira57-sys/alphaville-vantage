@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { financingPageAttribution, financingPropertyRange } from "@/lib/financing-page";
 import { calculateFinancing, type AmortizationSystem } from "@/lib/financing-calc";
 import {
   getFinancingSettings,
@@ -10,8 +15,9 @@ import {
 
 type Props = {
   propertyId?: string;
-  propertySlug: string;
-  propertyValue: number;
+  propertySlug?: string;
+  propertyValue?: number;
+  standalone?: boolean;
 };
 
 const fmt = (n: number) =>
@@ -21,7 +27,12 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-black/15 bg-white px-4 py-3 text-sm outline-none focus:border-[#0D0D0D] focus-visible:ring-2 focus-visible:ring-[#F2DA00]";
 const labelClass = "block text-[11px] uppercase tracking-[0.18em] font-semibold text-[#1A1A1A]/60";
 
-export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: Props) {
+export function FinancingSimulator({ propertyId, propertySlug, propertyValue: initialValue = 0, standalone = false }: Props) {
+  const [enteredValue, setEnteredValue] = useState("");
+  const propertyValue = standalone ? Number(enteredValue) || 0 : initialValue;
+  const registerSimulation = useServerFn(registerFinancingSimulation);
+  const convertLead = useServerFn(convertSimulationToLead);
+  const [leadSending, setLeadSending] = useState(false);
   const { data: settings } = useQuery({
     queryKey: ["financing-settings"],
     queryFn: () => getFinancingSettings(),
@@ -92,6 +103,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
   // parâmetros param de mudar por um instante — dá visibilidade de quais
   // imóveis geram mais simulações, sem exigir nada da pessoa.
   useEffect(() => {
+    if (standalone) return;
     const t = setTimeout(() => {
       registerFinancingSimulation({
         data: {
@@ -122,6 +134,10 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
 
   async function handleLeadSubmit() {
     setLeadError(null);
+    if (standalone && propertyValue <= 0) {
+      setLeadError("Informe o valor do imóvel.");
+      return;
+    }
     if (leadName.trim().length < 2) {
       setLeadError("Informe seu nome.");
       return;
@@ -130,17 +146,42 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
       setLeadError("Informe o e-mail para receber a simulação completa.");
       return;
     }
-    if (!simulationId) {
+    if (!simulationId && !standalone) {
       setLeadError("Aguarde a simulação terminar de carregar e tente novamente.");
       return;
     }
+    setLeadSending(true);
     try {
-      await convertSimulationToLead({
-        data: { simulation_id: simulationId, lead_name: leadName, lead_phone: leadPhone, lead_email: leadEmail },
+      let currentId = simulationId;
+      if (standalone) {
+        const params = new URLSearchParams(window.location.search);
+        const registered = await registerSimulation({ data: {
+          property_value: propertyValue,
+          down_payment_pct: downPaymentPct,
+          used_fgts: usedFgts,
+          fgts_amount: usedFgts ? fgtsAmount : 0,
+          term_months: termMonths,
+          annual_rate: annualRate,
+          amortization_system: system,
+          bank_id: bank?.id,
+          bank_name: bank?.name,
+          ...financingPageAttribution(),
+          campaign: params.get("utm_campaign")?.slice(0, 160) || undefined,
+          medium: params.get("utm_medium")?.slice(0, 160) || undefined,
+          referrer: document.referrer.slice(0, 500) || undefined,
+        } });
+        currentId = registered.id;
+        setSimulationId(currentId);
+      }
+      if (!currentId) throw new Error("Simulação não disponível. Tente novamente.");
+      await convertLead({
+        data: { simulation_id: currentId, lead_name: leadName, lead_phone: leadPhone, lead_email: leadEmail },
       });
       setLeadSent(true);
     } catch (e) {
       setLeadError(e instanceof Error ? e.message : "Não foi possível enviar agora.");
+    } finally {
+      setLeadSending(false);
     }
   }
 
@@ -148,7 +189,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
   return (
     <div className="border border-black/10 bg-white">
       <div className="px-6 py-5 border-b border-black/10 flex items-center justify-between gap-4 flex-wrap">
-        <h2 className="font-display text-2xl text-[#0D0D0D]">Simule o financiamento deste imóvel</h2>
+        <h2 className="font-display text-2xl text-[#0D0D0D]">{standalone ? "Sua simulação" : "Simule o financiamento deste imóvel"}</h2>
         <div className="flex border border-black/15 rounded-lg overflow-hidden text-xs font-semibold uppercase tracking-widest">
           <button
             type="button"
@@ -171,6 +212,12 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
 
       <div className="grid md:grid-cols-2 gap-8 px-6 py-6">
         <div className="space-y-6">
+          {standalone && (
+            <label className="block">
+              <span className="text-xs font-semibold uppercase text-muted-foreground">Valor do imóvel (R$)</span>
+              <input className="mt-2 w-full rounded-md border border-input bg-card px-4 py-3 text-base text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" type="number" min="1" step="1000" inputMode="decimal" placeholder="Informe o valor" value={enteredValue} onChange={(e) => { setEnteredValue(e.target.value); setLeadSent(false); }} />
+            </label>
+          )}
           <div className="grid sm:grid-cols-2 gap-4">
             <label>
               <span className={labelClass}>Banco</span>
@@ -294,6 +341,14 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
       </div>
 
       <div className="px-6 py-6 border-t border-black/10 bg-[#F2DA00]/10">
+        {standalone && propertyValue > 0 && (
+          <div className="mb-6">
+            <Button asChild variant="outline" className="h-auto whitespace-normal py-3">
+              <Link to="/imoveis" search={financingPropertyRange(propertyValue)}>Ver imóveis nessa faixa de valor <ArrowRight /></Link>
+            </Button>
+            <p className="mt-2 text-xs text-muted-foreground">Imóveis à venda entre {fmt(propertyValue * 0.9)} e {fmt(propertyValue * 1.1)}.</p>
+          </div>
+        )}
         {!leadOpen && !leadSent && (
           <button
             type="button"
@@ -331,13 +386,14 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
               />
             </label>
 
-            <button
+            <Button
               type="button"
               onClick={handleLeadSubmit}
+              disabled={leadSending}
               className="sm:col-span-3 bg-[#0D0D0D] text-white px-6 py-3 text-xs font-bold uppercase tracking-widest hover:brightness-110 transition"
             >
-              Enviar
-            </button>
+              {leadSending ? "Enviando…" : "Enviar"}
+            </Button>
             {leadError && (
               <p role="alert" className="sm:col-span-3 text-xs text-red-600">
                 {leadError}
@@ -348,7 +404,7 @@ export function FinancingSimulator({ propertyId, propertySlug, propertyValue }: 
 
         {leadSent && (
           <p className="text-sm text-[#1A1A1A]/80">
-            Simulação registrada. Nossa equipe entra em contato com as condições reais deste imóvel.
+            {standalone ? "Simulação registrada. Você receberá a confirmação por e-mail e nossa equipe poderá orientar sua solicitação." : "Simulação registrada. Nossa equipe entra em contato com as condições reais deste imóvel."}
           </p>
         )}
       </div>
