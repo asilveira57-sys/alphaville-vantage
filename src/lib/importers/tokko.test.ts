@@ -26,8 +26,8 @@ describe('Tokko migration safeguards', () => {
     expect(apiFactPatch({ slug: portal.slug }, { slug: 'new-slug' }).patch).toEqual({});
   });
   it('maps monthly and annual IPTU explicitly', () => {
-    expect(tokkoFacts({ ...api, iptu: '1000.00', iptu_type: 'Mensal' }).iptu_period).toBe('monthly');
-    expect(tokkoFacts({ ...api, iptu: '12000.00', iptu_type: 'Anual' }).iptu_period).toBe('annual');
+    expect(tokkoFacts({ ...api, iptu: '1000.00', iptu_type: 'Mensal' }).iptu_period).toBe('mensal');
+    expect(tokkoFacts({ ...api, iptu: '12000.00', iptu_type: 'Anual' }).iptu_period).toBe('anual');
   });
   it('keeps absent bathroom counts null rather than inventing zero', () => {
     expect(tokkoFacts(api).bathrooms).toBeNull();

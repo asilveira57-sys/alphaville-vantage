@@ -1,4 +1,5 @@
 /** Pure API adapter and migration preview. Never writes or changes portal slugs. */
+import { SITE_URL } from '../site';
 export type TokkoProperty = {
   id: number; reference_code: string; public_url?: string; status?: number;
   type?: { name?: string }; location?: { full_location?: string; name?: string; type?: string };
@@ -22,9 +23,9 @@ const numeric = (value: unknown): number | null => {
 const positive = (value: unknown) => { const n = numeric(value); return n != null && n > 0 ? n : null; };
 const text = (value: unknown) => typeof value === 'string' && value.trim() ? value.trim() : null;
 const TYPE_MAP: Record<string, string> = {
-  Casa: 'Casa', Apartamento: 'Apartamento', Terreno: 'Terreno', Escritório: 'Sala comercial',
-  Galpão: 'Galpão', 'Edifício comercial': 'Prédio comercial', 'Locais comerciais': 'Loja',
-  Chácara: 'Chácara', Fazenda: 'Fazenda',
+  Casa: 'casa', Apartamento: 'apartamento', Terreno: 'terreno', Escritório: 'sala',
+  Galpão: 'galpão', 'Edifício comercial': 'prédio', 'Locais comerciais': 'loja',
+  Chácara: 'chácara', Fazenda: 'fazenda',
 };
 
 export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) {
@@ -38,7 +39,7 @@ export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) 
   const images = [...new Set(photos.map(v => v.original ?? v.image).filter((v): v is string => Boolean(v)))];
   const condo = p.custom_tags?.find(t => t.group_name === 'Empreendimento')?.name
     ?? p.extra_attributes?.find(t => t.name === 'condo_admin')?.value ?? p.development?.name;
-  const period = p.iptu_type === 'Mensal' ? 'monthly' : p.iptu_type === 'Anual' ? 'annual' : null;
+  const period = p.iptu_type === 'Mensal' ? 'mensal' : p.iptu_type === 'Anual' ? 'anual' : null;
   const rawType = p.type?.name ?? '';
   return {
     internal_code: referenceKey(p.reference_code), source_id: String(p.id),
@@ -99,7 +100,7 @@ export function previewTokkoMigration(portal: PortalMappingRow[], api: TokkoProp
       const a = as.length === 1 ? as[0] : null;
       const url = a ? officialUrls[String(a.id)] ?? '' : '';
       rows.push({ result, code, portal_id: p?.id ?? '', portal_status: p?.status ?? '',
-        portal_url: p ? `https://portal.saimoveisalpha.com.br/imoveis/${p.slug}` : '',
+        portal_url: p ? `${SITE_URL}/imoveis/${p.slug}` : '',
         old_source_id: p?.source_id ?? '', new_source_id: a ? String(a.id) : '',
         old_source_url: p?.source_url ?? '', new_source_url: url,
         old_external_ref: p?.external_ref ?? '', new_external_ref: url ? new URL(url).pathname : '',
