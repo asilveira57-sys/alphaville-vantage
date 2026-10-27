@@ -32,13 +32,18 @@ describe('Tokko migration safeguards', () => {
   it('keeps absent bathroom counts null rather than inventing zero', () => {
     expect(tokkoFacts(api).bathrooms).toBeNull();
   });
+  it('does not erase bedrooms when migrated API sends unavailable zero counts', () => {
+    const f = tokkoFacts({ ...api, room_amount: 0 });
+    expect(f.bedrooms).toBeNull();
+    expect(apiFactPatch({ bedrooms: 3 }, f).patch).not.toHaveProperty('bedrooms');
+  });
   it('preserves gallery order and detects changed main photos', () => {
     const f = tokkoFacts({ ...api, photos: [{ original: 'https://static.tokkobroker.com/2.jpg', order: 2 }, { original: 'https://static.tokkobroker.com/1.jpg', order: 1, is_front_cover: true }] });
     expect(f.images).toEqual(['https://static.tokkobroker.com/1.jpg', 'https://static.tokkobroker.com/2.jpg']);
     expect(apiFactPatch({ images: ['old.jpg'] }, f).mainPhotoChanged).toBe(true);
   });
   it('does not publish exact address numbers', () => {
-    const f = tokkoFacts({ ...api, fake_address: 'Rua Exemplo', real_address: 'Rua Exemplo 123', address_complement: 'Apto 10' });
+    const f = tokkoFacts({ ...api, fake_address: 'Rua Exemplo 123', real_address: 'Rua Exemplo 123', address_complement: 'Apto 10' });
     expect(f.address).toBe('Rua Exemplo'); expect(f).not.toHaveProperty('address_number');
   });
 });

@@ -50,9 +50,10 @@ export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) 
     condominium_name: text(condo), condo_fee: positive(p.expenses), iptu: positive(p.iptu), iptu_period: period,
     city: location[2] ?? null, state: location[1] === 'São Paulo' ? 'SP' : null,
     neighborhood: p.location?.type === 'Bairro' ? p.location.name ?? null : location[3] ?? null,
-    // fake_address is the public street; never expose real_address or number/complement.
-    address: text(p.fake_address),
-    bedrooms: numeric(p.room_amount), suites: numeric(p.suite_amount), bathrooms: numeric(p.bathroom_amount),
+    // This migrated feed reports room_amount=0 for every listing; treat it as unavailable.
+    // Even fake_address can contain a house number. Strip it and never expose complements.
+    address: text(p.fake_address)?.replace(/\s*[,\-]?\s+\d+[A-Za-z]?(?:\s*[,\-].*)?\s*$/, '').trim() || null,
+    bedrooms: positive(p.room_amount), suites: numeric(p.suite_amount), bathrooms: positive(p.bathroom_amount),
     lavabos: numeric(p.toilet_amount), parking: numeric(p.parking_lot_amount),
     parking_covered: numeric(p.covered_parking_lot), parking_uncovered: numeric(p.uncovered_parking_lot),
     area_total: positive(p.total_area) ?? positive(p.surface),
@@ -69,6 +70,7 @@ export function apiFactPatch(db: Record<string, unknown>, facts: Record<string, 
   const conflicts: string[] = [];
   for (const [key, value] of Object.entries(facts)) {
     if (key === 'slug' || key === 'condominium_id' || value === undefined) continue;
+    if (value == null && ['bedrooms', 'bathrooms', 'area_total', 'area_built', 'area_useful', 'address'].includes(key)) continue;
     if (Object.prototype.hasOwnProperty.call(overrides, key)) { conflicts.push(key); continue; }
     if (JSON.stringify(db[key] ?? null) !== JSON.stringify(value ?? null)) patch[key] = value;
   }
