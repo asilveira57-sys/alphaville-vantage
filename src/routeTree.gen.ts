@@ -44,6 +44,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RestaurantesRouteImport } from './routes/restaurantes'
 import { Route as RuasRouteImport } from './routes/ruas'
 import { Route as ServicosRouteImport } from './routes/servicos'
+import { Route as SimuladorDeFinanciamentoRouteImport } from './routes/simulador-de-financiamento'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
 import { Route as TransparenciaRouteImport } from './routes/transparencia'
@@ -298,6 +299,12 @@ const ServicosRoute = ServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SimuladorDeFinanciamentoRoute =
+  SimuladorDeFinanciamentoRouteImport.update({
+    id: '/simulador-de-financiamento',
+    path: '/simulador-de-financiamento',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -766,6 +773,7 @@ export interface FileRoutesByFullPath {
   '/restaurantes': typeof RestaurantesRoute
   '/ruas': typeof RuasRouteWithChildren
   '/servicos': typeof ServicosRoute
+  '/simulador-de-financiamento': typeof SimuladorDeFinanciamentoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
@@ -874,6 +882,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/restaurantes': typeof RestaurantesRoute
   '/servicos': typeof ServicosRoute
+  '/simulador-de-financiamento': typeof SimuladorDeFinanciamentoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
@@ -989,6 +998,7 @@ export interface FileRoutesById {
   '/restaurantes': typeof RestaurantesRoute
   '/ruas': typeof RuasRouteWithChildren
   '/servicos': typeof ServicosRoute
+  '/simulador-de-financiamento': typeof SimuladorDeFinanciamentoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
@@ -1106,6 +1116,7 @@ export interface FileRouteTypes {
     | '/restaurantes'
     | '/ruas'
     | '/servicos'
+    | '/simulador-de-financiamento'
     | '/sitemap.xml'
     | '/termos-de-uso'
     | '/transparencia'
@@ -1214,6 +1225,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/restaurantes'
     | '/servicos'
+    | '/simulador-de-financiamento'
     | '/sitemap.xml'
     | '/termos-de-uso'
     | '/transparencia'
@@ -1328,6 +1340,7 @@ export interface FileRouteTypes {
     | '/restaurantes'
     | '/ruas'
     | '/servicos'
+    | '/simulador-de-financiamento'
     | '/sitemap.xml'
     | '/termos-de-uso'
     | '/transparencia'
@@ -1445,6 +1458,7 @@ export interface RootRouteChildren {
   RestaurantesRoute: typeof RestaurantesRoute
   RuasRoute: typeof RuasRouteWithChildren
   ServicosRoute: typeof ServicosRoute
+  SimuladorDeFinanciamentoRoute: typeof SimuladorDeFinanciamentoRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TransparenciaRoute: typeof TransparenciaRoute
@@ -1717,6 +1731,13 @@ declare module '@tanstack/react-router' {
       path: '/servicos'
       fullPath: '/servicos'
       preLoaderRoute: typeof ServicosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simulador-de-financiamento': {
+      id: '/simulador-de-financiamento'
+      path: '/simulador-de-financiamento'
+      fullPath: '/simulador-de-financiamento'
+      preLoaderRoute: typeof SimuladorDeFinanciamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -2514,6 +2535,7 @@ const rootRouteChildren: RootRouteChildren = {
   RestaurantesRoute: RestaurantesRoute,
   RuasRoute: RuasRouteWithChildren,
   ServicosRoute: ServicosRoute,
+  SimuladorDeFinanciamentoRoute: SimuladorDeFinanciamentoRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
   TransparenciaRoute: TransparenciaRoute,
