@@ -32,15 +32,36 @@ describe('Tokko migration safeguards', () => {
   it('keeps absent bathroom counts null rather than inventing zero', () => {
     expect(tokkoFacts(api).bathrooms).toBeNull();
   });
-  it('does not erase bedrooms when migrated API sends unavailable zero counts', () => {
-    const f = tokkoFacts({ ...api, room_amount: 0 });
-    expect(f.bedrooms).toBeNull();
-    expect(apiFactPatch({ bedrooms: 3 }, f).patch).not.toHaveProperty('bedrooms');
+  it('maps suite_amount to bedrooms and total_suites to suites (AP06648: 2 dorm, 1 suíte)', () => {
+    const f = tokkoFacts({ ...api, room_amount: 0, suite_amount: 2, total_suites: 1 });
+    expect(f.bedrooms).toBe(2); expect(f.suites).toBe(1);
+  });
+  it('treats API zero counts as not informed and keeps current values', () => {
+    const f = tokkoFacts({ ...api, suite_amount: 0, total_suites: 0, toilet_amount: 0, bathroom_amount: 0, parking_lot_amount: 0 });
+    const d = apiFactPatch({ bedrooms: 3, suites: 1, lavabos: 1, bathrooms: 2, parking: 2 }, f).patch;
+    expect(d).toEqual({});
+  });
+  it('sums covered and uncovered parking when total is missing', () => {
+    expect(tokkoFacts({ ...api, parking_lot_amount: 0, covered_parking_lot: 2, uncovered_parking_lot: 1 }).parking).toBe(3);
+  });
+  it('ignores money differences under R$ 1', () => {
+    expect(apiFactPatch({ price_sale: 1000000.6 }, { price_sale: 1000000 }).patch).toEqual({});
+    expect(apiFactPatch({ price_sale: 999000 }, { price_sale: 1000000 }).patch).toEqual({ price_sale: 1000000 });
+  });
+  it('ignores condominium name changes of case or accents only', () => {
+    expect(apiFactPatch({ condominium_name: 'Residencial Gênesis' }, { condominium_name: 'RESIDENCIAL GENESIS' }).patch).toEqual({});
+  });
+  it('never downgrades rent/both to sale', () => {
+    expect(apiFactPatch({ purpose: 'both' }, { purpose: 'sale' }).patch).toEqual({});
   });
   it('preserves gallery order and detects changed main photos', () => {
     const f = tokkoFacts({ ...api, photos: [{ original: 'https://static.tokkobroker.com/2.jpg', order: 2 }, { original: 'https://static.tokkobroker.com/1.jpg', order: 1, is_front_cover: true }] });
     expect(f.images).toEqual(['https://static.tokkobroker.com/1.jpg', 'https://static.tokkobroker.com/2.jpg']);
     expect(apiFactPatch({ images: ['old.jpg'] }, f).mainPhotoChanged).toBe(true);
+  });
+  it('keeps only the street name', () => {
+    expect(tokkoFacts({ ...api, fake_address: 'AVENIDA ÔMEGA al' }).address).toBe('Avenida Ômega');
+    expect(tokkoFacts({ ...api, fake_address: 'AVENIDA DELMAR al 200' }).address).toBe('Avenida Delmar');
   });
   it('does not publish exact address numbers', () => {
     const f = tokkoFacts({ ...api, fake_address: 'Rua Exemplo 123', real_address: 'Rua Exemplo 123', address_complement: 'Apto 10' });
