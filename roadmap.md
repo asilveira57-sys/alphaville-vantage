@@ -1,4 +1,10 @@
 # Visual da home
+## Migração da origem para API Tokko
+- [ ] Testar API — bloqueado: ORIGEM_API_KEY não está configurado.
+- [ ] Gerar simulação e CSV por código de referência, sem gravar imóveis.
+- [ ] Adaptar conciliação para API preservando limites, ajustes manuais e SEO; manter rotinas pausadas até liberação.
+- [ ] Aplicar mapeamento, fotos e link oficial somente após aprovação da simulação.
+
 ## Simulador de financiamento
 - [x] Criar página independente reutilizando o simulador sem mudar a ficha.
 - [x] Adicionar conteúdo, taxas atualizadas, busca por faixa e contato com origem correta.
