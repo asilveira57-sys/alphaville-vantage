@@ -39,6 +39,8 @@ export function cleanStreet(raw: string | null | undefined): string | null {
   return s.toLocaleLowerCase('pt-BR').split(' ')
     .map((w, i) => (i > 0 && SMALL.has(w)) ? w : w.charAt(0).toLocaleUpperCase('pt-BR') + w.slice(1)).join(' ');
 }
+/** "Alphaville Centro Industrial e Empresarial/Alphaville." → "Alphaville Centro Industrial e Empresarial". */
+export const cleanHood = (v: string | null) => v ? v.split('/')[0].replace(/[.\s]+$/, '').trim() || null : null;
 const fold = (v: unknown) => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
 const MONEY = new Set(['price_sale', 'price_rent', 'condo_fee', 'iptu']);
 const FOLDED = new Set(['condominium_name', 'city', 'neighborhood', 'address']);
@@ -68,7 +70,7 @@ export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) 
     price_sale: price(1), price_rent: price(2),
     condominium_name: text(condo), condo_fee: positive(p.expenses), iptu: positive(p.iptu), iptu_period: period,
     city: location[2] ?? null, state: location[1] === 'São Paulo' ? 'SP' : null,
-    neighborhood: p.location?.type === 'Bairro' ? p.location.name ?? null : location[3] ?? null,
+    neighborhood: cleanHood(p.location?.type === 'Bairro' ? p.location.name ?? null : location[3] ?? null),
     address: cleanStreet(text(p.fake_address) ?? text(p.address)),
     // Tokko "suite_amount" = dormitórios (herança de "dormitorios"); suítes vêm de total_suites.
     // Contagens 0 nesta API significam "não informado": viram null e nunca sobrescrevem.
