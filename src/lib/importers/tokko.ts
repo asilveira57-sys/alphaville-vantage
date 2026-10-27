@@ -1,0 +1,114 @@
+/** Pure API adapter and migration preview. Never writes or changes portal slugs. */
+export type TokkoProperty = {
+  id: number; reference_code: string; public_url?: string; status?: number;
+  type?: { name?: string }; location?: { full_location?: string; name?: string; type?: string };
+  operations?: { operation_id?: number; operation_type?: string; prices?: { currency?: string; price?: number }[] }[];
+  photos?: { image?: string; original?: string; order?: number; is_front_cover?: boolean }[];
+  custom_tags?: { group_name?: string; name?: string }[];
+  extra_attributes?: { name?: string; value?: string }[];
+  development?: { name?: string } | null;
+  [key: string]: unknown;
+};
+export type PortalMappingRow = {
+  id: string; internal_code: string | null; source_id: string | null;
+  source_url: string | null; external_ref: string | null; slug: string; status: string;
+};
+export const referenceKey = (value: string | null | undefined) => (value ?? '').trim().toUpperCase();
+const numeric = (value: unknown): number | null => {
+  if (value == null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+};
+const positive = (value: unknown) => { const n = numeric(value); return n != null && n > 0 ? n : null; };
+const text = (value: unknown) => typeof value === 'string' && value.trim() ? value.trim() : null;
+const TYPE_MAP: Record<string, string> = {
+  Casa: 'Casa', Apartamento: 'Apartamento', Terreno: 'Terreno', Escritório: 'Sala comercial',
+  Galpão: 'Galpão', 'Edifício comercial': 'Prédio comercial', 'Locais comerciais': 'Loja',
+  Chácara: 'Chácara', Fazenda: 'Fazenda',
+};
+
+export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) {
+  const operations = p.operations ?? [];
+  const price = (id: number) => positive(operations.find(o => o.operation_id === id)?.prices?.find(v => v.currency === 'BRL')?.price);
+  const sale = operations.some(o => o.operation_id === 1);
+  const rent = operations.some(o => o.operation_id === 2);
+  const location = (p.location?.full_location ?? '').split('|').map(v => v.trim());
+  const photos = [...(p.photos ?? [])].sort((a, b) =>
+    Number(Boolean(b.is_front_cover)) - Number(Boolean(a.is_front_cover)) || (a.order ?? 0) - (b.order ?? 0));
+  const images = [...new Set(photos.map(v => v.original ?? v.image).filter((v): v is string => Boolean(v)))];
+  const condo = p.custom_tags?.find(t => t.group_name === 'Empreendimento')?.name
+    ?? p.extra_attributes?.find(t => t.name === 'condo_admin')?.value ?? p.development?.name;
+  const period = p.iptu_type === 'Mensal' ? 'monthly' : p.iptu_type === 'Anual' ? 'annual' : null;
+  const rawType = p.type?.name ?? '';
+  return {
+    internal_code: referenceKey(p.reference_code), source_id: String(p.id),
+    ...(officialUrl ? { source_url: officialUrl, external_ref: new URL(officialUrl).pathname } : {}),
+    property_type: TYPE_MAP[rawType] ?? null,
+    purpose: sale && rent ? 'both' : rent ? 'rent' : sale ? 'sale' : null,
+    price_sale: price(1), price_rent: price(2),
+    condominium_name: text(condo), condo_fee: positive(p.expenses), iptu: positive(p.iptu), iptu_period: period,
+    city: location[2] ?? null, state: location[1] === 'São Paulo' ? 'SP' : null,
+    neighborhood: p.location?.type === 'Bairro' ? p.location.name ?? null : location[3] ?? null,
+    // fake_address is the public street; never expose real_address or number/complement.
+    address: text(p.fake_address),
+    bedrooms: numeric(p.room_amount), suites: numeric(p.suite_amount), bathrooms: numeric(p.bathroom_amount),
+    lavabos: numeric(p.toilet_amount), parking: numeric(p.parking_lot_amount),
+    parking_covered: numeric(p.covered_parking_lot), parking_uncovered: numeric(p.uncovered_parking_lot),
+    area_total: positive(p.total_area) ?? positive(p.surface),
+    area_built: positive(p.roofed_surface) ?? positive(p.total_surface),
+    area_useful: positive(p.private_area) ?? positive(p.livable_area),
+    description: text(p.description_only), descricao_original: text(p.description_only), images,
+  };
+}
+
+/** Overrides use presence, not truthiness; a manual zero or null remains protected. */
+export function apiFactPatch(db: Record<string, unknown>, facts: Record<string, unknown>) {
+  const overrides = (db.manual_overrides ?? {}) as Record<string, unknown>;
+  const patch: Record<string, unknown> = {};
+  const conflicts: string[] = [];
+  for (const [key, value] of Object.entries(facts)) {
+    if (key === 'slug' || key === 'condominium_id' || value === undefined) continue;
+    if (Object.prototype.hasOwnProperty.call(overrides, key)) { conflicts.push(key); continue; }
+    if (JSON.stringify(db[key] ?? null) !== JSON.stringify(value ?? null)) patch[key] = value;
+  }
+  return { patch, conflicts, mainPhotoChanged: Array.isArray(patch.images)
+    && patch.images[0] !== (Array.isArray(db.images) ? db.images[0] : undefined) };
+}
+
+export type MigrationRow = {
+  result: 'matched' | 'new_in_api' | 'missing_in_api' | 'duplicate_code' | 'missing_code';
+  code: string; portal_id: string; portal_status: string; portal_url: string;
+  old_source_id: string; new_source_id: string; old_source_url: string;
+  new_source_url: string; old_external_ref: string; new_external_ref: string;
+  api_public_url: string; portal_count: number; api_count: number; note: string;
+};
+export function previewTokkoMigration(portal: PortalMappingRow[], api: TokkoProperty[], officialUrls: Record<string, string> = {}) {
+  const groups = <T,>(items: T[], key: (item: T) => string) => {
+    const out = new Map<string, T[]>();
+    for (const item of items) { const k = key(item); out.set(k, [...(out.get(k) ?? []), item]); }
+    return out;
+  };
+  const pg = groups(portal.filter(p => p.status !== 'inactive' && p.status !== 'sold'), p => referenceKey(p.internal_code));
+  const ag = groups(api, p => referenceKey(p.reference_code));
+  const rows: MigrationRow[] = [];
+  for (const code of new Set([...pg.keys(), ...ag.keys()])) {
+    const ps = pg.get(code) ?? []; const as = ag.get(code) ?? [];
+    const result = !code ? 'missing_code' : ps.length > 1 || as.length > 1 ? 'duplicate_code'
+      : !ps.length ? 'new_in_api' : !as.length ? 'missing_in_api' : 'matched';
+    for (const p of ps.length ? ps : [null]) {
+      const a = as.length === 1 ? as[0] : null;
+      const url = a ? officialUrls[String(a.id)] ?? '' : '';
+      rows.push({ result, code, portal_id: p?.id ?? '', portal_status: p?.status ?? '',
+        portal_url: p ? `https://portal.saimoveisalpha.com.br/imoveis/${p.slug}` : '',
+        old_source_id: p?.source_id ?? '', new_source_id: a ? String(a.id) : '',
+        old_source_url: p?.source_url ?? '', new_source_url: url,
+        old_external_ref: p?.external_ref ?? '', new_external_ref: url ? new URL(url).pathname : '',
+        api_public_url: a?.public_url ?? '', portal_count: ps.length, api_count: as.length,
+        note: result === 'missing_in_api' ? 'Ausente da API; não pausar sem 2 dias e confirmação'
+          : result === 'duplicate_code' ? 'Ambíguo; revisão manual, sem gravação'
+          : !url && a ? 'API não fornece URL no domínio oficial; URL oficial pendente' : '',
+      });
+    }
+  }
+  return rows;
+}
