@@ -239,7 +239,13 @@ export async function importFromOrigin(sb: SB, url: string, cities: OfficialCity
 export type RunOptions = { triggeredBy: string; skipImports?: boolean };
 
 /** Rotina completa. Sempre registra a execução em source_reconciliation_runs. */
+// Site principal migrou de plataforma (IDs novos ~12,5 mi). Conciliação suspensa até o mapeamento ser liberado.
+export const RECONCILIATION_SUSPENDED = true;
+
 export async function runReconciliation(sb: SB, opts: RunOptions) {
+  if (RECONCILIATION_SUSPENDED) {
+    return { status: "blocked", error: "Conciliação suspensa: site principal migrou de plataforma. Nada foi alterado.", errors: [] as string[] };
+  }
   const { data: run } = await sb.from("source_reconciliation_runs").insert({ triggered_by: opts.triggeredBy }).select("id").single();
   const errors: string[] = [];
   const log = (s: string) => errors.push(s);
