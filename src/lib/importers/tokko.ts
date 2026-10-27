@@ -28,6 +28,27 @@ const TYPE_MAP: Record<string, string> = {
   Chácara: 'chácara', Fazenda: 'fazenda',
 };
 
+const SMALL = new Set(['de', 'da', 'do', 'das', 'dos', 'e']);
+/** Só até o nome da rua: tira número, sufixo "al" e complemento; capitaliza. */
+export function cleanStreet(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  let s = raw.replace(/\s+/g, ' ').trim();
+  s = s.replace(/[,\-]?\s*\d.*$/, '').trim();
+  s = s.replace(/\s+al\.?$/i, '').replace(/[,\-\s]+$/, '').trim();
+  if (!s) return null;
+  return s.toLocaleLowerCase('pt-BR').split(' ')
+    .map((w, i) => (i > 0 && SMALL.has(w)) ? w : w.charAt(0).toLocaleUpperCase('pt-BR') + w.slice(1)).join(' ');
+}
+/** "Alphaville Centro Industrial e Empresarial/Alphaville." → "Alphaville Centro Industrial e Empresarial". */
+export const cleanHood = (v: string | null) => v ? v.split('/')[0].replace(/[.\s]+$/, '').trim() || null : null;
+const fold = (v: unknown) => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+const MONEY = new Set(['price_sale', 'price_rent', 'condo_fee', 'iptu']);
+const FOLDED = new Set(['condominium_name', 'city', 'neighborhood', 'address']);
+/** Campos que entram no texto SEO; mudança neles exige regerar. */
+export const SEO_FACT_KEYS = ['property_type', 'purpose', 'price_sale', 'price_rent', 'condo_fee', 'iptu', 'iptu_period',
+  'city', 'neighborhood', 'condominium_name', 'bedrooms', 'suites', 'bathrooms', 'lavabos', 'parking',
+  'parking_covered', 'parking_uncovered', 'area_total', 'area_built', 'area_useful', 'address'];
+
 export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) {
   const operations = p.operations ?? [];
   const price = (id: number) => positive(operations.find(o => o.operation_id === id)?.prices?.find(v => v.currency === 'BRL')?.price);
@@ -49,13 +70,15 @@ export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) 
     price_sale: price(1), price_rent: price(2),
     condominium_name: text(condo), condo_fee: positive(p.expenses), iptu: positive(p.iptu), iptu_period: period,
     city: location[2] ?? null, state: location[1] === 'São Paulo' ? 'SP' : null,
-    neighborhood: p.location?.type === 'Bairro' ? p.location.name ?? null : location[3] ?? null,
-    // This migrated feed reports room_amount=0 for every listing; treat it as unavailable.
-    // Even fake_address can contain a house number. Strip it and never expose complements.
-    address: text(p.fake_address)?.replace(/\s*[,\-]?\s+\d+[A-Za-z]?(?:\s*[,\-].*)?\s*$/, '').trim() || null,
-    bedrooms: positive(p.room_amount), suites: numeric(p.suite_amount), bathrooms: positive(p.bathroom_amount),
-    lavabos: numeric(p.toilet_amount), parking: numeric(p.parking_lot_amount),
-    parking_covered: numeric(p.covered_parking_lot), parking_uncovered: numeric(p.uncovered_parking_lot),
+    neighborhood: cleanHood(p.location?.type === 'Bairro' ? p.location.name ?? null : location[3] ?? null),
+    address: cleanStreet(text(p.fake_address) ?? text(p.address)),
+    // Tokko "suite_amount" = dormitórios (herança de "dormitorios"); suítes vêm de total_suites.
+    // Contagens 0 nesta API significam "não informado": viram null e nunca sobrescrevem.
+    bedrooms: positive(p.suite_amount), suites: positive(p.total_suites), bathrooms: positive(p.bathroom_amount),
+    lavabos: positive(p.toilet_amount),
+    parking: positive(p.parking_lot_amount)
+      ?? (((positive(p.covered_parking_lot) ?? 0) + (positive(p.uncovered_parking_lot) ?? 0)) || null),
+    parking_covered: positive(p.covered_parking_lot), parking_uncovered: positive(p.uncovered_parking_lot),
     area_total: positive(p.total_area) ?? positive(p.surface),
     area_built: positive(p.roofed_surface) ?? positive(p.total_surface),
     area_useful: positive(p.private_area) ?? positive(p.livable_area),
@@ -70,11 +93,21 @@ export function apiFactPatch(db: Record<string, unknown>, facts: Record<string, 
   const conflicts: string[] = [];
   for (const [key, value] of Object.entries(facts)) {
     if (key === 'slug' || key === 'condominium_id' || value === undefined) continue;
-    if (value == null && ['bedrooms', 'bathrooms', 'area_total', 'area_built', 'area_useful', 'address'].includes(key)) continue;
+    // API sem o dado (null/0) nunca apaga o valor atual.
+    if (value == null) continue;
     if (Object.prototype.hasOwnProperty.call(overrides, key)) { conflicts.push(key); continue; }
-    if (JSON.stringify(db[key] ?? null) !== JSON.stringify(value ?? null)) patch[key] = value;
+    const cur = db[key];
+    if (MONEY.has(key) && cur != null && Math.abs(Number(cur) - Number(value)) < 1) continue;
+    if (FOLDED.has(key) && fold(cur) === fold(value)) continue;
+    // Tipo só é preenchido quando vazio; trocas de tipo seguem para revisão manual.
+    if (key === 'property_type' && cur) continue;
+    // Nunca rebaixar locação/ambos para só venda.
+    if (key === 'purpose' && value === 'sale' && (cur === 'rent' || cur === 'both')) continue;
+    if (key === 'price_rent' && db.purpose !== 'sale' && facts.purpose === 'sale') continue;
+    if (JSON.stringify(cur ?? null) !== JSON.stringify(value)) patch[key] = value;
   }
-  return { patch, conflicts, mainPhotoChanged: Array.isArray(patch.images)
+  const factChanged = SEO_FACT_KEYS.some(k => k in patch);
+  return { patch, conflicts, factChanged, mainPhotoChanged: Array.isArray(patch.images)
     && patch.images[0] !== (Array.isArray(db.images) ? db.images[0] : undefined) };
 }
 

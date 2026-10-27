@@ -2,8 +2,8 @@
 ## Migração da origem para API Tokko
 - [x] Testar API — HTTP 200, 2.384 imóveis, chave configurada.
 - [x] Gerar simulação e CSV por código de referência, sem gravar imóveis.
-- [ ] Integrar adaptação da API na conciliação — aguardando aprovação do mapeamento e validação das lacunas (dormitórios zerados na API e códigos inválidos no portal); manter rotinas pausadas.
-- [ ] Aplicar mapeamento, fotos e link oficial somente após aprovação da simulação.
+- [x] Gravar mapeamento, importar novos, miniaturas, SEO, link oficial e religar verificação diária pela API.
+- [ ] Publicar para a verificação diária pela API valer no site publicado.
 
 ## Simulador de financiamento
 - [x] Criar página independente reutilizando o simulador sem mudar a ficha.

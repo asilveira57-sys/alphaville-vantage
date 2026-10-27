@@ -238,17 +238,15 @@ export async function importFromOrigin(sb: SB, url: string, cities: OfficialCity
 
 export type RunOptions = { triggeredBy: string; skipImports?: boolean };
 
-/** Rotina completa. Sempre registra a execução em source_reconciliation_runs. */
-// Site principal migrou de plataforma (IDs novos ~12,5 mi). Conciliação suspensa até o mapeamento ser liberado.
-export const RECONCILIATION_SUSPENDED = true;
+/** Rotina completa pela API Tokko. Sempre registra a execução em source_reconciliation_runs. */
+export const RECONCILIATION_SUSPENDED = false;
 
 export async function runReconciliation(sb: SB, opts: RunOptions) {
   if (RECONCILIATION_SUSPENDED) {
-    return { status: "blocked", error: "Conciliação suspensa: site principal migrou de plataforma. Nada foi alterado.", errors: [] as string[] };
+    return { status: "blocked", error: "Conciliação suspensa. Nada foi alterado.", errors: [] as string[] };
   }
   const { data: run } = await sb.from("source_reconciliation_runs").insert({ triggered_by: opts.triggeredBy }).select("id").single();
-  const errors: string[] = [];
-  const log = (s: string) => errors.push(s);
+  let errors: string[] = [];
   const finish = async (status: string, fields: Record<string, unknown>) => {
     await sb.from("source_reconciliation_runs").update({
       ...fields, status, errors, finished_at: new Date().toISOString(),
@@ -256,82 +254,41 @@ export async function runReconciliation(sb: SB, opts: RunOptions) {
     return { status, ...fields, errors };
   };
   try {
-    const { ids: origin, sitemapCount, pages } = await collectOriginIds();
+    const { fetchTokkoProperties } = await import("./tokko-api.server");
+    const { syncFromTokko, officialUrlsFromSitemap } = await import("./tokko-sync.server");
+    const api = await fetchTokkoProperties();
     const minimum = Math.ceil(ORIGIN_BASELINE * MIN_RATIO);
-    if (origin.size < minimum) {
+    if (api.length < minimum) {
       return await finish("blocked", {
-        origin_count: origin.size, sitemap_count: sitemapCount,
-        error: `Coleta trouxe ${origin.size} imóveis, abaixo de 80% da base (${minimum} de ${ORIGIN_BASELINE}). Nada foi alterado.`,
-        details: { pages },
+        origin_count: api.length,
+        error: `API trouxe ${api.length} imóveis, abaixo de 80% da base (${minimum} de ${ORIGIN_BASELINE}). Nada foi alterado.`,
       });
     }
-
-    let rows = await loadPortal(sb);
-    const m = await mergeDuplicates(sb, rows, origin, log);
-    rows = await loadPortal(sb);
-    const p = await updateChangedPaths(sb, rows, origin);
-    rows = await loadPortal(sb);
-    const changed = new Set<string>(m.changedUrls);
-
-    const portalSids = new Set<string>();
-    const foundSids: string[] = [];
-    let paused = 0, reactivated = 0;
-    const now = new Date().toISOString();
-    for (const r of rows) {
-      const sid = sidOf(r);
-      if (!sid) continue;
-      portalSids.add(sid);
-      const inOrigin = origin.has(sid);
-      if (inOrigin) {
-        foundSids.push(sid);
-        if (r.status === "paused") {
-          const url = pickPath(origin.get(sid)!);
-          if (await openOriginPage(url)) {
-            await sb.from("properties").update({ status: "active", last_seen_at: now }).eq("id", r.id);
-            reactivated++; changed.add(propUrl(r.slug));
-          }
-        }
-        continue;
-      }
-      if (r.status !== "active") continue;
-      const { data: miss } = await sb.from("source_missing").select("misses").eq("source_id", sid).maybeSingle();
-      const misses = (miss?.misses ?? 0) + 1;
-      await sb.from("source_missing").upsert({ source_id: sid, misses, last_missed_at: now, ...(miss ? {} : { first_missed_at: now }) });
-      if (misses < MISSES_BEFORE_PAUSE) continue;
-      const stillThere = r.source_url ? await openOriginPage(r.source_url) : null;
-      if (stillThere) continue;
-      await sb.from("properties").update({ status: "paused" }).eq("id", r.id);
-      paused++; changed.add(propUrl(r.slug));
-    }
-
-    for (let i = 0; i < foundSids.length; i += 200) {
-      await sb.from("source_missing").delete().in("source_id", foundSids.slice(i, i + 200));
-    }
-
-    const missing = [...origin.entries()].filter(([sid]) => !portalSids.has(sid)).map(([, urls]) => pickPath(urls))
-      .sort((a, b) => PRIORITY(a) - PRIORITY(b));
-    let imported = 0;
-    if (!opts.skipImports) {
-      const { data: cities } = await sb.from("cities").select("name,slug,uf,sort_priority");
-      for (const url of missing) {
-        if (imported >= MAX_IMPORTS_PER_DAY) break;
-        try {
-          const r = await importFromOrigin(sb, url, cities ?? []);
-          if (r) { imported++; changed.add(propUrl(r.slug)); }
-        } catch (e) { log(`importar ${url}: ${e instanceof Error ? e.message : String(e)}`); }
-      }
-    }
-
+    const officialUrls = await officialUrlsFromSitemap();
+    const { data: cities } = await sb.from("cities").select("name,slug,uf,sort_priority");
+    const r = await syncFromTokko(sb, api, {
+      apply: true, importLimit: opts.skipImports ? 0 : MAX_IMPORTS_PER_DAY, officialUrls, cities: cities ?? [],
+      missesBeforePause: MISSES_BEFORE_PAUSE,
+      // Confirmação: a página oficial antiga/atual não abre mais.
+      confirmGone: async (row) => {
+        const u = row.source_url as string | null;
+        if (!u) return true;
+        try { const res = await fetch(u, { headers: UA }); return !res.ok || !res.url.replace(/\/+$/, "").endsWith(sourceIdFromUrl(u) ?? "#"); }
+        catch { return false; }
+      },
+    });
+    errors = r.errors;
     let indexnow: unknown = null;
-    if (changed.size) indexnow = await submitIndexNow(SITE_HOST, [...changed]);
-
-    const active = rows.filter((r) => r.status === "active").length - paused + reactivated + imported;
-    const pausedTotal = rows.filter((r) => r.status === "paused").length + paused - reactivated;
+    if (r.changedUrls.length) indexnow = await submitIndexNow(SITE_HOST, r.changedUrls);
+    const { count: active } = await sb.from("properties").select("id", { count: "exact", head: true }).eq("status", "active");
+    const { count: pausedTotal } = await sb.from("properties").select("id", { count: "exact", head: true }).eq("status", "paused");
     return await finish("ok", {
-      origin_count: origin.size, sitemap_count: sitemapCount, portal_active: active, portal_paused: pausedTotal,
-      paused, reactivated, imported, merged: m.merged, paths_updated: p.updated,
-      missing_in_portal: Math.max(0, missing.length - imported),
-      details: { pages, indexnow, merge_examples: m.examples.slice(0, 5), path_examples: p.examples },
+      origin_count: api.length, sitemap_count: Object.keys(officialUrls).length,
+      portal_active: active, portal_paused: pausedTotal,
+      paused: r.paused, reactivated: r.reactivated, imported: r.imported, merged: 0, paths_updated: r.updated,
+      missing_in_portal: Math.max(0, r.new_in_api - r.imported),
+      details: { source: "tokko-api", indexnow, updated: r.updated, photos_changed: r.photos_changed,
+        seo_regenerated: r.seo_regenerated, ambiguous: r.ambiguous, missing_active: r.missingReport },
     });
   } catch (e) {
     return await finish("failed", { error: e instanceof Error ? e.message : String(e) });
