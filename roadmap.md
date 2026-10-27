@@ -1,4 +1,9 @@
 # Visual da home
+## Simulador de financiamento
+- [ ] Criar página independente reutilizando o simulador sem mudar a ficha.
+- [ ] Adicionar conteúdo, taxas atualizadas, busca por faixa e contato com origem correta.
+- [ ] Incluir no sitemap, mapa do site e rodapé; testar o fluxo.
+
 - [x] Separar Pesquisa Inteligente do destaque editorial e ampliar sua largura.
 - [x] Destacar Radar com chamada de ativação, contraste e botão chamativo.
 - [x] Conferir apresentação e abertura do Radar.
