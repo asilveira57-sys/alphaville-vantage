@@ -12,3 +12,4 @@
 - Public card/page photos come from the database computed field card_image (editorial_pages, streets) and src/lib/image-fallbacks.ts never returns bundled images; missing photos render BrandPlaceholder, so photo fallback order lives in one place (SQL) and generic photos can't leak back.
 - Radar questionnaire logic lives only in src/components/radar/radar-flow.tsx (page and modal variants); per-objective page copy/slugs live in src/lib/radar-pages.ts, which also feeds sitemap, mapa do site and footer.
 - Installable app (PWA): vite-plugin-pwa generateSW emits /sw.js; registration only via src/lib/pwa.ts and only on SITE_HOST (never preview/iframe/dev), so stale caches can't reach the editor.
+- PWA and browser icons are static files under public/icons with public/favicon.ico; keep manifest, shortcuts, head links and Workbox precache in sync so uploaded brand icons are used consistently.
