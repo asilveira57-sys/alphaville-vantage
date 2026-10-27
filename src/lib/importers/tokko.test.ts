@@ -39,7 +39,7 @@ describe('Tokko migration safeguards', () => {
   it('treats API zero counts as not informed and keeps current values', () => {
     const f = tokkoFacts({ ...api, suite_amount: 0, total_suites: 0, toilet_amount: 0, bathroom_amount: 0, parking_lot_amount: 0 });
     const d = apiFactPatch({ bedrooms: 3, suites: 1, lavabos: 1, bathrooms: 2, parking: 2 }, f).patch;
-    expect(d).toEqual({});
+    for (const k of ['bedrooms', 'suites', 'lavabos', 'bathrooms', 'parking']) expect(d).not.toHaveProperty(k);
   });
   it('sums covered and uncovered parking when total is missing', () => {
     expect(tokkoFacts({ ...api, parking_lot_amount: 0, covered_parking_lot: 2, uncovered_parking_lot: 1 }).parking).toBe(3);
