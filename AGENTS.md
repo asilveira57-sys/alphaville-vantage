@@ -14,4 +14,4 @@
 - Installable app (PWA): vite-plugin-pwa generateSW emits /sw.js; registration only via src/lib/pwa.ts and only on SITE_HOST (never preview/iframe/dev), so stale caches can't reach the editor.
 - PWA and browser icons are static files under public/icons with public/favicon.ico; keep manifest, shortcuts, head links and Workbox precache in sync so uploaded brand icons are used consistently.
 - FinancingSimulator has an opt-in standalone mode for the financing page; property-detail defaults stay unchanged, and standalone submissions use the existing financing simulation-to-lead workflow to keep CRM and emails unified.
-- Tokko API migration previews use the pure reference-code adapter in src/lib/importers/tokko.ts and the server-only paginated fetcher in src/lib/tokko-api.server.ts; reconciliation remains suspended until the simulation is approved, so old source IDs cannot trigger destructive changes.
+- Main-site sync uses the Tokko API: src/lib/tokko-sync.server.ts (shared by daily cron, Admin 'Rodar agora') matches by source_id = Tokko ID, falling back to unique reference code; API zeros/nulls never overwrite, so unfilled provider fields can't erase portal data.
