@@ -17,13 +17,14 @@ export default defineConfig({
   vite: {
     plugins: [
       VitePWA({
-        registerType: "prompt",
+        registerType: "autoUpdate",
         injectRegister: null,
         manifest: false,
         filename: "sw.js",
         devOptions: { enabled: false },
         workbox: {
-          globPatterns: ["assets/**/*.{js,css,woff2}", "offline.html", "icon-192.png"],
+          cacheId: "sa-app-icons-v2",
+          globPatterns: ["assets/**/*.{js,css,woff2}", "offline.html", "icons/*.png", "favicon.ico"],
           navigateFallback: null,
           cleanupOutdatedCaches: true,
           skipWaiting: false,
