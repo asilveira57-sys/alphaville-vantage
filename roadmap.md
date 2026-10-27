@@ -1,8 +1,8 @@
 # Visual da home
 ## Simulador de financiamento
-- [ ] Criar página independente reutilizando o simulador sem mudar a ficha.
-- [ ] Adicionar conteúdo, taxas atualizadas, busca por faixa e contato com origem correta.
-- [ ] Incluir no sitemap, mapa do site e rodapé; testar o fluxo.
+- [x] Criar página independente reutilizando o simulador sem mudar a ficha.
+- [x] Adicionar conteúdo, taxas atualizadas, busca por faixa e contato com origem correta.
+- [x] Incluir no sitemap, mapa do site e rodapé; testar o fluxo público e confirmar contato salvo (leitura no CRM autenticado indisponível nesta sessão).
 
 - [x] Separar Pesquisa Inteligente do destaque editorial e ampliar sua largura.
 - [x] Destacar Radar com chamada de ativação, contraste e botão chamativo.
