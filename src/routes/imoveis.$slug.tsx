@@ -196,8 +196,7 @@ function PropertyDetail() {
                 </div>
               </details>
             )}
-            {/* Oculto temporariamente: site principal migrou de plataforma (URLs antigas dão 404). */}
-            {false && p.source_url && (
+            {p.source_url && (
               <a
                 href={p.source_url ?? undefined}
                 target="_blank"

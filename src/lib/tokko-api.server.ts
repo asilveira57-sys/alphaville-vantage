@@ -9,9 +9,9 @@ export async function fetchTokkoProperties(): Promise<TokkoProperty[]> {
   let offset = 0; let expected: number | undefined;
   while (expected === undefined || offset < expected) {
     const url = new URL(ENDPOINT);
-    for (const [k, v] of Object.entries({ key, format: 'json', lang: 'pt_BR', limit: '200', offset: String(offset) })) url.searchParams.set(k, v);
+    for (const [k, v] of Object.entries({ key, format: 'json', lang: 'pt_BR', limit: '100', offset: String(offset) })) url.searchParams.set(k, v);
     let response: Response;
-    try { response = await fetch(url, { signal: AbortSignal.timeout(45000), cache: 'no-store' }); }
+    try { response = await fetch(url, { signal: AbortSignal.timeout(90000)}); }
     catch { throw new Error('Tokko: falha de conexão ou tempo limite'); }
     if (!response.ok) {
       const body = (await response.text()).split(key).join('[redigido]');
