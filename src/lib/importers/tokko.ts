@@ -106,6 +106,12 @@ export function apiFactPatch(db: Record<string, unknown>, facts: Record<string, 
     if (key === 'price_rent' && db.purpose !== 'sale' && facts.purpose === 'sale') continue;
     if (JSON.stringify(cur ?? null) !== JSON.stringify(value)) patch[key] = value;
   }
+  // Nunca gravar suítes > dormitórios: nesse caso suítes ficam vazias.
+  const bedrooms = Number('bedrooms' in patch ? patch.bedrooms : db.bedrooms);
+  const suites = Number('suites' in patch ? patch.suites : db.suites);
+  if (bedrooms > 0 && suites > bedrooms) {
+    if (db.suites != null) patch.suites = null; else delete patch.suites;
+  }
   const factChanged = SEO_FACT_KEYS.some(k => k in patch);
   return { patch, conflicts, factChanged, mainPhotoChanged: Array.isArray(patch.images)
     && patch.images[0] !== (Array.isArray(db.images) ? db.images[0] : undefined) };
