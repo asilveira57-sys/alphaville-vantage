@@ -104,7 +104,7 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
           const ref = link.external_ref as string | undefined;
           await sb.from("properties").update({ external_ref: null, source_id: null })
             .in("status", ["inactive"]).neq("id", row.id)
-            .or(`source_id.eq.${link.source_id}${ref ? `,external_ref.eq.${ref}` : ""}`);
+            .or(`source_id.eq.${link.source_id}${ref ? `,external_ref.eq."${ref}"` : ""}`);
         }
         const { error } = await sb.from("properties").update({ ...patch, ...link }).eq("id", row.id);
         if (error) { errors.push(`${row.internal_code}: ${error.message}`); continue; }
