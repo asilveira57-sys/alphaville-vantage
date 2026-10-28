@@ -98,6 +98,14 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     const linkChanged = row.source_id !== link.source_id || (url && row.source_url !== url);
     if (Object.keys(patch).length || linkChanged || link.status) {
       if (opts.apply) {
+        // Duplicados inativos (importados na troca de IDs) seguram o mesmo external_ref/ID:
+        // liberar antes, senão o índice único bloqueia a atualização do registro ativo.
+        if (linkChanged) {
+          const ref = link.external_ref as string | undefined;
+          await sb.from("properties").update({ external_ref: null, source_id: null })
+            .in("status", ["inactive"]).neq("id", row.id)
+            .or(`source_id.eq.${link.source_id}${ref ? `,external_ref.eq.${ref}` : ""}`);
+        }
         const { error } = await sb.from("properties").update({ ...patch, ...link }).eq("id", row.id);
         if (error) { errors.push(`${row.internal_code}: ${error.message}`); continue; }
       }

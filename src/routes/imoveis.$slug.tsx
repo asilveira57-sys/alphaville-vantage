@@ -7,7 +7,7 @@ import { PropertyGallery } from "@/components/property-gallery";
 import { FinancingSimulator } from "@/components/financing-simulator";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { getPropertyBySlug } from "@/lib/property-detail.functions";
-import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
+import { buildRealEstateJsonLd, safeSuites, type SeoSource } from "@/lib/property-seo";
 import { humanizeOriginalDescription } from "@/lib/property-parser";
 import { OpportunityBanner } from "@/components/opportunities/opportunity-banner";
 import {
