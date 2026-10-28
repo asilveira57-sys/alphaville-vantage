@@ -77,8 +77,10 @@ function positive(n: number | null | undefined): number | null {
   return Number.isFinite(value) && value > 0 ? value : null;
 }
 
-/** Código público confiável: somente os algarismos finais da referência/URL de origem. */
-export function extractPropertyCode(s: Pick<SeoSource, "external_ref" | "source_url">): string | null {
+/** Código público: código de referência (internal_code, ex.: AP06943); só sem ele cai no número da URL de origem. */
+export function extractPropertyCode(s: Pick<SeoSource, "external_ref" | "source_url" | "internal_code">): string | null {
+  const ref = String(s.internal_code ?? "").trim().toUpperCase();
+  if (ref) return ref;
   for (const value of [s.external_ref, s.source_url]) {
     const match = String(value ?? "").replace(/[?#].*$/, "").match(/(\d+)\/?$/);
     if (match?.[1]) return match[1];
@@ -86,11 +88,17 @@ export function extractPropertyCode(s: Pick<SeoSource, "external_ref" | "source_
   return null;
 }
 
-/**
- * Dormitórios/suítes no título ficam DESLIGADOS até o recrawl corrigir as contagens da ficha.
- * Para religar, troque para true.
- */
-export const TITLE_INCLUDE_BEDROOMS = false;
+/** Dormitórios no título (nunca suítes). Omitido em tipos sem dormitório. */
+export const TITLE_INCLUDE_BEDROOMS = true;
+const NO_BEDROOM_TYPES = /terreno|lote|sala|galp|loja|pr[eé]dio|ponto|sal[aã]o|comercial|area|área/i;
+
+/** Suítes só valem quando não passam dos dormitórios. */
+export function safeSuites(bedrooms: number | null | undefined, suites: number | null | undefined): number | null {
+  const s = positive(suites);
+  if (s == null) return null;
+  const b = positive(bedrooms);
+  return b != null && s > b ? null : s;
+}
 
 /** Área do título: casa = construída; apartamento = útil; terreno = terreno. */
 function titleArea(s: SeoSource): number | null {
@@ -115,8 +123,7 @@ function headingParts(s: SeoSource): HeadingParts {
   const details: string[] = [];
   if (TITLE_INCLUDE_BEDROOMS) {
     const bedrooms = positive(s.bedrooms);
-    const suites = positive(s.suites);
-    if (bedrooms) details.push(`${bedrooms} dorm.${suites ? ` (${suites} ${suites === 1 ? "suíte" : "suítes"})` : ""}`);
+    if (bedrooms && !NO_BEDROOM_TYPES.test(String(s.property_type ?? ""))) details.push(`${bedrooms} dorm.`);
   }
   const area = titleArea(s);
   if (area) details.push(`${Number(area).toLocaleString("pt-BR")} m²`);
@@ -210,7 +217,8 @@ export function buildSeoDescription(s: SeoSource): string {
   const area = fmtArea(s.area_useful ?? s.area_built ?? s.area_total);
   if (area) feats.push(area);
   if (s.bedrooms) feats.push(`${s.bedrooms} ${s.bedrooms === 1 ? "dormitório" : "dormitórios"}`);
-  if (s.suites) feats.push(`${s.suites} ${s.suites === 1 ? "suíte" : "suítes"}`);
+  const suites = safeSuites(s.bedrooms, s.suites);
+  if (suites) feats.push(`${suites} ${suites === 1 ? "suíte" : "suítes"}`);
   if (s.parking) feats.push(`${s.parking} ${s.parking === 1 ? "vaga" : "vagas"}`);
   if (feats.length) parts.push(feats.join(", ") + ".");
   if (s.price_rent) parts.push(`Locação ${fmtBRL(s.price_rent)}.`);
@@ -341,7 +349,8 @@ export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): st
 
   const charBits: string[] = [];
   if (s.bedrooms) charBits.push(`${s.bedrooms} ${s.bedrooms === 1 ? "dormitório" : "dormitórios"}`);
-  if (s.suites) charBits.push(`${s.suites} ${s.suites === 1 ? "suíte" : "suítes"}`);
+  const bodySuites = safeSuites(s.bedrooms, s.suites);
+  if (bodySuites) charBits.push(`${bodySuites} ${bodySuites === 1 ? "suíte" : "suítes"}`);
   if (s.bathrooms) charBits.push(`${s.bathrooms} ${s.bathrooms === 1 ? "banheiro" : "banheiros"}`);
   if (s.lavabos) charBits.push(`${s.lavabos} ${s.lavabos === 1 ? "lavabo" : "lavabos"}`);
   if (s.parking) {

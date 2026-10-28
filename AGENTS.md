@@ -15,3 +15,4 @@
 - PWA and browser icons are static files under public/icons with public/favicon.ico; keep manifest, shortcuts, head links and Workbox precache in sync so uploaded brand icons are used consistently.
 - FinancingSimulator has an opt-in standalone mode for the financing page; property-detail defaults stay unchanged, and standalone submissions use the existing financing simulation-to-lead workflow to keep CRM and emails unified.
 - Main-site sync uses the Tokko API: src/lib/tokko-sync.server.ts (shared by daily cron, Admin 'Rodar agora') matches by source_id = Tokko ID, falling back to unique reference code; API zeros/nulls never overwrite, so unfilled provider fields can't erase portal data.
+- Property titles/H1/seo_title/WhatsApp use internal_code as 'Cód.' (URL number only as fallback) and include bedrooms but never suites; suites > bedrooms are stored/shown empty (safeSuites + apiFactPatch), so bad counts never reach public text.

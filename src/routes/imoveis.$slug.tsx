@@ -7,7 +7,7 @@ import { PropertyGallery } from "@/components/property-gallery";
 import { FinancingSimulator } from "@/components/financing-simulator";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { getPropertyBySlug } from "@/lib/property-detail.functions";
-import { buildRealEstateJsonLd, type SeoSource } from "@/lib/property-seo";
+import { buildRealEstateJsonLd, safeSuites, type SeoSource } from "@/lib/property-seo";
 import { humanizeOriginalDescription } from "@/lib/property-parser";
 import { OpportunityBanner } from "@/components/opportunities/opportunity-banner";
 import {
@@ -214,7 +214,7 @@ function PropertyDetail() {
               <Row label="Finalidade" value={fmtPurpose(p.purpose)} />
               <Row label="Região" value={p.region} />
               <Row label="Dormitórios" value={p.bedrooms} />
-              <Row label="Suítes" value={p.suites} />
+              <Row label="Suítes" value={safeSuites(p.bedrooms, p.suites)} />
               <Row label="Banheiros" value={p.bathrooms} />
               <Row label="Lavabos" value={p.lavabos} />
               <Row label="Vagas" value={
