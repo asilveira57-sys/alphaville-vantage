@@ -214,7 +214,7 @@ function PropertyDetail() {
               <Row label="Finalidade" value={fmtPurpose(p.purpose)} />
               <Row label="Região" value={p.region} />
               <Row label="Dormitórios" value={p.bedrooms} />
-              <Row label="Suítes" value={p.suites} />
+              <Row label="Suítes" value={safeSuites(p.bedrooms, p.suites)} />
               <Row label="Banheiros" value={p.bathrooms} />
               <Row label="Lavabos" value={p.lavabos} />
               <Row label="Vagas" value={

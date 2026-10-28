@@ -349,7 +349,8 @@ export function buildSeoBody(s: SeoSource, openingParagraph?: string | null): st
 
   const charBits: string[] = [];
   if (s.bedrooms) charBits.push(`${s.bedrooms} ${s.bedrooms === 1 ? "dormitório" : "dormitórios"}`);
-  if (s.suites) charBits.push(`${s.suites} ${s.suites === 1 ? "suíte" : "suítes"}`);
+  const bodySuites = safeSuites(s.bedrooms, s.suites);
+  if (bodySuites) charBits.push(`${bodySuites} ${bodySuites === 1 ? "suíte" : "suítes"}`);
   if (s.bathrooms) charBits.push(`${s.bathrooms} ${s.bathrooms === 1 ? "banheiro" : "banheiros"}`);
   if (s.lavabos) charBits.push(`${s.lavabos} ${s.lavabos === 1 ? "lavabo" : "lavabos"}`);
   if (s.parking) {
