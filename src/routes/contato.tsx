@@ -1,6 +1,8 @@
 import { SITE_URL } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionPage } from "@/components/section-page";
+import { useState, type FormEvent } from "react";
+import { submitContactMessage } from "@/lib/contact.functions";
 import { Phone, MessageCircle, Mail, MapPin, Clock } from "lucide-react";
 
 const URL = `${SITE_URL}/contato`;
@@ -101,31 +103,7 @@ function Contato() {
           </div>
         </div>
 
-        <form className="space-y-5 border border-ink/10 p-8 bg-white">
-          <h2 className="font-serif text-2xl">Envie uma mensagem</h2>
-          <p className="text-sm text-muted-foreground -mt-2">Retorno em até 24 horas úteis.</p>
-
-          <Field label="Nome" name="name" required maxLength={100} />
-          <Field label="E-mail" name="email" type="email" required maxLength={255} />
-          <Field label="Telefone / WhatsApp" name="phone" maxLength={20} />
-          <div>
-            <label htmlFor="msg" className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">Mensagem</label>
-            <textarea
-              id="msg"
-              name="message"
-              required
-              maxLength={1000}
-              rows={5}
-              className="w-full border border-ink/15 bg-canvas p-3 text-sm focus:outline-none focus:border-ink"
-            />
-          </div>
-          <button
-            type="submit"
-            className="inline-flex items-center justify-center bg-ink text-canvas px-6 py-3 text-xs uppercase tracking-widest font-medium hover:bg-ink/85"
-          >
-            Enviar mensagem
-          </button>
-        </form>
+        <ContactForm />
       </div>
     </SectionPage>
   );
@@ -144,5 +122,61 @@ function Field({ label, name, type = "text", required, maxLength }: { label: str
         className="w-full border border-ink/15 bg-canvas p-3 text-sm focus:outline-none focus:border-ink"
       />
     </div>
+  );
+}
+
+function ContactForm() {
+  const [state, setState] = useState<"idle" | "sending" | "ok">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const get = (k: string) => String(f.get(k) ?? "").trim();
+    setError(null);
+    setState("sending");
+    try {
+      await submitContactMessage({
+        data: {
+          name: get("name"), email: get("email"), phone: get("phone"), message: get("message"),
+          website: get("website"), landing_page: window.location.pathname + window.location.search,
+        },
+      });
+      setState("ok");
+    } catch (err) {
+      setState("idle");
+      const msg = err instanceof Error ? err.message : "";
+      setError(msg && !msg.startsWith("[") ? msg : "Confira os campos e tente novamente.");
+    }
+  }
+
+  if (state === "ok") {
+    return (
+      <div className="border border-ink/10 p-8 bg-ink text-canvas" role="status">
+        <h2 className="font-serif text-2xl mb-3">Mensagem enviada</h2>
+        <p className="text-canvas/75">Obrigado pelo contato. Vamos responder em até 24 horas úteis. Enviamos uma confirmação para o seu e-mail.</p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-5 border border-ink/10 p-8 bg-white">
+      <h2 className="font-serif text-2xl">Envie uma mensagem</h2>
+      <p className="text-sm text-muted-foreground -mt-2">Retorno em até 24 horas úteis.</p>
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
+      <Field label="Nome" name="name" required maxLength={100} />
+      <Field label="E-mail" name="email" type="email" required maxLength={255} />
+      <Field label="Telefone / WhatsApp" name="phone" maxLength={20} />
+      <div>
+        <label htmlFor="msg" className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">Mensagem</label>
+        <textarea id="msg" name="message" required minLength={5} maxLength={1000} rows={5}
+          className="w-full border border-ink/15 bg-canvas p-3 text-sm focus:outline-none focus:border-ink" />
+      </div>
+      {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+      <button type="submit" disabled={state === "sending"}
+        className="inline-flex items-center justify-center bg-ink text-canvas px-6 py-3 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-60">
+        {state === "sending" ? "Enviando…" : "Enviar mensagem"}
+      </button>
+    </form>
   );
 }

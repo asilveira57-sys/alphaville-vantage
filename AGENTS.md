@@ -17,3 +17,4 @@
 - Main-site sync uses the Tokko API: src/lib/tokko-sync.server.ts (shared by daily cron, Admin 'Rodar agora') matches by source_id = Tokko ID, falling back to unique reference code; API zeros/nulls never overwrite, so unfilled provider fields can't erase portal data.
 - Property titles/H1/seo_title/WhatsApp use internal_code as 'Cód.' (URL number only as fallback) and include bedrooms but never suites; suites > bedrooms are stored/shown empty (safeSuites + apiFactPatch), so bad counts never reach public text.
 - Owner-acquisition pages (/anuncie-seu-imovel, /vender-meu-imovel, /alugar-meu-imovel) reuse submitRadarLead with conversion_context captacao_venda/captacao_locacao; the leads_from_radar trigger maps that to CRM source, so no new table is needed.
+- Contact page form saves to contact_messages via submitContactMessage (honeypot + signup-guard IP limit), and a trigger feeds leads with source 'contato'.
