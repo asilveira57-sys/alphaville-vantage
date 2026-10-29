@@ -105,6 +105,18 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
     cta_label: "Falar no WhatsApp",
     cta_url: "https://wa.me/5511995515053",
   },
+  {
+    name: "contato-confirmacao",
+    label: "Contato — confirmação",
+    audience: "cliente",
+    sources: ["contato"],
+    subject: "Recebemos sua mensagem — S.A Imóveis",
+    heading: "Obrigado, {nome}",
+    intro: "Recebemos sua mensagem e vamos responder em até 24 horas úteis.",
+    outro: "Se preferir, fale agora com a nossa equipe pelo WhatsApp.",
+    cta_label: "Falar no WhatsApp",
+    cta_url: "https://wa.me/5511995515053",
+  },
 ];
 
 export const TEMPLATE_BY_NAME = Object.fromEntries(EMAIL_TEMPLATES.map((t) => [t.name, t]));
