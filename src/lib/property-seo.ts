@@ -34,6 +34,8 @@ export type SeoSource = {
 
 const LOWERCASE_CONNECTORS = new Set(["de", "da", "do", "dos", "das", "e"]);
 
+const ROMAN_NUMERAL = /^(i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)$/;
+
 /** Capitalização editorial: preserva conectores minúsculos no meio do nome. */
 const cap = (s: string) => s
   .trim()
@@ -42,6 +44,7 @@ const cap = (s: string) => s
   .map((part, index) => {
     if (!part || /^(\s+|-|\/)$/.test(part)) return part;
     if (index > 0 && LOWERCASE_CONNECTORS.has(part)) return part;
+    if (ROMAN_NUMERAL.test(part)) return part.toLocaleUpperCase("pt-BR");
     return part.charAt(0).toLocaleUpperCase("pt-BR") + part.slice(1);
   })
   .join("");
@@ -77,10 +80,15 @@ function positive(n: number | null | undefined): number | null {
   return Number.isFinite(value) && value > 0 ? value : null;
 }
 
+/** Código válido: 2 letras + números (AP06943) ou padrão Univen (SAP12842223). */
+export function isValidPropertyCode(code: string | null | undefined): boolean {
+  return /^[A-Z]{2,3}\d{4,}$/.test(String(code ?? "").trim().toUpperCase());
+}
+
 /** Código público: código de referência (internal_code, ex.: AP06943); só sem ele cai no número da URL de origem. */
 export function extractPropertyCode(s: Pick<SeoSource, "external_ref" | "source_url" | "internal_code">): string | null {
   const ref = String(s.internal_code ?? "").trim().toUpperCase();
-  if (ref) return ref;
+  if (ref) return isValidPropertyCode(ref) ? ref : null;
   for (const value of [s.external_ref, s.source_url]) {
     const match = String(value ?? "").replace(/[?#].*$/, "").match(/(\d+)\/?$/);
     if (match?.[1]) return match[1];
