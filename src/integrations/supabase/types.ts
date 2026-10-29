@@ -227,6 +227,42 @@ export type Database = {
           },
         ]
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_hash: string | null
+          landing_page: string | null
+          message: string
+          name: string
+          phone: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_hash?: string | null
+          landing_page?: string | null
+          message: string
+          name: string
+          phone?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_hash?: string | null
+          landing_page?: string | null
+          message?: string
+          name?: string
+          phone?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       content_generation_jobs: {
         Row: {
           category: string | null
