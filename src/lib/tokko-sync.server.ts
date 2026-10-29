@@ -155,7 +155,11 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     if (imported >= opts.importLimit || !opts.apply) { newReport.push({ code: referenceKey(a.reference_code), source_id: String(a.id), imported: false }); continue; }
     try {
       const f = tokkoFacts(a, url) as Record<string, unknown>;
-      f.city = resolveOfficialCity(String(f.city ?? ""), url, opts.cities) ?? f.city;
+      const rawCity = String(f.city ?? "");
+      const officialCity = resolveOfficialCity(rawCity, url, opts.cities);
+      // Cidade fora da tabela oficial: entra pausado (fora do sitemap) e vai para a revisão de cidades.
+      const outOfArea = !officialCity;
+      f.city = officialCity ?? f.city;
       const ref = url ? new URL(url).pathname : `/tokko/${a.id}`;
       let slug = buildSeoSlug({ ...f, external_ref: ref, source_url: url } as unknown as SeoSource, ref);
       const { data: clash } = await sb.from("properties").select("id").eq("slug", slug).maybeSingle();
@@ -163,11 +167,15 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       const clean = Object.fromEntries(Object.entries(f).filter(([, v]) => v !== undefined));
       const { data, error } = await sb.from("properties").insert({
         ...clean, slug, title: slug, source_id: String(a.id), source_url: url, external_ref: ref,
-        status: "active", review_status: f.property_type ? null : "needs_review",
+        status: outOfArea ? "paused" : "active",
+        review_status: outOfArea ? "cidade_fora_area" : f.property_type ? null : "needs_review",
         extracted_at: now, last_seen_at: now, raw: { import_source: "tokko-api" },
       }).select("id,slug").single();
       if (error) throw new Error(error.message);
-      seoIds.push(data.id); imported++; changedUrls.add(propUrl(data.slug));
+      if (outOfArea) {
+        await sb.from("city_review_queue").insert({ property_id: data.id, raw_city: rawCity || null, source_url: url, reason: "Cidade fora da tabela oficial (importado pausado)" });
+      }
+      seoIds.push(data.id); imported++; if (!outOfArea) changedUrls.add(propUrl(data.slug));
       newReport.push({ code: referenceKey(a.reference_code), source_id: String(a.id), imported: true, slug: data.slug });
     } catch (e) { errors.push(`importar ${a.reference_code}: ${e instanceof Error ? e.message : String(e)}`); }
   }
