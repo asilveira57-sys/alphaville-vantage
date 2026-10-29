@@ -54,6 +54,14 @@ const SECTIONS: { title: string; links: { to: string; label: string }[] }[] = [
     ],
   },
   {
+    title: "Para proprietários",
+    links: [
+      { to: "/anuncie-seu-imovel", label: "Anuncie seu imóvel" },
+      { to: "/vender-meu-imovel", label: "Vender meu imóvel" },
+      { to: "/alugar-meu-imovel", label: "Alugar meu imóvel" },
+    ],
+  },
+  {
     title: "Radar S.A. Imóveis",
     links: [
       { to: "/radar", label: "Radar — todos os objetivos" },

@@ -14,6 +14,7 @@ const NAV = [
   { label: "Ruas", to: "/guia-de-ruas" },
   { label: "Mercado", to: "/mercado-imobiliario" },
   { label: "Blog", to: "/blog" },
+  { label: "Anuncie seu imóvel", to: "/anuncie-seu-imovel" },
 ] as const;
 
 export function SiteHeader() {

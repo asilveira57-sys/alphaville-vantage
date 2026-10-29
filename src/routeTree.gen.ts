@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AlphavilleRouteImport } from './routes/alphaville'
+import { Route as AlugarMeuImovelRouteImport } from './routes/alugar-meu-imovel'
+import { Route as AnuncieSeuImovelRouteImport } from './routes/anuncie-seu-imovel'
 import { Route as AreasDeAtuacaoRouteImport } from './routes/areas-de-atuacao'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
@@ -48,6 +50,7 @@ import { Route as SimuladorDeFinanciamentoRouteImport } from './routes/simulador
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
 import { Route as TransparenciaRouteImport } from './routes/transparencia'
+import { Route as VenderMeuImovelRouteImport } from './routes/vender-meu-imovel'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
@@ -137,6 +140,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AlphavilleRoute = AlphavilleRouteImport.update({
   id: '/alphaville',
   path: '/alphaville',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlugarMeuImovelRoute = AlugarMeuImovelRouteImport.update({
+  id: '/alugar-meu-imovel',
+  path: '/alugar-meu-imovel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnuncieSeuImovelRoute = AnuncieSeuImovelRouteImport.update({
+  id: '/anuncie-seu-imovel',
+  path: '/anuncie-seu-imovel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AreasDeAtuacaoRoute = AreasDeAtuacaoRouteImport.update({
@@ -318,6 +331,11 @@ const TermosDeUsoRoute = TermosDeUsoRouteImport.update({
 const TransparenciaRoute = TransparenciaRouteImport.update({
   id: '/transparencia',
   path: '/transparencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VenderMeuImovelRoute = VenderMeuImovelRouteImport.update({
+  id: '/vender-meu-imovel',
+  path: '/vender-meu-imovel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -741,6 +759,8 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
+  '/alugar-meu-imovel': typeof AlugarMeuImovelRoute
+  '/anuncie-seu-imovel': typeof AnuncieSeuImovelRoute
   '/areas-de-atuacao': typeof AreasDeAtuacaoRoute
   '/auth': typeof AuthRoute
   '/aviso-legal': typeof AvisoLegalRoute
@@ -777,6 +797,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
+  '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
@@ -857,6 +878,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alphaville': typeof AlphavilleRoute
+  '/alugar-meu-imovel': typeof AlugarMeuImovelRoute
+  '/anuncie-seu-imovel': typeof AnuncieSeuImovelRoute
   '/areas-de-atuacao': typeof AreasDeAtuacaoRoute
   '/auth': typeof AuthRoute
   '/aviso-legal': typeof AvisoLegalRoute
@@ -886,6 +909,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
+  '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
@@ -966,6 +990,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/alphaville': typeof AlphavilleRoute
+  '/alugar-meu-imovel': typeof AlugarMeuImovelRoute
+  '/anuncie-seu-imovel': typeof AnuncieSeuImovelRoute
   '/areas-de-atuacao': typeof AreasDeAtuacaoRoute
   '/auth': typeof AuthRoute
   '/aviso-legal': typeof AvisoLegalRoute
@@ -1002,6 +1028,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/transparencia': typeof TransparenciaRoute
+  '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
@@ -1084,6 +1111,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alphaville'
+    | '/alugar-meu-imovel'
+    | '/anuncie-seu-imovel'
     | '/areas-de-atuacao'
     | '/auth'
     | '/aviso-legal'
@@ -1120,6 +1149,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos-de-uso'
     | '/transparencia'
+    | '/vender-meu-imovel'
     | '/admin'
     | '/admin-auditoria'
     | '/admin-cards'
@@ -1200,6 +1230,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/alphaville'
+    | '/alugar-meu-imovel'
+    | '/anuncie-seu-imovel'
     | '/areas-de-atuacao'
     | '/auth'
     | '/aviso-legal'
@@ -1229,6 +1261,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos-de-uso'
     | '/transparencia'
+    | '/vender-meu-imovel'
     | '/admin'
     | '/admin-auditoria'
     | '/admin-cards'
@@ -1308,6 +1341,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/alphaville'
+    | '/alugar-meu-imovel'
+    | '/anuncie-seu-imovel'
     | '/areas-de-atuacao'
     | '/auth'
     | '/aviso-legal'
@@ -1344,6 +1379,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos-de-uso'
     | '/transparencia'
+    | '/vender-meu-imovel'
     | '/_authenticated/admin'
     | '/_authenticated/admin-auditoria'
     | '/_authenticated/admin-cards'
@@ -1426,6 +1462,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AlphavilleRoute: typeof AlphavilleRoute
+  AlugarMeuImovelRoute: typeof AlugarMeuImovelRoute
+  AnuncieSeuImovelRoute: typeof AnuncieSeuImovelRoute
   AreasDeAtuacaoRoute: typeof AreasDeAtuacaoRoute
   AuthRoute: typeof AuthRoute
   AvisoLegalRoute: typeof AvisoLegalRoute
@@ -1462,6 +1500,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TransparenciaRoute: typeof TransparenciaRoute
+  VenderMeuImovelRoute: typeof VenderMeuImovelRoute
   ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
@@ -1507,6 +1546,20 @@ declare module '@tanstack/react-router' {
       path: '/alphaville'
       fullPath: '/alphaville'
       preLoaderRoute: typeof AlphavilleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alugar-meu-imovel': {
+      id: '/alugar-meu-imovel'
+      path: '/alugar-meu-imovel'
+      fullPath: '/alugar-meu-imovel'
+      preLoaderRoute: typeof AlugarMeuImovelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anuncie-seu-imovel': {
+      id: '/anuncie-seu-imovel'
+      path: '/anuncie-seu-imovel'
+      fullPath: '/anuncie-seu-imovel'
+      preLoaderRoute: typeof AnuncieSeuImovelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/areas-de-atuacao': {
@@ -1759,6 +1812,13 @@ declare module '@tanstack/react-router' {
       path: '/transparencia'
       fullPath: '/transparencia'
       preLoaderRoute: typeof TransparenciaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vender-meu-imovel': {
+      id: '/vender-meu-imovel'
+      path: '/vender-meu-imovel'
+      fullPath: '/vender-meu-imovel'
+      preLoaderRoute: typeof VenderMeuImovelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -2503,6 +2563,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AlphavilleRoute: AlphavilleRoute,
+  AlugarMeuImovelRoute: AlugarMeuImovelRoute,
+  AnuncieSeuImovelRoute: AnuncieSeuImovelRoute,
   AreasDeAtuacaoRoute: AreasDeAtuacaoRoute,
   AuthRoute: AuthRoute,
   AvisoLegalRoute: AvisoLegalRoute,
@@ -2539,6 +2601,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
   TransparenciaRoute: TransparenciaRoute,
+  VenderMeuImovelRoute: VenderMeuImovelRoute,
   ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,

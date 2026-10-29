@@ -57,6 +57,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/termos-de-uso", changefreq: "yearly", priority: "0.4" },
           { path: "/aviso-legal", changefreq: "yearly", priority: "0.4" },
           { path: "/mapa-do-site", changefreq: "monthly", priority: "0.5" },
+          { path: "/anuncie-seu-imovel", lastmod: "2026-10-29", changefreq: "monthly", priority: "0.8" },
+          { path: "/vender-meu-imovel", lastmod: "2026-10-29", changefreq: "monthly", priority: "0.8" },
+          { path: "/alugar-meu-imovel", lastmod: "2026-10-29", changefreq: "monthly", priority: "0.8" },
           { path: "/radar", changefreq: "monthly", priority: "0.8" },
           ...RADAR_PAGES.map((p) => ({ path: `/radar/${p.slug}`, changefreq: "monthly" as const, priority: "0.7" })),
         ];
