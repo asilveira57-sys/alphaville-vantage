@@ -195,6 +195,19 @@ function CondoPage() {
         </section>
       )}
 
+      <section className="px-6 py-14 border-t border-ink/8">
+        <div className="max-w-7xl mx-auto bg-[#0D0D0D] text-white p-8 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h2 className="font-serif text-2xl mb-2">Tem um imóvel neste condomínio?</h2>
+            <p className="text-white/70">Venda ou alugue com avaliação de mercado e divulgação no portal da S.A Imóveis.</p>
+          </div>
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <Link to="/vender-meu-imovel" className="bg-[#F2DA00] text-[#0D0D0D] font-semibold px-5 py-3">Vender meu imóvel</Link>
+            <Link to="/alugar-meu-imovel" className="border border-white/40 px-5 py-3 hover:border-[#F2DA00]">Alugar meu imóvel</Link>
+          </div>
+        </div>
+      </section>
+
       <InstitutionalBlock />
     </SiteLayout>
   );

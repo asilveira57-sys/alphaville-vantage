@@ -68,6 +68,14 @@ function Servicos() {
         ))}
       </div>
 
+      <div className="mt-16 max-w-5xl bg-[#0D0D0D] text-white p-8 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h2 className="font-serif text-2xl mb-2">Tem um imóvel para vender ou alugar?</h2>
+          <p className="text-white/70">Avaliação, fotos e divulgação no portal com a S.A Imóveis.</p>
+        </div>
+        <Link to="/anuncie-seu-imovel" className="shrink-0 bg-[#F2DA00] text-[#0D0D0D] font-semibold px-6 py-3">Anuncie seu imóvel</Link>
+      </div>
+
       <div className="mt-20 max-w-3xl">
         <h2 className="font-serif text-3xl mb-6">Diferenciais</h2>
         <ul className="space-y-2 text-ink/85 leading-relaxed list-disc list-inside">

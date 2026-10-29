@@ -23,6 +23,7 @@ const submitSchema = z.object({
   source: z.string().trim().max(80).optional().or(z.literal("")),
   referrer: z.string().trim().max(500).optional().or(z.literal("")),
   landing_page: z.string().trim().max(500).optional().or(z.literal("")),
+  conversion_context: z.enum(["captacao_venda", "captacao_locacao"]).optional(),
 });
 
 const digits = (v?: string | null) => (v ? v.replace(/\D/g, "") : "");
@@ -68,7 +69,7 @@ export const submitRadarLead = createServerFn({ method: "POST" })
       term: clean(data.term),
       referrer: clean(data.referrer),
       landing_page: clean(data.landing_page),
-      conversion_context: "real_estate_radar",
+      conversion_context: data.conversion_context ?? "real_estate_radar",
       status: "radar_recebido",
     };
 
