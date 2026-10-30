@@ -49,6 +49,7 @@ export const Route = createFileRoute("/guia-de-ruas-alphaville/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
         { property: "og:url", content: url },
         ...(g.og_image ? [{ property: "og:image", content: g.og_image }] : []),
       ],
@@ -259,6 +260,7 @@ function StreetGuidePage() {
                     propertyType={p.property_type}
                     priceSale={p.price_sale}
                     priceRent={p.price_rent}
+                    purpose={p.purpose}
                     bedrooms={p.bedrooms}
                     parking={p.parking}
                     area={p.area}

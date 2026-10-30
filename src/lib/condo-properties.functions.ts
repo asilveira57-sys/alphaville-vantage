@@ -1,3 +1,4 @@
+import { compareListingPrice } from "./property-listing";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -100,7 +101,7 @@ function fallbackTerm(title: string): string {
 /** Imóveis do condomínio (vínculo do admin) + inclusões manuais, menos as exclusões. */
 export const listCondoProperties = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => listSchema.parse(d))
-  .handler(async ({ data }): Promise<{ condominiumName: string | null; items: CondoPropertyDTO[] }> => {
+  .handler(async ({ data }): Promise<{ condominiumName: string | null; items: CondoPropertyDTO[]; rentItems: CondoPropertyDTO[]; saleItems: CondoPropertyDTO[] }> => {
     const sb = publicClient();
     const excluded = new Set(data.excludedIds);
     let condominiumName: string | null = null;
@@ -114,7 +115,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
           .select(SELECT)
           .eq("condominium_name", term)
           .eq("status", "active")
-          .order("price_sale", { ascending: false, nullsFirst: false })
+          .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
           .limit(500);
         if (error) throw new Error(error.message);
         auto.push(...((rows ?? []) as Row[]));
@@ -137,7 +138,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
           .select(SELECT)
           .eq("condominium_id", data.condominiumId)
           .eq("status", "active")
-          .order("price_sale", { ascending: false, nullsFirst: false })
+          .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
           .range(from, from + step - 1);
         if (error) throw new Error(error.message);
         const batch = (rows ?? []) as Row[];
@@ -155,7 +156,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
           .select(SELECT)
           .ilike("condominium_name", `%${term}%`)
           .eq("status", "active")
-          .order("price_sale", { ascending: false, nullsFirst: false })
+          .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
           .limit(500);
         if (error) throw new Error(error.message);
         auto.push(...((rows ?? []) as Row[]));
@@ -192,7 +193,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
     }
 
     const items = ordered.map(toDTO).filter((p) => !!p.slug && !!p.title);
-    return { condominiumName, items };
+    return { condominiumName, items: [...items].sort((a,b) => compareListingPrice(a,b)), rentItems: [...items].sort((a,b) => compareListingPrice(a,b,"rent")), saleItems: [...items].sort((a,b) => compareListingPrice(a,b,"sale")) };
   });
 
 /** Lista os nomes de condomínio existentes nos imóveis, para o admin escolher os filtros. */

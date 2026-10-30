@@ -142,13 +142,13 @@ export const findPropertiesNearStreet = createServerFn({ method: "GET" })
       const { data: rows } = await sb.from("properties").select(cols)
         .in("id", guide.related_property_ids as string[])
         .eq("status", "active")
-        .limit(data.limit);
+        .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true }).limit(data.limit);
       if (rows?.length) return { tier: "manual" as const, items: sanitize(rows) };
     }
 
     // Tier 2: bater por endereço / condomínio relacionado
     const nameLike = `%${guide.name}%`;
-    let q2 = sb.from("properties").select(cols).eq("status", "active").limit(data.limit);
+    let q2 = sb.from("properties").select(cols).eq("status", "active").order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true }).limit(data.limit);
     const orParts: string[] = [`address.ilike.${nameLike}`, `title.ilike.${nameLike}`];
     if (guide.related_condo_ids?.length) {
       const ids = (guide.related_condo_ids as string[]).map((id) => `"${id}"`).join(",");
@@ -159,7 +159,7 @@ export const findPropertiesNearStreet = createServerFn({ method: "GET" })
     if (rows2?.length) return { tier: "nearby" as const, items: sanitize(rows2) };
 
     // Tier 3: mesma região/bairro/cidade
-    let q3 = sb.from("properties").select(cols).eq("status", "active").limit(data.limit);
+    let q3 = sb.from("properties").select(cols).eq("status", "active").order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true }).limit(data.limit);
     if (guide.neighborhood) q3 = q3.eq("neighborhood", guide.neighborhood);
     else if (guide.region) q3 = q3.eq("region", guide.region);
     else if (guide.city) q3 = q3.eq("city", guide.city);

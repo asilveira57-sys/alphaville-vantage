@@ -14,6 +14,8 @@ const isUsableImg = (u: string) =>
   !/(logo|favicon|whats|placeholder|topo_contato|supremo_|topo_)/i.test(u);
 
 export type RelatedProperty = {
+  internal_code: string | null;
+  purpose: string | null;
   id: string;
   slug: string;
   title: string;
@@ -89,11 +91,11 @@ async function fetchProperty(slug: string): Promise<PropertyDetailDTO | null> {
   if (data.neighborhood) {
     const { data: rel } = await publicClient()
       .from("properties")
-      .select("id,slug,title,seo_title,property_type,price_sale,price_rent,images,card_image_url")
+      .select("id,slug,title,seo_title,internal_code,purpose,property_type,price_sale,price_rent,images,card_image_url")
       .eq("status", "active")
       .eq("neighborhood", data.neighborhood)
       .neq("id", data.id)
-      .order("last_seen_at", { ascending: false })
+      .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
       .limit(6);
     related = ((rel ?? []) as unknown as Array<RelatedProperty & { images: unknown }>)
       .map((r) => ({

@@ -268,6 +268,8 @@ function PropertyDetail() {
                   propertyType={r.property_type}
                   priceSale={r.price_sale}
                   priceRent={r.price_rent}
+                    purpose={r.purpose}
+                  internalCode={r.internal_code}
                 />
               ))}
             </div>

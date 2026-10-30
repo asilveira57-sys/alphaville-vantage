@@ -11,20 +11,24 @@ export function CondoPropertiesBlock({
   title,
   condominiumName,
   items,
+  rentItems = items,
+  saleItems = items,
 }: {
   title: string;
   condominiumName: string | null;
   items: CondoPropertyDTO[];
+  rentItems?: CondoPropertyDTO[];
+  saleItems?: CondoPropertyDTO[];
 }) {
   const [filter, setFilter] = useState<Filter>("all");
 
   const sale = useMemo(
-    () => items.filter((p) => p.purpose === "sale" || p.purpose === "both" || (!p.purpose && p.price_sale)),
-    [items],
+    () => saleItems.filter((p) => p.purpose === "sale" || p.purpose === "both" || (!p.purpose && p.price_sale)),
+    [saleItems],
   );
   const rent = useMemo(
-    () => items.filter((p) => p.purpose === "rent" || p.purpose === "both" || (!p.purpose && p.price_rent)),
-    [items],
+    () => rentItems.filter((p) => p.purpose === "rent" || p.purpose === "both" || (!p.purpose && p.price_rent)),
+    [rentItems],
   );
 
   if (items.length === 0) return null;
@@ -47,7 +51,7 @@ export function CondoPropertiesBlock({
     priceMin: 0,
     priceMax: 0,
     areaMin: 0,
-    sort: "recent",
+    sort: "price_asc",
     q: condominiumName ?? "",
     page: 1,
   };
@@ -94,6 +98,8 @@ export function CondoPropertiesBlock({
               propertyType={p.property_type}
               priceSale={p.price_sale}
               priceRent={p.price_rent}
+              purpose={p.purpose}
+              filteredPurpose={filter === "all" ? "" : filter}
               bedrooms={p.bedrooms}
               parking={p.parking}
               area={p.area}

@@ -17,6 +17,7 @@ export type FeaturedProperty = {
   slug: string;
   title: string;
   internal_code: string | null;
+  purpose: string | null;
   price_sale: number | null;
   price_rent: number | null;
   image: string | null;
@@ -55,10 +56,10 @@ async function fetchFeatured(): Promise<FeaturedProperty[]> {
   const { data, error } = await publicClient()
     .from("properties")
     .select(
-      "slug,title,internal_code,price_sale,price_rent,images,last_seen_at,neighborhood,city,region,bedrooms,parking,area_useful,area_total,property_type,card_image_url",
+      "slug,title,purpose,internal_code,price_sale,price_rent,images,last_seen_at,neighborhood,city,region,bedrooms,parking,area_useful,area_total,property_type,card_image_url",
     )
     .eq("status", "active")
-    .order("last_seen_at", { ascending: false })
+    .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
     .limit(24);
   if (error) return [];
   const rows = (data ?? []).map((p) => {
@@ -67,6 +68,7 @@ async function fetchFeatured(): Promise<FeaturedProperty[]> {
       slug: p.slug,
       title: p.title,
       internal_code: p.internal_code,
+      purpose: p.purpose,
       price_sale: p.price_sale,
       price_rent: p.price_rent,
       image: (p as { card_image_url?: string | null }).card_image_url ?? imgs[0] ?? null,
