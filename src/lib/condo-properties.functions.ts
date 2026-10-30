@@ -133,7 +133,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
 
       const step = 500;
       for (let from = 0; ; from += step) {
-        const rows = await fetchAllRows<Row>((from, to) => sb
+        const { data: rows, error } = await sb
           .from("properties")
           .select(SELECT)
           .eq("condominium_id", data.condominiumId)
@@ -151,7 +151,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
     if (!data.condoTerms.length && !data.condominiumId) {
       const term = fallbackTerm(data.titleFallback);
       if (term.length >= 3) {
-        const { data: rows, error } = await sb
+        const rows = await fetchAllRows<Row>((from, to) => sb
           .from("properties")
           .select(SELECT)
           .ilike("condominium_name", `%${term}%`)
