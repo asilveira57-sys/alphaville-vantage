@@ -211,6 +211,13 @@
       "when": 1793373047881,
       "tag": "0029_purpose_aware_listing_order",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1793373427968,
+      "tag": "0030_keep_search_hay_current",
+      "breakpoints": true
     }
   ]
 }
