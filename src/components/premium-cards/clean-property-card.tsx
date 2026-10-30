@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { resized, onImgFallback } from "@/lib/img-resize";
 import { BrandPlaceholder } from "@/components/brand-placeholder";
+import { listingPrices, listingCode } from "@/lib/property-listing";
 
 const fmt = (n: number | null | undefined) =>
   n == null
@@ -27,6 +28,8 @@ export type CleanPropertyCardProps = {
   parking?: number | null;
   area?: number | null;
   internalCode?: string | null;
+  purpose?: string | null;
+  filteredPurpose?: string;
   /** Miniaturas WebP (600 px / 1200 px) geradas na captura. */
   imageSrcSet?: string | null;
   eager?: boolean;
@@ -42,10 +45,8 @@ function shortName(title: string) {
 }
 
 export function CleanPropertyCard(p: CleanPropertyCardProps) {
-  const sale = fmt(p.priceSale);
-  const rent = fmt(p.priceRent);
-  const price = sale ?? rent ?? "Sob consulta";
-  const label = sale ? "Venda" : rent ? "Locação" : "Consulta";
+  const { primary: price, secondary, label } = listingPrices(p.priceSale, p.priceRent, p.filteredPurpose, p.purpose);
+  const code = listingCode(p.internalCode);
   const place = [p.neighborhood, p.city].filter(Boolean).join(", ");
   const src = resolveImage(p.image);
 
@@ -96,6 +97,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
         <p className="line-clamp-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1A1A1A]/50">
           {[p.propertyType, p.neighborhood ?? p.city].filter(Boolean).join(" · ") || "Imóvel"}
         </p>
+        {code && <p className="text-xs text-muted-foreground">Cód. {code}</p>}
         <h3 className="font-display line-clamp-2 min-h-[2.5em] text-[19px] leading-[1.25] text-[#171717]">
           {shortName(p.title)}
         </h3>
@@ -104,6 +106,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
         <p className="pt-1 font-sans text-[22px] font-extrabold leading-none tracking-tight text-[#0D0D0D]">
           {price}
         </p>
+        {secondary && <p className="text-sm text-muted-foreground">{secondary}</p>}
 
         {specs.length > 0 ? (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-[#0D0D0D]/8 pt-4">

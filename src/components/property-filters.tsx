@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { findPropertyByCode } from "@/lib/property-search.functions";
+import { appliedQuery, SEARCH_DELAY_MS } from "@/lib/property-listing";
+import { Button } from "@/components/ui/button";
 
 export type FilterOptions = {
   types: string[];
@@ -70,9 +74,29 @@ export function PropertyFilters({
   totalCount: number;
 }) {
   const navigate = useNavigate({ from: "/imoveis" });
+  const findCode = useServerFn(findPropertyByCode);
+  const [query, setQuery] = useState(state.q);
+  const queryRef = useRef(query);
+  queryRef.current = query;
+  const lastApplied = useRef(state.q);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => { setQuery(state.q); lastApplied.current = state.q; }, [state.q]);
+  const apply = async (text: string) => {
+    const q = appliedQuery(text);
+    if (q === lastApplied.current) return;
+    const slug = q ? await findCode({ data: { code: q } }) : null;
+    if (text !== queryRef.current) return;
+    lastApplied.current = q;
+    if (slug) { navigate({ to: "/imoveis/$slug", params: { slug }, replace: true, resetScroll: false }); return; }
+    navigate({ search: (prev) => ({ ...prev, q, page: 1 }), replace: true, resetScroll: false });
+  };
+  useEffect(() => {
+    timer.current = setTimeout(() => { void apply(query); }, SEARCH_DELAY_MS);
+    return () => { if (timer.current) clearTimeout(timer.current); };
+  }, [query]);
 
   const update = (patch: Partial<FilterState>) => {
-    navigate({ search: (prev: FilterState) => ({ ...prev, ...patch, page: 1 }) });
+    navigate({ search: (prev: FilterState) => ({ ...prev, ...patch, page: 1 }), resetScroll: false });
   };
 
   const clear = () =>
@@ -88,7 +112,7 @@ export function PropertyFilters({
         priceMin: 0,
         priceMax: 0,
         areaMin: 0,
-        sort: "recent",
+        sort: "price_asc",
         q: "",
         page: 1,
       },
@@ -191,8 +215,8 @@ export function PropertyFilters({
             ))}
           </select>
           <select className={selectCls} value={state.sort} onChange={(e) => update({ sort: e.target.value })} aria-label="Ordenar">
-            <option value="recent">Mais recentes</option>
             <option value="price_asc">Menor preço</option>
+            <option value="recent">Mais recentes</option>
             <option value="price_desc">Maior preço</option>
             <option value="area_desc">Maior área</option>
           </select>
@@ -216,8 +240,9 @@ export function PropertyFilters({
             className={`${selectCls} md:col-span-2`}
             type="search"
             placeholder="Buscar por título, condomínio…"
-            value={state.q}
-            onChange={(e) => update({ q: e.target.value })}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (timer.current) clearTimeout(timer.current); void apply(query); } }}
             aria-label="Buscar"
           />
         </div>

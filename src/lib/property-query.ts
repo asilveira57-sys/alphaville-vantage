@@ -1,6 +1,7 @@
 // Converte os parâmetros da URL de /imoveis nos argumentos da pesquisa no banco.
 // Mesma interpretação de texto de antes (interpretQuery / residualLocationQuery).
 import { interpretQuery, residualLocationQuery } from "./property-search";
+import { appliedQuery } from "./property-listing";
 
 export type ImoveisSearch = {
   purpose: string;
@@ -21,10 +22,11 @@ export type ImoveisSearch = {
 export const IMOVEIS_DEFAULTS: ImoveisSearch = {
   purpose: "", type: "", city: "", neighborhood: "", condo: "",
   bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0,
-  sort: "recent", q: "", page: 1,
+  sort: "price_asc", q: "", page: 1,
 };
 
 export function effectiveSearch(s: ImoveisSearch): ImoveisSearch {
+  s = { ...s, q: appliedQuery(s.q), sort: ["recent", "price_asc", "price_desc", "area_desc"].includes(s.sort) ? s.sort : "price_asc" };
   if (!s.q) return s;
   const parsed = interpretQuery(s.q);
   return {

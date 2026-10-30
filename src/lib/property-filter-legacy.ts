@@ -1,4 +1,5 @@
 import { residualLocationQuery } from "./property-search";
+import { compareListingPrice } from "./property-listing";
 import type { FilterState } from "@/components/property-filters";
 // Versão antiga (no navegador) do filtro de /imoveis — mantida só para o teste de paridade.
 export type LegacyRow = { purpose: string | null; property_type: string | null; city: string | null; neighborhood: string | null; region: string | null; condominium_name: string | null; condo_official: string | null; bedrooms: number | null; parking: number | null; parking_covered: number | null; parking_uncovered: number | null; area_useful: number | null; area_built: number | null; area_total: number | null; price_sale: number | null; price_rent: number | null; last_seen_at: string | null; title: string; seo_title: string | null; description: string | null; descricao_seo: string | null };
@@ -135,9 +136,9 @@ export function applyFiltersLegacy(items: PropertyRow[], s: FilterState): Proper
 
   const sorted = [...out];
   if (s.sort === "price_asc") {
-    sorted.sort((a, b) => (a.price_sale ?? a.price_rent ?? Infinity) - (b.price_sale ?? b.price_rent ?? Infinity));
+    sorted.sort((a, b) => compareListingPrice(a, b, s.purpose));
   } else if (s.sort === "price_desc") {
-    sorted.sort((a, b) => (b.price_sale ?? b.price_rent ?? 0) - (a.price_sale ?? a.price_rent ?? 0));
+    sorted.sort((a, b) => compareListingPrice(a, b, s.purpose, true));
   } else if (s.sort === "area_desc") {
     sorted.sort((a, b) => {
       const ax = Math.max(a.area_useful ?? 0, a.area_built ?? 0, a.area_total ?? 0);

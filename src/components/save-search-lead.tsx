@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Bookmark, Download, MessageCircle, Mail, X } from "lucide-react";
 import { saveSearchLead, SEARCH_LEAD_CONSENT } from "@/lib/search-leads.functions";
 import { SITE_URL } from "@/lib/site";
+import { listingPrices, listingCode } from "@/lib/property-listing";
 
 export type PdfProperty = {
   id: string;
@@ -16,11 +17,13 @@ export type PdfProperty = {
   area_total: number | null;
   price_sale: number | null;
   price_rent: number | null;
+  purpose?: string | null;
+  internal_code?: string | null;
 };
 
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
-async function buildPdf(name: string, query: string, url: string, items: PdfProperty[], total: number) {
+export async function buildPdf(name: string, query: string, url: string, items: PdfProperty[], total: number, purpose = "") {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const W = 210;
@@ -74,6 +77,7 @@ async function buildPdf(name: string, query: string, url: string, items: PdfProp
     const area = p.area_useful || p.area_built || p.area_total;
     const facts = [
       [p.neighborhood, p.city].filter(Boolean).join(", "),
+      listingCode(p.internal_code) ? `Cód. ${listingCode(p.internal_code)}` : null,
       p.bedrooms ? `${p.bedrooms} dorm.` : null,
       area ? `${Math.round(area)} m²` : null,
     ].filter(Boolean).join(" · ");
@@ -83,8 +87,13 @@ async function buildPdf(name: string, query: string, url: string, items: PdfProp
     doc.textWithLink("Ver imóvel", 20, y + 12.5, { url: link });
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    const prices = [p.price_sale ? `Venda ${brl(p.price_sale)}` : null, p.price_rent ? `Aluguel ${brl(p.price_rent)}` : null].filter(Boolean) as string[];
-    prices.forEach((t, k) => doc.text(t, W - 14, y + 3 + k * 5, { align: "right" }));
+    const prices = listingPrices(p.price_sale, p.price_rent, purpose, p.purpose);
+    doc.text(prices.primary, W - 14, y + 3, { align: "right" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    if (prices.secondary) doc.text(prices.secondary, W - 14, y + 8, { align: "right" });
+    doc.setFontSize(7);
+    doc.text(prices.label.toUpperCase(), W - 14, y + 13, { align: "right" });
     doc.setTextColor(13, 13, 13);
     y += 20;
   });
@@ -128,7 +137,7 @@ export function SaveSearchLead({ loadItems, total, query, filters }: { loadItems
           propertyIds: items.slice(0, 60).map((p) => p.id),
         },
       });
-      const doc = await buildPdf(f.name, query, url, items.slice(0, 30), total);
+      const doc = await buildPdf(f.name, query, url, items.slice(0, 30), total, String(filters.purpose ?? ""));
       doc.save(`pesquisa-sa-imoveis-${new Date().toISOString().slice(0, 10)}.pdf`);
       const text = `Minha pesquisa na S.A Imóveis Alphaville (${total} imóveis): ${url}`;
       if (channel === "whatsapp") {
