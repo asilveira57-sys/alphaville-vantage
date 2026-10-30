@@ -113,26 +113,25 @@ export const findPropertiesOnStreet = createServerFn({ method: "GET" })
     const { data: links } = await sb.from("property_streets")
       .select("property_id")
       .eq("street_id", street.id)
-      .order("match_confidence", { ascending: false })
-      .limit(data.limit);
+      ;
     const ids = (links ?? []).map((l: any) => l.property_id);
     if (ids.length) {
       const { data: rows } = await sb.from("properties").select(cols)
-        .in("id", ids).eq("status", "active").limit(data.limit);
+        .in("id", ids).eq("status", "active").order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true }).limit(data.limit);
       if (rows?.length) return { tier: "linked" as const, items: sanitize(rows) };
     }
 
     // Tier 2: mesmo bairro
     if (street.neighborhood) {
       const { data: rows } = await sb.from("properties").select(cols)
-        .eq("neighborhood", street.neighborhood).eq("status", "active").limit(data.limit);
+        .eq("neighborhood", street.neighborhood).eq("status", "active").order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true }).limit(data.limit);
       if (rows?.length) return { tier: "neighborhood" as const, items: sanitize(rows) };
     }
 
     // Tier 3: mesma cidade
     if (street.city) {
       const { data: rows } = await sb.from("properties").select(cols)
-        .eq("city", street.city).eq("status", "active").limit(data.limit);
+        .eq("city", street.city).eq("status", "active").order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true }).limit(data.limit);
       if (rows?.length) return { tier: "city" as const, items: sanitize(rows) };
     }
 

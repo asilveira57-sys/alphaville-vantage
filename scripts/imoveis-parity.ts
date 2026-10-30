@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { applyFiltersLegacy, type LegacyRow } from "../src/lib/property-filter-legacy";
 import { toRpcArgs, effectiveSearch, IMOVEIS_DEFAULTS, type ImoveisSearch } from "../src/lib/property-query";
+import { compareListingPrice } from "../src/lib/property-listing";
 const sb = createClient(process.env.VITE_SUPABASE_URL!, process.env.VITE_SUPABASE_PUBLISHABLE_KEY!);
 const rows: any[] = [];
 for (let f = 0; ; f += 1000) {
@@ -32,3 +33,20 @@ for (const [label, c] of cases) {
   console.log(`| ${label} | ${legacy} | ${n} | ${Number(n) === legacy ? "sim" : "NÃO"} |`);
 }
 console.log("divergentes:", bad);
+if (bad) throw new Error(`${bad} combinações divergentes`);
+// Verify purpose-aware ordering across page boundaries, not just one page.
+for (const purpose of ["", "sale", "rent"]) {
+  let previous: { price_sale: number | null; price_rent: number | null } | null = null;
+  let count = 0;
+  for (let offset = 0; ; offset += 100) {
+    const { data, error } = await sb.rpc("search_properties", toRpcArgs({ ...IMOVEIS_DEFAULTS, purpose }, 100, offset) as any);
+    if (error) throw error;
+    for (const row of data ?? []) {
+      if (previous && compareListingPrice(previous, row, purpose) > 0) throw new Error(`Ordem de preço incorreta: ${purpose || "todas"}, posição ${count}`);
+      previous = row;
+      count++;
+    }
+    if ((data ?? []).length < 100) break;
+  }
+  console.log(`Menor preço antes da paginação: ${purpose || "todas"}, ${count} imóveis OK`);
+}

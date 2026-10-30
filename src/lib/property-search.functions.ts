@@ -57,6 +57,16 @@ export const searchProperties = createServerFn({ method: "GET" })
     return { items: list.map(({ total: _t, ...r }) => r) as SearchCard[], total };
   });
 
+export const findPropertyByCode = createServerFn({ method: "GET" })
+  .inputValidator((d: { code: string }) => z.object({ code: z.string().trim().max(40) }).parse(d))
+  .handler(async ({ data }) => {
+    if (!/^[a-z]{1,3}\d*$/i.test(data.code) && !/^\d+$/.test(data.code)) return null;
+    const { data: rows, error } = await publicClient().from("properties").select("slug")
+      .eq("status", "active").ilike("internal_code", data.code).limit(2);
+    if (error || rows?.length !== 1) return null;
+    return rows[0]?.slug ?? null;
+  });
+
 export type Facets = {
   types: string[]; cities: string[]; neighborhoods: string[]; condos: string[];
   cityCounts: Record<string, number>; neighborhoodCounts: Record<string, number>; condoCounts: Record<string, number>;

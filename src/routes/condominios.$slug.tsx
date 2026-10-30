@@ -153,6 +153,8 @@ function CondoPage() {
           title={blockTitle}
           condominiumName={propsData.condominiumName ?? page.title}
           items={propsData.items}
+          rentItems={propsData.rentItems}
+          saleItems={propsData.saleItems}
         />
       )}
 

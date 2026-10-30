@@ -28,7 +28,7 @@ export const EMPTY_SEARCH: PropertySearch = {
   priceMin: 0,
   priceMax: 0,
   areaMin: 0,
-  sort: "recent",
+  sort: "price_asc",
   q: "",
   page: 1,
 };

@@ -3,6 +3,7 @@ import { ArrowUpRight, BedDouble, Car, Ruler } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { BrandPlaceholder } from "@/components/brand-placeholder";
+import { listingPrices, listingCode } from "@/lib/property-listing";
 import type { OpportunityDTO, OpportunitySignal } from "@/lib/opportunities.functions";
 
 const brl = (n: number | null | undefined, digits = 0) =>
@@ -66,15 +67,17 @@ export type OpportunityCardProps = {
   priority?: boolean;
   /** No hub, a foto principal ganha mais altura. */
   size?: "default" | "large";
+  filteredPurpose?: string;
 };
 
 export function OpportunityCard({
   item,
   priority = false,
   size = "default",
+  filteredPurpose = "",
 }: OpportunityCardProps) {
-  const price = brl(item.price_sale) ?? brl(item.price_rent) ?? "Sob consulta";
-  const label = item.price_sale ? "Venda" : item.price_rent ? "Locação" : "Consulta";
+  const { primary: price, secondary, label } = listingPrices(item.price_sale, item.price_rent, filteredPurpose, item.purpose);
+  const code = listingCode(item.internal_code);
   const place = [item.neighborhood, item.city].filter(Boolean).join(", ");
   const src = resolveImage(item.image);
 
@@ -139,6 +142,7 @@ export function OpportunityCard({
             .filter(Boolean)
             .join(" · ") || "Imóvel"}
         </p>
+        {code && <p className="text-xs text-muted-foreground">Cód. {code}</p>}
         <h3 className="font-display line-clamp-2 min-h-[2.5em] text-[19px] leading-[1.25] text-[#171717]">
           {shortName(item.title)}
         </h3>
@@ -158,6 +162,8 @@ export function OpportunityCard({
             <p className="text-[12px] font-medium text-[#1A1A1A]/50">{brl(item.sqm_price)}/m²</p>
           ) : null}
         </div>
+
+        {secondary && <p className="text-sm text-muted-foreground">{secondary}</p>}
 
         {specs.length > 0 ? (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-[#0D0D0D]/8 pt-4">

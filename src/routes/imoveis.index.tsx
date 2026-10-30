@@ -21,7 +21,7 @@ const searchSchema = z.object({
   priceMin: fallback(z.number(), 0).default(0),
   priceMax: fallback(z.number(), 0).default(0),
   areaMin: fallback(z.number(), 0).default(0),
-  sort: fallback(z.enum(["recent", "price_asc", "price_desc", "area_desc"]), "recent").default("recent"),
+  sort: fallback(z.string(), "price_asc").default("price_asc"),
   q: fallback(z.string(), "").default(""),
   page: fallback(z.number().int(), 1).default(1),
 });
@@ -60,7 +60,7 @@ export const Route = createFileRoute("/imoveis/")({
   component: ImoveisPage,
 });
 
-function PropertyCard({ p, eager }: { p: SearchCard; eager?: boolean }) {
+function PropertyCard({ p, eager, filteredPurpose }: { p: SearchCard; eager?: boolean; filteredPurpose: string }) {
   const card = p.card_image_url;
   return (
     <CleanPropertyCard
@@ -79,6 +79,8 @@ function PropertyCard({ p, eager }: { p: SearchCard; eager?: boolean }) {
       parking={p.parking_total}
       area={p.area}
       internalCode={p.internal_code}
+      purpose={p.purpose}
+      filteredPurpose={filteredPurpose}
     />
   );
 }
@@ -146,7 +148,7 @@ function ImoveisPage() {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {items.map((p, i) => <PropertyCard key={p.id} p={p} eager={i === 0} />)}
+                {items.map((p, i) => <PropertyCard key={p.id} p={p} eager={i === 0} filteredPurpose={effectiveSearch(search).purpose} />)}
               </div>
               {totalPages > 1 && (
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />

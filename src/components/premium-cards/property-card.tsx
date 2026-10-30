@@ -1,6 +1,7 @@
 import * as React from "react";
 import { BedDouble, Car, Ruler } from "lucide-react";
 import { PremiumCard } from "@/components/premium-card";
+import { listingPrices, listingCode } from "@/lib/property-listing";
 
 const fmt = (n: number | null | undefined) =>
   n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
@@ -20,13 +21,12 @@ export type PremiumPropertyCardProps = {
   parking?: number | null;
   area?: number | null;
   internalCode?: string | null;
+  purpose?: string | null;
+  filteredPurpose?: string;
 };
 
 export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
-  const sale = fmt(p.priceSale);
-  const rent = fmt(p.priceRent);
-  const price = sale ?? rent ?? "Sob consulta";
-  const label = sale ? "Venda" : rent ? "Locação" : "Consulta";
+  const { primary: price, secondary, label } = listingPrices(p.priceSale, p.priceRent, p.filteredPurpose, p.purpose);
 
   const badges = (
     <>
@@ -51,6 +51,7 @@ export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
       <p className="font-sans text-2xl md:text-[26px] font-extrabold tracking-tight leading-none text-white">
         {price}
       </p>
+      {secondary && <p className="text-sm text-canvas/70">{secondary}</p>}
       {specs.length > 0 && (
         <div className="flex flex-wrap gap-x-3 gap-y-1">
           {specs.map((s) => (
@@ -66,7 +67,8 @@ export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
     </div>
   );
 
-  const eyebrow = [p.propertyType, p.neighborhood ?? p.city].filter(Boolean).join(" · ") || "Imóvel";
+  const code = listingCode(p.internalCode);
+  const eyebrow = [p.propertyType, p.neighborhood ?? p.city, code ? `Cód. ${code}` : null].filter(Boolean).join(" · ") || "Imóvel";
 
   return (
     <PremiumCard

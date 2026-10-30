@@ -404,6 +404,7 @@ function HomePage() {
                     image={p.image}
                     priceSale={p.price_sale}
                     priceRent={p.price_rent}
+                    purpose={p.purpose}
                     internalCode={p.internal_code}
                     neighborhood={p.neighborhood}
                     city={p.city}

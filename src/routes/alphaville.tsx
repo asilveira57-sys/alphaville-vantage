@@ -18,10 +18,10 @@ async function fetchAlphavilleSnapshot() {
     supabase.from("properties").select("id", { count: "exact", head: true }).eq("status", "active").eq("neighborhood", "Alphaville").in("purpose", ["rent", "both"]),
     supabase
       .from("properties")
-      .select("id,slug,title,seo_title,property_type,bedrooms,area_useful,area_built,area_total,price_sale,price_rent,images,purpose")
+      .select("id,slug,title,seo_title,internal_code,property_type,bedrooms,area_useful,area_built,area_total,price_sale,price_rent,images,purpose")
       .eq("status", "active")
       .eq("neighborhood", "Alphaville")
-      .order("last_seen_at", { ascending: false })
+      .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
       .limit(6),
   ]);
   return {
@@ -47,6 +47,7 @@ export const Route = createFileRoute("/alphaville")({
       { property: "og:title", content: "Alphaville — bairro, condomínios e imóveis" },
       { property: "og:description", content: "O bairro de Alphaville em profundidade: condomínios, perfil, mercado e imóveis." },
       { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: `${SITE_URL}/alphaville` },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/alphaville` }],
@@ -120,7 +121,7 @@ function AlphavillePage() {
             <div className="mt-10 flex flex-wrap gap-3">
               <Link
                 to="/imoveis"
-                search={{ neighborhood: "Alphaville", purpose: "", type: "", city: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "" }}
+                search={{ neighborhood: "Alphaville", purpose: "", type: "", city: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "price_asc", q: "" }}
                 className="inline-flex items-center gap-2 bg-gold text-navy-deep px-6 py-3.5 text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_10px_30px_-12px_rgba(203,161,53,0.6)] transition"
               >
                 Ver imóveis em Alphaville
@@ -173,7 +174,7 @@ function AlphavillePage() {
               </div>
               <Link
                 to="/imoveis"
-                search={{ neighborhood: "Alphaville", purpose: "", type: "", city: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "recent", q: "" }}
+                search={{ neighborhood: "Alphaville", purpose: "", type: "", city: "", condo: "", bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0, sort: "price_asc", q: "" }}
                 className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-ink"
               >
                 Ver todos →
@@ -191,6 +192,8 @@ function AlphavillePage() {
                   propertyType={p.property_type}
                   priceSale={p.price_sale}
                   priceRent={p.price_rent}
+                  purpose={p.purpose}
+                  internalCode={p.internal_code}
                   bedrooms={p.bedrooms}
                   area={p.area_useful ?? p.area_built ?? p.area_total}
                 />

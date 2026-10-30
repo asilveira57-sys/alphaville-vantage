@@ -1,4 +1,9 @@
 # Visual da home
+## Ajustes nas listagens
+- [x] Corrigir busca local com 400 ms, Enter e abertura por código.
+- [x] Unificar preços por finalidade e código nos cards/PDF.
+- [x] Aplicar menor preço no servidor em todas as listagens.
+- [x] Testar Bellagio/AP06837 em desktop e celular.
 ## Migração da origem para API Tokko
 - [x] Testar API — HTTP 200, 2.384 imóveis, chave configurada.
 - [x] Gerar simulação e CSV por código de referência, sem gravar imóveis.

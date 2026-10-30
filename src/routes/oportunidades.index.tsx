@@ -13,7 +13,7 @@ const TITLE = "Vitrine de Oportunidades — S.A Imóveis Alphaville";
 const DESCRIPTION =
   "Imóveis em Alphaville, Tamboré, Barueri e Santana de Parnaíba selecionados pela equipe S.A Imóveis. Cada seleção traz o motivo declarado e a data da última apuração.";
 
-type LoaderData = { items: OpportunityDTO[]; total: number; updatedAt: string | null };
+type LoaderData = { items: OpportunityDTO[]; rentItems: OpportunityDTO[]; saleItems: OpportunityDTO[]; total: number; updatedAt: string | null };
 
 export const Route = createFileRoute("/oportunidades/")({
   loader: () => listOpportunities({ data: {} }),
@@ -38,6 +38,8 @@ export const Route = createFileRoute("/oportunidades/")({
         { property: "og:title", content: TITLE },
         { property: "og:description", content: DESCRIPTION },
         { property: "og:url", content: `${SITE_URL}/oportunidades` },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: `${SITE_URL}/oportunidades` }],
       scripts: [{ type: "application/ld+json", children: JSON.stringify(itemList) }],
@@ -74,7 +76,7 @@ const FAQ = [
 ];
 
 function OpportunitiesPage() {
-  const { items, updatedAt } = Route.useLoaderData() as LoaderData;
+  const { items, rentItems, saleItems, updatedAt } = Route.useLoaderData() as LoaderData;
   const [purpose, setPurpose] = useState("all");
   const [city, setCity] = useState("all");
 
@@ -88,12 +90,12 @@ function OpportunitiesPage() {
 
   const filtered = useMemo(
     () =>
-      items.filter(
+      (purpose === "rent" ? rentItems : purpose === "sale" ? saleItems : items).filter(
         (i) =>
-          (purpose === "all" || i.purpose === purpose || (purpose === "sale" && i.price_sale)) &&
+          (purpose === "all" || i.purpose === purpose || i.purpose === "both" || (purpose === "sale" && i.price_sale) || (purpose === "rent" && i.price_rent)) &&
           (city === "all" || i.city === city),
       ),
-    [items, purpose, city],
+    [items, rentItems, saleItems, purpose, city],
   );
 
   const select =
@@ -159,7 +161,7 @@ function OpportunitiesPage() {
           {filtered.length ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {filtered.map((item, i) => (
-                <OpportunityCard key={item.id} item={item} size="large" priority={i < 2} />
+                <OpportunityCard key={item.id} item={item} size="large" priority={i < 2} filteredPurpose={purpose === "all" ? "" : purpose} />
               ))}
             </div>
           ) : (
