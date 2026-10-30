@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { compareListingPrice } from "./property-listing";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   buildValuation,
@@ -365,7 +366,7 @@ export const listOpportunities = createServerFn({ method: "GET" })
   .handler(
     async ({
       data,
-    }): Promise<{ items: OpportunityDTO[]; total: number; updatedAt: string | null }> => {
+    }): Promise<{ items: OpportunityDTO[]; rentItems: OpportunityDTO[]; saleItems: OpportunityDTO[]; total: number; updatedAt: string | null }> => {
       const sb = publicClient();
       const { data: rows, error } = await activeOpportunityQuery(sb).limit(
         SHOWCASE_MAX_PUBLISHED * 4,
@@ -389,7 +390,7 @@ export const listOpportunities = createServerFn({ method: "GET" })
           .sort()
           .at(-1) ?? null;
 
-      return { items, total: items.length, updatedAt };
+      return { items, rentItems: [...items].sort((a,b) => compareListingPrice(a,b,"rent")), saleItems: [...items].sort((a,b) => compareListingPrice(a,b,"sale")), total: items.length, updatedAt };
     },
   );
 

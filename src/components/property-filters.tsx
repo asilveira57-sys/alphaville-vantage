@@ -139,7 +139,7 @@ export function PropertyFilters({
     <section className="bg-brand-dark text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-8 space-y-3">
         {/* Abre/fecha os filtros no celular */}
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => setShowFilters((v) => !v)}
           aria-expanded={showFilters}
@@ -150,7 +150,7 @@ export function PropertyFilters({
             {activeChips.length > 0 ? ` · ${activeChips.length}` : ""}
           </span>
           <span aria-hidden>{showFilters ? "▲" : "▼"}</span>
-        </button>
+        </Button>
 
         <div className={`${showFilters ? "block" : "hidden"} md:block space-y-3`}>
         {/* Linha 1 */}
@@ -179,13 +179,13 @@ export function PropertyFilters({
               <option key={b} value={b}>{options.neighborhoodCounts?.[b] != null ? `${b} (${options.neighborhoodCounts[b]})` : b}</option>
             ))}
           </select>
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={clear}
             className="bg-brand-yellow text-brand-dark font-bold uppercase tracking-widest text-xs py-2 px-4 rounded-sm hover:brightness-95"
           >
             Limpar filtros
-          </button>
+          </Button>
         </div>
 
         {/* Linha 2 */}
@@ -256,14 +256,14 @@ export function PropertyFilters({
             <>
               <span className="text-white/30">·</span>
               {activeChips.map((c, i) => (
-                <button
+                <Button variant="ghost"
                   key={i}
                   type="button"
                   onClick={c.clear}
                   className="inline-flex items-center gap-1 bg-white/10 hover:bg-brand-yellow hover:text-brand-dark text-white px-2 py-1 rounded-sm"
                 >
                   {c.label} <span aria-hidden>✕</span>
-                </button>
+                </Button>
               ))}
             </>
           )}

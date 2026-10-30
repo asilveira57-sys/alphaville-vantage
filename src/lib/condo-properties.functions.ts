@@ -1,4 +1,5 @@
 import { compareListingPrice } from "./property-listing";
+import { fetchAllRows } from "./fetch-all";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -110,14 +111,13 @@ export const listCondoProperties = createServerFn({ method: "GET" })
     // Filtro por nomes de condomínio definidos no admin
     if (data.condoTerms.length) {
       for (const term of data.condoTerms.slice(0, 20)) {
-        const { data: rows, error } = await sb
+        const rows = await fetchAllRows<Row>((from, to) => sb
           .from("properties")
           .select(SELECT)
           .eq("condominium_name", term)
           .eq("status", "active")
           .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
-          .limit(500);
-        if (error) throw new Error(error.message);
+          .range(from, to));
         auto.push(...((rows ?? []) as Row[]));
       }
       if (!condominiumName) condominiumName = data.condoTerms[0] ?? null;
@@ -133,7 +133,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
 
       const step = 500;
       for (let from = 0; ; from += step) {
-        const { data: rows, error } = await sb
+        const rows = await fetchAllRows<Row>((from, to) => sb
           .from("properties")
           .select(SELECT)
           .eq("condominium_id", data.condominiumId)
@@ -157,8 +157,7 @@ export const listCondoProperties = createServerFn({ method: "GET" })
           .ilike("condominium_name", `%${term}%`)
           .eq("status", "active")
           .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
-          .limit(500);
-        if (error) throw new Error(error.message);
+          .range(from, to));
         auto.push(...((rows ?? []) as Row[]));
         if (!condominiumName) condominiumName = term;
       }

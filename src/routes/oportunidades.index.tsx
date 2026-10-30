@@ -7,14 +7,13 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { OpportunityCard } from "@/components/premium-cards/opportunity-card";
 import { listOpportunities, type OpportunityDTO } from "@/lib/opportunities.functions";
 import { OpportunitySubscribeForm } from "@/components/opportunities/opportunity-subscribe-form";
-import { compareListingPrice } from "@/lib/property-listing";
 
 
 const TITLE = "Vitrine de Oportunidades — S.A Imóveis Alphaville";
 const DESCRIPTION =
   "Imóveis em Alphaville, Tamboré, Barueri e Santana de Parnaíba selecionados pela equipe S.A Imóveis. Cada seleção traz o motivo declarado e a data da última apuração.";
 
-type LoaderData = { items: OpportunityDTO[]; total: number; updatedAt: string | null };
+type LoaderData = { items: OpportunityDTO[]; rentItems: OpportunityDTO[]; saleItems: OpportunityDTO[]; total: number; updatedAt: string | null };
 
 export const Route = createFileRoute("/oportunidades/")({
   loader: () => listOpportunities({ data: {} }),
@@ -77,7 +76,7 @@ const FAQ = [
 ];
 
 function OpportunitiesPage() {
-  const { items, updatedAt } = Route.useLoaderData() as LoaderData;
+  const { items, rentItems, saleItems, updatedAt } = Route.useLoaderData() as LoaderData;
   const [purpose, setPurpose] = useState("all");
   const [city, setCity] = useState("all");
 
@@ -91,12 +90,12 @@ function OpportunitiesPage() {
 
   const filtered = useMemo(
     () =>
-      items.filter(
+      (purpose === "rent" ? rentItems : purpose === "sale" ? saleItems : items).filter(
         (i) =>
           (purpose === "all" || i.purpose === purpose || i.purpose === "both" || (purpose === "sale" && i.price_sale) || (purpose === "rent" && i.price_rent)) &&
           (city === "all" || i.city === city),
-      ).sort((a, b) => compareListingPrice(a, b, purpose === "all" ? "" : purpose)),
-    [items, purpose, city],
+      ),
+    [items, rentItems, saleItems, purpose, city],
   );
 
   const select =
