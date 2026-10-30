@@ -1577,6 +1577,9 @@ export type Database = {
           large_image_url: string | null
           last_seen_at: string | null
           lavabos: number | null
+          listing_price: number | null
+          listing_rent_price: number | null
+          listing_sale_group: number | null
           manual_overrides: Json | null
           neighborhood: string | null
           opportunity_expires_at: string | null
@@ -1655,6 +1658,9 @@ export type Database = {
           large_image_url?: string | null
           last_seen_at?: string | null
           lavabos?: number | null
+          listing_price?: number | null
+          listing_rent_price?: number | null
+          listing_sale_group?: number | null
           manual_overrides?: Json | null
           neighborhood?: string | null
           opportunity_expires_at?: string | null
@@ -1733,6 +1739,9 @@ export type Database = {
           large_image_url?: string | null
           last_seen_at?: string | null
           lavabos?: number | null
+          listing_price?: number | null
+          listing_rent_price?: number | null
+          listing_sale_group?: number | null
           manual_overrides?: Json | null
           neighborhood?: string | null
           opportunity_expires_at?: string | null
