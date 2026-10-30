@@ -148,7 +148,7 @@ export function toImoveisSearchParams(
     priceMin: 0,
     priceMax: parsed.priceMax ?? 0,
     areaMin: 0,
-    sort: "recent",
+    sort: "price_asc",
     q: parsed.q ?? "",
     page: 1,
   };
