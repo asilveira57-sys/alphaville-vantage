@@ -80,7 +80,7 @@ export function PropertyFilters({
   queryRef.current = query;
   const lastApplied = useRef(state.q);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => { setQuery(state.q); lastApplied.current = state.q; }, [state.q]);
+  useEffect(() => { if (state.q !== lastApplied.current) setQuery(state.q); lastApplied.current = state.q; }, [state.q]);
   const apply = async (text: string) => {
     const q = appliedQuery(text);
     if (q === lastApplied.current) return;

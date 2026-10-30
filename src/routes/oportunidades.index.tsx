@@ -7,6 +7,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { OpportunityCard } from "@/components/premium-cards/opportunity-card";
 import { listOpportunities, type OpportunityDTO } from "@/lib/opportunities.functions";
 import { OpportunitySubscribeForm } from "@/components/opportunities/opportunity-subscribe-form";
+import { compareListingPrice } from "@/lib/property-listing";
 
 
 const TITLE = "Vitrine de Oportunidades — S.A Imóveis Alphaville";
@@ -38,6 +39,8 @@ export const Route = createFileRoute("/oportunidades/")({
         { property: "og:title", content: TITLE },
         { property: "og:description", content: DESCRIPTION },
         { property: "og:url", content: `${SITE_URL}/oportunidades` },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: `${SITE_URL}/oportunidades` }],
       scripts: [{ type: "application/ld+json", children: JSON.stringify(itemList) }],
@@ -90,9 +93,9 @@ function OpportunitiesPage() {
     () =>
       items.filter(
         (i) =>
-          (purpose === "all" || i.purpose === purpose || (purpose === "sale" && i.price_sale)) &&
+          (purpose === "all" || i.purpose === purpose || i.purpose === "both" || (purpose === "sale" && i.price_sale) || (purpose === "rent" && i.price_rent)) &&
           (city === "all" || i.city === city),
-      ),
+      ).sort((a, b) => compareListingPrice(a, b, purpose === "all" ? "" : purpose)),
     [items, purpose, city],
   );
 
@@ -159,7 +162,7 @@ function OpportunitiesPage() {
           {filtered.length ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {filtered.map((item, i) => (
-                <OpportunityCard key={item.id} item={item} size="large" priority={i < 2} />
+                <OpportunityCard key={item.id} item={item} size="large" priority={i < 2} filteredPurpose={purpose === "all" ? "" : purpose} />
               ))}
             </div>
           ) : (

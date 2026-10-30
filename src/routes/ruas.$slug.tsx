@@ -5,6 +5,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { SectionPage } from "@/components/section-page";
 import { PremiumCard } from "@/components/premium-card";
+import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { EditorialContent } from "@/components/editorial-content";
 import { ResolvedCta } from "@/components/resolved-cta";
 import {
@@ -233,18 +234,21 @@ function StreetDetail() {
                   p.parking ? `${p.parking} vagas` : null,
                 ].filter(Boolean).join(" · ");
                 return (
-                  <PremiumCard
+                  <CleanPropertyCard
                     key={p.id}
-                    to={"/imoveis/$slug" as never}
-                    params={{ slug: p.slug } as never}
+                    slug={p.slug}
                     image={p.card_image_url ?? p.images?.[0] ?? null}
-                    imageAlt={p.title}
-                    eyebrow={[p.property_type, p.neighborhood].filter(Boolean).join(" · ")}
                     title={p.title}
-                    description={[price, desc].filter(Boolean).join(" — ")}
-                    cta="Ver imóvel"
-                    aspectRatio="tall"
-                    fallback={{ type: "region", region: p.neighborhood ?? p.city, seed: p.slug }}
+                    propertyType={p.property_type}
+                    neighborhood={p.neighborhood}
+                    city={p.city}
+                    internalCode={p.internal_code}
+                    purpose={p.purpose}
+                    priceSale={p.price_sale}
+                    priceRent={p.price_rent}
+                    bedrooms={p.bedrooms}
+                    parking={p.parking}
+                    area={p.area}
                   />
                 );
               })}

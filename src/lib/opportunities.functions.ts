@@ -333,7 +333,9 @@ function activeOpportunityQuery(sb: ReturnType<typeof publicClient>) {
     .eq("status", "active")
     .eq("opportunity_status", "published")
     .or(`opportunity_expires_at.is.null,opportunity_expires_at.gt.${new Date().toISOString()}`)
-    .order("opportunity_rank", { ascending: true, nullsFirst: false })
+    .order("listing_sale_group", { ascending: true })
+    .order("listing_price", { ascending: true, nullsFirst: false })
+    .order("id", { ascending: true })
     .order("opportunity_published_at", { ascending: false, nullsFirst: false });
 }
 

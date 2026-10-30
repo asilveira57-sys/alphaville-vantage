@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { BedDouble, Car, Ruler } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { listingPrices, listingCode } from "@/lib/property-listing";
 
 export type EmpreendimentoUnit = {
   id: string;
@@ -71,6 +72,9 @@ export function useEmpreendimentoUnits(empreendimentoSlug: string) {
         )
         .eq("condominium_id", condo.id)
         .eq("status", "active")
+        .order("listing_sale_group", { ascending: true })
+        .order("listing_price", { ascending: true, nullsFirst: false })
+        .order("id", { ascending: true })
         .limit(12);
 
       const valid = ((data ?? []) as EmpreendimentoUnit[]).filter(
@@ -98,8 +102,8 @@ export function useEmpreendimentoUnits(empreendimentoSlug: string) {
 function UnitCard({ u }: { u: EmpreendimentoUnit }) {
   const img = firstImage(u.images);
   const area = u.area_useful ?? u.area_total;
-  const price = brl(u.price_sale) ?? brl(u.price_rent);
-  const finalidade = u.purpose === "rent" ? "Locação" : u.purpose === "sale" ? "Venda" : u.purpose;
+  const { primary: price, secondary, label: finalidade } = listingPrices(u.price_sale, u.price_rent, "", u.purpose);
+  const code = listingCode(u.internal_code);
 
   return (
     <Link
@@ -140,7 +144,8 @@ function UnitCard({ u }: { u: EmpreendimentoUnit }) {
           ) : null}
         </div>
         {price ? <p className="text-[17px] font-bold text-[#171717]">{price}</p> : null}
-        <p className="text-[11px] uppercase tracking-[0.16em] text-[#1A1A1A]/45">Código {u.internal_code}</p>
+        {secondary && <p className="text-sm text-muted-foreground">{secondary}</p>}
+        {code && <p className="text-xs text-muted-foreground">Cód. {code}</p>}
         <span className="mt-auto pt-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#171717] group-hover:text-[#0D0D0D]">
           Ver imóvel
         </span>
