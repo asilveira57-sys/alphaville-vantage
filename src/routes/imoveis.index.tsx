@@ -6,7 +6,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { PropertyFilters, type FilterOptions } from "@/components/property-filters";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { SaveSearchLead, type PdfProperty } from "@/components/save-search-lead";
-import { searchProperties, getSearchFacets, PAGE_SIZE, type SearchCard } from "@/lib/property-search.functions";
+import { searchProperties, getSearchFacets, getCondoFacets, PAGE_SIZE, type SearchCard } from "@/lib/property-search.functions";
 import { effectiveSearch, IMOVEIS_DEFAULTS } from "@/lib/property-query";
 import { SITE_URL } from "@/lib/site";
 
@@ -20,6 +20,8 @@ const searchSchema = z.object({
   parking: fallback(z.number(), 0).default(0),
   priceMin: fallback(z.number(), 0).default(0),
   priceMax: fallback(z.number(), 0).default(0),
+  min: fallback(z.number(), 0).default(0),
+  max: fallback(z.number(), 0).default(0),
   areaMin: fallback(z.number(), 0).default(0),
   sort: fallback(z.string(), "price_asc").default("price_asc"),
   q: fallback(z.string(), "").default(""),
@@ -32,13 +34,14 @@ export const Route = createFileRoute("/imoveis/")({
   search: { middlewares: [stripSearchParams(IMOVEIS_DEFAULTS as never)] },
   loaderDeps: ({ search }) => search,
   loader: async ({ deps }) => {
-    const [result, facets] = await Promise.all([
+    const [result, facets, condoOptions] = await Promise.all([
       searchProperties({ data: { ...deps, page: Math.max(1, deps.page || 1) } }),
       getSearchFacets(),
+      getCondoFacets({ data: deps }),
     ]);
-    return { ...result, facets };
+    return { ...result, facets, condoOptions };
   },
-  head: () => ({
+  head: ({ search }) => ({
     meta: [
       { title: "Imóveis em Alphaville — S.A Imóveis Alphaville" },
       { name: "description", content: "Catálogo de imóveis para venda e locação em Alphaville, Tamboré, Barueri e Santana de Parnaíba." },
@@ -47,6 +50,10 @@ export const Route = createFileRoute("/imoveis/")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/imoveis` },
       { name: "twitter:card", content: "summary_large_image" },
+      // Combinações de 2+ condomínios não entram no índice; canonical aponta /imoveis.
+      ...((search?.condo ?? "").split(",").filter((t) => t.trim()).length >= 2
+        ? [{ name: "robots", content: "noindex,follow" }]
+        : []),
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/imoveis` }],
   }),

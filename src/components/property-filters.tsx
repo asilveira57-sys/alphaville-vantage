@@ -54,7 +54,7 @@ const selectCls =
   "bg-white/5 text-white border border-white/15 px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-brand-yellow w-full [&>option]:bg-white [&>option]:text-ink";
 
 const normTxt = (s: string) =>
-  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 // Campo digitável de valor em reais: aplica ao sair do campo ou com Enter.
 function PriceInput({
