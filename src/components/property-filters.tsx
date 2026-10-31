@@ -110,16 +110,17 @@ function PriceInput({
 function CondoMultiSelect({
   options,
   selected,
-  onChange,
+  onToggle,
+  onClear,
 }: {
   options: CondoFacet[];
   selected: string[];
-  onChange: (slugs: string[]) => void;
+  onToggle: (slug: string) => void;
+  onClear: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
-  const toggle = (slug: string) =>
-    onChange(selected.includes(slug) ? selected.filter((s) => s !== slug) : [...selected, slug]);
+  const toggle = onToggle;
   const list = term ? options.filter((o) => normTxt(o.name).includes(normTxt(term.trim()))) : options;
   const label =
     selected.length === 0
