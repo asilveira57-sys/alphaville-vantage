@@ -3,7 +3,7 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import { toRpcArgs, type ImoveisSearch } from "./property-query";
+import { toRpcArgs, effectiveSearch, IMOVEIS_DEFAULTS, type ImoveisSearch } from "./property-query";
 import { cityOrder } from "./cities";
 
 export const PAGE_SIZE = 15;
@@ -25,12 +25,45 @@ export function publicClient() {
 
 const searchInput = z.object({
   purpose: z.string().max(10), type: z.string().max(60), city: z.string().max(80),
-  neighborhood: z.string().max(120), condo: z.string().max(160),
+  neighborhood: z.string().max(120), condo: z.string().max(600),
   bedrooms: z.number().int().min(0).max(20), parking: z.number().int().min(0).max(20),
-  priceMin: z.number().min(0), priceMax: z.number().min(0), areaMin: z.number().min(0),
+  priceMin: z.number().min(0), priceMax: z.number().min(0),
+  min: z.number().min(0).optional(), max: z.number().min(0).optional(),
+  areaMin: z.number().min(0),
   sort: z.string().max(20), q: z.string().max(200), page: z.number().int().min(1).max(1000),
   limit: z.number().int().min(1).max(60).optional(),
 });
+
+// Central de Condomínios: resolve o parâmetro condo (slugs separados por
+// vírgula, ou nome antigo como em ?condo=Bellagio) para ids — match exato.
+export type CondoRow = { id: string; name: string; slug: string };
+let condoCache: { at: number; rows: CondoRow[] } | null = null;
+async function condoDirectory(): Promise<CondoRow[]> {
+  if (condoCache && Date.now() - condoCache.at < 300_000) return condoCache.rows;
+  const { data, error } = await publicClient().from("condominiums").select("id,name,slug");
+  if (error) {
+    console.error("condoDirectory", error);
+    return condoCache?.rows ?? [];
+  }
+  const rows = (data ?? []) as CondoRow[];
+  condoCache = { at: Date.now(), rows };
+  return rows;
+}
+
+const normTxt = (s: string) =>
+  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const slugTxt = (s: string) => normTxt(s).replace(/\s+/g, "-");
+
+export function resolveCondoTokens(param: string, rows: CondoRow[]): string[] {
+  const ids: string[] = [];
+  for (const raw of param.split(",")) {
+    const t = raw.trim();
+    if (!t) continue;
+    const hit = rows.find((r) => r.slug === t || r.slug === slugTxt(t) || normTxt(r.name) === normTxt(t));
+    if (hit && !ids.includes(hit.id)) ids.push(hit.id);
+  }
+  return ids;
+}
 
 export type SearchCard = {
   id: string; slug: string; title: string; internal_code: string | null; purpose: string | null;
