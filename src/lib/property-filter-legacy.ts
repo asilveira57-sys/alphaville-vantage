@@ -1,8 +1,8 @@
-import { residualLocationQuery } from "./property-search";
+import { residualLocationQuery, canonicalNumWords } from "./property-search";
 import { compareListingPrice } from "./property-listing";
 import type { FilterState } from "@/components/property-filters";
 // Versão antiga (no navegador) do filtro de /imoveis — mantida só para o teste de paridade.
-export type LegacyRow = { purpose: string | null; property_type: string | null; city: string | null; neighborhood: string | null; region: string | null; condominium_name: string | null; condo_official: string | null; bedrooms: number | null; parking: number | null; parking_covered: number | null; parking_uncovered: number | null; area_useful: number | null; area_built: number | null; area_total: number | null; price_sale: number | null; price_rent: number | null; last_seen_at: string | null; title: string; seo_title: string | null; description: string | null; descricao_seo: string | null };
+export type LegacyRow = { purpose: string | null; property_type: string | null; city: string | null; neighborhood: string | null; region: string | null; condominium_id: string | null; condominium_name: string | null; condo_official: string | null; condo_aliases: string | null; bedrooms: number | null; parking: number | null; parking_covered: number | null; parking_uncovered: number | null; area_useful: number | null; area_built: number | null; area_total: number | null; price_sale: number | null; price_rent: number | null; last_seen_at: string | null; title: string; seo_title: string | null; description: string | null; descricao_seo: string | null };
 type PropertyRow = LegacyRow;
 export function applyFiltersLegacy(items: PropertyRow[], s: FilterState): PropertyRow[] {
   const norm = (v: string | null | undefined) =>
@@ -36,7 +36,13 @@ export function applyFiltersLegacy(items: PropertyRow[], s: FilterState): Proper
         fuzzyEq(p.condominium_name, s.neighborhood),
     );
   }
-  if (s.condo) out = out.filter((p) => fuzzyEq(p.condo_official ?? p.condominium_name, s.condo));
+  const condoIds = (s as FilterState & { condoIds?: string[] | null }).condoIds;
+  if (condoIds?.length) {
+    // Seleção múltipla: match exato por condominium_id (Central de Condomínios).
+    out = out.filter((p) => p.condominium_id != null && condoIds.includes(p.condominium_id));
+  } else if (s.condo) {
+    out = out.filter((p) => fuzzyEq(p.condo_official ?? p.condominium_name, s.condo));
+  }
   if (s.bedrooms) out = out.filter((p) => (p.bedrooms ?? 0) >= s.bedrooms);
   if (s.parking) {
     out = out.filter((p) => {
@@ -111,10 +117,13 @@ export function applyFiltersLegacy(items: PropertyRow[], s: FilterState): Proper
           "([^a-z0-9]|$)",
       );
       const condoText = (p: PropertyRow) => normalize([p.condo_official, p.condominium_name].filter(Boolean).join(" "));
+      // Nome canônico com equivalência numérica (1 = I = Um = 01), incluindo aliases da Central.
+      const condoCanonText = (p: PropertyRow) =>
+        canonicalNumWords(normalize([p.condo_official, p.condominium_name, p.condo_aliases].filter(Boolean).join(" ")));
       const fullText = (p: PropertyRow) =>
         normalize([p.title, p.condominium_name, p.condo_official, p.neighborhood, p.seo_title, p.city, p.region, p.description, p.descricao_seo].filter(Boolean).join(" "));
 
-      const byCondo = out.filter((p) => phrase.test(condoText(p)));
+      const byCondo = out.filter((p) => phrase.test(condoText(p)) || phrase.test(condoCanonText(p)));
       if (byCondo.length) {
         out = byCondo;
       } else {
@@ -123,11 +132,12 @@ export function applyFiltersLegacy(items: PropertyRow[], s: FilterState): Proper
           ? byPhrase
           : out.filter((p) => {
               const haystack = tokenize(fullText(p));
+              const canon = tokenize(condoCanonText(p));
               // Números precisam bater exatamente; texto aceita prefixo.
               return queryTokens.every((qt) =>
-                haystack.some((ht) =>
-                  /^\d+$/.test(qt) ? ht === qt : ht === qt || (qt.length >= 3 && ht.startsWith(qt)),
-                ),
+                /^\d+$/.test(qt)
+                  ? haystack.some((ht) => ht === qt) || canon.some((ht) => ht === qt)
+                  : haystack.some((ht) => ht === qt || (qt.length >= 3 && ht.startsWith(qt))),
               );
             });
       }
