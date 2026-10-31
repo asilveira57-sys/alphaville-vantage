@@ -1602,6 +1602,7 @@ export type Database = {
           region: string | null
           review_status: string | null
           search_condo_norm: string | null
+          search_condo_num: string | null
           search_hay: string | null
           search_post: string | null
           search_pre: string | null
@@ -1683,6 +1684,7 @@ export type Database = {
           region?: string | null
           review_status?: string | null
           search_condo_norm?: string | null
+          search_condo_num?: string | null
           search_hay?: string | null
           search_post?: string | null
           search_pre?: string | null
@@ -1764,6 +1766,7 @@ export type Database = {
           region?: string | null
           review_status?: string | null
           search_condo_norm?: string | null
+          search_condo_num?: string | null
           search_hay?: string | null
           search_post?: string | null
           search_pre?: string | null
@@ -2793,6 +2796,7 @@ export type Database = {
             Args: { s: Database["public"]["Tables"]["streets"]["Row"] }
             Returns: string
           }
+      condo_num_norm: { Args: { t: string }; Returns: string }
       fuzzy_eq: { Args: { a: string; b: string }; Returns: boolean }
       fuzzy_norm: { Args: { t: string }; Returns: string }
       has_role: {
@@ -2828,6 +2832,20 @@ export type Database = {
         }[]
       }
       normalize_street_text: { Args: { txt: string }; Returns: string }
+      property_condo_facets: {
+        Args: {
+          p_area_min?: number
+          p_bedrooms?: number
+          p_city?: string
+          p_neighborhood?: string
+          p_parking?: number
+          p_price_max?: number
+          p_price_min?: number
+          p_purpose?: string
+          p_type?: string
+        }
+        Returns: Json
+      }
       property_main_image: { Args: { p_images: Json }; Returns: string }
       property_search_facets: { Args: never; Returns: Json }
       search_norm: { Args: { t: string }; Returns: string }
@@ -2837,6 +2855,7 @@ export type Database = {
           p_bedrooms?: number
           p_city?: string
           p_condo?: string
+          p_condo_ids?: string[]
           p_limit?: number
           p_neighborhood?: string
           p_offset?: number
