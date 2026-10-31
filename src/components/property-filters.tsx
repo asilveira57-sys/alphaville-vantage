@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { findPropertyByCode } from "@/lib/property-search.functions";
-import { appliedQuery, SEARCH_DELAY_MS } from "@/lib/property-listing";
+import { findPropertyByCode, type CondoFacet } from "@/lib/property-search.functions";
+import { appliedQuery, maskBrlInput, parseBrlInput, SEARCH_DELAY_MS } from "@/lib/property-listing";
 import { Button } from "@/components/ui/button";
 
 export type FilterOptions = {
@@ -13,6 +13,7 @@ export type FilterOptions = {
   condoCounts?: Record<string, number>;
   neighborhoodCounts?: Record<string, number>;
   condos: string[];
+  condoOptions?: CondoFacet[];
   priceMax: number;
   isRent: boolean;
 };
@@ -27,6 +28,8 @@ export type FilterState = {
   parking: number;
   priceMin: number;
   priceMax: number;
+  min?: number;
+  max?: number;
   areaMin: number;
   sort: string;
   q: string;
@@ -45,22 +48,166 @@ const TYPE_LABEL: Record<string, string> = {
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-function priceSteps(max: number, isRent: boolean): number[] {
-  if (isRent) return [2000, 5000, 10000, 20000, 50000, 100000].filter((v) => v <= max * 1.5);
-  return [500_000, 1_000_000, 2_000_000, 3_000_000, 5_000_000, 8_000_000, 12_000_000].filter(
-    (v) => v <= max * 1.5,
-  );
-}
-
-const fmtPrice = (n: number, isRent: boolean) =>
-  isRent
-    ? `R$ ${(n / 1000).toFixed(0)} mil`
-    : n >= 1_000_000
-      ? `R$ ${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`
-      : `R$ ${(n / 1000).toFixed(0)} mil`;
+const brlShort = (n: number) => `R$ ${n.toLocaleString("pt-BR")}`;
 
 const selectCls =
   "bg-white/5 text-white border border-white/15 px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-brand-yellow w-full [&>option]:bg-white [&>option]:text-ink";
+
+const normTxt = (s: string) =>
+  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+// Campo digitável de valor em reais: aplica ao sair do campo ou com Enter.
+function PriceInput({
+  value,
+  placeholder,
+  ariaLabel,
+  onApply,
+}: {
+  value: number;
+  placeholder: string;
+  ariaLabel: string;
+  onApply: (v: number) => void;
+}) {
+  const [text, setText] = useState(value ? maskBrlInput(String(value)) : "");
+  const lastApplied = useRef(value);
+  useEffect(() => {
+    if (value !== lastApplied.current) {
+      setText(value ? maskBrlInput(String(value)) : "");
+      lastApplied.current = value;
+    }
+  }, [value]);
+  const commit = () => {
+    const v = parseBrlInput(text);
+    setText(v ? maskBrlInput(String(v)) : "");
+    if (v !== lastApplied.current) {
+      lastApplied.current = v;
+      onApply(v);
+    }
+  };
+  return (
+    <input
+      className={selectCls}
+      type="text"
+      inputMode="numeric"
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+      value={text}
+      onChange={(e) => setText(maskBrlInput(e.target.value))}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commit();
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+    />
+  );
+}
+
+// Condomínio com seleção múltipla: dropdown com busca e checkbox no desktop;
+// tela cheia com botão "Aplicar" no celular. Match exato por condominium_id.
+function CondoMultiSelect({
+  options,
+  selected,
+  onChange,
+}: {
+  options: CondoFacet[];
+  selected: string[];
+  onChange: (slugs: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [term, setTerm] = useState("");
+  const toggle = (slug: string) =>
+    onChange(selected.includes(slug) ? selected.filter((s) => s !== slug) : [...selected, slug]);
+  const list = term ? options.filter((o) => normTxt(o.name).includes(normTxt(term.trim()))) : options;
+  const label =
+    selected.length === 0
+      ? "Condomínio — todos"
+      : selected.length === 1
+        ? (options.find((o) => o.slug === selected[0])?.name ?? selected[0])
+        : `${selected.length} condomínios`;
+  return (
+    <div className="relative md:col-span-2">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        className={`${selectCls} text-left flex items-center justify-between gap-2`}
+      >
+        <span className="truncate">{label}</span>
+        <span aria-hidden>▾</span>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
+          <div
+            role="dialog"
+            aria-label="Filtrar por condomínio"
+            className="fixed inset-0 z-50 bg-brand-dark flex flex-col md:absolute md:inset-auto md:top-full md:left-0 md:mt-1 md:z-50 md:border md:border-white/15 md:rounded-sm md:shadow-xl md:max-h-96 md:min-w-72"
+          >
+            <div className="flex items-center gap-2 p-3 border-b border-white/10">
+              <input
+                autoFocus
+                className={selectCls}
+                placeholder="Buscar condomínio…"
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                aria-label="Buscar condomínio"
+              />
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Fechar"
+                className="hidden md:inline-flex px-2 py-2 text-white/70 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            <ul className="overflow-y-auto flex-1 p-2 space-y-0.5">
+              {list.map((o) => (
+                <li key={o.id}>
+                  <label className="flex items-center gap-2 px-2 py-2 text-sm text-white hover:bg-white/5 rounded-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(o.slug)}
+                      onChange={() => toggle(o.slug)}
+                      className="accent-brand-yellow w-4 h-4"
+                    />
+                    <span className="flex-1">{o.name}</span>
+                    <span className="text-white/50 text-xs">({o.n})</span>
+                  </label>
+                </li>
+              ))}
+              {list.length === 0 && (
+                <li className="px-2 py-3 text-sm text-white/60">Nenhum condomínio encontrado.</li>
+              )}
+            </ul>
+            <div className="md:hidden p-3 border-t border-white/10 flex gap-2">
+              {selected.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onChange([])}
+                  className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-white/70 border border-white/15 rounded-sm"
+                >
+                  Limpar
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex-1 bg-brand-yellow text-brand-dark font-bold uppercase tracking-widest text-xs py-3 rounded-sm"
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export function PropertyFilters({
   options,
@@ -111,6 +258,8 @@ export function PropertyFilters({
         parking: 0,
         priceMin: 0,
         priceMax: 0,
+        min: 0,
+        max: 0,
         areaMin: 0,
         sort: "price_asc",
         q: "",
@@ -120,18 +269,22 @@ export function PropertyFilters({
 
   const [showFilters, setShowFilters] = useState(false);
   const isRent = state.purpose === "rent" || (state.purpose === "" && options.isRent);
-  const steps = priceSteps(options.priceMax || 5_000_000, isRent);
+  const condoTokens = state.condo ? state.condo.split(",").map((t) => t.trim()).filter(Boolean) : [];
+  const condoName = (t: string) =>
+    options.condoOptions?.find((o) => o.slug === t || o.name === t)?.name ?? t;
 
   const activeChips: { label: string; clear: () => void }[] = [];
   if (state.purpose) activeChips.push({ label: state.purpose === "sale" ? "Venda" : state.purpose === "rent" ? "Locação" : "Venda/Locação", clear: () => update({ purpose: "" }) });
   if (state.type) activeChips.push({ label: TYPE_LABEL[state.type] ?? cap(state.type), clear: () => update({ type: "" }) });
   if (state.city) activeChips.push({ label: state.city, clear: () => update({ city: "" }) });
   if (state.neighborhood) activeChips.push({ label: state.neighborhood, clear: () => update({ neighborhood: "" }) });
-  if (state.condo) activeChips.push({ label: state.condo, clear: () => update({ condo: "" }) });
+  for (const t of condoTokens) {
+    activeChips.push({ label: condoName(t), clear: () => update({ condo: condoTokens.filter((x) => x !== t).join(",") }) });
+  }
   if (state.bedrooms) activeChips.push({ label: `${state.bedrooms}+ dorm.`, clear: () => update({ bedrooms: 0 }) });
   if (state.parking) activeChips.push({ label: `${state.parking}+ vagas`, clear: () => update({ parking: 0 }) });
-  if (state.priceMin) activeChips.push({ label: `≥ ${fmtPrice(state.priceMin, isRent)}`, clear: () => update({ priceMin: 0 }) });
-  if (state.priceMax) activeChips.push({ label: `≤ ${fmtPrice(state.priceMax, isRent)}`, clear: () => update({ priceMax: 0 }) });
+  if (state.priceMin) activeChips.push({ label: `≥ ${brlShort(state.priceMin)}${isRent ? "/mês" : ""}`, clear: () => update({ priceMin: 0, min: 0 }) });
+  if (state.priceMax) activeChips.push({ label: `≤ ${brlShort(state.priceMax)}${isRent ? "/mês" : ""}`, clear: () => update({ priceMax: 0, max: 0 }) });
   if (state.areaMin) activeChips.push({ label: `≥ ${state.areaMin} m²`, clear: () => update({ areaMin: 0 }) });
   if (state.q) activeChips.push({ label: `"${state.q}"`, clear: () => update({ q: "" }) });
 
@@ -190,18 +343,18 @@ export function PropertyFilters({
 
         {/* Linha 2 */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-3">
-          <select className={selectCls} value={state.priceMin} onChange={(e) => update({ priceMin: Number(e.target.value) })} aria-label="Valor mínimo">
-            <option value="0">Valor de</option>
-            {steps.map((v) => (
-              <option key={v} value={v}>{fmtPrice(v, isRent)}</option>
-            ))}
-          </select>
-          <select className={selectCls} value={state.priceMax} onChange={(e) => update({ priceMax: Number(e.target.value) })} aria-label="Valor máximo">
-            <option value="0">Valor até</option>
-            {steps.map((v) => (
-              <option key={v} value={v}>{fmtPrice(v, isRent)}</option>
-            ))}
-          </select>
+          <PriceInput
+            value={state.priceMin}
+            placeholder="Valor de"
+            ariaLabel="Valor mínimo"
+            onApply={(v) => update({ min: v, priceMin: 0 })}
+          />
+          <PriceInput
+            value={state.priceMax}
+            placeholder="Valor até"
+            ariaLabel="Valor máximo"
+            onApply={(v) => update({ max: v, priceMax: 0 })}
+          />
           <select className={selectCls} value={state.bedrooms} onChange={(e) => update({ bedrooms: Number(e.target.value) })} aria-label="Dormitórios">
             <option value="0">Dormitórios</option>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -224,12 +377,11 @@ export function PropertyFilters({
 
         {/* Linha 3 */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-2 md:gap-3">
-          <select className={`${selectCls} md:col-span-2`} value={state.condo} onChange={(e) => update({ condo: e.target.value })} aria-label="Condomínio">
-            <option value="">Condomínio — todos</option>
-            {options.condos.map((c) => (
-              <option key={c} value={c}>{options.condoCounts?.[c] != null ? `${c} (${options.condoCounts[c]})` : c}</option>
-            ))}
-          </select>
+          <CondoMultiSelect
+            options={options.condoOptions ?? []}
+            selected={condoTokens.filter((t) => options.condoOptions?.some((o) => o.slug === t) ?? false)}
+            onChange={(slugs) => update({ condo: slugs.join(",") })}
+          />
           <select className={selectCls} value={state.areaMin} onChange={(e) => update({ areaMin: Number(e.target.value) })} aria-label="Área mínima">
             <option value="0">Área mínima</option>
             {[40, 60, 80, 100, 150, 200, 300, 500].map((a) => (
