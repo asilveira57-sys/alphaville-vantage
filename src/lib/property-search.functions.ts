@@ -77,9 +77,10 @@ export const searchProperties = createServerFn({ method: "GET" })
   .inputValidator((d: ImoveisSearch & { limit?: number }) => searchInput.parse(d))
   .handler(async ({ data }) => {
     const limit = data.limit ?? PAGE_SIZE;
+    const condoIds = data.condo ? resolveCondoTokens(data.condo, await condoDirectory()) : null;
     const { data: rows, error } = await publicClient().rpc(
       "search_properties",
-      toRpcArgs(data, limit, (data.page - 1) * limit) as never,
+      toRpcArgs(data, limit, (data.page - 1) * limit, condoIds) as never,
     );
     if (error) {
       console.error("search_properties", error);
@@ -98,6 +99,35 @@ export const findPropertyByCode = createServerFn({ method: "GET" })
       .eq("status", "active").ilike("internal_code", data.code).limit(2);
     if (error || rows?.length !== 1) return null;
     return rows[0]?.slug ?? null;
+  });
+
+// Condomínios oficiais com imóveis ativos, contados respeitando os demais
+// filtros ativos (finalidade, tipo, cidade, bairro, dorm., vagas, valor, área).
+export type CondoFacet = { id: string; name: string; slug: string; n: number };
+
+const condoFacetInput = z.object({
+  purpose: z.string().max(10), type: z.string().max(60), city: z.string().max(80),
+  neighborhood: z.string().max(120),
+  bedrooms: z.number().int().min(0).max(20), parking: z.number().int().min(0).max(20),
+  priceMin: z.number().min(0), priceMax: z.number().min(0),
+  min: z.number().min(0).optional(), max: z.number().min(0).optional(),
+  areaMin: z.number().min(0),
+});
+
+export const getCondoFacets = createServerFn({ method: "GET" })
+  .inputValidator((d: Partial<ImoveisSearch>) => condoFacetInput.parse({ ...IMOVEIS_DEFAULTS, ...d }))
+  .handler(async ({ data }): Promise<CondoFacet[]> => {
+    const s = effectiveSearch({ ...IMOVEIS_DEFAULTS, ...data });
+    const { data: rows, error } = await publicClient().rpc("property_condo_facets", {
+      p_purpose: s.purpose, p_type: s.type, p_city: s.city, p_neighborhood: s.neighborhood,
+      p_bedrooms: s.bedrooms, p_parking: s.parking,
+      p_price_min: s.priceMin, p_price_max: s.priceMax, p_area_min: s.areaMin,
+    } as never);
+    if (error) {
+      console.error("property_condo_facets", error);
+      throw new Error("Não foi possível carregar os condomínios.");
+    }
+    return (rows ?? []) as unknown as CondoFacet[];
   });
 
 export type Facets = {
