@@ -246,6 +246,19 @@ export function PropertyFilters({
     navigate({ search: (prev: FilterState) => ({ ...prev, ...patch, page: 1 }), resetScroll: false });
   };
 
+  // Marca/desmarca condomínio lendo a URL no momento do clique — cliques
+  // rápidos em sequência não se sobrescrevem.
+  const toggleCondo = (slug: string) => {
+    navigate({
+      search: (prev: FilterState) => {
+        const cur = prev.condo ? prev.condo.split(",").map((t) => t.trim()).filter(Boolean) : [];
+        const next = cur.includes(slug) ? cur.filter((x) => x !== slug) : [...cur, slug];
+        return { ...prev, condo: next.join(","), page: 1 };
+      },
+      resetScroll: false,
+    });
+  };
+
   const clear = () =>
     navigate({
       search: {
@@ -379,8 +392,11 @@ export function PropertyFilters({
         <div className="grid grid-cols-1 md:grid-cols-5 gap-2 md:gap-3">
           <CondoMultiSelect
             options={options.condoOptions ?? []}
-            selected={condoTokens.filter((t) => options.condoOptions?.some((o) => o.slug === t) ?? false)}
-            onChange={(slugs) => update({ condo: slugs.join(",") })}
+            selected={condoTokens
+              .map((t) => options.condoOptions?.find((o) => o.slug === t || o.name === t)?.slug ?? t)
+              .filter((t) => options.condoOptions?.some((o) => o.slug === t) ?? false)}
+            onToggle={toggleCondo}
+            onClear={() => update({ condo: "" })}
           />
           <select className={selectCls} value={state.areaMin} onChange={(e) => update({ areaMin: Number(e.target.value) })} aria-label="Área mínima">
             <option value="0">Área mínima</option>
