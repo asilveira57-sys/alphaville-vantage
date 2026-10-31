@@ -39,9 +39,11 @@ export const Route = createFileRoute("/imoveis/")({
       getSearchFacets(),
       getCondoFacets({ data: deps }),
     ]);
-    return { ...result, facets, condoOptions };
+    // Combinações de 2+ condomínios não entram no índice; canonical aponta /imoveis.
+    const noindex = (deps.condo ?? "").split(",").filter((t) => t.trim()).length >= 2;
+    return { ...result, facets, condoOptions, noindex };
   },
-  head: ({ search }) => ({
+  head: ({ loaderData }) => ({
     meta: [
       { title: "Imóveis em Alphaville — S.A Imóveis Alphaville" },
       { name: "description", content: "Catálogo de imóveis para venda e locação em Alphaville, Tamboré, Barueri e Santana de Parnaíba." },
@@ -50,10 +52,7 @@ export const Route = createFileRoute("/imoveis/")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/imoveis` },
       { name: "twitter:card", content: "summary_large_image" },
-      // Combinações de 2+ condomínios não entram no índice; canonical aponta /imoveis.
-      ...((search?.condo ?? "").split(",").filter((t) => t.trim()).length >= 2
-        ? [{ name: "robots", content: "noindex,follow" }]
-        : []),
+      ...(loaderData?.noindex ? [{ name: "robots", content: "noindex,follow" }] : []),
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/imoveis` }],
   }),

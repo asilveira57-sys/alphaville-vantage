@@ -28,7 +28,7 @@ const searchInput = z.object({
   neighborhood: z.string().max(120), condo: z.string().max(600),
   bedrooms: z.number().int().min(0).max(20), parking: z.number().int().min(0).max(20),
   priceMin: z.number().min(0), priceMax: z.number().min(0),
-  min: z.number().min(0).optional(), max: z.number().min(0).optional(),
+  min: z.number().min(0).default(0), max: z.number().min(0).default(0),
   areaMin: z.number().min(0),
   sort: z.string().max(20), q: z.string().max(200), page: z.number().int().min(1).max(1000),
   limit: z.number().int().min(1).max(60).optional(),
@@ -110,7 +110,7 @@ const condoFacetInput = z.object({
   neighborhood: z.string().max(120),
   bedrooms: z.number().int().min(0).max(20), parking: z.number().int().min(0).max(20),
   priceMin: z.number().min(0), priceMax: z.number().min(0),
-  min: z.number().min(0).optional(), max: z.number().min(0).optional(),
+  min: z.number().min(0).default(0), max: z.number().min(0).default(0),
   areaMin: z.number().min(0),
 });
 
