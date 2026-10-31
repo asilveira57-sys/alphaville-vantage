@@ -189,7 +189,7 @@ function CondoMultiSelect({
               {selected.length > 0 && (
                 <button
                   type="button"
-                  onClick={() => onChange([])}
+                  onClick={onClear}
                   className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-white/70 border border-white/15 rounded-sm"
                 >
                   Limpar
