@@ -51,7 +51,7 @@ async function condoDirectory(): Promise<CondoRow[]> {
 }
 
 const normTxt = (s: string) =>
-  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const slugTxt = (s: string) => normTxt(s).replace(/\s+/g, "-");
 
 export function resolveCondoTokens(param: string, rows: CondoRow[]): string[] {
