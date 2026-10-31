@@ -93,11 +93,13 @@ function PropertyCard({ p, eager, filteredPurpose }: { p: SearchCard; eager?: bo
 }
 
 function ImoveisPage() {
-  const { items, total: filteredCount, facets } = Route.useLoaderData();
+  const { items, total: filteredCount, facets, condoOptions } = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const options: FilterOptions = facets;
+  const options: FilterOptions = { ...facets, condoOptions };
   const total = facets.total;
+  // min/max são os parâmetros atuais; priceMin/priceMax chegam só de links antigos.
+  const filterState = { ...search, priceMin: search.min || search.priceMin, priceMax: search.max || search.priceMax };
 
   const totalPages = Math.max(1, Math.ceil(filteredCount / PAGE_SIZE));
   const currentPage = Math.min(Math.max(1, search.page || 1), totalPages);
@@ -129,7 +131,7 @@ function ImoveisPage() {
         </div>
       </section>
 
-      <PropertyFilters options={options} state={search} filteredCount={filteredCount} totalCount={total} />
+      <PropertyFilters options={options} state={filterState} filteredCount={filteredCount} totalCount={total} />
 
       {filteredCount > 0 && (
         <section className="px-6 pt-8">
