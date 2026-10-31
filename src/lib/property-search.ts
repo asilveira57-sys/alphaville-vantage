@@ -177,7 +177,32 @@ export function residualLocationQuery(raw: string): string {
   for (const c of CITIES) for (const k of c.keys) t = t.replace(new RegExp(`\\b${k}\\b`, "g"), " ");
   for (const b of NEIGHBORHOODS) for (const k of b.keys) t = t.replace(new RegExp(`\\b${k}\\b`, "g"), " ");
   // conectivos
-  t = t.replace(/\b(em|no|na|nos|nas|com|de|da|do|das|dos|para|pra|e|o|a|os|as|um|uma)\b/g, " ");
+  t = t.replace(/\b(em|no|na|nos|nas|com|de|da|do|das|dos|para|pra|e|o|a|os|as)\b/g, " ");
 
-  return t.replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+  t = t.replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+  return canonicalNumWords(t);
+}
+
+// Equivalência de números em nomes de condomínio:
+// "Residencial 1" = "Residencial I" = "Residencial Um" = "Residencial 01".
+// Espelha public.condo_num_norm do banco — manter os dois iguais.
+const NUM_WORDS: Record<string, string> = {
+  um: "1", uma: "1", primeiro: "1", primeira: "1",
+  dois: "2", duas: "2", segundo: "2", segunda: "2",
+  tres: "3", terceiro: "3", terceira: "3",
+  quatro: "4", cinco: "5", seis: "6", sete: "7", oito: "8", nove: "9",
+  dez: "10", onze: "11", doze: "12",
+  ii: "2", iii: "3", iv: "4", vi: "6", vii: "7", viii: "8", ix: "9", xi: "11", xii: "12",
+};
+
+export function canonicalNumWords(t: string): string {
+  let out = t.replace(
+    /\b(um|uma|primeiro|primeira|dois|duas|segundo|segunda|tres|terceiro|terceira|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|ii|iii|iv|vi|vii|viii|ix|xi|xii)\b/g,
+    (w) => NUM_WORDS[w] ?? w,
+  );
+  // "i"/"v" sozinhos só viram número depois de outra palavra (ex.: "residencial i" -> "residencial 1")
+  out = out.replace(/([a-z0-9])\s+(i|v)\b/g, (_m, pre, w) => `${pre} ${w === "i" ? "1" : "5"}`);
+  // zeros à esquerda: "residencial 01" = "residencial 1"
+  out = out.replace(/\b0+(\d)\b/g, "$1");
+  return out.replace(/\s+/g, " ").trim();
 }

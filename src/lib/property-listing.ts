@@ -3,6 +3,15 @@ import { isValidPropertyCode } from "./property-seo";
 export const SEARCH_DELAY_MS = 400;
 export const listingCode = (code?: string | null) => isValidPropertyCode(code) ? code?.trim().toUpperCase() ?? null : null;
 export const appliedQuery = (q: string) => q.trim().length >= 2 || /^(?:[a-z]{1,3}\d*|\d+)$/i.test(q.trim()) ? q.trim() : "";
+// Campos "Valor de/até": máscara R$ com separador de milhar, sem centavos.
+export const maskBrlInput = (s: string) => {
+  const d = s.replace(/\D/g, "").slice(0, 12);
+  return d ? `R$ ${parseInt(d, 10).toLocaleString("pt-BR")}` : "";
+};
+export const parseBrlInput = (s: string) => {
+  const d = s.replace(/\D/g, "");
+  return d ? parseInt(d, 10) : 0;
+};
 const positive = (n?: number | null) => n != null && n > 0 ? n : null;
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).replace(/\s/g, " ");
 export function listingPrices(sale?: number | null, rent?: number | null, filter = "", purpose?: string | null) {
