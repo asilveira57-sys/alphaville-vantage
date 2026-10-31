@@ -11,8 +11,10 @@ export type ImoveisSearch = {
   condo: string;
   bedrooms: number;
   parking: number;
-  priceMin: number;
-  priceMax: number;
+  priceMin: number; // legado — URL nova usa min/max
+  priceMax: number; // legado
+  min: number;
+  max: number;
   areaMin: number;
   sort: string;
   q: string;
@@ -21,12 +23,19 @@ export type ImoveisSearch = {
 
 export const IMOVEIS_DEFAULTS: ImoveisSearch = {
   purpose: "", type: "", city: "", neighborhood: "", condo: "",
-  bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, areaMin: 0,
+  bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, min: 0, max: 0, areaMin: 0,
   sort: "price_asc", q: "", page: 1,
 };
 
 export function effectiveSearch(s: ImoveisSearch): ImoveisSearch {
-  s = { ...s, q: appliedQuery(s.q), sort: ["recent", "price_asc", "price_desc", "area_desc"].includes(s.sort) ? s.sort : "price_asc" };
+  s = {
+    ...s,
+    q: appliedQuery(s.q),
+    sort: ["recent", "price_asc", "price_desc", "area_desc"].includes(s.sort) ? s.sort : "price_asc",
+    // Compatibilidade: ?priceMin=/priceMax= antigos viram min/max.
+    priceMin: s.min || s.priceMin || 0,
+    priceMax: s.max || s.priceMax || 0,
+  };
   if (!s.q) return s;
   const parsed = interpretQuery(s.q);
   return {
@@ -58,14 +67,20 @@ export function textTokens(q: string): string[] {
     .filter((t) => t && !STOP.has(t) && !STREET.has(t));
 }
 
-export function toRpcArgs(raw: ImoveisSearch, limit: number, offset: number) {
+// condoIds: quando o parâmetro condo (slugs separados por vírgula) resolveu para
+// ids da Central de Condomínios, o filtro é exato por condominium_id e o texto
+// legado p_condo é ignorado. null = sem filtro de condomínio; [] = manter texto.
+export function toRpcArgs(raw: ImoveisSearch, limit: number, offset: number, condoIds?: string[] | null) {
   const s = effectiveSearch(raw);
   const tokens = s.q ? textTokens(s.q) : [];
   const phrase = tokens.length ? `(^|[^a-z0-9])${tokens.join("[^a-z0-9]{0,3}")}([^a-z0-9]|$)` : null;
+  const byIds = !!condoIds?.length;
   return {
-    p_purpose: s.purpose, p_type: s.type, p_city: s.city, p_neighborhood: s.neighborhood, p_condo: s.condo,
+    p_purpose: s.purpose, p_type: s.type, p_city: s.city, p_neighborhood: s.neighborhood,
+    p_condo: byIds ? "" : s.condo,
     p_bedrooms: s.bedrooms, p_parking: s.parking, p_price_min: s.priceMin, p_price_max: s.priceMax,
     p_area_min: s.areaMin, p_sort: s.sort, p_phrase: phrase as string | undefined, p_tokens: tokens,
     p_limit: limit, p_offset: offset,
+    p_condo_ids: byIds ? condoIds : undefined,
   };
 }

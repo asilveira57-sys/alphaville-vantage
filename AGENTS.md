@@ -19,3 +19,4 @@
 - Property titles/H1/seo_title/WhatsApp use internal_code as 'Cód.' (URL number only as fallback) and include bedrooms but never suites; suites > bedrooms are stored/shown empty (safeSuites + apiFactPatch), so bad counts never reach public text.
 - Owner-acquisition pages (/anuncie-seu-imovel, /vender-meu-imovel, /alugar-meu-imovel) reuse submitRadarLead with conversion_context captacao_venda/captacao_locacao; the leads_from_radar trigger maps that to CRM source, so no new table is needed.
 - Contact page form saves to contact_messages via submitContactMessage (honeypot + signup-guard IP limit), and a trigger feeds leads with source 'contato'.
+- Filtro de condomínio de /imoveis é seleção múltipla por condominium_id (slugs na URL ?condo=a,b); equivalência numérica 1/I/Um via public.condo_num_norm (SQL) espelhada em canonicalNumWords (src/lib/property-search.ts) — manter os dois iguais e a paridade com property-filter-legacy.ts.
