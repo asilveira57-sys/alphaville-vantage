@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { BrandPlaceholder } from "@/components/brand-placeholder";
 import { listingPrices, listingCode } from "@/lib/property-listing";
+import { PropertyShareTrigger } from "@/components/property-share";
 import type { OpportunityDTO, OpportunitySignal } from "@/lib/opportunities.functions";
 
 const brl = (n: number | null | undefined, digits = 0) =>
@@ -101,6 +102,7 @@ export function OpportunityCard({
   const signal = item.signals[0];
 
   return (
+    <div className="relative h-full">
     <Link
       to={"/imoveis/$slug" as never}
       params={{ slug: item.slug } as never}
@@ -187,5 +189,7 @@ export function OpportunityCard({
         </span>
       </div>
     </Link>
+    <PropertyShareTrigger slug={item.slug} purpose={filteredPurpose} />
+    </div>
   );
 }

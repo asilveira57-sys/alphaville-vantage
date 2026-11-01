@@ -9,6 +9,10 @@ import { SaveSearchLead, type PdfProperty } from "@/components/save-search-lead"
 import { searchProperties, getSearchFacets, getCondoFacets, PAGE_SIZE, type SearchCard } from "@/lib/property-search.functions";
 import { effectiveSearch, IMOVEIS_DEFAULTS } from "@/lib/property-query";
 import { SITE_URL } from "@/lib/site";
+import { Button } from "@/components/ui/button";
+import { MessageCircle } from "lucide-react";
+import { propertyShareFacts, selectionShareMessage, selectionSharePath, shareCoverImage } from "@/lib/property-sharing";
+import { listingPrices } from "@/lib/property-listing";
 
 const searchSchema = z.object({
   purpose: fallback(z.string(), "").default(""),
@@ -41,21 +45,28 @@ export const Route = createFileRoute("/imoveis/")({
     ]);
     // Combinações de 2+ condomínios não entram no índice; canonical aponta /imoveis.
     const noindex = (deps.condo ?? "").split(",").filter((t) => t.trim()).length >= 2;
-    return { ...result, facets, condoOptions, noindex };
+    return { ...result, facets, condoOptions, noindex, sharePath: selectionSharePath(deps), sharePurpose: effectiveSearch(deps).purpose };
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData }) => {
+    const first = loaderData?.items[0];
+    const title = loaderData?.sharePath !== "/imoveis" ? `${loaderData?.total ?? 0} imóveis selecionados — S.A Imóveis Alphaville` : "Imóveis em Alphaville — S.A Imóveis Alphaville";
+    const description = first ? `${loaderData?.total} imóveis na seleção. ${listingPrices(first.price_sale, first.price_rent, loaderData?.sharePurpose, first.purpose).primary} · ${propertyShareFacts({ ...first, condominium_name: first.condo_name })}` : "Catálogo de imóveis para venda e locação em Alphaville, Tamboré, Barueri e Santana de Parnaíba.";
+    const image = shareCoverImage(first?.image);
+    const url = `${SITE_URL}${loaderData?.noindex ? "/imoveis" : loaderData?.sharePath ?? "/imoveis"}`;
+    return {
     meta: [
-      { title: "Imóveis em Alphaville — S.A Imóveis Alphaville" },
+      { title },
       { name: "description", content: "Catálogo de imóveis para venda e locação em Alphaville, Tamboré, Barueri e Santana de Parnaíba." },
-      { property: "og:title", content: "Imóveis em Alphaville" },
-      { property: "og:description", content: "Portfólio S.A: casas, apartamentos e lançamentos." },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: `${SITE_URL}/imoveis` },
+      { property: "og:url", content: url },
+      ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }, { property: "og:image:width", content: "1200" }, { property: "og:image:height", content: "630" }] : []),
       { name: "twitter:card", content: "summary_large_image" },
       ...(loaderData?.noindex ? [{ name: "robots", content: "noindex,follow" }] : []),
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/imoveis` }],
-  }),
+    links: [{ rel: "canonical", href: url }],
+  }; },
   errorComponent: ({ error }) => (
     <SiteLayout>
       <section className="px-6 py-24 max-w-7xl mx-auto">
@@ -138,7 +149,10 @@ function ImoveisPage() {
             <p className="text-sm text-muted-foreground">
               Gostou desta seleção? Salve os <strong className="text-ink">{filteredCount} imóveis</strong> em PDF e envie para você.
             </p>
-            <SaveSearchLead loadItems={loadPdfItems} total={filteredCount} query={search.q || ""} filters={effectiveSearch(search) as unknown as Record<string, unknown>} />
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <SaveSearchLead loadItems={loadPdfItems} total={filteredCount} query={search.q || ""} filters={effectiveSearch(search) as unknown as Record<string, unknown>} />
+              <Button asChild variant="outline"><a target="_blank" rel="noopener noreferrer" href={`https://wa.me/?text=${encodeURIComponent(selectionShareMessage(filteredCount, search))}`}><MessageCircle />Compartilhar esta seleção</a></Button>
+            </div>
           </div>
         </section>
       )}

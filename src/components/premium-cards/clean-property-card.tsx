@@ -4,6 +4,7 @@ import { resolveImage } from "@/lib/image-fallbacks";
 import { resized, onImgFallback } from "@/lib/img-resize";
 import { BrandPlaceholder } from "@/components/brand-placeholder";
 import { listingPrices, listingCode } from "@/lib/property-listing";
+import { PropertyShareTrigger } from "@/components/property-share";
 
 const fmt = (n: number | null | undefined) =>
   n == null
@@ -68,6 +69,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
     });
 
   return (
+    <div className="relative h-full">
     <Link
       to={"/imoveis/$slug" as never}
       params={{ slug: p.slug } as never}
@@ -130,5 +132,7 @@ export function CleanPropertyCard(p: CleanPropertyCardProps) {
         </span>
       </div>
     </Link>
+    <PropertyShareTrigger slug={p.slug} purpose={p.filteredPurpose} />
+    </div>
   );
 }
