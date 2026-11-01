@@ -17,6 +17,9 @@ import {
 } from "@/lib/opportunities.functions";
 import { useEffect, useRef } from "react";
 import { PropertyPhotoTools } from "@/components/admin/property-photo-tools";
+import { PropertyShareBlock } from "@/components/property-share";
+import { propertyShareFacts, shareCoverImage } from "@/lib/property-sharing";
+import { listingPrices } from "@/lib/property-listing";
 
 
 const fmtPrice = (n: number | null) =>
@@ -52,16 +55,18 @@ export const Route = createFileRoute("/imoveis/$slug")({
     const title = p?.seo_title ?? `${p?.title ?? "Imóvel"} — S.A Imóveis Alphaville`;
     const description = p?.seo_description ?? p?.description?.slice(0, 160) ?? "Imóvel em Alphaville.";
     const image = (p?.images?.[0] as string | undefined) ?? undefined;
+    const shareImage = shareCoverImage(image);
+    const shareDescription = p ? [listingPrices(p.price_sale, p.price_rent, p.purpose === "rent" ? "rent" : "", p.purpose).primary, propertyShareFacts(p)].filter(Boolean).join(" · ") : description;
     const jsonLd = p ? buildRealEstateJsonLd(p as unknown as SeoSource, { url, title, description, image }) : null;
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
-        { property: "og:description", content: description },
+        { property: "og:description", content: shareDescription },
         { property: "og:type", content: "product" },
         { property: "og:url", content: url },
-        ...(image ? [{ property: "og:image", content: image }] : []),
+        ...(shareImage ? [{ property: "og:image", content: shareImage }, { name: "twitter:image", content: shareImage }, { property: "og:image:width", content: "1200" }, { property: "og:image:height", content: "630" }] : []),
         { name: "twitter:card", content: "summary_large_image" },
         ...(p?.status === "paused" ? [{ name: "robots", content: "noindex, follow" }] : []),
       ],
@@ -164,6 +169,7 @@ function PropertyDetail() {
             {sale && <span className="font-serif text-2xl">{sale}</span>}
             {rent && <span className="text-muted-foreground">{rent}/mês</span>}
           </div>
+          <PropertyShareBlock property={p} />
         </div>
       </section>
 

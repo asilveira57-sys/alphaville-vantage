@@ -2,6 +2,7 @@ import * as React from "react";
 import { BedDouble, Car, Ruler } from "lucide-react";
 import { PremiumCard } from "@/components/premium-card";
 import { listingPrices, listingCode } from "@/lib/property-listing";
+import { PropertyShareTrigger } from "@/components/property-share";
 
 const fmt = (n: number | null | undefined) =>
   n == null ? null : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
@@ -71,6 +72,7 @@ export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
   const eyebrow = [p.propertyType, p.neighborhood ?? p.city, code ? `Cód. ${code}` : null].filter(Boolean).join(" · ") || "Imóvel";
 
   return (
+    <div className="relative h-full">
     <PremiumCard
       to={"/imoveis/$slug" as never}
       params={{ slug: p.slug } as never}
@@ -84,5 +86,7 @@ export function PremiumPropertyCard(p: PremiumPropertyCardProps) {
       fallback={{ type: "property", region: p.region ?? p.city, seed: p.slug }}
       footer={footer}
     />
+    <PropertyShareTrigger slug={p.slug} purpose={p.filteredPurpose} />
+    </div>
   );
 }

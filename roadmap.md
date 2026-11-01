@@ -1,4 +1,9 @@
 # Visual da home
+## Compartilhamento (01/11)
+- [x] Opções de compartilhamento perto do preço e nos cards; cópia e compartilhamento nativo conferidos.
+- [x] Compartilhar seleção com filtros atuais e contagem total.
+- [x] Tags da prévia conferidas no HTML, mensagens/UTM testadas (15 testes).
+- [ ] Confirmar foto na prévia real do WhatsApp após publicar — redimensionador retornou HTTP 403 na verificação externa; tags apontam capa real com 1200x630.
 ## Ajustes nas listagens
 - [x] Corrigir busca local com 400 ms, Enter e abertura por código.
 - [x] Unificar preços por finalidade e código nos cards/PDF.
