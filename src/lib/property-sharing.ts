@@ -18,7 +18,7 @@ export function trackedShareUrl(path: string, channel: ShareChannel) {
 export function shortShareTitle(title: string) {
   return title.split(/\s+[–—-]\s+/)[0].replace(/,\s*\d+\s*dorm\..*$/i, "").replace(/\s*\|\s*S\.A.*$/i, "").trim();
 }
-export function propertyShareFacts(p: ShareProperty, purpose = "") {
+export function propertyShareFacts(p: ShareProperty) {
   const area = p.area_useful || p.area_built || p.area_total;
   return [p.bedrooms && p.bedrooms > 0 ? `${p.bedrooms} dorm.` : null,
     area && area > 0 ? `${Number(area).toLocaleString("pt-BR")} m²` : null,
