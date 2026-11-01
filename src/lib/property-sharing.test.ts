@@ -1,0 +1,11 @@
+import { describe, expect, it } from "vitest";
+import { propertyShareMessage, selectionShareMessage, shareCoverImage, trackedShareUrl } from "./property-sharing";
+const p = { slug: "apartamento-bellagio", title: "Apartamento à venda no Bellagio, 2 dorm., 62 m² – Alphaville, Barueri – Cód. AP06837", internal_code: "AP06837", price_sale: 957000, price_rent: 5000, purpose: "both", bedrooms: 2, area_useful: 62, condominium_name: "Bellagio", neighborhood: "Alphaville" };
+describe("property sharing rules", () => {
+  it("uses primary sale price and structured details", () => { const text = propertyShareMessage(p); expect(text).toContain("– R$ 957.000\n\n2 dorm. · 62 m² · Bellagio, Alphaville\n\nCód. AP06837"); });
+  it("uses rent price when sharing from rent selection", () => { expect(propertyShareMessage(p, "whatsapp", "rent")).toContain("– R$ 5.000/mês"); });
+  it("omits invalid reference codes", () => { expect(propertyShareMessage({ ...p, internal_code: "ORMA" })).not.toContain("Cód."); });
+  it("tracks every channel without losing filters", () => { for (const channel of ["whatsapp", "facebook", "email", "copia"] as const) { const url = new URL(trackedShareUrl("/imoveis?condo=residencial-1,residencial-2&min=1000000", channel)); expect(url.searchParams.get("utm_source")).toBe(channel); expect(url.searchParams.get("utm_medium")).toBe("compartilhar"); expect(url.searchParams.get("min")).toBe("1000000"); expect(url.searchParams.get("condo")).toBe("residencial-1,residencial-2"); } });
+  it("shares total count and current selection", () => { const text = selectionShareMessage(51, { purpose: "rent", condo: "bellagio", min: 5000, page: 2 }); expect(text).toContain("Separei 51 imóveis para você:"); const url = new URL(text.split(": ")[1]); expect(url.searchParams.get("purpose")).toBe("rent"); expect(url.searchParams.get("page")).toBe("2"); });
+  it("uses the actual cover at 1200x630 and no placeholder", () => { const url = new URL(shareCoverImage("https://static.tokkobroker.com/cover.jpg") ?? ""); expect(url.searchParams.get("url")).toBe("static.tokkobroker.com/cover.jpg"); expect(url.searchParams.get("w")).toBe("1200"); expect(url.searchParams.get("h")).toBe("630"); expect(shareCoverImage(null)).toBeUndefined(); });
+});
