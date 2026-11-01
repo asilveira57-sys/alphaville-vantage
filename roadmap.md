@@ -1,4 +1,8 @@
 # Visual da home
+## Compartilhamento (01/11)
+- [ ] Opções de compartilhamento perto do preço e nos cards.
+- [ ] Compartilhar seleção com filtros atuais e contagem total.
+- [ ] Ajustar e conferir prévias com capa real e testar mensagens/UTM.
 ## Ajustes nas listagens
 - [x] Corrigir busca local com 400 ms, Enter e abertura por código.
 - [x] Unificar preços por finalidade e código nos cards/PDF.
