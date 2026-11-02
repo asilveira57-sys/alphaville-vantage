@@ -19,7 +19,7 @@ async function requireAdmin(context: Ctx) {
     _user_id: context.userId,
     _role: "admin",
   });
-  if (!data) throw new Error("Acesso restrito a administradores");
+  if (!data) throw new Response("Forbidden: acesso restrito a administradores", { status: 403 });
 }
 
 const isUsableImg = (u: string) =>
@@ -189,7 +189,7 @@ export const savePropertyToAcervo = createServerFn({ method: "POST" })
     // permanente; o link expira, mas pode ser gerado de novo aqui.
     const { data: signed } = await supabaseAdmin.storage
       .from("acervo")
-      .createSignedUrls(paths, 60 * 60 * 24 * 7);
+      .createSignedUrls(paths, 60 * 5);
     const links = (signed ?? [])
       .map((s, i) => ({ path: paths[i], url: s?.signedUrl ?? null }))
       .filter((l) => l.url);
