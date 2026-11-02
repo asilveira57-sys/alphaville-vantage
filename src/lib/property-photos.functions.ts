@@ -185,7 +185,7 @@ export const savePropertyToAcervo = createServerFn({ method: "POST" })
 
     await supabaseAdmin.from("properties").update({ in_acervo: true }).eq("id", p.id);
 
-    // Links assinados de 7 dias (bucket privado). O caminho no acervo é
+    // Links assinados de 5 minutos (bucket privado). O caminho no acervo é
     // permanente; o link expira, mas pode ser gerado de novo aqui.
     const { data: signed } = await supabaseAdmin.storage
       .from("acervo")

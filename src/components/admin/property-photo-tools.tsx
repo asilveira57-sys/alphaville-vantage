@@ -87,7 +87,7 @@ export function PropertyPhotoTools({ propertyId, inAcervo }: { propertyId: strin
       {msg && <p className="text-muted-foreground">{msg}</p>}
       {links && (
         <details>
-          <summary className="cursor-pointer underline">Ver links do acervo (válidos por 7 dias)</summary>
+          <summary className="cursor-pointer underline">Ver links do acervo (válidos por 5 minutos)</summary>
           <ul className="mt-1 space-y-0.5 break-all">
             {links.map((l) => (
               <li key={l.path}>
