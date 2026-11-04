@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { zipSync, strToU8 } from "fflate";
+import { buildPropertyPhotoZip } from "@/lib/property-photo-zip";
 
 // Ferramentas de fotos do imóvel — somente admin.
 // 1) Baixar fotos (ZIP): montado em memória no servidor, nada é armazenado.
@@ -122,24 +122,11 @@ export const downloadPropertyPhotosZip = createServerFn({ method: "POST" })
     const p = await loadProperty(context.supabase, data.propertyId);
     if (!p.images.length) throw new Error("Este imóvel não tem fotos");
 
-    const files: Record<string, Uint8Array> = {};
-    let fetched = 0;
-    // Baixa em lotes de 5 para não sobrecarregar a origem.
-    for (let i = 0; i < p.images.length; i += 5) {
-      const batch = p.images.slice(i, i + 5);
-      const results = await Promise.all(batch.map(fetchPhoto));
-      results.forEach((r, j) => {
-        if (!r) return;
-        const n = String(i + j + 1).padStart(3, "0");
-        files[`${n}.${extOf(batch[j], r.contentType)}`] = r.bytes;
-        fetched++;
-      });
-    }
-    if (!fetched) throw new Error("Não foi possível baixar nenhuma foto da origem");
-
-    const zipped = zipSync(files, { level: 0 }); // fotos já são comprimidas
-    const condo = p.condoName ? `-${slugify(p.condoName)}` : "";
-    const filename = `${slugify(String(p.code))}${condo}.zip`;
+    const archive = await buildPropertyPhotoZip(String(p.code), p.images, async (url) => {
+      const photo = await fetchPhoto(url);
+      return photo ? { bytes: photo.bytes, extension: extOf(url, photo.contentType) } : null;
+    });
+    const zipped = archive.bytes;
 
     // Base64 em chunks (sem Node Buffer no worker).
     let bin = "";
@@ -147,7 +134,7 @@ export const downloadPropertyPhotosZip = createServerFn({ method: "POST" })
     for (let i = 0; i < zipped.length; i += CHUNK) {
       bin += String.fromCharCode(...zipped.subarray(i, i + CHUNK));
     }
-    return { filename, base64: btoa(bin), count: fetched, total: p.images.length };
+    return { filename: archive.filename, base64: btoa(bin), count: archive.count, total: archive.total };
   });
 
 export const savePropertyToAcervo = createServerFn({ method: "POST" })
