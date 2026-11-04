@@ -1592,6 +1592,7 @@ export type Database = {
           parking_covered: number | null
           parking_uncovered: number | null
           postal_code: string | null
+          previous_codes: string[]
           price_rent: number | null
           price_sale: number | null
           property_type: string | null
@@ -1674,6 +1675,7 @@ export type Database = {
           parking_covered?: number | null
           parking_uncovered?: number | null
           postal_code?: string | null
+          previous_codes?: string[]
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
@@ -1756,6 +1758,7 @@ export type Database = {
           parking_covered?: number | null
           parking_uncovered?: number | null
           postal_code?: string | null
+          previous_codes?: string[]
           price_rent?: number | null
           price_sale?: number | null
           property_type?: string | null
@@ -2366,6 +2369,8 @@ export type Database = {
       }
       source_reconciliation_runs: {
         Row: {
+          alerts: Json | null
+          approved_at: string | null
           details: Json
           error: string | null
           errors: Json
@@ -2377,6 +2382,7 @@ export type Database = {
           origin_count: number | null
           paths_updated: number
           paused: number
+          pending_deactivation: Json | null
           portal_active: number | null
           portal_paused: number | null
           reactivated: number
@@ -2386,6 +2392,8 @@ export type Database = {
           triggered_by: string
         }
         Insert: {
+          alerts?: Json | null
+          approved_at?: string | null
           details?: Json
           error?: string | null
           errors?: Json
@@ -2397,6 +2405,7 @@ export type Database = {
           origin_count?: number | null
           paths_updated?: number
           paused?: number
+          pending_deactivation?: Json | null
           portal_active?: number | null
           portal_paused?: number | null
           reactivated?: number
@@ -2406,6 +2415,8 @@ export type Database = {
           triggered_by?: string
         }
         Update: {
+          alerts?: Json | null
+          approved_at?: string | null
           details?: Json
           error?: string | null
           errors?: Json
@@ -2417,6 +2428,7 @@ export type Database = {
           origin_count?: number | null
           paths_updated?: number
           paused?: number
+          pending_deactivation?: Json | null
           portal_active?: number | null
           portal_paused?: number | null
           reactivated?: number
