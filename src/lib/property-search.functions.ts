@@ -97,8 +97,13 @@ export const findPropertyByCode = createServerFn({ method: "GET" })
     if (!/^[a-z]{1,3}\d*$/i.test(data.code) && !/^\d+$/.test(data.code)) return null;
     const { data: rows, error } = await publicClient().from("properties").select("slug")
       .eq("status", "active").ilike("internal_code", data.code).limit(2);
-    if (error || rows?.length !== 1) return null;
-    return rows[0]?.slug ?? null;
+    if (error) return null;
+    if (rows?.length === 1) return rows[0].slug;
+    if (rows?.length) return null;
+    // Código antigo (apelido): a Univen trocou o código, o imóvel continua achável.
+    const { data: old } = await publicClient().from("properties").select("slug")
+      .eq("status", "active").contains("previous_codes", [data.code.toUpperCase()]).limit(2);
+    return old?.length === 1 ? old[0].slug : null;
   });
 
 // Condomínios oficiais com imóveis ativos, contados respeitando os demais

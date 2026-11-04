@@ -20,7 +20,7 @@ export function ReconciliationAlert() {
   return (
     <div className="border border-destructive bg-destructive/10 text-destructive px-4 py-3 text-sm flex flex-wrap items-center justify-between gap-2">
       <span>
-        <b>{data.status === "blocked" ? "Verificação diária travada" : "Verificação diária falhou"}</b>{" "}
+        <b>{({ blocked: "Sincronização travada", incomplete: "Sincronização incompleta", held: "Desativações aguardando aprovação", stalled: "Sincronização travou" } as Record<string, string>)[data.status] ?? "Sincronização falhou"}</b>{" "}
         ({new Date(data.started_at).toLocaleString("pt-BR")}): {data.error ?? "erro desconhecido"}
       </span>
       <Link to="/admin-conciliacao" className="underline">Ver conciliação →</Link>
