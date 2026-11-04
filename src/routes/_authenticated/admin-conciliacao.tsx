@@ -62,7 +62,7 @@ function Page() {
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left">
-            <tr>{["Início", "Origem", "Situação", "Na origem", "Ativos", "Pausados", "Desativou", "Reativou", "Importou", "Juntou", "Endereços", "Faltando", "Erros"].map((h) => <th key={h} className="p-2">{h}</th>)}</tr>
+            <tr>{["Início", "Origem", "Situação", "Na origem", "Ativos", "Pausados", "Desativou", "Reativou", "Importou", "Juntou", "Atualizou", "Faltando", "Erros"].map((h) => <th key={h} className="p-2">{h}</th>)}</tr>
           </thead>
           <tbody>
             {(runs ?? []).map((r) => (
