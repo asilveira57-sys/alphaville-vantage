@@ -238,54 +238,148 @@ export async function importFromOrigin(sb: SB, url: string, cities: OfficialCity
 
 export type RunOptions = { triggeredBy: string; skipImports?: boolean };
 
+/** Item 1b: só desativa se a coleta veio completa e com >= 95% da última execução completa. */
+export const MIN_COMPLETE_RATIO = 0.95;
+/** Item 1c: uma execução nunca desativa mais que isso sem aprovação no admin. */
+export const MAX_DEACTIVATIONS_PER_RUN = 50;
+/** Item 1d: alerta quando desativar mais que isso de uma vez. */
+export const ALERT_DEACTIVATIONS = 20;
+/** Execução "rodando" há mais que isso é considerada travada. */
+export const STALE_RUN_MINUTES = 15;
+/** O cron corta a conexão em 10 min; a coleta precisa terminar antes. */
+const FETCH_BUDGET_MS = 5 * 60 * 1000;
+
 /** Rotina completa pela API Tokko. Sempre registra a execução em source_reconciliation_runs. */
 export const RECONCILIATION_SUSPENDED = false;
+
+/** Decide se a execução pode desativar imóveis (puro, testado). */
+export function deactivationGate(fetched: { count: number; complete: boolean }, lastCompleteCount: number | null) {
+  if (!fetched.complete) return { allow: false, reason: "coleta incompleta (nem todas as páginas vieram)" };
+  if (lastCompleteCount && fetched.count < Math.ceil(lastCompleteCount * MIN_COMPLETE_RATIO)) {
+    return { allow: false, reason: `API trouxe ${fetched.count}, abaixo de 95% da última execução completa (${lastCompleteCount})` };
+  }
+  return { allow: true, reason: null as string | null };
+}
+
+export async function sendSyncAlert(subject: string, intro: string, details: { label: string; value: string }[], key: string) {
+  try {
+    const { sendTemplateEmail } = await import("./email-templates/send-email");
+    await sendTemplateEmail("alerta-sincronizacao", "contato@saimoveisalpha.com.br", {
+      templateData: { subject, heading: subject, intro, details, ctaLabel: "Abrir painel de sincronização", ctaUrl: `${SITE_URL}/admin-conciliacao` },
+      idempotencyKey: `sync-alert-${key}`,
+    });
+    return true;
+  } catch (e) { console.error("alerta sincronização", e); return false; }
+}
+
+/** Execuções que ficaram "rodando" (conexão cortada) viram "travou" e geram alerta. */
+async function closeStaleRuns(sb: SB) {
+  const cutoff = new Date(Date.now() - STALE_RUN_MINUTES * 60000).toISOString();
+  const { data } = await sb.from("source_reconciliation_runs").select("id,started_at").eq("status", "running").lt("started_at", cutoff);
+  for (const r of data ?? []) {
+    await sb.from("source_reconciliation_runs").update({ status: "stalled", finished_at: new Date().toISOString(), error: "Travou: a execução não terminou (conexão encerrada antes do fim). Nada foi desativado nela." }).eq("id", r.id);
+    await sendSyncAlert("Sincronização travou", `A execução iniciada em ${new Date(r.started_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} não terminou.`, [], `stalled-${r.id}`);
+  }
+  return (data ?? []).length;
+}
 
 export async function runReconciliation(sb: SB, opts: RunOptions) {
   if (RECONCILIATION_SUSPENDED) {
     return { status: "blocked", error: "Conciliação suspensa. Nada foi alterado.", errors: [] as string[] };
   }
+  const t0 = Date.now();
+  await closeStaleRuns(sb);
   const { data: run } = await sb.from("source_reconciliation_runs").insert({ triggered_by: opts.triggeredBy }).select("id").single();
   let errors: string[] = [];
+  const alerts: string[] = [];
   const finish = async (status: string, fields: Record<string, unknown>) => {
     await sb.from("source_reconciliation_runs").update({
-      ...fields, status, errors, finished_at: new Date().toISOString(),
+      ...fields, status, errors, alerts, finished_at: new Date().toISOString(),
     }).eq("id", run.id);
-    return { status, ...fields, errors };
+    return { status, ...fields, errors, alerts };
   };
   try {
     const { fetchTokkoProperties } = await import("./tokko-api.server");
     const { syncFromTokko, officialUrlsFromSitemap } = await import("./tokko-sync.server");
-    const api = await fetchTokkoProperties();
+    const fetched = await fetchTokkoProperties({ deadline: t0 + FETCH_BUDGET_MS });
+    const api = fetched.properties;
     const minimum = Math.ceil(ORIGIN_BASELINE * MIN_RATIO);
     if (api.length < minimum) {
-      return await finish("blocked", {
-        origin_count: api.length,
-        error: `API trouxe ${api.length} imóveis, abaixo de 80% da base (${minimum} de ${ORIGIN_BASELINE}). Nada foi alterado.`,
-      });
+      const error = `API trouxe ${api.length} imóveis, abaixo de 80% da base (${minimum} de ${ORIGIN_BASELINE}). Nada foi alterado.`;
+      alerts.push(error);
+      await sendSyncAlert("Sincronização travada (80%)", error, [], `blocked-${run.id}`);
+      return await finish("blocked", { origin_count: api.length, error });
     }
-    const officialUrls = await officialUrlsFromSitemap();
+    const { data: lastOk } = await sb.from("source_reconciliation_runs").select("origin_count")
+      .in("status", ["ok", "held"]).not("origin_count", "is", null).order("started_at", { ascending: false }).limit(1).maybeSingle();
+    const gate = deactivationGate({ count: api.length, complete: fetched.complete }, lastOk?.origin_count ?? null);
+    const officialUrls = await Promise.race([
+      officialUrlsFromSitemap(),
+      new Promise<Record<string, string>>((res) => setTimeout(() => res({}), 20000)),
+    ]);
     const { data: cities } = await sb.from("cities").select("name,slug,uf,sort_priority");
     const r = await syncFromTokko(sb, api, {
       apply: true, importLimit: opts.skipImports ? 0 : MAX_IMPORTS_PER_DAY, officialUrls, cities: cities ?? [],
       missesBeforePause: MISSES_BEFORE_PAUSE,
       // A API é a fonte: 2 execuções seguidas sem o imóvel bastam (sem abrir página antiga).
       confirmGone: async () => true,
+      allowDeactivate: gate.allow, maxDeactivate: MAX_DEACTIVATIONS_PER_RUN,
     });
     errors = r.errors;
     let indexnow: unknown = null;
     if (r.changedUrls.length) indexnow = await submitIndexNow(SITE_HOST, r.changedUrls);
     const { count: active } = await sb.from("properties").select("id", { count: "exact", head: true }).eq("status", "active");
     const { count: pausedTotal } = await sb.from("properties").select("id", { count: "exact", head: true }).eq("status", "paused");
-    return await finish("ok", {
+    const status = !gate.allow ? "incomplete" : r.held ? "held" : "ok";
+    const fields: Record<string, unknown> = {
       origin_count: api.length, sitemap_count: Object.keys(officialUrls).length,
       portal_active: active, portal_paused: pausedTotal,
       paused: r.paused, reactivated: r.reactivated, imported: r.imported, merged: 0, paths_updated: r.updated,
       missing_in_portal: Math.max(0, r.new_in_api - r.imported),
-      details: { source: "tokko-api", indexnow, updated: r.updated, photos_changed: r.photos_changed,
-        seo_regenerated: r.seo_regenerated, deactivated: r.deactivated, created: r.imported, ambiguous: r.ambiguous, missing_active: r.missingReport },
-    });
+      error: !gate.allow ? `Incompleta: ${gate.reason}${fetched.note ? ` (${fetched.note})` : ""}. Nada foi desativado.`
+        : r.held ? `${r.pendingDeactivation.length} imóveis sairiam (limite ${MAX_DEACTIVATIONS_PER_RUN}). Aguardando aprovação no admin.` : null,
+      pending_deactivation: r.held ? r.pendingDeactivation : null,
+      details: { source: "tokko-api", indexnow, updated: r.updated, photos_changed: r.photos_changed, api_expected: fetched.expected,
+        api_complete: fetched.complete, api_retries: fetched.retries, last_complete_count: lastOk?.origin_count ?? null,
+        seo_regenerated: r.seo_regenerated, deactivated: r.deactivated, created: r.imported, ambiguous: r.ambiguous,
+        missing_active: r.missingReport, code_changes: r.codeChanges, seconds: Math.round((Date.now() - t0) / 1000) },
+    };
+    if (!gate.allow) { alerts.push(String(fields.error)); await sendSyncAlert("Sincronização incompleta — nada desativado", String(fields.error), [], `incomplete-${run.id}`); }
+    if (r.held) {
+      alerts.push(String(fields.error));
+      await sendSyncAlert(`${r.pendingDeactivation.length} imóveis aguardando aprovação para sair`, String(fields.error),
+        [{ label: "Códigos", value: r.pendingDeactivation.map((d) => d.code ?? d.slug).join(", ") }], `held-${run.id}`);
+    }
+    if (r.deactivated.length > ALERT_DEACTIVATIONS) {
+      alerts.push(`${r.deactivated.length} imóveis desativados de uma vez`);
+      await sendSyncAlert(`${r.deactivated.length} imóveis desativados de uma vez`, "A sincronização desativou mais de 20 imóveis que saíram da API da Univen.",
+        [{ label: "Códigos", value: r.deactivated.map((d) => d.code ?? d.slug).join(", ") }], `many-${run.id}`);
+    }
+    return await finish(status, fields);
   } catch (e) {
-    return await finish("failed", { error: e instanceof Error ? e.message : String(e) });
+    const error = e instanceof Error ? e.message : String(e);
+    alerts.push(error);
+    await sendSyncAlert("Sincronização falhou", `${error}. Nada foi desativado.`, [], `failed-${run.id}`);
+    return await finish("failed", { error });
   }
+}
+
+/** Aprovação no admin das desativações seguradas pelo limite de 50. Reconfere cada imóvel. */
+export async function approveHeldDeactivation(sb: SB, runId: string) {
+  const { data: run } = await sb.from("source_reconciliation_runs").select("id,status,pending_deactivation,approved_at").eq("id", runId).single();
+  if (!run || run.status !== "held" || run.approved_at) throw new Error("Nada aguardando aprovação nesta execução");
+  const { deactivateGone } = await import("./tokko-sync.server");
+  const list = (run.pending_deactivation ?? []) as { id: string; code: string | null; slug: string }[];
+  const done: string[] = []; const skipped: string[] = [];
+  for (const p of list) {
+    const { data: row } = await sb.from("properties").select("id,slug,status,internal_code,condominium_id,source_id").eq("id", p.id).maybeSingle();
+    // Voltou para a API (reativado/visto depois) ou já saiu: não mexe.
+    const { data: miss } = row?.source_id ? await sb.from("source_missing").select("misses").eq("source_id", row.source_id).maybeSingle() : { data: null };
+    if (!row || row.status !== "active" || !miss) { skipped.push(p.code ?? p.slug); continue; }
+    const res = await deactivateGone(sb, row);
+    if (res.error) skipped.push(`${p.code}: ${res.error}`); else done.push(p.code ?? p.slug);
+  }
+  if (done.length) await submitIndexNow(SITE_HOST, list.filter((p) => done.includes(p.code ?? p.slug)).map((p) => propUrl(p.slug)));
+  await sb.from("source_reconciliation_runs").update({ approved_at: new Date().toISOString(), paused: done.length, status: "ok" }).eq("id", runId);
+  return { deactivated: done, skipped };
 }

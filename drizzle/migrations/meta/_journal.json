@@ -232,6 +232,13 @@
       "when": 1793799998596,
       "tag": "0032_seo_redirects_note",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793816500440,
+      "tag": "0033_property_code_aliases_and_sync_safety",
+      "breakpoints": true
     }
   ]
 }

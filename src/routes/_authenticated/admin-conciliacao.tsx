@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { runReconciliationNow } from "@/lib/reconciliation.functions";
+import { runReconciliationNow, approveHeldDeactivationNow, listCodeAlerts } from "@/lib/reconciliation.functions";
 import { ReconciliationAlert } from "@/components/admin/reconciliation-alert";
 
 export const Route = createFileRoute("/_authenticated/admin-conciliacao")({
@@ -12,13 +12,24 @@ export const Route = createFileRoute("/_authenticated/admin-conciliacao")({
   component: Page,
 });
 
-const STATUS: Record<string, string> = { ok: "Concluída", blocked: "Travada (80%)", failed: "Falhou", running: "Rodando" };
+const STATUS: Record<string, string> = { ok: "Concluída", blocked: "Travada (80%)", failed: "Falhou", running: "Rodando", incomplete: "Incompleta (nada desativado)", held: "Aguardando aprovação", stalled: "Travou" };
 
 function Page() {
   const run = useServerFn(runReconciliationNow);
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const approve = useServerFn(approveHeldDeactivationNow);
+  const codesFn = useServerFn(listCodeAlerts);
+  const { data: codeAlerts } = useQuery({ queryKey: ["code-alerts"], queryFn: () => codesFn() });
+  async function approveRun(id: string, n: number) {
+    if (!confirm(`Desativar ${n} imóveis que saíram da API? Cada um será reconferido antes.`)) return;
+    try {
+      const r = await approve({ data: { runId: id } });
+      setMsg(`Aprovado: ${r.deactivated.length} desativados${r.skipped.length ? ` · ${r.skipped.length} ignorados (voltaram ou já saíram)` : ""}`);
+    } catch (e) { setMsg(e instanceof Error ? e.message : String(e)); }
+    qc.invalidateQueries({ queryKey: ["reconciliation-runs"] });
+  }
   const { data: runs } = useQuery({
     queryKey: ["reconciliation-runs"],
     queryFn: async () => {
@@ -52,13 +63,41 @@ function Page() {
           <h1 className="text-2xl font-semibold">Conciliação com o site principal</h1>
           <p className="text-sm text-muted-foreground max-w-3xl">
             Roda às 5h e de hora em hora das 7h às 22h, lendo a API da Univen. Atualiza os dados, desativa quem ficou fora
-            da API em 2 execuções seguidas (a página passa a levar para a busca do condomínio), reativa quem voltou e importa
+            da API em 2 execuções seguidas (só se a coleta veio completa e com pelo menos 95% da última execução completa; mais de 50 de uma vez aguardam aprovação aqui) (a página passa a levar para a busca do condomínio), reativa quem voltou e importa
             até 30 novos por execução (Barueri e Santana de Parnaíba primeiro). Para se a API trouxer menos de 80% de 2.290 imóveis.
           </p>
         </div>
         <Button onClick={go} disabled={busy}>{busy ? "Sincronizando… (alguns minutos)" : "Sincronizar agora"}</Button>
       </div>
       {msg && <p className="text-sm">{msg}</p>}
+      {(runs ?? []).filter((r) => r.status === "held" && !r.approved_at).map((r) => {
+        const list = (r.pending_deactivation ?? []) as { code: string | null; slug: string }[];
+        return (
+          <div key={r.id} className="rounded-lg border border-destructive p-4 text-sm space-y-2">
+            <p><b>{list.length} imóveis aguardando aprovação para sair</b> (execução de {new Date(r.started_at).toLocaleString("pt-BR")}). Limite automático: 50 por execução.</p>
+            <p className="text-xs text-muted-foreground break-words">{list.map((d) => d.code ?? d.slug).join(", ")}</p>
+            <Button variant="destructive" size="sm" onClick={() => approveRun(r.id, list.length)}>Aprovar desativação</Button>
+          </div>
+        );
+      })}
+      {codeAlerts && (codeAlerts.duplicates.length > 0 || codeAlerts.nonStandard.length > 0) && (
+        <div className="rounded-lg border p-4 text-sm space-y-2">
+          <p className="font-semibold">Alertas de código</p>
+          {codeAlerts.duplicates.length > 0 && (
+            <p className="text-destructive"><b>Código repetido em dois imóveis ({codeAlerts.duplicates.length}):</b> {codeAlerts.duplicates.map((d) => `${d.code} (${d.slugs.length})`).join(", ")}</p>
+          )}
+          {codeAlerts.nonStandard.length > 0 && (
+            <div>
+              <b>Fora do padrão de 2 letras + 5 dígitos ({codeAlerts.nonStandard.length}):</b>
+              <ul className="mt-1 grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3 text-xs">
+                {codeAlerts.nonStandard.map((c) => (
+                  <li key={c.slug}><a className="underline" href={`/imoveis/${c.slug}`} target="_blank" rel="noreferrer">{c.code}</a> — {c.reason}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left">

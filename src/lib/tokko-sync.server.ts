@@ -15,7 +15,7 @@ export const PORTAL_COLS =
   "id,slug,status,created_at,internal_code,source_id,source_url,external_ref,manual_overrides,images," +
   "property_type,purpose,price_sale,price_rent,condominium_name,condo_fee,iptu,iptu_period,city,state,neighborhood," +
   "address,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_total,area_built,area_useful," +
-  "description,descricao_original,review_status,condominium_id";
+  "description,descricao_original,review_status,condominium_id,previous_codes";
 
 export type PortalRow = Record<string, unknown> & {
   id: string; slug: string; status: string; created_at: string; internal_code: string | null;
@@ -49,7 +49,25 @@ export type SyncOptions = {
   missesBeforePause: number;
   /** Confirma sumiço (ex.: página oficial fora do ar). */
   confirmGone: (row: PortalRow) => Promise<boolean>;
+  /** false = coleta incompleta/abaixo de 95%: não conta falta nem desativa ninguém. */
+  allowDeactivate?: boolean;
+  /** Acima disso, nada é desativado: a lista fica aguardando aprovação no admin. */
+  maxDeactivate?: number;
 };
+
+/** Código definitivo da Univen: 2 letras + 5 dígitos (ex.: AP07357). */
+export const STANDARD_CODE = /^[A-Z]{2}\d{5}$/;
+/** Motivo de alerta para código fora do padrão (null = ok). */
+export function codeAnomaly(code: string | null | undefined): string | null {
+  const c = (code ?? "").trim().toUpperCase();
+  if (!c) return "sem código";
+  if (STANDARD_CODE.test(c)) return null;
+  const m = /^([A-Z]+)(\d+)$/.exec(c);
+  if (!m) return "formato desconhecido";
+  if (m[2].length > 5) return `${m[2].length} dígitos depois das letras`;
+  if (m[1].length !== 2) return `${m[1].length} letras`;
+  return "menos de 5 dígitos";
+}
 
 export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOptions) {
   const rows = await fetchAllRows<PortalRow>((f, t) => sb.from("properties").select(PORTAL_COLS).order("created_at").range(f, t));
@@ -96,6 +114,9 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   const reactivatedSlugs: string[] = [];
   const deactivated: { code: string | null; slug: string; redirect: string }[] = [];
   const errors: string[] = [];
+  const codeChanges: { from: string; to: string; slug: string }[] = [];
+  const codeIds: string[] = [];
+  const openCodeOwners = new Map(openAll.map((r) => [referenceKey(r.internal_code), r.id] as const).filter(([c]) => c));
 
   for (const { row, a } of matched) {
     const url = opts.officialUrls[String(a.id)] ?? null;
@@ -104,13 +125,30 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     delete facts.internal_code; delete facts.source_id; delete facts.source_url; delete facts.external_ref;
     const { patch, conflicts, factChanged, mainPhotoChanged } = apiFactPatch(row, facts);
     const link: Record<string, unknown> = { source_id: String(a.id), last_seen_at: now };
+    // Código: segue sempre a Univen (exceto ajuste manual); o anterior vira apelido de busca.
+    const apiCode = referenceKey(a.reference_code);
+    const oldCode = referenceKey(row.internal_code);
+    const manualCode = !!(row.manual_overrides as Record<string, unknown> | null)?.internal_code;
+    let codeChange: { from: string; to: string } | null = null;
+    if (apiCode && apiCode !== oldCode && !manualCode) {
+      if ((openCodeOwners.get(apiCode) ?? row.id) !== row.id) errors.push(`código ${apiCode} já usado por outro imóvel; ${oldCode} mantido`);
+      else {
+        codeChange = { from: oldCode, to: apiCode };
+        link.internal_code = apiCode;
+        const prev = new Set(((row.previous_codes as string[] | null) ?? []).map(referenceKey));
+        if (oldCode) prev.add(oldCode);
+        prev.delete(apiCode);
+        link.previous_codes = [...prev];
+        openCodeOwners.set(apiCode, row.id);
+      }
+    }
     if (url) { link.source_url = url; link.external_ref = new URL(url).pathname; }
     if (row.status === "paused" || row.status === "inactive") {
       link.status = "active"; reactivated++;
       if (row.review_status === GONE) { link.review_status = null; reactivatedSlugs.push(`/imoveis/${row.slug}`); }
     }
     const linkChanged = row.source_id !== link.source_id || (url && row.source_url !== url);
-    if (Object.keys(patch).length || linkChanged || link.status) {
+    if (Object.keys(patch).length || linkChanged || link.status || codeChange) {
       if (opts.apply) {
         // Duplicados inativos (importados na troca de IDs) seguram o mesmo external_ref/ID:
         // liberar antes, senão o índice único bloqueia a atualização do registro ativo.
@@ -125,8 +163,9 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       }
       if (Object.keys(patch).length) updated++;
       if (mainPhotoChanged) photos++;
-      if (factChanged) seoIds.push(row.id);
-      if (factChanged || link.status) changedUrls.add(propUrl(row.slug));
+      if (factChanged || codeChange) seoIds.push(row.id);
+      if (codeChange) { codeChanges.push({ ...codeChange, slug: row.slug }); codeIds.push(row.id); }
+      if (factChanged || link.status || codeChange) changedUrls.add(propUrl(row.slug));
     }
     const changes = Object.keys(patch).filter((k) => k !== "images" && k !== "description" && k !== "descricao_original");
     if (changes.length || mainPhotoChanged || conflicts.length) report.push({
@@ -140,23 +179,27 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   // (sai da busca, do sitemap e dos condomínios; a página redireciona para a busca do condomínio).
   const missingActive = missing.filter((r) => r.status === "active");
   const missingReport: { code: string | null; slug: string; misses: number; paused: boolean }[] = [];
+  const allowDeactivate = opts.allowDeactivate !== false;
+  const candidates: { r: PortalRow; misses: number }[] = [];
   for (const r of missingActive) {
     const key = r.source_id || `code:${referenceKey(r.internal_code)}` || r.id;
     const { data: miss } = await sb.from("source_missing").select("misses").eq("source_id", key).maybeSingle();
-    const misses = (miss?.misses ?? 0) + 1;
-    let didPause = false;
-    if (opts.apply) {
+    // Coleta incompleta não conta falta: o imóvel pode só não ter vindo.
+    const misses = (miss?.misses ?? 0) + (allowDeactivate ? 1 : 0);
+    if (opts.apply && allowDeactivate) {
       await sb.from("source_missing").upsert({ source_id: key, misses, last_missed_at: now, ...(miss ? {} : { first_missed_at: now }) });
-      if (misses >= opts.missesBeforePause) {
-        const target = await goneRedirectTarget(sb, r);
-        const { error } = await sb.from("properties").update({ status: "inactive", review_status: GONE }).eq("id", r.id);
-        if (error) errors.push(`desativar ${r.internal_code}: ${error.message}`);
-        else {
-          await upsertRedirect(sb, `/imoveis/${r.slug}`, target);
-          paused++; didPause = true; changedUrls.add(propUrl(r.slug));
-          deactivated.push({ code: r.internal_code, slug: r.slug, redirect: target });
-        }
-      }
+    }
+    if (allowDeactivate && misses >= opts.missesBeforePause) candidates.push({ r, misses });
+    else missingReport.push({ code: r.internal_code, slug: r.slug, misses, paused: false });
+  }
+  const held = opts.maxDeactivate != null && candidates.length > opts.maxDeactivate;
+  const pendingDeactivation = held ? candidates.map(({ r, misses }) => ({ id: r.id, code: r.internal_code, slug: r.slug, misses })) : [];
+  for (const { r, misses } of candidates) {
+    let didPause = false;
+    if (opts.apply && !held) {
+      const res = await deactivateGone(sb, r);
+      if (res.error) errors.push(`desativar ${r.internal_code}: ${res.error}`);
+      else { paused++; didPause = true; changedUrls.add(propUrl(r.slug)); deactivated.push({ code: r.internal_code, slug: r.slug, redirect: res.target }); }
     }
     missingReport.push({ code: r.internal_code, slug: r.slug, misses, paused: didPause });
   }
@@ -205,11 +248,16 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   }
 
   if (opts.apply) for (let i = 0; i < seoIds.length; i += 100) await regenerateSeoForIds(sb, seoIds.slice(i, i + 100));
+  // Atualiza o índice de busca com o título novo (o gatilho roda ao gravar os apelidos).
+  if (opts.apply) for (const id of codeIds) {
+    const { data } = await sb.from("properties").select("previous_codes").eq("id", id).single();
+    await sb.from("properties").update({ previous_codes: data?.previous_codes ?? [] }).eq("id", id);
+  }
 
   return {
     matched: matched.length, ambiguous: ambiguous.length, missing_active: missingActive.length,
     new_in_api: fresh.length, updated, photos_changed: photos, seo_regenerated: opts.apply ? seoIds.length : 0,
-    reactivated, paused, deactivated, imported, errors, report, missingReport, newReport, changedUrls: [...changedUrls],
+    reactivated, paused, deactivated, imported, errors, codeChanges, pendingDeactivation, held, report, missingReport, newReport, changedUrls: [...changedUrls],
   };
 }
 
@@ -222,6 +270,15 @@ export async function goneRedirectTarget(sb: SB, r: PortalRow): Promise<string> 
     if (data?.slug && data.slug !== "nao-se-aplica") return `/imoveis?condo=${encodeURIComponent(data.slug)}`;
   }
   return "/imoveis";
+}
+
+/** Desativa um imóvel que saiu da API e redireciona a página (301) para a busca do condomínio. */
+export async function deactivateGone(sb: SB, r: PortalRow): Promise<{ error?: string; target: string }> {
+  const target = await goneRedirectTarget(sb, r);
+  const { error } = await sb.from("properties").update({ status: "inactive", review_status: GONE }).eq("id", r.id).eq("status", "active");
+  if (error) return { error: error.message, target };
+  await upsertRedirect(sb, `/imoveis/${r.slug}`, target);
+  return { target };
 }
 
 export async function upsertRedirect(sb: SB, oldUrl: string, newUrl: string) {
