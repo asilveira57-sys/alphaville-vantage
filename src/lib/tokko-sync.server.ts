@@ -218,7 +218,7 @@ export const GONE = "saiu_da_api";
 export async function goneRedirectTarget(sb: SB, r: PortalRow): Promise<string> {
   if (r.condominium_id) {
     const { data } = await sb.from("condominiums").select("slug").eq("id", r.condominium_id).maybeSingle();
-    if (data?.slug) return `/imoveis?condo=${encodeURIComponent(data.slug)}`;
+    if (data?.slug && data.slug !== "nao-se-aplica") return `/imoveis?condo=${encodeURIComponent(data.slug)}`;
   }
   return "/imoveis";
 }
