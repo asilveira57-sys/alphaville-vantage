@@ -30,7 +30,13 @@ function Page() {
 
   async function go() {
     setBusy(true); setMsg(null);
-    try { const r = await run({ data: {} }); setMsg(`Execução: ${STATUS[r.status] ?? r.status}${r.error ? ` — ${r.error}` : ""}`); }
+    try {
+      const r = await run({ data: {} }) as { status: string; error?: string; imported?: number; paused?: number; details?: { updated?: number; deactivated?: { code: string | null }[] } };
+      const gone = r.details?.deactivated ?? [];
+      setMsg(r.status === "ok"
+        ? `Concluída: ${r.imported ?? 0} novos · ${r.details?.updated ?? 0} atualizados · ${gone.length} desativados${gone.length ? ` (${gone.map((g) => g.code).join(", ")})` : ""}`
+        : `Execução: ${STATUS[r.status] ?? r.status}${r.error ? ` — ${r.error}` : ""}`);
+    }
     catch (e) { setMsg(e instanceof Error ? e.message : String(e)); }
     setBusy(false);
     qc.invalidateQueries({ queryKey: ["reconciliation-runs"] });
@@ -45,18 +51,18 @@ function Page() {
           <Link to="/admin" className="text-sm text-muted-foreground">← Admin</Link>
           <h1 className="text-2xl font-semibold">Conciliação com o site principal</h1>
           <p className="text-sm text-muted-foreground max-w-3xl">
-            Roda todo dia às 5h. Casa os imóveis pelo número do anúncio, junta duplicados, atualiza endereços de origem,
-            pausa quem ficou 2 dias fora da origem (após abrir a página), reativa quem voltou e importa até 30 novos por dia
-            (Barueri e Santana de Parnaíba primeiro). Para se a coleta trouxer menos de 80% de 2.290 imóveis.
+            Roda às 5h e de hora em hora das 7h às 22h, lendo a API da Univen. Atualiza os dados, desativa quem ficou fora
+            da API em 2 execuções seguidas (a página passa a levar para a busca do condomínio), reativa quem voltou e importa
+            até 30 novos por execução (Barueri e Santana de Parnaíba primeiro). Para se a API trouxer menos de 80% de 2.290 imóveis.
           </p>
         </div>
-        <Button onClick={go} disabled={busy}>{busy ? "Rodando… (alguns minutos)" : "Rodar agora"}</Button>
+        <Button onClick={go} disabled={busy}>{busy ? "Sincronizando… (alguns minutos)" : "Sincronizar agora"}</Button>
       </div>
       {msg && <p className="text-sm">{msg}</p>}
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left">
-            <tr>{["Início", "Origem", "Situação", "Na origem", "Ativos", "Pausados", "Pausou", "Reativou", "Importou", "Juntou", "Endereços", "Faltando", "Erros"].map((h) => <th key={h} className="p-2">{h}</th>)}</tr>
+            <tr>{["Início", "Origem", "Situação", "Na origem", "Ativos", "Pausados", "Desativou", "Reativou", "Importou", "Juntou", "Atualizou", "Faltando", "Erros"].map((h) => <th key={h} className="p-2">{h}</th>)}</tr>
           </thead>
           <tbody>
             {(runs ?? []).map((r) => (
@@ -67,7 +73,7 @@ function Page() {
                 <td className="p-2">{r.origin_count ?? "—"}</td>
                 <td className="p-2">{r.portal_active ?? "—"}</td>
                 <td className="p-2">{r.portal_paused ?? "—"}</td>
-                <td className="p-2">{r.paused}</td>
+                <td className="p-2" title={((r.details as { deactivated?: { code: string | null }[] } | null)?.deactivated ?? []).map((d) => d.code).join(", ")}>{r.paused}</td>
                 <td className="p-2">{r.reactivated}</td>
                 <td className="p-2">{r.imported}</td>
                 <td className="p-2">{r.merged}</td>

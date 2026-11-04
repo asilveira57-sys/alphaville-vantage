@@ -68,3 +68,10 @@ describe('Tokko migration safeguards', () => {
     expect(f.address).toBe('Rua Exemplo'); expect(f).not.toHaveProperty('address_number');
   });
 });
+import { htmlToText as _htmlToText } from "./tokko";
+describe("htmlToText", () => {
+  it("limpa o HTML da descrição da Univen", () => {
+    expect(_htmlToText('<p style="line-height: 1;"><span style="font-size: 16px;">Europa</span></p><p>&nbsp;</p><p>200 m&sup2; &amp; 4 dorm.</p>')).toBe("Europa\n\n200 m² & 4 dorm.");
+  });
+  it("mantém texto simples", () => { expect(_htmlToText("Casa\n\nboa")).toBe("Casa\n\nboa"); });
+});

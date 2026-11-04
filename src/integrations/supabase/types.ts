@@ -2247,6 +2247,7 @@ export type Database = {
           created_at: string
           id: string
           new_url: string
+          note: string | null
           old_url: string
           redirect_type: number
         }
@@ -2255,6 +2256,7 @@ export type Database = {
           created_at?: string
           id?: string
           new_url: string
+          note?: string | null
           old_url: string
           redirect_type?: number
         }
@@ -2263,6 +2265,7 @@ export type Database = {
           created_at?: string
           id?: string
           new_url?: string
+          note?: string | null
           old_url?: string
           redirect_type?: number
         }

@@ -41,6 +41,24 @@ export function cleanStreet(raw: string | null | undefined): string | null {
 }
 /** "Alphaville Centro Industrial e Empresarial/Alphaville." → "Alphaville Centro Industrial e Empresarial". */
 export const cleanHood = (v: string | null) => v ? v.split('/')[0].replace(/[.\s]+$/, '').trim() || null : null;
+const ENTITIES: Record<string, string> = { nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", ordm: 'º', ordf: 'ª', sup2: '²' };
+/** Descrição da Univen às vezes vem em HTML (<p style=...>): vira texto limpo com quebras de linha. */
+export function htmlToText(raw: unknown): string | null {
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  if (!/<[a-z!/]|&[a-z#0-9]+;/i.test(raw)) return raw.trim();
+  const s = raw
+    .replace(/<\s*br\s*\/?>/gi, '\n')
+    .replace(/<\/\s*(p|div|li|h[1-6]|tr)\s*>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&([a-z0-9]+);/gi, (m, n) => ENTITIES[n.toLowerCase()] ?? m)
+    .replace(/[ \t\u00a0]+/g, ' ')
+    .split('\n').map(l => l.trim()).join('\n')
+    .replace(/\n{3,}/g, '\n\n').trim();
+  return s || null;
+}
 const fold = (v: unknown) => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
 const MONEY = new Set(['price_sale', 'price_rent', 'condo_fee', 'iptu']);
 const FOLDED = new Set(['condominium_name', 'city', 'neighborhood', 'address']);
@@ -82,7 +100,7 @@ export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) 
     area_total: positive(p.total_area) ?? positive(p.surface),
     area_built: positive(p.roofed_surface) ?? positive(p.total_surface),
     area_useful: positive(p.private_area) ?? positive(p.livable_area),
-    description: text(p.description_only), descricao_original: text(p.description_only), images,
+    description: htmlToText(p.description_only), descricao_original: htmlToText(p.description_only), images,
   };
 }
 

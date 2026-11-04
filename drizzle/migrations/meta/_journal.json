@@ -225,6 +225,13 @@
       "when": 1793458539956,
       "tag": "0031_condo_multiselect_num_equiv",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793799998596,
+      "tag": "0032_seo_redirects_note",
+      "breakpoints": true
     }
   ]
 }

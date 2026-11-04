@@ -15,7 +15,7 @@ export const PORTAL_COLS =
   "id,slug,status,created_at,internal_code,source_id,source_url,external_ref,manual_overrides,images," +
   "property_type,purpose,price_sale,price_rent,condominium_name,condo_fee,iptu,iptu_period,city,state,neighborhood," +
   "address,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_total,area_built,area_useful," +
-  "description,descricao_original";
+  "description,descricao_original,review_status,condominium_id";
 
 export type PortalRow = Record<string, unknown> & {
   id: string; slug: string; status: string; created_at: string; internal_code: string | null;
@@ -23,7 +23,8 @@ export type PortalRow = Record<string, unknown> & {
 };
 
 const ORIGIN = "https://www.saimoveisalphaville.com.br";
-const LINK = /https?:\/\/(?:www\.)?saimoveisalphaville\.com\.br\/(?:alugar|comprar|comprar-ou-alugar)\/[a-z]{2}\/[^/<"'\s]+\/[^/<"'\s]+\/[a-z]+\/(\d+)/g;
+// Bairro pode vir com um segmento extra (".../alphaville-centro-industrial-e-empresarial/alphaville./sala/ID").
+const LINK = /https?:\/\/(?:www\.)?saimoveisalphaville\.com\.br\/(?:alugar|comprar|comprar-ou-alugar)\/[a-z]{2}(?:\/[^/<"'\s]+){2,3}\/[a-z]+\/(\d+)/g;
 
 /** URL pública oficial de cada ID Tokko, lida do mapa do site do site principal. */
 export async function officialUrlsFromSitemap(): Promise<Record<string, string>> {
@@ -52,7 +53,15 @@ export type SyncOptions = {
 
 export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOptions) {
   const rows = await fetchAllRows<PortalRow>((f, t) => sb.from("properties").select(PORTAL_COLS).order("created_at").range(f, t));
-  const open = rows.filter((r) => !CLOSED.has(r.status));
+  // Imóveis que a própria sincronização desativou voltam se reaparecerem na API.
+  const openAll = rows.filter((r) => !CLOSED.has(r.status));
+  const openCodes = new Set(openAll.map((r) => referenceKey(r.internal_code)).filter(Boolean));
+  const returnable = rows.filter((r) => r.status === "inactive" && r.review_status === GONE
+    && !openCodes.has(referenceKey(r.internal_code)));
+  const open = [...openAll, ...returnable];
+  // Qualquer registro do portal (até inativo) bloqueia importar de novo o mesmo código/ID.
+  const knownCodes = new Set(rows.map((r) => referenceKey(r.internal_code)).filter(Boolean));
+  const knownIds = new Set(rows.map((r) => r.source_id).filter(Boolean) as string[]);
   const apiById = new Map(api.map((a) => [String(a.id), a]));
   const count = <T,>(xs: T[], k: (x: T) => string) => xs.reduce((m, x) => m.set(k(x), (m.get(k(x)) ?? 0) + 1), new Map<string, number>());
   const apiCodes = count(api, (a) => referenceKey(a.reference_code));
@@ -77,13 +86,15 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   const ambiguousCodes = new Set([...ambiguous.map((r) => referenceKey(r.internal_code))]);
   const fresh = api.filter((a) => !usedApi.has(String(a.id)) && referenceKey(a.reference_code)
     && !ambiguousCodes.has(referenceKey(a.reference_code)) && (apiCodes.get(referenceKey(a.reference_code)) ?? 0) === 1
-    && !(portalCodes.get(referenceKey(a.reference_code))));
+    && !knownCodes.has(referenceKey(a.reference_code)) && !knownIds.has(String(a.id)));
 
   const now = new Date().toISOString();
   const changedUrls = new Set<string>();
   const seoIds: string[] = [];
   const report: Record<string, unknown>[] = [];
   let updated = 0, photos = 0, reactivated = 0, paused = 0, imported = 0;
+  const reactivatedSlugs: string[] = [];
+  const deactivated: { code: string | null; slug: string; redirect: string }[] = [];
   const errors: string[] = [];
 
   for (const { row, a } of matched) {
@@ -94,7 +105,10 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     const { patch, conflicts, factChanged, mainPhotoChanged } = apiFactPatch(row, facts);
     const link: Record<string, unknown> = { source_id: String(a.id), last_seen_at: now };
     if (url) { link.source_url = url; link.external_ref = new URL(url).pathname; }
-    if (row.status === "paused") { link.status = "active"; reactivated++; }
+    if (row.status === "paused" || row.status === "inactive") {
+      link.status = "active"; reactivated++;
+      if (row.review_status === GONE) { link.review_status = null; reactivatedSlugs.push(`/imoveis/${row.slug}`); }
+    }
     const linkChanged = row.source_id !== link.source_id || (url && row.source_url !== url);
     if (Object.keys(patch).length || linkChanged || link.status) {
       if (opts.apply) {
@@ -122,7 +136,8 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     });
   }
 
-  // Ausentes: regra normal — 2 verificações + confirmação.
+  // Ausentes: ativo que não vem na API em 2 execuções seguidas é desativado
+  // (sai da busca, do sitemap e dos condomínios; a página redireciona para a busca do condomínio).
   const missingActive = missing.filter((r) => r.status === "active");
   const missingReport: { code: string | null; slug: string; misses: number; paused: boolean }[] = [];
   for (const r of missingActive) {
@@ -132,12 +147,21 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     let didPause = false;
     if (opts.apply) {
       await sb.from("source_missing").upsert({ source_id: key, misses, last_missed_at: now, ...(miss ? {} : { first_missed_at: now }) });
-      if (misses >= opts.missesBeforePause && await opts.confirmGone(r)) {
-        await sb.from("properties").update({ status: "paused" }).eq("id", r.id);
-        paused++; didPause = true; changedUrls.add(propUrl(r.slug));
+      if (misses >= opts.missesBeforePause) {
+        const target = await goneRedirectTarget(sb, r);
+        const { error } = await sb.from("properties").update({ status: "inactive", review_status: GONE }).eq("id", r.id);
+        if (error) errors.push(`desativar ${r.internal_code}: ${error.message}`);
+        else {
+          await upsertRedirect(sb, `/imoveis/${r.slug}`, target);
+          paused++; didPause = true; changedUrls.add(propUrl(r.slug));
+          deactivated.push({ code: r.internal_code, slug: r.slug, redirect: target });
+        }
       }
     }
     missingReport.push({ code: r.internal_code, slug: r.slug, misses, paused: didPause });
+  }
+  if (opts.apply && reactivatedSlugs.length) {
+    await sb.from("seo_redirects").update({ active: false }).in("old_url", reactivatedSlugs).eq("note", GONE);
   }
   if (opts.apply) {
     const found = matched.map((m) => String(m.a.id));
@@ -185,6 +209,23 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   return {
     matched: matched.length, ambiguous: ambiguous.length, missing_active: missingActive.length,
     new_in_api: fresh.length, updated, photos_changed: photos, seo_regenerated: opts.apply ? seoIds.length : 0,
-    reactivated, paused, imported, errors, report, missingReport, newReport, changedUrls: [...changedUrls],
+    reactivated, paused, deactivated, imported, errors, report, missingReport, newReport, changedUrls: [...changedUrls],
   };
+}
+
+export const GONE = "saiu_da_api";
+
+/** Busca do mesmo condomínio (ou do bairro) para quem cai num anúncio que saiu. */
+export async function goneRedirectTarget(sb: SB, r: PortalRow): Promise<string> {
+  if (r.condominium_id) {
+    const { data } = await sb.from("condominiums").select("slug").eq("id", r.condominium_id).maybeSingle();
+    if (data?.slug && data.slug !== "nao-se-aplica") return `/imoveis?condo=${encodeURIComponent(data.slug)}`;
+  }
+  return "/imoveis";
+}
+
+export async function upsertRedirect(sb: SB, oldUrl: string, newUrl: string) {
+  const { data: ex } = await sb.from("seo_redirects").select("id").eq("old_url", oldUrl).maybeSingle();
+  if (ex) await sb.from("seo_redirects").update({ new_url: newUrl, active: true, redirect_type: 301, note: GONE }).eq("id", ex.id);
+  else await sb.from("seo_redirects").insert({ old_url: oldUrl, new_url: newUrl, redirect_type: 301, active: true, note: GONE });
 }

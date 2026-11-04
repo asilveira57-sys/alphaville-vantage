@@ -1,0 +1,1 @@
+ALTER TABLE public.seo_redirects ADD COLUMN IF NOT EXISTS note text;
