@@ -14,6 +14,7 @@ export const runReconciliationNow = createServerFn({ method: "POST" })
     return JSON.parse(JSON.stringify(r)) as { status: string; error?: string };
   });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function assertAdmin(context: { supabase: any; userId: string }) {
   const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (!isAdmin) throw new Error("Apenas administradores");
@@ -39,14 +40,14 @@ export const listCodeAlerts = createServerFn({ method: "GET" })
     const { fetchAllRows } = await import("./fetch-all");
     const { codeAnomaly } = await import("./tokko-sync.server");
     const rows = await fetchAllRows<{ id: string; slug: string; internal_code: string | null; status: string }>((f, t) =>
-      supabaseAdmin.from("properties").select("id,slug,internal_code,status").in("status", ["active", "paused"]).order("created_at").range(f, t));
+      supabaseAdmin.from("properties").select("id,slug,internal_code,status").eq("status", "active").order("created_at").range(f, t));
     const byCode = new Map<string, typeof rows>();
     for (const r of rows) {
       const c = (r.internal_code ?? "").trim().toUpperCase();
       if (c) byCode.set(c, [...(byCode.get(c) ?? []), r]);
     }
     const duplicates = [...byCode].filter(([, l]) => l.length > 1).map(([code, l]) => ({ code, slugs: l.map((x) => x.slug) }));
-    const nonStandard = rows.filter((r) => r.status === "active").map((r) => ({ code: r.internal_code, slug: r.slug, reason: codeAnomaly(r.internal_code) }))
+    const nonStandard = rows.map((r) => ({ code: r.internal_code, slug: r.slug, reason: codeAnomaly(r.internal_code) }))
       .filter((r) => r.reason && r.reason !== "sem código");
     return { duplicates, nonStandard };
   });
