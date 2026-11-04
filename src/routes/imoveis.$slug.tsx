@@ -186,10 +186,8 @@ function PropertyDetail() {
 
       <section className="px-6 py-12 bg-ink/[0.02]">
         <div className="max-w-6xl mx-auto">
+          <PropertyPhotoTools propertyId={p.id} inAcervo={p.in_acervo} photoCount={p.images?.length ?? 0} />
           <PropertyGallery images={p.images} title={p.title} firstLarge={p.large_image_url} />
-          <div className="mt-4">
-            <PropertyPhotoTools propertyId={p.id} inAcervo={p.in_acervo} />
-          </div>
         </div>
       </section>
 

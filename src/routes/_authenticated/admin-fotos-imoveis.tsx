@@ -7,6 +7,15 @@ import { PropertyPhotoTools } from "@/components/admin/property-photo-tools";
 import { searchPropertiesForPhotoTools } from "@/lib/property-photos.functions";
 
 export const Route = createFileRoute("/_authenticated/admin-fotos-imoveis")({
+  head: () => ({ meta: [
+    { title: "Fotos dos imóveis — Admin S.A Imóveis Alphaville" },
+    { name: "description", content: "Gestão administrativa das fotos dos imóveis da S.A Imóveis Alphaville." },
+    { property: "og:title", content: "Fotos dos imóveis — Admin S.A Imóveis Alphaville" },
+    { property: "og:description", content: "Gestão administrativa das fotos dos imóveis da S.A Imóveis Alphaville." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   component: AdminFotosImoveis,
 });
 
@@ -84,7 +93,7 @@ function AdminFotosImoveis() {
                     Abrir ficha
                   </Link>
                 </div>
-                <PropertyPhotoTools propertyId={r.id} inAcervo={r.inAcervo} />
+                <PropertyPhotoTools propertyId={r.id} inAcervo={r.inAcervo} photoCount={r.photos} />
               </div>
             ))}
           </div>

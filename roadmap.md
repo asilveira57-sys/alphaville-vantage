@@ -1,4 +1,7 @@
 # Visual da home
+## Fotos exclusivas de admin (04/11)
+- [x] Barra acima da galeria, download direto por código e aviso de fotos faltantes.
+- [x] Download em cada linha da lista de fotos do Admin; visitante sem controles/HTML sem botões e download real admin conferidos (7 fotos), 3 testes de ZIP.
 ## Compartilhamento (01/11)
 - [x] Opções de compartilhamento perto do preço e nos cards; cópia e compartilhamento nativo conferidos.
 - [x] Compartilhar seleção com filtros atuais e contagem total.

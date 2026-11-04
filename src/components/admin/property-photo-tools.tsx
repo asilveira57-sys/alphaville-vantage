@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useHydrated } from "@tanstack/react-router";
+import { Download, Archive, LoaderCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { checkIsAdmin } from "@/lib/admin.functions";
@@ -18,10 +21,20 @@ function base64ToBlob(base64: string, type: string) {
   return new Blob([bytes], { type });
 }
 
-export function PropertyPhotoTools({ propertyId, inAcervo }: { propertyId: string; inAcervo?: boolean }) {
+export function PropertyPhotoTools({ propertyId, inAcervo, photoCount, downloadOnly = false }: { propertyId: string; inAcervo?: boolean; photoCount?: number; downloadOnly?: boolean }) {
+  const hydrated = useHydrated();
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user.id ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+  const checkFn = useServerFn(checkIsAdmin);
   const { data: admin } = useQuery({
-    queryKey: ["is-admin"],
-    queryFn: () => checkIsAdmin(),
+    queryKey: ["photo-tools-admin", userId],
+    queryFn: () => checkFn(),
+    enabled: hydrated && Boolean(userId),
     staleTime: 60_000,
     retry: false,
   });
@@ -32,7 +45,7 @@ export function PropertyPhotoTools({ propertyId, inAcervo }: { propertyId: strin
   const [links, setLinks] = useState<Array<{ path: string; url: string | null }> | null>(null);
   const [saved, setSaved] = useState(Boolean(inAcervo));
 
-  if (!admin?.isAdmin) return null;
+  if (!hydrated || !userId || !admin?.isAdmin) return null;
 
   const onZip = async () => {
     setBusy("zip");
@@ -48,7 +61,9 @@ export function PropertyPhotoTools({ propertyId, inAcervo }: { propertyId: strin
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30_000);
-      setMsg(`ZIP com ${r.count} de ${r.total} fotos baixado.`);
+      setMsg(r.count < r.total
+        ? `Atenção: ${r.total - r.count} foto(s) falharam. ZIP baixado com ${r.count} de ${r.total} fotos.`
+        : `ZIP com ${r.count} fotos baixado.`);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Falha ao montar o ZIP");
     } finally {
@@ -72,19 +87,21 @@ export function PropertyPhotoTools({ propertyId, inAcervo }: { propertyId: strin
   };
 
   return (
-    <div className="rounded-lg border border-dashed border-ink/30 bg-muted/40 p-3 text-xs space-y-2">
-      <p className="uppercase tracking-widest text-muted-foreground">
+    <div className={downloadOnly ? "text-xs space-y-2" : "mb-4 border-b border-border pb-3 text-xs space-y-2"}>
+      {!downloadOnly && <p className="uppercase tracking-widest text-muted-foreground">
         Admin · Fotos {saved && <span className="ml-1 rounded bg-ink px-1.5 py-0.5 text-[10px] text-canvas">no acervo</span>}
-      </p>
+      </p>}
       <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="outline" disabled={busy !== null} onClick={onZip}>
-          {busy === "zip" ? "Montando ZIP…" : "Baixar fotos (ZIP)"}
+          {busy === "zip" ? <LoaderCircle className="size-4 motion-safe:animate-spin" /> : <Download className="size-4" />}
+          {busy === "zip" ? `Baixando ${photoCount ?? "as"} fotos…` : "Baixar fotos (ZIP)"}
         </Button>
-        <Button size="sm" variant="outline" disabled={busy !== null} onClick={onAcervo}>
-          {busy === "acervo" ? "Copiando…" : saved ? "Atualizar acervo" : "Salvar no acervo"}
-        </Button>
+        {!downloadOnly && <Button size="sm" variant="outline" disabled={busy !== null} onClick={onAcervo}>
+          <Archive className="size-4" />
+          {busy === "acervo" ? "Copiando…" : "Salvar no acervo"}
+        </Button>}
       </div>
-      {msg && <p className="text-muted-foreground">{msg}</p>}
+      {msg && <p role="status" className="text-muted-foreground">{msg}</p>}
       {links && (
         <details>
           <summary className="cursor-pointer underline">Ver links do acervo (válidos por 5 minutos)</summary>
