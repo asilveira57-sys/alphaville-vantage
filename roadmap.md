@@ -37,3 +37,10 @@
 - [x] Condomínio com seleção múltipla (dropdown + busca + checkbox; mobile tela cheia com Aplicar), match por condominium_id, contagens respeitando outros filtros, URL ?condo=slug1,slug2, compat com nome antigo, noindex com 2+ condomínios.
 - [x] Números como palavra inteira + equivalências 1/I/Um via aliases da Central.
 - [x] Testes: Residencial 1+2 juntos; "residencial 1" sem 10/11/12; Venda R$1–2 mi.
+
+## Segurança da sincronização e códigos (04/11)
+- [x] Timeout/novas tentativas por página, execuções travadas marcadas e alertadas.
+- [x] Trava 95% + limite 50 com aprovação no admin + alertas por e-mail.
+- [x] Código segue a Univen, códigos antigos viram apelido de busca; 8 aplicados.
+- [x] Alertas de código fora do padrão/repetido no painel.
+- [ ] Publicar para valer na execução de hora em hora.

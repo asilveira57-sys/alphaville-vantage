@@ -277,7 +277,7 @@ async function closeStaleRuns(sb: SB) {
   const cutoff = new Date(Date.now() - STALE_RUN_MINUTES * 60000).toISOString();
   const { data } = await sb.from("source_reconciliation_runs").select("id,started_at").eq("status", "running").lt("started_at", cutoff);
   for (const r of data ?? []) {
-    await sb.from("source_reconciliation_runs").update({ status: "stalled", finished_at: new Date().toISOString(), error: "Travou: a execução não terminou (conexão encerrada antes do fim). Nada foi desativado nela." }).eq("id", r.id);
+    await sb.from("source_reconciliation_runs").update({ status: "stalled", finished_at: new Date().toISOString(), error: "a execução não terminou (conexão encerrada antes do fim). Nada foi desativado nela." }).eq("id", r.id);
     await sendSyncAlert("Sincronização travou", `A execução iniciada em ${new Date(r.started_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} não terminou.`, [], `stalled-${r.id}`);
   }
   return (data ?? []).length;
