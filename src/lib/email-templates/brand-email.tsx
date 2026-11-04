@@ -14,7 +14,7 @@ export type BrandEmailProps = {
   items?: { title: string; url: string; price?: string; image?: string | null; facts?: string }[];
 };
 
-const BrandEmail = ({ heading, intro, outro, ctaLabel, ctaUrl, details, items }: BrandEmailProps) => (
+export const BrandEmail = ({ heading, intro, outro, ctaLabel, ctaUrl, details, items }: BrandEmailProps) => (
   <Html lang="pt-BR" dir="ltr">
     <Head />
     <Preview>{heading || "S.A Imóveis Alphaville"}</Preview>
