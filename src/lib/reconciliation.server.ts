@@ -269,13 +269,8 @@ export async function runReconciliation(sb: SB, opts: RunOptions) {
     const r = await syncFromTokko(sb, api, {
       apply: true, importLimit: opts.skipImports ? 0 : MAX_IMPORTS_PER_DAY, officialUrls, cities: cities ?? [],
       missesBeforePause: MISSES_BEFORE_PAUSE,
-      // Confirmação: a página oficial antiga/atual não abre mais.
-      confirmGone: async (row) => {
-        const u = row.source_url as string | null;
-        if (!u) return true;
-        try { const res = await fetch(u, { headers: UA }); return !res.ok || !res.url.replace(/\/+$/, "").endsWith(sourceIdFromUrl(u) ?? "#"); }
-        catch { return false; }
-      },
+      // A API é a fonte: 2 execuções seguidas sem o imóvel bastam (sem abrir página antiga).
+      confirmGone: async () => true,
     });
     errors = r.errors;
     let indexnow: unknown = null;
@@ -288,7 +283,7 @@ export async function runReconciliation(sb: SB, opts: RunOptions) {
       paused: r.paused, reactivated: r.reactivated, imported: r.imported, merged: 0, paths_updated: r.updated,
       missing_in_portal: Math.max(0, r.new_in_api - r.imported),
       details: { source: "tokko-api", indexnow, updated: r.updated, photos_changed: r.photos_changed,
-        seo_regenerated: r.seo_regenerated, ambiguous: r.ambiguous, missing_active: r.missingReport },
+        seo_regenerated: r.seo_regenerated, deactivated: r.deactivated, created: r.imported, ambiguous: r.ambiguous, missing_active: r.missingReport },
     });
   } catch (e) {
     return await finish("failed", { error: e instanceof Error ? e.message : String(e) });
