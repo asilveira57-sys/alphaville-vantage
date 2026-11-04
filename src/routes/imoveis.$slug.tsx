@@ -20,6 +20,8 @@ import { PropertyPhotoTools } from "@/components/admin/property-photo-tools";
 import { PropertyShareBlock } from "@/components/property-share";
 import { propertyShareFacts, shareCoverImage } from "@/lib/property-sharing";
 import { listingPrices } from "@/lib/property-listing";
+import { CopyTextButton } from "@/components/copy-text-button";
+import { htmlToText } from "@/lib/importers/tokko";
 
 
 const fmtPrice = (n: number | null) =>
@@ -43,7 +45,11 @@ async function loadProperty(slug: string) {
       throw redirect({ href: r.new_url, statusCode: r.redirect_type === 302 ? 302 : 301 });
     }
   }
-  if (!property) throw notFound();
+  if (!property || property.status === "inactive" || property.status === "sold") {
+    // Anúncio que saiu sem endereço novo cadastrado: leva à busca geral.
+    if (property) throw redirect({ href: "/imoveis", statusCode: 301 });
+    throw notFound();
+  }
   return { ...property, opportunity };
 }
 
@@ -120,6 +126,9 @@ function PropertyDetail() {
   const p = Route.useLoaderData();
   const sale = fmtPrice(p.price_sale);
   const rent = fmtPrice(p.price_rent);
+  const aboutText = htmlToText(p.descricao_seo || p.description) ?? "";
+  const priceLine = [sale ? `Venda: ${sale}` : null, rent ? `Locação: ${rent}/mês` : null].filter(Boolean).join(" · ");
+  const copyDescription = [p.title, aboutText, priceLine, `${SITE_URL}/imoveis/${p.slug}`].filter(Boolean).join("\n\n");
 
   // Conta a visita uma vez por sessão do navegador. É o dado por trás do
   // sinal de "alta procura" — e como esse número vai à tela, recarregar a
@@ -188,9 +197,12 @@ function PropertyDetail() {
       <section className="px-6 py-12 border-t border-ink/8">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
           <div className="md:col-span-2">
-            <h2 className="font-serif text-2xl mb-4">Sobre este imóvel</h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+              <h2 className="font-serif text-2xl">Sobre este imóvel</h2>
+              {aboutText && <CopyTextButton text={copyDescription} label="Copiar descrição" ariaLabel="Copiar descrição do imóvel" />}
+            </div>
             <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-pretty">
-              {p.descricao_seo || p.description || "Sem descrição cadastrada."}
+              {aboutText || "Sem descrição cadastrada."}
             </div>
             {p.descricao_original && p.descricao_original !== p.descricao_seo && (
               <details className="mt-6 text-sm">
@@ -216,6 +228,14 @@ function PropertyDetail() {
           <aside>
             <h2 className="font-serif text-2xl mb-4">Dados do imóvel</h2>
             <dl className="border-t border-ink/10">
+              {p.internal_code && (
+                <Row label="Código" value={
+                  <span className="inline-flex items-center gap-3">
+                    <span>{p.internal_code}</span>
+                    <CopyTextButton text={p.internal_code} ariaLabel={`Copiar código ${p.internal_code}`} />
+                  </span>
+                } />
+              )}
               <Row label="Tipo" value={p.property_type} />
               <Row label="Finalidade" value={fmtPurpose(p.purpose)} />
               <Row label="Região" value={p.region} />
