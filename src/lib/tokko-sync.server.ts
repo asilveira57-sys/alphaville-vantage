@@ -23,7 +23,8 @@ export type PortalRow = Record<string, unknown> & {
 };
 
 const ORIGIN = "https://www.saimoveisalphaville.com.br";
-const LINK = /https?:\/\/(?:www\.)?saimoveisalphaville\.com\.br\/(?:alugar|comprar|comprar-ou-alugar)\/[a-z]{2}\/[^/<"'\s]+\/[^/<"'\s]+\/[a-z]+\/(\d+)/g;
+// Bairro pode vir com um segmento extra (".../alphaville-centro-industrial-e-empresarial/alphaville./sala/ID").
+const LINK = /https?:\/\/(?:www\.)?saimoveisalphaville\.com\.br\/(?:alugar|comprar|comprar-ou-alugar)\/[a-z]{2}(?:\/[^/<"'\s]+){2,3}\/[a-z]+\/(\d+)/g;
 
 /** URL pública oficial de cada ID Tokko, lida do mapa do site do site principal. */
 export async function officialUrlsFromSitemap(): Promise<Record<string, string>> {
