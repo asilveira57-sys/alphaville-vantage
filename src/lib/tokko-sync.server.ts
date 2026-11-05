@@ -7,6 +7,7 @@ import { buildSeoSlug, type SeoSource } from "./property-seo";
 import { regenerateSeoForIds } from "./property-seo-regen.server";
 import { fetchAllRows } from "./fetch-all";
 import { SITE_URL } from "./site";
+import { buildCondoIndex, hasManualCondo, matchTag, univenTag, type CondoIndex } from "./univen-condo-match";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SB = any;
@@ -15,7 +16,7 @@ export const PORTAL_COLS =
   "id,slug,status,created_at,internal_code,source_id,source_url,external_ref,manual_overrides,images," +
   "property_type,purpose,price_sale,price_rent,condominium_name,condo_fee,iptu,iptu_period,city,state,neighborhood," +
   "address,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_total,area_built,area_useful," +
-  "description,descricao_original,review_status,condominium_id,previous_codes";
+  "description,descricao_original,review_status,condominium_id,previous_codes,univen_empreendimento";
 
 export type PortalRow = Record<string, unknown> & {
   id: string; slug: string; status: string; created_at: string; internal_code: string | null;
@@ -53,6 +54,8 @@ export type SyncOptions = {
   allowDeactivate?: boolean;
   /** Acima disso, nada é desativado: a lista fica aguardando aprovação no admin. */
   maxDeactivate?: number;
+  /** Índice de condomínios (testes); padrão: carregado do banco. */
+  condoIndex?: CondoIndex;
 };
 
 /** Código definitivo: letras + 5 dígitos (ex.: CA04418). */
@@ -118,6 +121,9 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     && !ambiguousCodes.has(referenceKey(a.reference_code)) && (apiCodes.get(referenceKey(a.reference_code)) ?? 0) === 1
     && !knownCodes.has(referenceKey(a.reference_code)) && !knownIds.has(String(a.id)));
 
+  const condoIdx = opts.condoIndex ?? await loadCondoIndex(sb);
+  const condoLinks: { id: string; code: string | null; condo: string; tag: string }[] = [];
+  const condoSkipped: { code: string | null; tag: string; reason: string }[] = [];
   const now = new Date().toISOString();
   const changedUrls = new Set<string>();
   const seoIds: string[] = [];
@@ -155,12 +161,21 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       }
     }
     if (url) { link.source_url = url; link.external_ref = new URL(url).pathname; }
+    // Etiqueta "Empreendimento" (ou development): guarda e vincula só quem está sem condomínio e sem ajuste manual.
+    const tag = univenTag(a);
+    let condoLinked: { id: string; name: string } | null = null;
+    if ((row.univen_empreendimento ?? null) !== tag) link.univen_empreendimento = tag;
+    if (tag && !row.condominium_id && !hasManualCondo(row.manual_overrides as Record<string, unknown> | null)) {
+      const m = matchTag(condoIdx, tag, (patch.property_type ?? row.property_type) as string | null);
+      if (m.kind === "match") { condoLinked = { id: m.condo.id, name: m.condo.name }; link.condominium_id = m.condo.id; link.condominium_name = m.condo.name; }
+      else if (m.kind === "incompatible") condoSkipped.push({ code: row.internal_code, tag, reason: `uso incompatível com ${m.condo.name}` });
+    }
     if (row.status === "paused" || row.status === "inactive") {
       link.status = "active"; reactivated++;
       if (row.review_status === GONE) { link.review_status = null; reactivatedSlugs.push(`/imoveis/${row.slug}`); }
     }
     const linkChanged = row.source_id !== link.source_id || (url && row.source_url !== url);
-    if (Object.keys(patch).length || linkChanged || link.status || codeChange) {
+    if (Object.keys(patch).length || linkChanged || link.status || codeChange || condoLinked || "univen_empreendimento" in link) {
       if (opts.apply) {
         // Duplicados inativos (importados na troca de IDs) seguram o mesmo external_ref/ID:
         // liberar antes, senão o índice único bloqueia a atualização do registro ativo.
@@ -175,9 +190,10 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       }
       if (Object.keys(patch).length) updated++;
       if (mainPhotoChanged) photos++;
-      if (factChanged || codeChange) seoIds.push(row.id);
+      if (factChanged || codeChange || condoLinked) seoIds.push(row.id);
+      if (condoLinked) condoLinks.push({ id: row.id, code: row.internal_code, condo: condoLinked.name, tag: tag! });
       if (codeChange) { codeChanges.push({ ...codeChange, slug: row.slug }); codeIds.push(row.id); }
-      if (factChanged || link.status || codeChange) changedUrls.add(propUrl(row.slug));
+      if (factChanged || link.status || codeChange || condoLinked) changedUrls.add(propUrl(row.slug));
     }
     const changes = Object.keys(patch).filter((k) => k !== "images" && k !== "description" && k !== "descricao_original");
     if (changes.length || mainPhotoChanged || conflicts.length) report.push({
@@ -240,6 +256,13 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       const outOfArea = !officialCity;
       f.city = officialCity ?? f.city;
       const ref = url ? new URL(url).pathname : `/tokko/${a.id}`;
+      const tag = univenTag(a);
+      f.univen_empreendimento = tag;
+      if (tag) {
+        const m = matchTag(condoIdx, tag, f.property_type as string | null);
+        if (m.kind === "match") { f.condominium_id = m.condo.id; f.condominium_name = m.condo.name; }
+        else if (m.kind === "incompatible") condoSkipped.push({ code: referenceKey(a.reference_code), tag, reason: `uso incompatível com ${m.condo.name}` });
+      }
       let slug = buildSeoSlug({ ...f, external_ref: ref, source_url: url } as unknown as SeoSource, ref);
       const { data: clash } = await sb.from("properties").select("id").eq("slug", slug).maybeSingle();
       if (clash) slug = `${slug}-${Date.now().toString(36)}`;
@@ -259,6 +282,11 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     } catch (e) { errors.push(`importar ${a.reference_code}: ${e instanceof Error ? e.message : String(e)}`); }
   }
 
+  // Vínculo novo de condomínio: slug passa a levar o condomínio, com 301 do endereço antigo.
+  if (opts.apply) for (const l of condoLinks) {
+    const res = await relinkSlug(sb, l.id);
+    if (res?.changed) { changedUrls.delete(propUrl(res.old)); changedUrls.add(propUrl(res.slug)); }
+  }
   if (opts.apply) for (let i = 0; i < seoIds.length; i += 100) await regenerateSeoForIds(sb, seoIds.slice(i, i + 100));
   // Atualiza o índice de busca com o título novo (o gatilho roda ao gravar os apelidos).
   if (opts.apply) for (const id of codeIds) {
@@ -269,11 +297,42 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   return {
     matched: matched.length, ambiguous: ambiguous.length, missing_active: missingActive.length,
     new_in_api: fresh.length, updated, photos_changed: photos, seo_regenerated: opts.apply ? seoIds.length : 0,
-    reactivated, paused, deactivated, imported, errors, codeChanges, pendingDeactivation, held, report, missingReport, newReport, changedUrls: [...changedUrls],
+    reactivated, paused, deactivated, imported, errors, codeChanges, condoLinks, condoSkipped, pendingDeactivation, held, report, missingReport, newReport, changedUrls: [...changedUrls],
   };
 }
 
 export const GONE = "saiu_da_api";
+
+/** Condomínios + apelidos (Central e Univen) para o vínculo pela etiqueta. */
+export async function loadCondoIndex(sb: SB): Promise<CondoIndex> {
+  const [c, a, u] = await Promise.all([
+    fetchAllRows((f: number, t: number) => sb.from("condominiums").select("id,name,slug,usage,status").order("id").range(f, t)),
+    sb.from("condominium_aliases").select("normalized_alias,condominium_id,is_not_condominium"),
+    sb.from("univen_condo_aliases").select("normalized_tag,usage,condominium_id,ignored"),
+  ]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return buildCondoIndex(c as any, (a.data ?? []) as any, (u.data ?? []) as any);
+}
+
+/** Regera o slug com o condomínio oficial; 301 do antigo e redirecionamentos encadeados atualizados. */
+export async function relinkSlug(sb: SB, id: string): Promise<{ changed: boolean; old: string; slug: string } | null> {
+  const { data: r } = await sb.from("properties").select("id,slug,internal_code,external_ref,property_type,purpose,neighborhood,city,condominium_id").eq("id", id).single();
+  if (!r) return null;
+  const { data: c } = r.condominium_id ? await sb.from("condominiums").select("name,slug").eq("id", r.condominium_id).maybeSingle() : { data: null };
+  const name = c && c.slug !== "nao-se-aplica" ? c.name : null;
+  let slug = buildSeoSlug({ ...r, condominium_name: name } as unknown as SeoSource, r.external_ref);
+  if (slug === r.slug) return { changed: false, old: r.slug, slug };
+  const { data: clash } = await sb.from("properties").select("id").eq("slug", slug).neq("id", id).maybeSingle();
+  if (clash) slug = `${slug}-${String(r.internal_code ?? r.id).toLowerCase()}`;
+  const { error } = await sb.from("properties").update({ slug }).eq("id", id);
+  if (error) return null;
+  const oldUrl = `/imoveis/${r.slug}`, newUrl = `/imoveis/${slug}`;
+  await sb.from("seo_redirects").update({ new_url: newUrl }).eq("new_url", oldUrl);
+  const { data: ex } = await sb.from("seo_redirects").select("id").eq("old_url", oldUrl).maybeSingle();
+  if (ex) await sb.from("seo_redirects").update({ new_url: newUrl, active: true, redirect_type: 301, note: "troca_condominio" }).eq("id", ex.id);
+  else await sb.from("seo_redirects").insert({ old_url: oldUrl, new_url: newUrl, redirect_type: 301, active: true, note: "troca_condominio" });
+  return { changed: true, old: r.slug, slug };
+}
 
 /** Busca do mesmo condomínio (ou do bairro) para quem cai num anúncio que saiu. */
 export async function goneRedirectTarget(sb: SB, r: PortalRow): Promise<string> {

@@ -47,3 +47,10 @@
 - [x] Código segue a Univen, códigos antigos viram apelido de busca; 8 aplicados.
 - [x] Alertas de código fora do padrão/repetido no painel.
 - [ ] Publicar para valer na execução de hora em hora.
+
+## Condomínios pela etiqueta da Univen (05/11)
+- [x] Gravar 198 dos 199 do grupo 1 (CA04365 inativo), com título/slug/SEO e 301.
+- [x] Tabela de apelidos Univen + uso na sincronização; "Não se Aplica" desativado.
+- [x] Uso residencial/comercial/misto; Link, Acqua Park, Europa, Alpha Green, Trix separados.
+- [x] Tela "Etiquetas da Univen", relatórios e CSV de apelidos.
+- [ ] Publicar para a sincronização de hora em hora usar as regras novas.

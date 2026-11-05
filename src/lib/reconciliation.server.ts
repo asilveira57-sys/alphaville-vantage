@@ -342,7 +342,7 @@ export async function runReconciliation(sb: SB, opts: RunOptions) {
       details: { source: "tokko-api", indexnow, updated: r.updated, photos_changed: r.photos_changed, api_expected: fetched.expected,
         api_complete: fetched.complete, api_retries: fetched.retries, last_complete_count: lastOk?.origin_count ?? null,
         seo_regenerated: r.seo_regenerated, deactivated: r.deactivated, created: r.imported, ambiguous: r.ambiguous,
-        missing_active: r.missingReport, code_changes: r.codeChanges, seconds: Math.round((Date.now() - t0) / 1000) },
+        missing_active: r.missingReport, code_changes: r.codeChanges, condo_links: r.condoLinks.map(({ id: _i, ...x }) => x), condo_skipped: r.condoSkipped, seconds: Math.round((Date.now() - t0) / 1000) },
     };
     if (!gate.allow) { alerts.push(String(fields.error)); await sendSyncAlert("Sincronização incompleta — nada desativado", String(fields.error), [], `incomplete-${run.id}`); }
     if (r.held) {

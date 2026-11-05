@@ -1,6 +1,7 @@
 import { SITE_URL } from "@/lib/site";
 import { absoluteImageUrl, firstRealImage, largeVariant } from "@/lib/image-fallbacks";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+import { getRedirectFor } from "@/lib/seo.functions";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
@@ -37,7 +38,12 @@ const propsArgsFrom = (page: Record<string, unknown> | null | undefined): PropsA
 export const Route = createFileRoute("/condominios/$slug")({
   loader: async ({ params, context }) => {
     const page = await context.queryClient.ensureQueryData(pageQO(params.slug));
-    if (!page || page.content_type !== "condominio") throw notFound();
+    if (!page || page.content_type !== "condominio") {
+      // Condomínio desativado/separado: 301 cadastrado (ex.: Acqua Park genérico → busca).
+      const r = await getRedirectFor({ data: { path: `/condominios/${params.slug}` } }).catch(() => null);
+      if (r?.new_url) throw redirect({ href: r.new_url, statusCode: r.redirect_type === 302 ? 302 : 301 });
+      throw notFound();
+    }
     await context.queryClient.ensureQueryData(relatedQO(params.slug));
     await context.queryClient.ensureQueryData(propsQO(params.slug, propsArgsFrom(page as never)));
     return { page };
