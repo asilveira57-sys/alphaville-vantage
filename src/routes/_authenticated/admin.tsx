@@ -368,6 +368,9 @@ function AdminPage() {
               <Link to="/admin-conciliacao" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
                 Conciliação diária →
               </Link>
+              <Link to="/admin-etiquetas-univen" className="border border-ink px-3 py-2 flex items-center justify-center text-xs uppercase tracking-widest hover:bg-ink hover:text-canvas">
+                Etiquetas da Univen →
+              </Link>
               <button
                 type="button"
                 onClick={handleExport}
