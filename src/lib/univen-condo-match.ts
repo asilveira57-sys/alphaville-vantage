@@ -44,7 +44,7 @@ export function buildCondoIndex(condos: CondoRef[], aliases: CondoAliasRef[], un
   const byId = new Map(condos.map((c) => [c.id, c]));
   const byName = new Map<string, CondoRef[]>();
   const add = (k: string, c: CondoRef | undefined) => {
-    if (!k || !c || c.slug === NOT_APPLICABLE_SLUG) return;
+    if (!k || !c || c.slug === NOT_APPLICABLE_SLUG || (c.status && c.status !== "published")) return;
     const l = byName.get(k) ?? [];
     if (!l.some((x) => x.id === c.id)) l.push(c);
     byName.set(k, l);
