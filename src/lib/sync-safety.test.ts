@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { deactivationGate, MAX_DEACTIVATIONS_PER_RUN, ALERT_DEACTIVATIONS } from "./reconciliation.server";
-import { codeAnomaly } from "./tokko-sync.server";
+import { codeAnomaly, classifyCode } from "./tokko-sync.server";
 import { fetchTokkoProperties } from "./tokko-api.server";
 
 describe("trava de desativação", () => {
@@ -13,7 +13,9 @@ describe("trava de desativação", () => {
 describe("código fora do padrão", () => {
   it("CA004420 tem dígitos demais", () => expect(codeAnomaly("CA004420")).toBe("6 dígitos depois das letras"));
   it("AP07357 está no padrão", () => expect(codeAnomaly("AP07357")).toBeNull());
-  it("provisório SAP12842223 é alertado", () => expect(codeAnomaly("SAP12842223")).not.toBeNull());
+  it("letras + ID do imóvel é válido", () => expect(classifyCode("AP13213517", "13213517").kind).toBe("ok"));
+  it("3 letras + ID vai para provisórios", () => expect(classifyCode("CAS13165351", "13165351").kind).toBe("provisional"));
+  it("8 dígitos que não são o ID é alerta", () => expect(classifyCode("AP13213517", "999").kind).toBe("anomaly"));
 });
 
 describe("coleta da API", () => {

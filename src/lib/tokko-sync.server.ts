@@ -55,18 +55,30 @@ export type SyncOptions = {
   maxDeactivate?: number;
 };
 
-/** Código definitivo da Univen: 2 letras + 5 dígitos (ex.: AP07357). */
-export const STANDARD_CODE = /^[A-Z]{2}\d{5}$/;
-/** Motivo de alerta para código fora do padrão (null = ok). */
-export function codeAnomaly(code: string | null | undefined): string | null {
+/** Código definitivo: letras + 5 dígitos (ex.: CA04418). */
+export const STANDARD_CODE = /^[A-Z]+\d{5}$/;
+export type CodeCheck = { kind: "ok" | "provisional" | "anomaly"; reason: string | null };
+/**
+ * Válidos: letras + 5 dígitos, ou 2 letras + o próprio ID do imóvel (AP13213517).
+ * 3+ letras + ID (CAS13165351) = provável código provisório; o resto é alerta.
+ */
+export function classifyCode(code: string | null | undefined, sourceId?: string | number | null): CodeCheck {
   const c = (code ?? "").trim().toUpperCase();
-  if (!c) return "sem código";
-  if (STANDARD_CODE.test(c)) return null;
+  if (!c) return { kind: "anomaly", reason: "sem código" };
+  if (STANDARD_CODE.test(c)) return { kind: "ok", reason: null };
   const m = /^([A-Z]+)(\d+)$/.exec(c);
-  if (!m) return "formato desconhecido";
-  if (m[2].length > 5) return `${m[2].length} dígitos depois das letras`;
-  if (m[1].length !== 2) return `${m[1].length} letras`;
-  return "menos de 5 dígitos";
+  if (!m) return { kind: "anomaly", reason: "formato desconhecido" };
+  const id = String(sourceId ?? "").trim();
+  if (id && m[2] === id) {
+    return m[1].length === 2 ? { kind: "ok", reason: null } : { kind: "provisional", reason: `${m[1].length} letras + ID` };
+  }
+  if (m[2].length > 5) return { kind: "anomaly", reason: `${m[2].length} dígitos depois das letras` };
+  return { kind: "anomaly", reason: "menos de 5 dígitos" };
+}
+/** Motivo de alerta (null = válido ou provisório). */
+export function codeAnomaly(code: string | null | undefined, sourceId?: string | number | null): string | null {
+  const r = classifyCode(code, sourceId);
+  return r.kind === "anomaly" ? r.reason : null;
 }
 
 export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOptions) {

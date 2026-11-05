@@ -80,7 +80,7 @@ function Page() {
           </div>
         );
       })}
-      {codeAlerts && (codeAlerts.duplicates.length > 0 || codeAlerts.nonStandard.length > 0) && (
+      {codeAlerts && (codeAlerts.duplicates.length > 0 || codeAlerts.nonStandard.length > 0 || codeAlerts.provisional.length > 0) && (
         <div className="rounded-lg border p-4 text-sm space-y-2">
           <p className="font-semibold">Alertas de código</p>
           {codeAlerts.duplicates.length > 0 && (
@@ -88,10 +88,20 @@ function Page() {
           )}
           {codeAlerts.nonStandard.length > 0 && (
             <div>
-              <b>Fora do padrão de 2 letras + 5 dígitos ({codeAlerts.nonStandard.length}):</b>
+              <b>Fora do padrão — não é letras + 5 dígitos nem letras + ID do imóvel ({codeAlerts.nonStandard.length}):</b>
               <ul className="mt-1 grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3 text-xs">
                 {codeAlerts.nonStandard.map((c) => (
                   <li key={c.slug}><a className="underline" href={`/imoveis/${c.slug}`} target="_blank" rel="noreferrer">{c.code}</a> — {c.reason}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {codeAlerts.provisional.length > 0 && (
+            <div className="text-muted-foreground">
+              <b>Possíveis códigos provisórios — 3 letras + ID, o corretor pode trocar ({codeAlerts.provisional.length}):</b>
+              <ul className="mt-1 grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3 text-xs">
+                {codeAlerts.provisional.map((c) => (
+                  <li key={c.slug}><a className="underline" href={`/imoveis/${c.slug}`} target="_blank" rel="noreferrer">{c.code}</a></li>
                 ))}
               </ul>
             </div>
