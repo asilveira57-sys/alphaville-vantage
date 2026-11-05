@@ -78,6 +78,7 @@ import { Route as AuthenticatedAdminSemFotoRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin-seo'
 import { Route as AuthenticatedAdminValoresRouteImport } from './routes/_authenticated/admin-valores'
 import { Route as AuthenticatedCmsRouteImport } from './routes/_authenticated/cms'
+import { Route as ApiTmpApplyCondoPlanRouteImport } from './routes/api/tmp-apply-condo-plan'
 import { Route as ArtigosSlugRouteImport } from './routes/artigos.$slug'
 import { Route as BairrosIndexRouteImport } from './routes/bairros.index'
 import { Route as BairrosSlugRouteImport } from './routes/bairros.$slug'
@@ -490,6 +491,11 @@ const AuthenticatedCmsRoute = AuthenticatedCmsRouteImport.update({
   path: '/cms',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiTmpApplyCondoPlanRoute = ApiTmpApplyCondoPlanRouteImport.update({
+  id: '/api/tmp-apply-condo-plan',
+  path: '/api/tmp-apply-condo-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArtigosSlugRoute = ArtigosSlugRouteImport.update({
   id: '/artigos/$slug',
   path: '/artigos/$slug',
@@ -825,6 +831,7 @@ export interface FileRoutesByFullPath {
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/cms': typeof AuthenticatedCmsRouteWithChildren
+  '/api/tmp-apply-condo-plan': typeof ApiTmpApplyCondoPlanRoute
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -935,6 +942,7 @@ export interface FileRoutesByTo {
   '/admin-sem-foto': typeof AuthenticatedAdminSemFotoRoute
   '/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/admin-valores': typeof AuthenticatedAdminValoresRoute
+  '/api/tmp-apply-condo-plan': typeof ApiTmpApplyCondoPlanRoute
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -1056,6 +1064,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin-valores': typeof AuthenticatedAdminValoresRoute
   '/_authenticated/cms': typeof AuthenticatedCmsRouteWithChildren
+  '/api/tmp-apply-condo-plan': typeof ApiTmpApplyCondoPlanRoute
   '/artigos/$slug': typeof ArtigosSlugRoute
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -1177,6 +1186,7 @@ export interface FileRouteTypes {
     | '/admin-seo'
     | '/admin-valores'
     | '/cms'
+    | '/api/tmp-apply-condo-plan'
     | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
@@ -1287,6 +1297,7 @@ export interface FileRouteTypes {
     | '/admin-sem-foto'
     | '/admin-seo'
     | '/admin-valores'
+    | '/api/tmp-apply-condo-plan'
     | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
@@ -1407,6 +1418,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-seo'
     | '/_authenticated/admin-valores'
     | '/_authenticated/cms'
+    | '/api/tmp-apply-condo-plan'
     | '/artigos/$slug'
     | '/bairros/$slug'
     | '/blog/$slug'
@@ -1501,6 +1513,7 @@ export interface RootRouteChildren {
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TransparenciaRoute: typeof TransparenciaRoute
   VenderMeuImovelRoute: typeof VenderMeuImovelRoute
+  ApiTmpApplyCondoPlanRoute: typeof ApiTmpApplyCondoPlanRoute
   ArtigosSlugRoute: typeof ArtigosSlugRoute
   BairrosSlugRoute: typeof BairrosSlugRoute
   CondominiosSlugRoute: typeof CondominiosSlugRoute
@@ -2009,6 +2022,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/cms'
       preLoaderRoute: typeof AuthenticatedCmsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/tmp-apply-condo-plan': {
+      id: '/api/tmp-apply-condo-plan'
+      path: '/api/tmp-apply-condo-plan'
+      fullPath: '/api/tmp-apply-condo-plan'
+      preLoaderRoute: typeof ApiTmpApplyCondoPlanRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/artigos/$slug': {
       id: '/artigos/$slug'
@@ -2602,6 +2622,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermosDeUsoRoute: TermosDeUsoRoute,
   TransparenciaRoute: TransparenciaRoute,
   VenderMeuImovelRoute: VenderMeuImovelRoute,
+  ApiTmpApplyCondoPlanRoute: ApiTmpApplyCondoPlanRoute,
   ArtigosSlugRoute: ArtigosSlugRoute,
   BairrosSlugRoute: BairrosSlugRoute,
   CondominiosSlugRoute: CondominiosSlugRoute,
