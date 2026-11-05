@@ -31,23 +31,25 @@ export const approveHeldDeactivationNow = createServerFn({ method: "POST" })
     return approveHeldDeactivation(supabaseAdmin, data.runId);
   });
 
-/** Alertas de código: fora do padrão (2 letras + 5 dígitos) e código repetido em dois imóveis. */
+/** Alertas de código: fora do padrão (letras + 5 dígitos ou 2 letras + ID), provisórios (3 letras + ID) e código repetido em dois imóveis. */
 export const listCodeAlerts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { fetchAllRows } = await import("./fetch-all");
-    const { codeAnomaly } = await import("./tokko-sync.server");
-    const rows = await fetchAllRows<{ id: string; slug: string; internal_code: string | null; status: string }>((f, t) =>
-      supabaseAdmin.from("properties").select("id,slug,internal_code,status").eq("status", "active").order("created_at").range(f, t));
+    const { classifyCode } = await import("./tokko-sync.server");
+    const rows = await fetchAllRows<{ id: string; slug: string; internal_code: string | null; status: string; source_id: string | null }>((f, t) =>
+      supabaseAdmin.from("properties").select("id,slug,internal_code,status,source_id").eq("status", "active").order("created_at").range(f, t));
     const byCode = new Map<string, typeof rows>();
     for (const r of rows) {
       const c = (r.internal_code ?? "").trim().toUpperCase();
       if (c) byCode.set(c, [...(byCode.get(c) ?? []), r]);
     }
     const duplicates = [...byCode].filter(([, l]) => l.length > 1).map(([code, l]) => ({ code, slugs: l.map((x) => x.slug) }));
-    const nonStandard = rows.map((r) => ({ code: r.internal_code, slug: r.slug, reason: codeAnomaly(r.internal_code) }))
-      .filter((r) => r.reason && r.reason !== "sem código");
-    return { duplicates, nonStandard };
+    const checked = rows.map((r) => ({ code: r.internal_code, slug: r.slug, ...classifyCode(r.internal_code, r.source_id) }))
+      .filter((r) => r.reason !== "sem código");
+    const nonStandard = checked.filter((r) => r.kind === "anomaly").map(({ code, slug, reason }) => ({ code, slug, reason }));
+    const provisional = checked.filter((r) => r.kind === "provisional").map(({ code, slug, reason }) => ({ code, slug, reason }));
+    return { duplicates, nonStandard, provisional };
   });
