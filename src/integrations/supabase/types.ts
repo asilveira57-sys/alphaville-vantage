@@ -181,6 +181,7 @@ export type Database = {
           street_id: string | null
           units_count: number | null
           updated_at: string
+          usage: string | null
           year_built: number | null
         }
         Insert: {
@@ -198,6 +199,7 @@ export type Database = {
           street_id?: string | null
           units_count?: number | null
           updated_at?: string
+          usage?: string | null
           year_built?: number | null
         }
         Update: {
@@ -215,6 +217,7 @@ export type Database = {
           street_id?: string | null
           units_count?: number | null
           updated_at?: string
+          usage?: string | null
           year_built?: number | null
         }
         Relationships: [
@@ -1622,6 +1625,7 @@ export type Database = {
           suites: number | null
           thumb_source: string | null
           title: string
+          univen_empreendimento: string | null
           updated_at: string
         }
         Insert: {
@@ -1705,6 +1709,7 @@ export type Database = {
           suites?: number | null
           thumb_source?: string | null
           title: string
+          univen_empreendimento?: string | null
           updated_at?: string
         }
         Update: {
@@ -1788,6 +1793,7 @@ export type Database = {
           suites?: number | null
           thumb_source?: string | null
           title?: string
+          univen_empreendimento?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -2772,6 +2778,47 @@ export type Database = {
             columns: ["cta_id"]
             isOneToOne: false
             referencedRelation: "cta_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      univen_condo_aliases: {
+        Row: {
+          condominium_id: string | null
+          created_at: string
+          id: string
+          ignored: boolean
+          normalized_tag: string
+          tag: string
+          updated_at: string
+          usage: string | null
+        }
+        Insert: {
+          condominium_id?: string | null
+          created_at?: string
+          id?: string
+          ignored?: boolean
+          normalized_tag: string
+          tag: string
+          updated_at?: string
+          usage?: string | null
+        }
+        Update: {
+          condominium_id?: string | null
+          created_at?: string
+          id?: string
+          ignored?: boolean
+          normalized_tag?: string
+          tag?: string
+          updated_at?: string
+          usage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "univen_condo_aliases_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
             referencedColumns: ["id"]
           },
         ]
