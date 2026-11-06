@@ -1,4 +1,10 @@
 # Visual da home
+## Campanhas de e-mail (06/11)
+- [ ] Contatos, importação CSV validada e integração apenas com consentimento de marketing.
+- [ ] Editor por blocos, imóveis, prévias e modelo Reconfirmação.
+- [ ] Fila Resend, aquecimento diário, descadastro assinado e eventos protegidos.
+- [ ] Métricas, pausas automáticas e atribuição de leads por campanha.
+- [ ] Importação demonstrativa de 20 contatos e teste apenas para contato@saimoveisalpha.com.br; nenhum envio à lista real.
 ## Fotos exclusivas de admin (04/11)
 - [x] Barra acima da galeria, download direto por código e aviso de fotos faltantes.
 - [x] Download em cada linha da lista de fotos do Admin; visitante sem controles/HTML sem botões e download real admin conferidos (7 fotos), 3 testes de ZIP.
