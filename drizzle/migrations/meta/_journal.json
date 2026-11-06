@@ -267,6 +267,13 @@
       "when": 1793973346151,
       "tag": "0037_email_contact_unification",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793973602074,
+      "tag": "0038_campaign_storage_and_scheduler",
+      "breakpoints": true
     }
   ]
 }

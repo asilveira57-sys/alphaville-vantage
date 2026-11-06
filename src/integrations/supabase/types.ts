@@ -3172,6 +3172,7 @@ export type Database = {
         }[]
       }
       email_enqueue_campaign: { Args: { cid: string }; Returns: number }
+      email_marketing_arm_queue: { Args: never; Returns: undefined }
       email_marketing_batch_commit: {
         Args: { bid: string; result: Json }
         Returns: undefined
