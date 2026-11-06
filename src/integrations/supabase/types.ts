@@ -3147,13 +3147,40 @@ export type Database = {
             Returns: string
           }
       condo_num_norm: { Args: { t: string }; Returns: string }
+      email_campaign_metrics: {
+        Args: never
+        Returns: {
+          aberturas: number
+          campaign_id: string
+          cliques: number
+          descadastros: number
+          entregues: number
+          enviados: number
+          leads: number
+          pendentes: number
+          reclamacoes: number
+          rejeicoes: number
+        }[]
+      }
       email_contact_merge: { Args: { p: Json }; Returns: string }
       email_enqueue_campaign: { Args: { cid: string }; Returns: number }
+      email_marketing_batch_commit: {
+        Args: { bid: string; result: Json }
+        Returns: undefined
+      }
+      email_marketing_confirm: {
+        Args: { contact: string; ip: string }
+        Returns: boolean
+      }
       email_marketing_event: {
         Args: { eid: string; etime: string; etype: string; pid: string }
         Returns: boolean
       }
       email_marketing_lease: { Args: { owner_id: string }; Returns: boolean }
+      email_marketing_optout: {
+        Args: { campaign: string; contact: string }
+        Returns: undefined
+      }
       fuzzy_eq: { Args: { a: string; b: string }; Returns: boolean }
       fuzzy_norm: { Args: { t: string }; Returns: string }
       has_role: {
