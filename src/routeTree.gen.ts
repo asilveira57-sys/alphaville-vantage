@@ -125,6 +125,7 @@ import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as ApiPublicGaConfigRouteImport } from './routes/api/public/ga-config'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
+import { Route as ApiPublicCampaignImageNameRouteImport } from './routes/api/public/campaign-image.$name'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 import { Route as ApiPublicHooksCampaignQueueRouteImport } from './routes/api/public/hooks/campaign-queue'
 import { Route as ApiPublicHooksOpportunityRevaluationRouteImport } from './routes/api/public/hooks/opportunity-revaluation'
@@ -747,6 +748,12 @@ const ApiPublicIndexnowKeyDottxtRoute =
     path: '/api/public/indexnow-key.txt',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCampaignImageNameRoute =
+  ApiPublicCampaignImageNameRouteImport.update({
+    id: '/api/public/campaign-image/$name',
+    path: '/api/public/campaign-image/$name',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicEditorialImageSplatRoute =
   ApiPublicEditorialImageSplatRouteImport.update({
     id: '/api/public/editorial-image/$',
@@ -911,6 +918,7 @@ export interface FileRoutesByFullPath {
   '/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit/': typeof AuthenticatedAuditIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
+  '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
@@ -1027,6 +1035,7 @@ export interface FileRoutesByTo {
   '/area-do-parceiro': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit': typeof AuthenticatedAuditIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
+  '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
@@ -1154,6 +1163,7 @@ export interface FileRoutesById {
   '/_authenticated/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
+  '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
@@ -1281,6 +1291,7 @@ export interface FileRouteTypes {
     | '/area-do-parceiro/'
     | '/audit/'
     | '/cms/'
+    | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
@@ -1397,6 +1408,7 @@ export interface FileRouteTypes {
     | '/area-do-parceiro'
     | '/audit'
     | '/cms'
+    | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
@@ -1523,6 +1535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/area-do-parceiro/'
     | '/_authenticated/audit/'
     | '/_authenticated/cms/'
+    | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
@@ -1594,6 +1607,7 @@ export interface RootRouteChildren {
   RadarIndexRoute: typeof RadarIndexRoute
   ApiPublicGaConfigRoute: typeof ApiPublicGaConfigRoute
   ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
+  ApiPublicCampaignImageNameRoute: typeof ApiPublicCampaignImageNameRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
   ApiPublicHooksCampaignQueueRoute: typeof ApiPublicHooksCampaignQueueRoute
   ApiPublicHooksOpportunityRevaluationRoute: typeof ApiPublicHooksOpportunityRevaluationRoute
@@ -2418,6 +2432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIndexnowKeyDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/campaign-image/$name': {
+      id: '/api/public/campaign-image/$name'
+      path: '/api/public/campaign-image/$name'
+      fullPath: '/api/public/campaign-image/$name'
+      preLoaderRoute: typeof ApiPublicCampaignImageNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/editorial-image/$': {
       id: '/api/public/editorial-image/$'
       path: '/api/public/editorial-image/$'
@@ -2746,6 +2767,7 @@ const rootRouteChildren: RootRouteChildren = {
   RadarIndexRoute: RadarIndexRoute,
   ApiPublicGaConfigRoute: ApiPublicGaConfigRoute,
   ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
+  ApiPublicCampaignImageNameRoute: ApiPublicCampaignImageNameRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
   ApiPublicHooksCampaignQueueRoute: ApiPublicHooksCampaignQueueRoute,
   ApiPublicHooksOpportunityRevaluationRoute:
