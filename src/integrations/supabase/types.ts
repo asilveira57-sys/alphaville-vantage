@@ -3163,6 +3163,14 @@ export type Database = {
         }[]
       }
       email_contact_merge: { Args: { p: Json }; Returns: string }
+      email_contact_summary: {
+        Args: never
+        Returns: {
+          status: string
+          total: number
+          validacao: string
+        }[]
+      }
       email_enqueue_campaign: { Args: { cid: string }; Returns: number }
       email_marketing_batch_commit: {
         Args: { bid: string; result: Json }
@@ -3181,6 +3189,7 @@ export type Database = {
         Args: { campaign: string; contact: string }
         Returns: undefined
       }
+      email_marketing_unify: { Args: never; Returns: number }
       fuzzy_eq: { Args: { a: string; b: string }; Returns: boolean }
       fuzzy_norm: { Args: { t: string }; Returns: string }
       has_role: {
