@@ -1,10 +1,12 @@
 # Visual da home
 ## Campanhas de e-mail (06/11)
-- [ ] Contatos, importação CSV validada e integração apenas com consentimento de marketing.
-- [ ] Editor por blocos, imóveis, prévias e modelo Reconfirmação.
-- [ ] Fila Resend, aquecimento diário, descadastro assinado e eventos protegidos.
-- [ ] Métricas, pausas automáticas e atribuição de leads por campanha.
-- [ ] Importação demonstrativa de 20 contatos e teste apenas para contato@saimoveisalpha.com.br; nenhum envio à lista real.
+- [x] Contatos e CSV com prévia, lotes de 250, deduplicação e consentimento; newsletter sem evidência fica inativa.
+- [x] Editor por blocos, seleção de imóveis, prévias e modelo Reconfirmação; imagens em Storage privado com endereço público restrito a imagens de campanhas (bucket público bloqueado pelo espaço).
+- [x] Fila até 100, limite inicial 1.000/dia, trava por execução, desligado por padrão; agendamento a cada minuto apenas quando iniciado, desliga ao drenar.
+- [x] Descadastro assinado sem login testado em contato fictício e lido no Admin; métricas, limites de rejeição/reclamação e UTM existentes do Radar/captação preservados.
+- [x] CSV de 20 demonstrado no Admin: 16 válidos, 2 arriscados inativos, 2 inválidos excluídos. Nenhum envio à lista real; 11 testes passaram e telas desktop/celular verificadas.
+- [ ] Enviar teste aceito pelo Resend — bloqueado: Resend retornou 403, domínio news.saimoveisalpha.com.br não verificado na conta da chave cadastrada.
+- [ ] Validar eventos e envio real ponta a ponta — bloqueado: publicar o endereço dos eventos, configurar eventos no Resend e cadastrar RESEND_WEBHOOK_SECRET; campanhas permanecem desligadas.
 ## Fotos exclusivas de admin (04/11)
 - [x] Barra acima da galeria, download direto por código e aviso de fotos faltantes.
 - [x] Download em cada linha da lista de fotos do Admin; visitante sem controles/HTML sem botões e download real admin conferidos (7 fotos), 3 testes de ZIP.
