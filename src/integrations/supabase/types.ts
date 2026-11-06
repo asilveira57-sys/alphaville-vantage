@@ -702,6 +702,155 @@ export type Database = {
           },
         ]
       }
+      email_batches: {
+        Row: {
+          campaign_id: string
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          id: string
+          payload: Json | null
+          provider_result: Json | null
+          status: string
+        }
+        Insert: {
+          campaign_id: string
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          provider_result?: Json | null
+          status?: string
+        }
+        Update: {
+          campaign_id?: string
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          provider_result?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_batches_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_campaigns: {
+        Row: {
+          assunto: string
+          audience_tag: string | null
+          blocks: Json
+          created_at: string
+          id: string
+          nome: string
+          pause_reason: string | null
+          slug: string
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assunto: string
+          audience_tag?: string | null
+          blocks?: Json
+          created_at?: string
+          id?: string
+          nome: string
+          pause_reason?: string | null
+          slug: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assunto?: string
+          audience_tag?: string | null
+          blocks?: Json
+          created_at?: string
+          id?: string
+          nome?: string
+          pause_reason?: string | null
+          slug?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_contacts: {
+        Row: {
+          consentimento_data: string | null
+          consentimento_ip: string | null
+          consentimento_texto: string | null
+          created_at: string
+          data_cadastro_original: string
+          descadastrado_em: string | null
+          email: string
+          envios_sem_abrir: number
+          id: string
+          nome: string
+          origem: string
+          risco_liberado: boolean
+          status: string
+          tags: string[]
+          ultima_abertura: string | null
+          ultimo_clique: string | null
+          ultimo_envio: string | null
+          updated_at: string
+          validacao: string
+        }
+        Insert: {
+          consentimento_data?: string | null
+          consentimento_ip?: string | null
+          consentimento_texto?: string | null
+          created_at?: string
+          data_cadastro_original?: string
+          descadastrado_em?: string | null
+          email: string
+          envios_sem_abrir?: number
+          id?: string
+          nome?: string
+          origem?: string
+          risco_liberado?: boolean
+          status?: string
+          tags?: string[]
+          ultima_abertura?: string | null
+          ultimo_clique?: string | null
+          ultimo_envio?: string | null
+          updated_at?: string
+          validacao?: string
+        }
+        Update: {
+          consentimento_data?: string | null
+          consentimento_ip?: string | null
+          consentimento_texto?: string | null
+          created_at?: string
+          data_cadastro_original?: string
+          descadastrado_em?: string | null
+          email?: string
+          envios_sem_abrir?: number
+          id?: string
+          nome?: string
+          origem?: string
+          risco_liberado?: boolean
+          status?: string
+          tags?: string[]
+          ultima_abertura?: string | null
+          ultimo_clique?: string | null
+          ultimo_envio?: string | null
+          updated_at?: string
+          validacao?: string
+        }
+        Relationships: []
+      }
       email_dispatch_log: {
         Row: {
           created_at: string
@@ -731,6 +880,145 @@ export type Database = {
           template_name?: string
         }
         Relationships: []
+      }
+      email_marketing_events: {
+        Row: {
+          id: string
+          occurred_at: string
+          processed_at: string
+          provider_id: string
+          type: string
+        }
+        Insert: {
+          id: string
+          occurred_at: string
+          processed_at?: string
+          provider_id: string
+          type: string
+        }
+        Update: {
+          id?: string
+          occurred_at?: string
+          processed_at?: string
+          provider_id?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      email_marketing_settings: {
+        Row: {
+          admin_alert: string | null
+          batch_size: number
+          daily_limit: number
+          id: boolean
+          last_request_at: string | null
+          lease_owner: string | null
+          lease_until: string | null
+          requests_per_second: number
+          sending_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          admin_alert?: string | null
+          batch_size?: number
+          daily_limit?: number
+          id?: boolean
+          last_request_at?: string | null
+          lease_owner?: string | null
+          lease_until?: string | null
+          requests_per_second?: number
+          sending_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          admin_alert?: string | null
+          batch_size?: number
+          daily_limit?: number
+          id?: boolean
+          last_request_at?: string | null
+          lease_owner?: string | null
+          lease_until?: string | null
+          requests_per_second?: number
+          sending_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_sends: {
+        Row: {
+          batch_id: string | null
+          bounced_at: string | null
+          campaign_id: string
+          clicked_at: string | null
+          complained_at: string | null
+          contact_id: string
+          created_at: string
+          delivered_at: string | null
+          error: string | null
+          id: string
+          opened_at: string | null
+          provider_id: string | null
+          sent_at: string | null
+          status: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          bounced_at?: string | null
+          campaign_id: string
+          clicked_at?: string | null
+          complained_at?: string | null
+          contact_id: string
+          created_at?: string
+          delivered_at?: string | null
+          error?: string | null
+          id?: string
+          opened_at?: string | null
+          provider_id?: string | null
+          sent_at?: string | null
+          status?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          bounced_at?: string | null
+          campaign_id?: string
+          clicked_at?: string | null
+          complained_at?: string | null
+          contact_id?: string
+          created_at?: string
+          delivered_at?: string | null
+          error?: string | null
+          id?: string
+          opened_at?: string | null
+          provider_id?: string | null
+          sent_at?: string | null
+          status?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sends_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "email_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sends_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sends_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "email_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_template_settings: {
         Row: {
@@ -2859,6 +3147,50 @@ export type Database = {
             Returns: string
           }
       condo_num_norm: { Args: { t: string }; Returns: string }
+      email_campaign_metrics: {
+        Args: never
+        Returns: {
+          aberturas: number
+          campaign_id: string
+          cliques: number
+          descadastros: number
+          entregues: number
+          enviados: number
+          leads: number
+          pendentes: number
+          reclamacoes: number
+          rejeicoes: number
+        }[]
+      }
+      email_contact_merge: { Args: { p: Json }; Returns: string }
+      email_contact_summary: {
+        Args: never
+        Returns: {
+          status: string
+          total: number
+          validacao: string
+        }[]
+      }
+      email_enqueue_campaign: { Args: { cid: string }; Returns: number }
+      email_marketing_arm_queue: { Args: never; Returns: undefined }
+      email_marketing_batch_commit: {
+        Args: { bid: string; result: Json }
+        Returns: undefined
+      }
+      email_marketing_confirm: {
+        Args: { contact: string; ip: string }
+        Returns: boolean
+      }
+      email_marketing_event: {
+        Args: { eid: string; etime: string; etype: string; pid: string }
+        Returns: boolean
+      }
+      email_marketing_lease: { Args: { owner_id: string }; Returns: boolean }
+      email_marketing_optout: {
+        Args: { campaign: string; contact: string }
+        Returns: undefined
+      }
+      email_marketing_unify: { Args: never; Returns: number }
       fuzzy_eq: { Args: { a: string; b: string }; Returns: boolean }
       fuzzy_norm: { Args: { t: string }; Returns: string }
       has_role: {

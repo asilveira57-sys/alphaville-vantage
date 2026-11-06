@@ -246,6 +246,41 @@
       "when": 1793910675766,
       "tag": "0034_univen_condo_aliases_and_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1793973183694,
+      "tag": "0035_email_marketing_campaigns",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1793973270194,
+      "tag": "0036_email_marketing_processing",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1793973346151,
+      "tag": "0037_email_contact_unification",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793973602074,
+      "tag": "0038_campaign_storage_and_scheduler",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1793973766563,
+      "tag": "0039_campaign_contact_consent_merge",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,12 @@
+CREATE OR REPLACE FUNCTION public.email_contact_merge(p jsonb) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE result uuid;
+BEGIN
+ INSERT INTO public.email_contacts(email,nome,origem,data_cadastro_original,status,consentimento_texto,consentimento_data,consentimento_ip,tags,validacao)
+ VALUES(lower(trim(p->>'email')),coalesce(p->>'nome',''),coalesce(p->>'origem','csv'),coalesce(nullif(p->>'data_cadastro_original','')::timestamptz,now()),CASE WHEN p->>'validacao'='arriscado' OR nullif(p->>'consentimento_texto','') IS NULL OR nullif(p->>'consentimento_data','') IS NULL THEN 'inativo' ELSE 'ativo' END,p->>'consentimento_texto',nullif(p->>'consentimento_data','')::timestamptz,p->>'consentimento_ip',ARRAY(SELECT jsonb_array_elements_text(coalesce(p->'tags','[]'))),coalesce(p->>'validacao','valido'))
+ ON CONFLICT(email) DO UPDATE SET nome=CASE WHEN excluded.nome<>'' THEN excluded.nome ELSE email_contacts.nome END,tags=ARRAY(SELECT DISTINCT unnest(email_contacts.tags||excluded.tags)),data_cadastro_original=least(email_contacts.data_cadastro_original,excluded.data_cadastro_original),
+ consentimento_texto=CASE WHEN email_contacts.status NOT IN ('descadastrado','reclamou','rejeitado','invalido') AND excluded.consentimento_data IS NOT NULL AND nullif(excluded.consentimento_texto,'') IS NOT NULL THEN excluded.consentimento_texto ELSE email_contacts.consentimento_texto END,
+ consentimento_data=CASE WHEN email_contacts.status NOT IN ('descadastrado','reclamou','rejeitado','invalido') AND excluded.consentimento_data IS NOT NULL AND nullif(excluded.consentimento_texto,'') IS NOT NULL THEN greatest(email_contacts.consentimento_data,excluded.consentimento_data) ELSE email_contacts.consentimento_data END,
+ consentimento_ip=CASE WHEN email_contacts.status NOT IN ('descadastrado','reclamou','rejeitado','invalido') AND excluded.consentimento_data IS NOT NULL AND nullif(excluded.consentimento_texto,'') IS NOT NULL THEN excluded.consentimento_ip ELSE email_contacts.consentimento_ip END,updated_at=now()
+ RETURNING id INTO result; RETURN result;
+END $$;
+REVOKE ALL ON FUNCTION public.email_contact_merge(jsonb) FROM PUBLIC,anon,authenticated; GRANT EXECUTE ON FUNCTION public.email_contact_merge(jsonb) TO service_role;

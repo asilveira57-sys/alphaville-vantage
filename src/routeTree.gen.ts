@@ -19,7 +19,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as ComoTrabalhamosRouteImport } from './routes/como-trabalhamos'
+import { Route as ConfirmarEmailRouteImport } from './routes/confirmar-email'
 import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as DescadastrarRouteImport } from './routes/descadastrar'
 import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as GuiaRouteImport } from './routes/guia'
@@ -53,6 +55,7 @@ import { Route as TransparenciaRouteImport } from './routes/transparencia'
 import { Route as VenderMeuImovelRouteImport } from './routes/vender-meu-imovel'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
+import { Route as AuthenticatedAdminCampanhasRouteImport } from './routes/_authenticated/admin-campanhas'
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
 import { Route as AuthenticatedAdminConciliacaoRouteImport } from './routes/_authenticated/admin-conciliacao'
 import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_authenticated/admin-condominios'
@@ -122,8 +125,11 @@ import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as ApiPublicGaConfigRouteImport } from './routes/api/public/ga-config'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
+import { Route as ApiPublicCampaignImageNameRouteImport } from './routes/api/public/campaign-image.$name'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
+import { Route as ApiPublicHooksCampaignQueueRouteImport } from './routes/api/public/hooks/campaign-queue'
 import { Route as ApiPublicHooksOpportunityRevaluationRouteImport } from './routes/api/public/hooks/opportunity-revaluation'
+import { Route as ApiPublicHooksResendRouteImport } from './routes/api/public/hooks/resend'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
 import { Route as ApiPublicHooksSourceReconciliationRouteImport } from './routes/api/public/hooks/source-reconciliation'
 import { Route as ApiPublicPropertyThumbSplatRouteImport } from './routes/api/public/property-thumb.$'
@@ -178,9 +184,19 @@ const ComoTrabalhamosRoute = ComoTrabalhamosRouteImport.update({
   path: '/como-trabalhamos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfirmarEmailRoute = ConfirmarEmailRouteImport.update({
+  id: '/confirmar-email',
+  path: '/confirmar-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContatoRoute = ContatoRouteImport.update({
   id: '/contato',
   path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DescadastrarRoute = DescadastrarRouteImport.update({
+  id: '/descadastrar',
+  path: '/descadastrar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmpresasRoute = EmpresasRouteImport.update({
@@ -348,6 +364,12 @@ const AuthenticatedAdminAuditoriaRoute =
   AuthenticatedAdminAuditoriaRouteImport.update({
     id: '/admin-auditoria',
     path: '/admin-auditoria',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminCampanhasRoute =
+  AuthenticatedAdminCampanhasRouteImport.update({
+    id: '/admin-campanhas',
+    path: '/admin-campanhas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminCardsRoute = AuthenticatedAdminCardsRouteImport.update({
@@ -726,10 +748,22 @@ const ApiPublicIndexnowKeyDottxtRoute =
     path: '/api/public/indexnow-key.txt',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCampaignImageNameRoute =
+  ApiPublicCampaignImageNameRouteImport.update({
+    id: '/api/public/campaign-image/$name',
+    path: '/api/public/campaign-image/$name',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicEditorialImageSplatRoute =
   ApiPublicEditorialImageSplatRouteImport.update({
     id: '/api/public/editorial-image/$',
     path: '/api/public/editorial-image/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksCampaignQueueRoute =
+  ApiPublicHooksCampaignQueueRouteImport.update({
+    id: '/api/public/hooks/campaign-queue',
+    path: '/api/public/hooks/campaign-queue',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksOpportunityRevaluationRoute =
@@ -738,6 +772,11 @@ const ApiPublicHooksOpportunityRevaluationRoute =
     path: '/api/public/hooks/opportunity-revaluation',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksResendRoute = ApiPublicHooksResendRouteImport.update({
+  id: '/api/public/hooks/resend',
+  path: '/api/public/hooks/resend',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksSeoMonthlyRefreshRoute =
   ApiPublicHooksSeoMonthlyRefreshRouteImport.update({
     id: '/api/public/hooks/seo-monthly-refresh',
@@ -773,7 +812,9 @@ export interface FileRoutesByFullPath {
   '/aviso-legal': typeof AvisoLegalRoute
   '/blog': typeof BlogRouteWithChildren
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -807,6 +848,7 @@ export interface FileRoutesByFullPath {
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
@@ -876,8 +918,11 @@ export interface FileRoutesByFullPath {
   '/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit/': typeof AuthenticatedAuditIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
+  '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
+  '/api/public/hooks/resend': typeof ApiPublicHooksResendRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
   '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
@@ -892,7 +937,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/aviso-legal': typeof AvisoLegalRoute
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
@@ -920,6 +967,7 @@ export interface FileRoutesByTo {
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
@@ -987,8 +1035,11 @@ export interface FileRoutesByTo {
   '/area-do-parceiro': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit': typeof AuthenticatedAuditIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
+  '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
+  '/api/public/hooks/resend': typeof ApiPublicHooksResendRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
   '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
@@ -1006,7 +1057,9 @@ export interface FileRoutesById {
   '/aviso-legal': typeof AvisoLegalRoute
   '/blog': typeof BlogRouteWithChildren
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -1040,6 +1093,7 @@ export interface FileRoutesById {
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/_authenticated/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/_authenticated/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/_authenticated/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
@@ -1109,8 +1163,11 @@ export interface FileRoutesById {
   '/_authenticated/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
+  '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
+  '/api/public/hooks/resend': typeof ApiPublicHooksResendRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
   '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
@@ -1128,7 +1185,9 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/blog'
     | '/como-trabalhamos'
+    | '/confirmar-email'
     | '/contato'
+    | '/descadastrar'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -1162,6 +1221,7 @@ export interface FileRouteTypes {
     | '/vender-meu-imovel'
     | '/admin'
     | '/admin-auditoria'
+    | '/admin-campanhas'
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
@@ -1231,8 +1291,11 @@ export interface FileRouteTypes {
     | '/area-do-parceiro/'
     | '/audit/'
     | '/cms/'
+    | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
+    | '/api/public/hooks/resend'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
     | '/api/public/property-thumb/$'
@@ -1247,7 +1310,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/aviso-legal'
     | '/como-trabalhamos'
+    | '/confirmar-email'
     | '/contato'
+    | '/descadastrar'
     | '/empresas'
     | '/escolas'
     | '/guia-alphaville'
@@ -1275,6 +1340,7 @@ export interface FileRouteTypes {
     | '/vender-meu-imovel'
     | '/admin'
     | '/admin-auditoria'
+    | '/admin-campanhas'
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
@@ -1342,8 +1408,11 @@ export interface FileRouteTypes {
     | '/area-do-parceiro'
     | '/audit'
     | '/cms'
+    | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
+    | '/api/public/hooks/resend'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
     | '/api/public/property-thumb/$'
@@ -1360,7 +1429,9 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/blog'
     | '/como-trabalhamos'
+    | '/confirmar-email'
     | '/contato'
+    | '/descadastrar'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -1394,6 +1465,7 @@ export interface FileRouteTypes {
     | '/vender-meu-imovel'
     | '/_authenticated/admin'
     | '/_authenticated/admin-auditoria'
+    | '/_authenticated/admin-campanhas'
     | '/_authenticated/admin-cards'
     | '/_authenticated/admin-conciliacao'
     | '/_authenticated/admin-condominios'
@@ -1463,8 +1535,11 @@ export interface FileRouteTypes {
     | '/_authenticated/area-do-parceiro/'
     | '/_authenticated/audit/'
     | '/_authenticated/cms/'
+    | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
+    | '/api/public/hooks/resend'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
     | '/api/public/property-thumb/$'
@@ -1482,7 +1557,9 @@ export interface RootRouteChildren {
   AvisoLegalRoute: typeof AvisoLegalRoute
   BlogRoute: typeof BlogRouteWithChildren
   ComoTrabalhamosRoute: typeof ComoTrabalhamosRoute
+  ConfirmarEmailRoute: typeof ConfirmarEmailRoute
   ContatoRoute: typeof ContatoRoute
+  DescadastrarRoute: typeof DescadastrarRoute
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
   GuiaRoute: typeof GuiaRouteWithChildren
@@ -1530,8 +1607,11 @@ export interface RootRouteChildren {
   RadarIndexRoute: typeof RadarIndexRoute
   ApiPublicGaConfigRoute: typeof ApiPublicGaConfigRoute
   ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
+  ApiPublicCampaignImageNameRoute: typeof ApiPublicCampaignImageNameRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
+  ApiPublicHooksCampaignQueueRoute: typeof ApiPublicHooksCampaignQueueRoute
   ApiPublicHooksOpportunityRevaluationRoute: typeof ApiPublicHooksOpportunityRevaluationRoute
+  ApiPublicHooksResendRoute: typeof ApiPublicHooksResendRoute
   ApiPublicHooksSeoMonthlyRefreshRoute: typeof ApiPublicHooksSeoMonthlyRefreshRoute
   ApiPublicHooksSourceReconciliationRoute: typeof ApiPublicHooksSourceReconciliationRoute
   ApiPublicPropertyThumbSplatRoute: typeof ApiPublicPropertyThumbSplatRoute
@@ -1610,11 +1690,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComoTrabalhamosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/confirmar-email': {
+      id: '/confirmar-email'
+      path: '/confirmar-email'
+      fullPath: '/confirmar-email'
+      preLoaderRoute: typeof ConfirmarEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contato': {
       id: '/contato'
       path: '/contato'
       fullPath: '/contato'
       preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/descadastrar': {
+      id: '/descadastrar'
+      path: '/descadastrar'
+      fullPath: '/descadastrar'
+      preLoaderRoute: typeof DescadastrarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/empresas': {
@@ -1846,6 +1940,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-auditoria'
       fullPath: '/admin-auditoria'
       preLoaderRoute: typeof AuthenticatedAdminAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-campanhas': {
+      id: '/_authenticated/admin-campanhas'
+      path: '/admin-campanhas'
+      fullPath: '/admin-campanhas'
+      preLoaderRoute: typeof AuthenticatedAdminCampanhasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-cards': {
@@ -2331,6 +2432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIndexnowKeyDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/campaign-image/$name': {
+      id: '/api/public/campaign-image/$name'
+      path: '/api/public/campaign-image/$name'
+      fullPath: '/api/public/campaign-image/$name'
+      preLoaderRoute: typeof ApiPublicCampaignImageNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/editorial-image/$': {
       id: '/api/public/editorial-image/$'
       path: '/api/public/editorial-image/$'
@@ -2338,11 +2446,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEditorialImageSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/campaign-queue': {
+      id: '/api/public/hooks/campaign-queue'
+      path: '/api/public/hooks/campaign-queue'
+      fullPath: '/api/public/hooks/campaign-queue'
+      preLoaderRoute: typeof ApiPublicHooksCampaignQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/opportunity-revaluation': {
       id: '/api/public/hooks/opportunity-revaluation'
       path: '/api/public/hooks/opportunity-revaluation'
       fullPath: '/api/public/hooks/opportunity-revaluation'
       preLoaderRoute: typeof ApiPublicHooksOpportunityRevaluationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/resend': {
+      id: '/api/public/hooks/resend'
+      path: '/api/public/hooks/resend'
+      fullPath: '/api/public/hooks/resend'
+      preLoaderRoute: typeof ApiPublicHooksResendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/seo-monthly-refresh': {
@@ -2411,6 +2533,7 @@ const AuthenticatedCmsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
+  AuthenticatedAdminCampanhasRoute: typeof AuthenticatedAdminCampanhasRoute
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
   AuthenticatedAdminConciliacaoRoute: typeof AuthenticatedAdminConciliacaoRoute
   AuthenticatedAdminCondominiosRoute: typeof AuthenticatedAdminCondominiosRoute
@@ -2446,6 +2569,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
+  AuthenticatedAdminCampanhasRoute: AuthenticatedAdminCampanhasRoute,
   AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
   AuthenticatedAdminConciliacaoRoute: AuthenticatedAdminConciliacaoRoute,
   AuthenticatedAdminCondominiosRoute: AuthenticatedAdminCondominiosRoute,
@@ -2593,7 +2717,9 @@ const rootRouteChildren: RootRouteChildren = {
   AvisoLegalRoute: AvisoLegalRoute,
   BlogRoute: BlogRouteWithChildren,
   ComoTrabalhamosRoute: ComoTrabalhamosRoute,
+  ConfirmarEmailRoute: ConfirmarEmailRoute,
   ContatoRoute: ContatoRoute,
+  DescadastrarRoute: DescadastrarRoute,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
   GuiaRoute: GuiaRouteWithChildren,
@@ -2641,9 +2767,12 @@ const rootRouteChildren: RootRouteChildren = {
   RadarIndexRoute: RadarIndexRoute,
   ApiPublicGaConfigRoute: ApiPublicGaConfigRoute,
   ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
+  ApiPublicCampaignImageNameRoute: ApiPublicCampaignImageNameRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
+  ApiPublicHooksCampaignQueueRoute: ApiPublicHooksCampaignQueueRoute,
   ApiPublicHooksOpportunityRevaluationRoute:
     ApiPublicHooksOpportunityRevaluationRoute,
+  ApiPublicHooksResendRoute: ApiPublicHooksResendRoute,
   ApiPublicHooksSeoMonthlyRefreshRoute: ApiPublicHooksSeoMonthlyRefreshRoute,
   ApiPublicHooksSourceReconciliationRoute:
     ApiPublicHooksSourceReconciliationRoute,

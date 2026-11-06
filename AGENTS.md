@@ -1,4 +1,5 @@
 # Project Architecture
+- Marketing campaigns are isolated in campaign modules and email_* tables, use Resend only, and default to real sending disabled; transactional Lovable email dispatch remains unchanged. Marketing consent is distinct from privacy consent, and suppression cannot be undone by imports.
 - Property sharing message/UTM and cover sizing live in src/lib/property-sharing.ts; reusable controls load full facts on card click and use the same formatter as the detail page to prevent incomplete or divergent shares.
 
 - Dynamic CMS-created developments render through the shared full development template; this keeps future pages consistent with the MPD development experience.
