@@ -274,6 +274,13 @@
       "when": 1793973602074,
       "tag": "0038_campaign_storage_and_scheduler",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1793973766563,
+      "tag": "0039_campaign_contact_consent_merge",
+      "breakpoints": true
     }
   ]
 }
