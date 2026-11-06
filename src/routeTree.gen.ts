@@ -19,7 +19,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as ComoTrabalhamosRouteImport } from './routes/como-trabalhamos'
+import { Route as ConfirmarEmailRouteImport } from './routes/confirmar-email'
 import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as DescadastrarRouteImport } from './routes/descadastrar'
 import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as GuiaRouteImport } from './routes/guia'
@@ -123,7 +125,9 @@ import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/
 import { Route as ApiPublicGaConfigRouteImport } from './routes/api/public/ga-config'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
+import { Route as ApiPublicHooksCampaignQueueRouteImport } from './routes/api/public/hooks/campaign-queue'
 import { Route as ApiPublicHooksOpportunityRevaluationRouteImport } from './routes/api/public/hooks/opportunity-revaluation'
+import { Route as ApiPublicHooksResendRouteImport } from './routes/api/public/hooks/resend'
 import { Route as ApiPublicHooksSeoMonthlyRefreshRouteImport } from './routes/api/public/hooks/seo-monthly-refresh'
 import { Route as ApiPublicHooksSourceReconciliationRouteImport } from './routes/api/public/hooks/source-reconciliation'
 import { Route as ApiPublicPropertyThumbSplatRouteImport } from './routes/api/public/property-thumb.$'
@@ -178,9 +182,19 @@ const ComoTrabalhamosRoute = ComoTrabalhamosRouteImport.update({
   path: '/como-trabalhamos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfirmarEmailRoute = ConfirmarEmailRouteImport.update({
+  id: '/confirmar-email',
+  path: '/confirmar-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContatoRoute = ContatoRouteImport.update({
   id: '/contato',
   path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DescadastrarRoute = DescadastrarRouteImport.update({
+  id: '/descadastrar',
+  path: '/descadastrar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmpresasRoute = EmpresasRouteImport.update({
@@ -732,12 +746,23 @@ const ApiPublicEditorialImageSplatRoute =
     path: '/api/public/editorial-image/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksCampaignQueueRoute =
+  ApiPublicHooksCampaignQueueRouteImport.update({
+    id: '/api/public/hooks/campaign-queue',
+    path: '/api/public/hooks/campaign-queue',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksOpportunityRevaluationRoute =
   ApiPublicHooksOpportunityRevaluationRouteImport.update({
     id: '/api/public/hooks/opportunity-revaluation',
     path: '/api/public/hooks/opportunity-revaluation',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksResendRoute = ApiPublicHooksResendRouteImport.update({
+  id: '/api/public/hooks/resend',
+  path: '/api/public/hooks/resend',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksSeoMonthlyRefreshRoute =
   ApiPublicHooksSeoMonthlyRefreshRouteImport.update({
     id: '/api/public/hooks/seo-monthly-refresh',
@@ -773,7 +798,9 @@ export interface FileRoutesByFullPath {
   '/aviso-legal': typeof AvisoLegalRoute
   '/blog': typeof BlogRouteWithChildren
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -877,7 +904,9 @@ export interface FileRoutesByFullPath {
   '/audit/': typeof AuthenticatedAuditIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
+  '/api/public/hooks/resend': typeof ApiPublicHooksResendRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
   '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
@@ -892,7 +921,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/aviso-legal': typeof AvisoLegalRoute
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
@@ -988,7 +1019,9 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
+  '/api/public/hooks/resend': typeof ApiPublicHooksResendRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
   '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
@@ -1006,7 +1039,9 @@ export interface FileRoutesById {
   '/aviso-legal': typeof AvisoLegalRoute
   '/blog': typeof BlogRouteWithChildren
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
+  '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
   '/guia': typeof GuiaRouteWithChildren
@@ -1110,7 +1145,9 @@ export interface FileRoutesById {
   '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
+  '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
   '/api/public/hooks/opportunity-revaluation': typeof ApiPublicHooksOpportunityRevaluationRoute
+  '/api/public/hooks/resend': typeof ApiPublicHooksResendRoute
   '/api/public/hooks/seo-monthly-refresh': typeof ApiPublicHooksSeoMonthlyRefreshRoute
   '/api/public/hooks/source-reconciliation': typeof ApiPublicHooksSourceReconciliationRoute
   '/api/public/property-thumb/$': typeof ApiPublicPropertyThumbSplatRoute
@@ -1128,7 +1165,9 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/blog'
     | '/como-trabalhamos'
+    | '/confirmar-email'
     | '/contato'
+    | '/descadastrar'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -1232,7 +1271,9 @@ export interface FileRouteTypes {
     | '/audit/'
     | '/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
+    | '/api/public/hooks/resend'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
     | '/api/public/property-thumb/$'
@@ -1247,7 +1288,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/aviso-legal'
     | '/como-trabalhamos'
+    | '/confirmar-email'
     | '/contato'
+    | '/descadastrar'
     | '/empresas'
     | '/escolas'
     | '/guia-alphaville'
@@ -1343,7 +1386,9 @@ export interface FileRouteTypes {
     | '/audit'
     | '/cms'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
+    | '/api/public/hooks/resend'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
     | '/api/public/property-thumb/$'
@@ -1360,7 +1405,9 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/blog'
     | '/como-trabalhamos'
+    | '/confirmar-email'
     | '/contato'
+    | '/descadastrar'
     | '/empresas'
     | '/escolas'
     | '/guia'
@@ -1464,7 +1511,9 @@ export interface FileRouteTypes {
     | '/_authenticated/audit/'
     | '/_authenticated/cms/'
     | '/api/public/editorial-image/$'
+    | '/api/public/hooks/campaign-queue'
     | '/api/public/hooks/opportunity-revaluation'
+    | '/api/public/hooks/resend'
     | '/api/public/hooks/seo-monthly-refresh'
     | '/api/public/hooks/source-reconciliation'
     | '/api/public/property-thumb/$'
@@ -1482,7 +1531,9 @@ export interface RootRouteChildren {
   AvisoLegalRoute: typeof AvisoLegalRoute
   BlogRoute: typeof BlogRouteWithChildren
   ComoTrabalhamosRoute: typeof ComoTrabalhamosRoute
+  ConfirmarEmailRoute: typeof ConfirmarEmailRoute
   ContatoRoute: typeof ContatoRoute
+  DescadastrarRoute: typeof DescadastrarRoute
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
   GuiaRoute: typeof GuiaRouteWithChildren
@@ -1531,7 +1582,9 @@ export interface RootRouteChildren {
   ApiPublicGaConfigRoute: typeof ApiPublicGaConfigRoute
   ApiPublicIndexnowKeyDottxtRoute: typeof ApiPublicIndexnowKeyDottxtRoute
   ApiPublicEditorialImageSplatRoute: typeof ApiPublicEditorialImageSplatRoute
+  ApiPublicHooksCampaignQueueRoute: typeof ApiPublicHooksCampaignQueueRoute
   ApiPublicHooksOpportunityRevaluationRoute: typeof ApiPublicHooksOpportunityRevaluationRoute
+  ApiPublicHooksResendRoute: typeof ApiPublicHooksResendRoute
   ApiPublicHooksSeoMonthlyRefreshRoute: typeof ApiPublicHooksSeoMonthlyRefreshRoute
   ApiPublicHooksSourceReconciliationRoute: typeof ApiPublicHooksSourceReconciliationRoute
   ApiPublicPropertyThumbSplatRoute: typeof ApiPublicPropertyThumbSplatRoute
@@ -1610,11 +1663,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComoTrabalhamosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/confirmar-email': {
+      id: '/confirmar-email'
+      path: '/confirmar-email'
+      fullPath: '/confirmar-email'
+      preLoaderRoute: typeof ConfirmarEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contato': {
       id: '/contato'
       path: '/contato'
       fullPath: '/contato'
       preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/descadastrar': {
+      id: '/descadastrar'
+      path: '/descadastrar'
+      fullPath: '/descadastrar'
+      preLoaderRoute: typeof DescadastrarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/empresas': {
@@ -2338,11 +2405,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEditorialImageSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/campaign-queue': {
+      id: '/api/public/hooks/campaign-queue'
+      path: '/api/public/hooks/campaign-queue'
+      fullPath: '/api/public/hooks/campaign-queue'
+      preLoaderRoute: typeof ApiPublicHooksCampaignQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/opportunity-revaluation': {
       id: '/api/public/hooks/opportunity-revaluation'
       path: '/api/public/hooks/opportunity-revaluation'
       fullPath: '/api/public/hooks/opportunity-revaluation'
       preLoaderRoute: typeof ApiPublicHooksOpportunityRevaluationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/resend': {
+      id: '/api/public/hooks/resend'
+      path: '/api/public/hooks/resend'
+      fullPath: '/api/public/hooks/resend'
+      preLoaderRoute: typeof ApiPublicHooksResendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/seo-monthly-refresh': {
@@ -2593,7 +2674,9 @@ const rootRouteChildren: RootRouteChildren = {
   AvisoLegalRoute: AvisoLegalRoute,
   BlogRoute: BlogRouteWithChildren,
   ComoTrabalhamosRoute: ComoTrabalhamosRoute,
+  ConfirmarEmailRoute: ConfirmarEmailRoute,
   ContatoRoute: ContatoRoute,
+  DescadastrarRoute: DescadastrarRoute,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
   GuiaRoute: GuiaRouteWithChildren,
@@ -2642,8 +2725,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGaConfigRoute: ApiPublicGaConfigRoute,
   ApiPublicIndexnowKeyDottxtRoute: ApiPublicIndexnowKeyDottxtRoute,
   ApiPublicEditorialImageSplatRoute: ApiPublicEditorialImageSplatRoute,
+  ApiPublicHooksCampaignQueueRoute: ApiPublicHooksCampaignQueueRoute,
   ApiPublicHooksOpportunityRevaluationRoute:
     ApiPublicHooksOpportunityRevaluationRoute,
+  ApiPublicHooksResendRoute: ApiPublicHooksResendRoute,
   ApiPublicHooksSeoMonthlyRefreshRoute: ApiPublicHooksSeoMonthlyRefreshRoute,
   ApiPublicHooksSourceReconciliationRoute:
     ApiPublicHooksSourceReconciliationRoute,
