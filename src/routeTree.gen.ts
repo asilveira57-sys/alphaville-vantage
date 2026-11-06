@@ -55,6 +55,7 @@ import { Route as TransparenciaRouteImport } from './routes/transparencia'
 import { Route as VenderMeuImovelRouteImport } from './routes/vender-meu-imovel'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
+import { Route as AuthenticatedAdminCampanhasRouteImport } from './routes/_authenticated/admin-campanhas'
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
 import { Route as AuthenticatedAdminConciliacaoRouteImport } from './routes/_authenticated/admin-conciliacao'
 import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_authenticated/admin-condominios'
@@ -362,6 +363,12 @@ const AuthenticatedAdminAuditoriaRoute =
   AuthenticatedAdminAuditoriaRouteImport.update({
     id: '/admin-auditoria',
     path: '/admin-auditoria',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminCampanhasRoute =
+  AuthenticatedAdminCampanhasRouteImport.update({
+    id: '/admin-campanhas',
+    path: '/admin-campanhas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminCardsRoute = AuthenticatedAdminCardsRouteImport.update({
@@ -834,6 +841,7 @@ export interface FileRoutesByFullPath {
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
@@ -951,6 +959,7 @@ export interface FileRoutesByTo {
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
@@ -1075,6 +1084,7 @@ export interface FileRoutesById {
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/_authenticated/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/_authenticated/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/_authenticated/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
@@ -1201,6 +1211,7 @@ export interface FileRouteTypes {
     | '/vender-meu-imovel'
     | '/admin'
     | '/admin-auditoria'
+    | '/admin-campanhas'
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
@@ -1318,6 +1329,7 @@ export interface FileRouteTypes {
     | '/vender-meu-imovel'
     | '/admin'
     | '/admin-auditoria'
+    | '/admin-campanhas'
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
@@ -1441,6 +1453,7 @@ export interface FileRouteTypes {
     | '/vender-meu-imovel'
     | '/_authenticated/admin'
     | '/_authenticated/admin-auditoria'
+    | '/_authenticated/admin-campanhas'
     | '/_authenticated/admin-cards'
     | '/_authenticated/admin-conciliacao'
     | '/_authenticated/admin-condominios'
@@ -1913,6 +1926,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-auditoria'
       fullPath: '/admin-auditoria'
       preLoaderRoute: typeof AuthenticatedAdminAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-campanhas': {
+      id: '/_authenticated/admin-campanhas'
+      path: '/admin-campanhas'
+      fullPath: '/admin-campanhas'
+      preLoaderRoute: typeof AuthenticatedAdminCampanhasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-cards': {
@@ -2492,6 +2512,7 @@ const AuthenticatedCmsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
+  AuthenticatedAdminCampanhasRoute: typeof AuthenticatedAdminCampanhasRoute
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
   AuthenticatedAdminConciliacaoRoute: typeof AuthenticatedAdminConciliacaoRoute
   AuthenticatedAdminCondominiosRoute: typeof AuthenticatedAdminCondominiosRoute
@@ -2527,6 +2548,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
+  AuthenticatedAdminCampanhasRoute: AuthenticatedAdminCampanhasRoute,
   AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
   AuthenticatedAdminConciliacaoRoute: AuthenticatedAdminConciliacaoRoute,
   AuthenticatedAdminCondominiosRoute: AuthenticatedAdminCondominiosRoute,
