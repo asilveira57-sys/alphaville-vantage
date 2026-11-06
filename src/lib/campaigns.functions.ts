@@ -62,7 +62,9 @@ export const campaignAction=createServerFn({method:'POST'}).middleware([requireS
   const {data:s}=await supabaseAdmin.from('email_marketing_settings').select('sending_enabled').eq('id',true).maybeSingle();if(!s?.sending_enabled)throw new Error('Envios reais desligados. Ative nas configurações somente após revisar a lista.');
   if(!process.env['RESEND_WEBHOOK_SECRET'])throw new Error('Configure os eventos do Resend antes de iniciar campanhas reais.');
   const {data:unfinished}=await supabaseAdmin.from('email_batches').select('id').eq('campaign_id',data.id).eq('status','sending').limit(1).maybeSingle();if(unfinished)throw new Error('Há um envio de resultado incerto. Confira no Resend antes de retomar.');
-  const {data:n,error}=await supabaseAdmin.rpc('email_enqueue_campaign',{cid:data.id});if(error)throw new Error(error.message);return {queued:n||0};
+  const {data:n,error}=await supabaseAdmin.rpc('email_enqueue_campaign',{cid:data.id});if(error)throw new Error(error.message);
+  const {error:armError}=await supabaseAdmin.rpc('email_marketing_arm_queue');if(armError)throw new Error(armError.message);
+  return {queued:n||0};
 });
 export const saveCampaignSettings=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((d:unknown)=>z.object({daily_limit:z.number().int().min(1).max(100000),batch_size:z.number().int().min(1).max(100),requests_per_second:z.number().int().min(1).max(10),sending_enabled:z.boolean()}).parse(d)).handler(async({context,data})=>{
   const {assertCampaignAdmin}=await import('./campaigns.server');await assertCampaignAdmin(context);
