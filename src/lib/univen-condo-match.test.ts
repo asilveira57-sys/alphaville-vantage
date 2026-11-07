@@ -33,4 +33,13 @@ describe("vínculo pela etiqueta da Univen", () => {
     expect(usageCompatible("residencial", "galpão")).toBe(false);
   });
   it("ajuste manual de condomínio bloqueia o vínculo automático", () => expect(hasManualCondo({ condominium_id: "x" })).toBe(true));
+  it("terreno aceita condomínio residencial, comercial ou misto (TE00775)", () => {
+    expect(usageCompatible("residencial", "terreno")).toBe(true);
+    expect(usageCompatible("comercial", "terreno")).toBe(true);
+    expect(usageCompatible("misto", "terreno")).toBe(true);
+    const commercial = buildCondoIndex([{ id: "centro", name: "Centro Comercial", slug: "centro-comercial", usage: "comercial", status: "published" }], [], []);
+    expect(id(matchTag(commercial, "Centro Comercial", "terreno"))).toBe("centro");
+    const commercialAlias = buildCondoIndex([{ id: "centro", name: "Centro Comercial", slug: "centro-comercial", usage: "comercial", status: "published" }], [], [{ normalized_tag: "centro", usage: "comercial", condominium_id: "centro", ignored: false }]);
+    expect(id(matchTag(commercialAlias, "Centro", "terreno"))).toBe("centro");
+  });
 });
