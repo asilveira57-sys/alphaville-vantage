@@ -39,5 +39,7 @@ describe("vínculo pela etiqueta da Univen", () => {
     expect(usageCompatible("misto", "terreno")).toBe(true);
     const commercial = buildCondoIndex([{ id: "centro", name: "Centro Comercial", slug: "centro-comercial", usage: "comercial", status: "published" }], [], []);
     expect(id(matchTag(commercial, "Centro Comercial", "terreno"))).toBe("centro");
+    const commercialAlias = buildCondoIndex([{ id: "centro", name: "Centro Comercial", slug: "centro-comercial", usage: "comercial", status: "published" }], [], [{ normalized_tag: "centro", usage: "comercial", condominium_id: "centro", ignored: false }]);
+    expect(id(matchTag(commercialAlias, "Centro", "terreno"))).toBe("centro");
   });
 });

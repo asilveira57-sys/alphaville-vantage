@@ -70,7 +70,12 @@ export function matchTag(idx: CondoIndex, tag: string | null | undefined, type: 
     if (condo) return usageCompatible(condo.usage, type) ? { kind: "match", condo, via: "univen_alias" } : { kind: "incompatible", condo };
     const any = rows.find((r) => !r.ignored && r.condominium_id);
     const c2 = any?.condominium_id ? idx.byId.get(any.condominium_id) : undefined;
-    if (c2) return { kind: "incompatible", condo: c2 };
+    if (c2) {
+      // Sem restrição de uso (terreno): mapeamento único por uso também é válido.
+      const candidates = new Set(rows.filter((r) => !r.ignored && r.condominium_id).map((r) => r.condominium_id));
+      if (!need && candidates.size === 1 && usageCompatible(c2.usage, type)) return { kind: "match", condo: c2, via: "univen_alias" };
+      return { kind: "incompatible", condo: c2 };
+    }
   }
   if (idx.notCondo.has(k)) return { kind: "ignored" };
   const cands = idx.byName.get(k) ?? [];
