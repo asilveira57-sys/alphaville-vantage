@@ -17,7 +17,7 @@ export function normTag(s: string | null | undefined): string {
 }
 
 const COMMERCIAL = /^(sala|loja|ponto|predio|galpao|conjunto|escritorio)/;
-const RESIDENTIAL = /^(casa|apartamento|terreno|cobertura|sobrado|flat|studio|kitnet)/;
+const RESIDENTIAL = /^(casa|apartamento|cobertura|sobrado|flat|studio|kitnet)/;
 
 /** Uso exigido pelo tipo do imóvel (null = sem restrição: área, chácara, fazenda…). */
 export function usageForType(type: string | null | undefined): "residencial" | "comercial" | null {
@@ -27,7 +27,7 @@ export function usageForType(type: string | null | undefined): "residencial" | "
   return null;
 }
 
-/** Sala/loja/ponto/prédio/galpão só em comercial/misto; casa/apto/terreno só em residencial/misto. */
+/** Sala/loja/ponto/prédio/galpão só em comercial/misto; terrenos aceitam qualquer uso. */
 export function usageCompatible(condoUsage: CondoUsage | null | undefined, type: string | null | undefined): boolean {
   const need = usageForType(type);
   if (!need || !condoUsage || condoUsage === "misto") return true;

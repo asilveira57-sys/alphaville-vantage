@@ -1,4 +1,8 @@
 # Visual da home
+## Central e uso de condomínios (07/11)
+- [ ] Relatar nomes duplicados/quase iguais; fundir somente Gramercy Madison, Penthouse e Paisagem, preservando imóveis, apelidos e textos, com 301.
+- [ ] Corrigir PR00049, PR00002 e SA00605 com ajustes manuais, título/slug/SEO e 301.
+- [ ] Liberar terreno para qualquer uso; preservar TE00775 e testar.
 ## Campanhas de e-mail (06/11)
 - [x] Contatos e CSV com prévia, lotes de 250, deduplicação e consentimento; newsletter sem evidência fica inativa.
 - [x] Editor por blocos, seleção de imóveis, prévias e modelo Reconfirmação; imagens em Storage privado com endereço público restrito a imagens de campanhas (bucket público bloqueado pelo espaço).
