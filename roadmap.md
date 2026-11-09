@@ -1,4 +1,8 @@
 # Visual da home
+## Ajustes do documento (09/11, 19h22)
+- [ ] Corrigir Brascan/Gramercy Park, conferir Stadium, completar usos e relatar incompatíveis.
+- [ ] Cadastrar os apelidos pedidos sem mudar vínculos e aplicar somente os movimentos pendentes com ajuste manual, SEO e 301.
+- [ ] Confirmar itens já feitos e informar imóveis restantes em AlphaGran, Alpha Sítio e Villa Solaia.
 ## Polo Empresarial e relatório numerado (09/11)
 - [x] TE00882 confirma Polo Empresarial; cadastro renomeado com apelido, AR00033 movido de Tamboré 3 com ajuste manual; dois títulos/SEO/endereços refeitos com 301 conferidos e dois avisos IndexNow aceitos.
 - [x] CSV de 105 vínculos numerados (101 etiquetas vazias, quatro diferentes), 950 conferidos na API atual após retirar AR00033 corrigido; nenhum vínculo do relatório alterado.
