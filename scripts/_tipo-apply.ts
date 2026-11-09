@@ -1,0 +1,10 @@
+import { fetchTokkoProperties } from "@/lib/tokko-api.server";
+import { syncFromTokko } from "@/lib/tokko-sync.server";
+import { supabaseAdmin as sb } from "@/integrations/supabase/client.server";
+import { writeFileSync } from "fs";
+const f:any = await fetchTokkoProperties();
+const api = f.properties ?? f.items ?? f;
+const { data: cities } = await sb.from("cities").select("name,slug,uf,sort_priority");
+const r:any = await syncFromTokko(sb, api, { apply: true, importLimit: 0, officialUrls: {}, cities: cities ?? [], missesBeforePause: 99, confirmGone: async()=>false, allowDeactivate: false });
+writeFileSync("/tmp/tipo/apply.json", JSON.stringify(r));
+console.log(api.length, r.updated, r.typeChanges, r.errors, r.changedUrls.length);
