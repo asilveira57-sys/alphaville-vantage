@@ -1,4 +1,7 @@
 # Visual da home
+## Polo Empresarial e relatório numerado (09/11)
+- [ ] Conferir TE00882, renomear Polo com apelido, mover AR00033 com ajuste manual e regerar apenas afetados com 301.
+- [ ] Entregar CSV de vínculos numerados com etiqueta vazia/divergente, sem alterar esses vínculos.
 ## Cadastro aprovado de condomínios (09/11)
 - [x] Conferir proposta e apelidos: 102 cadastros novos, oito reutilizados, Villa Velha renomeado; usos corrigidos.
 - [x] Vincular 291 ativos sem condomínio; preservar todos os vínculos/ajustes anteriores; título/SEO e 263 endereços novos com 301, mais três de Villa Velha; IndexNow aceitou 560 URLs.

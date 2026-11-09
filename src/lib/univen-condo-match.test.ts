@@ -33,6 +33,11 @@ describe("vínculo pela etiqueta da Univen", () => {
     expect(usageCompatible("residencial", "galpão")).toBe(false);
   });
   it("ajuste manual de condomínio bloqueia o vínculo automático", () => expect(hasManualCondo({ condominium_id: "x" })).toBe(true));
+  it("área aceita Polo Empresarial Tamboré comercial (AR00033)", () => {
+    expect(usageCompatible("comercial", "área")).toBe(true);
+    const polo = buildCondoIndex([{ id: "polo", name: "Polo Empresarial Tamboré", slug: "polo-empresarial-tambore", usage: "comercial", status: "published" }], [], []);
+    expect(id(matchTag(polo, "Polo Empresarial Tamboré", "área"))).toBe("polo");
+  });
   it("terreno aceita condomínio residencial, comercial ou misto (TE00775)", () => {
     expect(usageCompatible("residencial", "terreno")).toBe(true);
     expect(usageCompatible("comercial", "terreno")).toBe(true);
