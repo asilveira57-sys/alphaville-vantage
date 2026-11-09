@@ -1,8 +1,9 @@
 # Visual da home
 ## Ajustes do documento (09/11, 19h22)
-- [ ] Corrigir Brascan/Gramercy Park, conferir Stadium, completar usos e relatar incompatíveis.
-- [ ] Cadastrar os apelidos pedidos sem mudar vínculos e aplicar somente os movimentos pendentes com ajuste manual, SEO e 301.
-- [ ] Confirmar itens já feitos e informar imóveis restantes em AlphaGran, Alpha Sítio e Villa Solaia.
+- [x] Brascan absorvido no Century Plaza; cadastro antigo de Gramercy Park absorvido no novo com slug limpo; rascunhos preservados, 301 conferidos. Stadium já misto, flat e salas na Alameda Rio Negro 1000.
+- [x] Cadastrar 16 apelidos gerais e três mapeamentos por uso, sem mover por apelidos; 37 vínculos ajustados (36 ativos e um pausado da fusão), SEO/slug/301, 38 avisos aceitos, nenhum outro vínculo alterado.
+- [x] Preencher 47 usos pelos imóveis ativos; zero vínculos incompatíveis. Confirmar item 4, CA03024, TE00918, CA03142 e CA03211 sem alterações; informar saldos e entregar CSV antes/depois.
+- [ ] Definir uso dos 17 cadastros restantes — sem imóveis ativos classificáveis (14 sem ativos, três só terrenos); depende de confirmação de uso, não inventar.
 ## Polo Empresarial e relatório numerado (09/11)
 - [x] TE00882 confirma Polo Empresarial; cadastro renomeado com apelido, AR00033 movido de Tamboré 3 com ajuste manual; dois títulos/SEO/endereços refeitos com 301 conferidos e dois avisos IndexNow aceitos.
 - [x] CSV de 105 vínculos numerados (101 etiquetas vazias, quatro diferentes), 950 conferidos na API atual após retirar AR00033 corrigido; nenhum vínculo do relatório alterado.
