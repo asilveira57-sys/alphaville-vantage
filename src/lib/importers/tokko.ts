@@ -117,8 +117,9 @@ export function apiFactPatch(db: Record<string, unknown>, facts: Record<string, 
     const cur = db[key];
     if (MONEY.has(key) && cur != null && Math.abs(Number(cur) - Number(value)) < 1) continue;
     if (FOLDED.has(key) && fold(cur) === fold(value)) continue;
-    // Tipo só é preenchido quando vazio; trocas de tipo seguem para revisão manual.
-    if (key === 'property_type' && cur) continue;
+    // Tipo segue a API (ajuste manual já protegido acima). A Univen não tem "área":
+    // "Terreno" não rebaixa uma área já cadastrada.
+    if (key === 'property_type' && cur === 'área' && value === 'terreno') continue;
     // Nunca rebaixar locação/ambos para só venda.
     if (key === 'purpose' && value === 'sale' && (cur === 'rent' || cur === 'both')) continue;
     if (key === 'price_rent' && db.purpose !== 'sale' && facts.purpose === 'sale') continue;

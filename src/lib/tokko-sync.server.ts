@@ -134,6 +134,8 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   const errors: string[] = [];
   const codeChanges: { from: string; to: string; slug: string }[] = [];
   const codeIds: string[] = [];
+  const typeRelinks: string[] = [];
+  const typeChanges: { code: string | null; from: string | null; to: string; slug: string }[] = [];
   const openCodeOwners = new Map(openAll.map((r) => [referenceKey(r.internal_code), r.id] as const).filter(([c]) => c));
 
   for (const { row, a } of matched) {
@@ -192,6 +194,8 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       if (mainPhotoChanged) photos++;
       if (factChanged || codeChange || condoLinked) seoIds.push(row.id);
       if (condoLinked) condoLinks.push({ id: row.id, code: row.internal_code, condo: condoLinked.name, tag: tag! });
+      else if ("property_type" in patch) typeRelinks.push(row.id);
+      if ("property_type" in patch) typeChanges.push({ code: row.internal_code, from: (row.property_type as string | null) ?? null, to: String(patch.property_type), slug: row.slug });
       if (codeChange) { codeChanges.push({ ...codeChange, slug: row.slug }); codeIds.push(row.id); }
       if (factChanged || link.status || codeChange || condoLinked) changedUrls.add(propUrl(row.slug));
     }
@@ -283,8 +287,8 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   }
 
   // Vínculo novo de condomínio: slug passa a levar o condomínio, com 301 do endereço antigo.
-  if (opts.apply) for (const l of condoLinks) {
-    const res = await relinkSlug(sb, l.id);
+  if (opts.apply) for (const id of [...condoLinks.map((l) => l.id), ...typeRelinks]) {
+    const res = await relinkSlug(sb, id);
     if (res?.changed) { changedUrls.delete(propUrl(res.old)); changedUrls.add(propUrl(res.slug)); }
   }
   if (opts.apply) for (let i = 0; i < seoIds.length; i += 100) await regenerateSeoForIds(sb, seoIds.slice(i, i + 100));
@@ -297,7 +301,7 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
   return {
     matched: matched.length, ambiguous: ambiguous.length, missing_active: missingActive.length,
     new_in_api: fresh.length, updated, photos_changed: photos, seo_regenerated: opts.apply ? seoIds.length : 0,
-    reactivated, paused, deactivated, imported, errors, codeChanges, condoLinks, condoSkipped, pendingDeactivation, held, report, missingReport, newReport, changedUrls: [...changedUrls],
+    reactivated, paused, deactivated, imported, errors, codeChanges, typeChanges, condoLinks, condoSkipped, pendingDeactivation, held, report, missingReport, newReport, changedUrls: [...changedUrls],
   };
 }
 
