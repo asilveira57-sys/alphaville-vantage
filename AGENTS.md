@@ -1,4 +1,5 @@
 # Project Architecture
+- The root document initializes React Refresh before application modules in development only; SSR preview HTML does not reliably receive Vite's preamble injection.
 - Marketing campaigns are isolated in campaign modules and email_* tables, use Resend only, and default to real sending disabled; transactional Lovable email dispatch remains unchanged. Marketing consent is distinct from privacy consent, and suppression cannot be undone by imports.
 - Property sharing message/UTM and cover sizing live in src/lib/property-sharing.ts; reusable controls load full facts on card click and use the same formatter as the detail page to prevent incomplete or divergent shares.
 
