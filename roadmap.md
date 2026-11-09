@@ -1,8 +1,8 @@
 # Visual da home
 ## Cadastro aprovado de condomínios (09/11)
-- [ ] Conferir proposta, nomes existentes e apelidos; cadastrar apenas novos, corrigir usos e Villa Velha.
-- [ ] Vincular somente ativos sem condomínio e sem ajuste manual; regerar título/slug/SEO, 301 e avisar buscadores.
-- [ ] Entregar antes/depois e relatórios de criados, apelidos, vínculos e restantes.
+- [x] Conferir proposta e apelidos: 102 cadastros novos, oito reutilizados, Villa Velha renomeado; usos corrigidos.
+- [x] Vincular 291 ativos sem condomínio; preservar todos os vínculos/ajustes anteriores; título/SEO e 263 endereços novos com 301, mais três de Villa Velha; IndexNow aceitou 560 URLs.
+- [x] Entregar quatro CSVs: criados, 114 apelidos, vínculos antes/depois e 107 restantes (todos sem etiqueta); AP06244 conferido na ficha, oito testes passaram.
 ## Central e uso de condomínios (07/11)
 - [x] Relatar nomes duplicados/quase iguais; fundir somente Gramercy Madison, Penthouse e Paisagem, preservando imóveis, apelidos e textos, com 301.
 - [x] Corrigir PR00049, PR00002 e SA00605 com ajustes manuais, título/slug/SEO e 301; páginas e redirecionamentos conferidos.
