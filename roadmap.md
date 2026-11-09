@@ -1,7 +1,7 @@
 # Visual da home
 ## Polo Empresarial e relatório numerado (09/11)
 - [x] TE00882 confirma Polo Empresarial; cadastro renomeado com apelido, AR00033 movido de Tamboré 3 com ajuste manual; dois títulos/SEO/endereços refeitos com 301 conferidos e dois avisos IndexNow aceitos.
-- [x] CSV de 106 vínculos numerados (102 etiquetas vazias, quatro diferentes), 951 conferidos na API atual; nenhum desses vínculos alterado.
+- [x] CSV de 105 vínculos numerados (101 etiquetas vazias, quatro diferentes), 950 conferidos na API atual após retirar AR00033 corrigido; nenhum vínculo do relatório alterado.
 ## Cadastro aprovado de condomínios (09/11)
 - [x] Conferir proposta e apelidos: 102 cadastros novos, oito reutilizados, Villa Velha renomeado; usos corrigidos.
 - [x] Vincular 291 ativos sem condomínio; preservar todos os vínculos/ajustes anteriores; título/SEO e 263 endereços novos com 301, mais três de Villa Velha; IndexNow aceitou 560 URLs.
