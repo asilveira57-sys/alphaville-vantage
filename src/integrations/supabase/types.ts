@@ -743,6 +743,50 @@ export type Database = {
           },
         ]
       }
+      email_campaign_tests: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          error: string | null
+          id: string
+          provider_id: string | null
+          recipient: string
+          requested_by: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          provider_id?: string | null
+          recipient: string
+          requested_by: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          provider_id?: string | null
+          recipient?: string
+          requested_by?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaign_tests_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_campaigns: {
         Row: {
           assunto: string
@@ -788,6 +832,7 @@ export type Database = {
       email_contacts: {
         Row: {
           consentimento_data: string | null
+          consentimento_interno_log: Json
           consentimento_ip: string | null
           consentimento_texto: string | null
           created_at: string
@@ -809,6 +854,7 @@ export type Database = {
         }
         Insert: {
           consentimento_data?: string | null
+          consentimento_interno_log?: Json
           consentimento_ip?: string | null
           consentimento_texto?: string | null
           created_at?: string
@@ -830,6 +876,7 @@ export type Database = {
         }
         Update: {
           consentimento_data?: string | null
+          consentimento_interno_log?: Json
           consentimento_ip?: string | null
           consentimento_texto?: string | null
           created_at?: string
@@ -3191,6 +3238,11 @@ export type Database = {
         Returns: undefined
       }
       email_marketing_unify: { Args: never; Returns: number }
+      email_register_internal_consent: {
+        Args: { cid: string; reason: string }
+        Returns: undefined
+      }
+      email_reserved_domain: { Args: { address: string }; Returns: boolean }
       fuzzy_eq: { Args: { a: string; b: string }; Returns: boolean }
       fuzzy_norm: { Args: { t: string }; Returns: string }
       has_role: {
