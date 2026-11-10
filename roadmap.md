@@ -1,4 +1,10 @@
 # Visual da home
+## Correções de Campanhas (10/11)
+- [x] Cancelar Reconfirmação antes de envios e diagnosticar fila vazia.
+- [ ] Excluir 18 fictícios e bloquear domínios reservados nos envios.
+- [ ] Testes para até três endereços, sem métricas, com ID e entrega Resend.
+- [ ] Consentimento interno auditado por admin e aplicar aos dois contatos solicitados.
+- [ ] Enviar Reconfirmação de teste para asilveira57@gmail.com e verificar entrega.
 ## Ajustes do documento (09/11, 19h22)
 - [x] Brascan absorvido no Century Plaza; cadastro antigo de Gramercy Park absorvido no novo com slug limpo; rascunhos preservados, 301 conferidos. Stadium já misto, flat e salas na Alameda Rio Negro 1000.
 - [x] Cadastrar 16 apelidos gerais e três mapeamentos por uso, sem mover por apelidos; 37 vínculos ajustados (36 ativos e um pausado da fusão), SEO/slug/301, 38 avisos aceitos, nenhum outro vínculo alterado.
