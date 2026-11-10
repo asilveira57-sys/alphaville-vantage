@@ -1,6 +1,7 @@
 # Project Architecture
 - The root document initializes React Refresh before application modules in development only; SSR preview HTML does not reliably receive Vite's preamble injection.
 - Marketing campaigns are isolated in campaign modules and email_* tables, use Resend only, and default to real sending disabled; transactional Lovable email dispatch remains unchanged. Marketing consent is distinct from privacy consent, and suppression cannot be undone by imports.
+- Campaign tests use email_campaign_tests, never contacts or email_sends; admin consent appends an actor/time/reason audit through an authenticated SQL function, preserving suppression. Reserved-domain checks exist both in enqueue SQL and immediately before dispatch to prevent bypasses.
 - Property sharing message/UTM and cover sizing live in src/lib/property-sharing.ts; reusable controls load full facts on card click and use the same formatter as the detail page to prevent incomplete or divergent shares.
 
 - Dynamic CMS-created developments render through the shared full development template; this keeps future pages consistent with the MPD development experience.

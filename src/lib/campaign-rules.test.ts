@@ -1,11 +1,14 @@
 import { describe,it,expect } from 'vitest';
-import { DAILY_WARMUP,MAX_BATCH,INACTIVE_AFTER,eligibleContact,pauseForRates,parseContactCsv,campaignUrl } from './campaign-rules';
+import { DAILY_WARMUP,MAX_BATCH,INACTIVE_AFTER,eligibleContact,pauseForRates,parseContactCsv,campaignUrl,reservedEmailDomain,campaignTestSchema,internalConsentAllowed } from './campaign-rules';
 import { signCampaignToken,verifyCampaignToken } from './campaign-tokens.server';
 describe('marketing rules',()=>{
  it('starts at 1000 daily',()=>expect(DAILY_WARMUP).toBe(1000));
  it('caps batches at 100',()=>expect(MAX_BATCH).toBe(100));
  it('inactivates after 8 unopened sends',()=>expect(INACTIVE_AFTER).toBe(8));
- const c={status:'ativo',validacao:'valido',consentimento_texto:'Aceito novidades',consentimento_data:'2026-11-06T13:00:00Z'};
+ const c={email:'asilveira57@gmail.com',status:'ativo',validacao:'valido',consentimento_texto:'Aceito novidades',consentimento_data:'2026-11-06T13:00:00Z'};
+ it('blocks reserved domains even with real consent',()=>{for(const email of ['a@example.test','a@example.com','a@example.org','a@example.net','a@localhost','a@foo.localhost','a@foo.test','a@demo.invalid','a@foo.local','a@127.0.0.1']){expect(reservedEmailDomain(email)).toBe(true);expect(eligibleContact({...c,email})).toBe(false);}expect(reservedEmailDomain('contato@saimoveisalpha.com.br')).toBe(false);});
+ it('permits 1 to 3 test recipients without consent fields',()=>{const id='00000000-0000-4000-8000-000000000002';expect(campaignTestSchema.safeParse({id,to:['asilveira57@gmail.com']}).success).toBe(true);expect(campaignTestSchema.safeParse({id,to:['a@gmail.com','b@gmail.com','c@gmail.com']}).success).toBe(true);expect(campaignTestSchema.safeParse({id,to:['a@gmail.com','b@gmail.com','c@gmail.com','d@gmail.com']}).success).toBe(false);expect(campaignTestSchema.safeParse({id,to:[]}).success).toBe(false);});
+ it('internal consent never reverses suppression',()=>{for(const status of ['descadastrado','reclamou','rejeitado','invalido'])expect(internalConsentAllowed({...c,status})).toBe(false);expect(internalConsentAllowed(c)).toBe(true);});
  it('only active consented recipients',()=>{expect(eligibleContact(c)).toBe(true);for(const status of ['inativo','descadastrado','rejeitado','reclamou','invalido'])expect(eligibleContact({...c,status})).toBe(false);expect(eligibleContact({...c,consentimento_data:null})).toBe(false);});
  it('risky requires explicit release',()=>{expect(eligibleContact({...c,validacao:'arriscado'})).toBe(false);expect(eligibleContact({...c,validacao:'arriscado',risco_liberado:true})).toBe(true);});
  it('invalid CSV entries stay out, risky tagged',()=>{const r=parseContactCsv('email,validacao\na@example.test,valido\nb@example.test,arriscado\nc@example.test,invalido\nA@example.test,valido');expect(r.rows).toHaveLength(2);expect(r.counts.invalidos).toBe(1);expect(r.counts.duplicados).toBe(1);expect(r.rows[1].tags).toContain('arriscado');});

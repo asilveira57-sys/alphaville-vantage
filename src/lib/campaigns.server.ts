@@ -32,6 +32,11 @@ export async function resendCall(key: string,path: string,body: unknown,idempote
   return response.json() as Promise<{id?: string; data?: {id:string}[]}>;
 }
 export const sender='S.A Imóveis Alphaville <novidades@news.saimoveisalpha.com.br>';
+export async function resendStatus(key:string,id:string){
+  const response=await fetch(`https://api.resend.com/emails/${encodeURIComponent(id)}`,{headers:{Authorization:`Bearer ${key}`},signal:AbortSignal.timeout(25000)});
+  if(!response.ok){const body=await response.text();console.error(`[campaign-resend-status] ${response.status}: ${body}`);throw new Error(`Resend [${response.status}]: ${body}`);}
+  const result=await response.json() as {last_event?:string};return result.last_event||'accepted';
+}
 export const replyTo='contato@saimoveisalpha.com.br';
 export async function processCampaignQueue(db: DB,key: string,secret: string) {
   const owner=crypto.randomUUID();

@@ -24,8 +24,16 @@ export const contactSchema = z.object({
   validacao: z.enum(['valido', 'arriscado', 'invalido']),
 });
 export type ImportContact = z.infer<typeof contactSchema>;
-export function eligibleContact(c: {status: string; validacao: string; risco_liberado?: boolean; consentimento_texto?: string | null; consentimento_data?: string | null; tags?: string[]}) {
-  return c.status === 'ativo' && Boolean(c.consentimento_texto?.trim() && c.consentimento_data) &&
+export function reservedEmailDomain(email: string) {
+  const domain = email.trim().toLowerCase().split('@')[1] || '';
+  return !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(domain) || /(^|\.)(test|localhost|local|invalid|example|internal|lan)$/.test(domain) || /(^|\.)example\.(com|net|org)$/.test(domain) || /^([0-9]+\.)+[0-9]+$/.test(domain);
+}
+export const campaignTestSchema = z.object({id:z.string().uuid(), to:z.array(z.string().trim().toLowerCase().email().max(254).refine(e=>!reservedEmailDomain(e),'Domínio reservado: teste não enviado.')).min(1).max(3).refine(a=>new Set(a).size===a.length,'Endereços repetidos.')});
+export function internalConsentAllowed(c: {email:string;status:string}) {
+  return !reservedEmailDomain(c.email) && !['descadastrado','reclamou','rejeitado','invalido'].includes(c.status);
+}
+export function eligibleContact(c: {email:string;status: string; validacao: string; risco_liberado?: boolean; consentimento_texto?: string | null; consentimento_data?: string | null; tags?: string[]}) {
+  return !reservedEmailDomain(c.email) && c.status === 'ativo' && Boolean(c.consentimento_texto?.trim() && c.consentimento_data) &&
     (c.validacao === 'valido' || (c.validacao === 'arriscado' && c.risco_liberado === true)) && !c.tags?.includes('teste');
 }
 export const pauseForRates = (sent: number, bounced: number, complaints: number) => sent > 0 && (bounced / sent > .03 || complaints / sent > .001);
