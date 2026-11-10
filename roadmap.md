@@ -1,10 +1,10 @@
 # Visual da home
 ## Correções de Campanhas (10/11)
 - [x] Cancelar Reconfirmação antes de envios e diagnosticar fila vazia.
-- [ ] Excluir 18 fictícios e bloquear domínios reservados nos envios.
-- [ ] Testes para até três endereços, sem métricas, com ID e entrega Resend.
-- [ ] Consentimento interno auditado por admin e aplicar aos dois contatos solicitados.
-- [ ] Enviar Reconfirmação de teste para asilveira57@gmail.com e verificar entrega.
+- [x] Excluir 18 fictícios e bloquear domínios reservados no enfileiramento e no envio.
+- [x] Testes para até três endereços, sem métricas, com ID e consulta de entrega Resend.
+- [x] Consentimento interno auditado por admin; aplicado aos dois contatos solicitados via painel autenticado.
+- [x] Reconfirmação de teste entregue a asilveira57@gmail.com; ID 01a1c5f6-923c-79c8-a234-31a98df9c5b9, zero envios reais de campanha.
 ## Ajustes do documento (09/11, 19h22)
 - [x] Brascan absorvido no Century Plaza; cadastro antigo de Gramercy Park absorvido no novo com slug limpo; rascunhos preservados, 301 conferidos. Stadium já misto, flat e salas na Alameda Rio Negro 1000.
 - [x] Cadastrar 16 apelidos gerais e três mapeamentos por uso, sem mover por apelidos; 37 vínculos ajustados (36 ativos e um pausado da fusão), SEO/slug/301, 38 avisos aceitos, nenhum outro vínculo alterado.
@@ -27,8 +27,8 @@
 - [x] Fila até 100, limite inicial 1.000/dia, trava por execução, desligado por padrão; agendamento a cada minuto apenas quando iniciado, desliga ao drenar.
 - [x] Descadastro assinado sem login testado em contato fictício e lido no Admin; métricas, limites de rejeição/reclamação e UTM existentes do Radar/captação preservados.
 - [x] CSV de 20 demonstrado no Admin: 16 válidos, 2 arriscados inativos, 2 inválidos excluídos. Nenhum envio à lista real; 11 testes passaram e telas desktop/celular verificadas.
-- [ ] Enviar teste aceito pelo Resend — bloqueado: Resend retornou 403, domínio news.saimoveisalpha.com.br não verificado na conta da chave cadastrada.
-- [ ] Validar eventos e envio real ponta a ponta — bloqueado: publicar o endereço dos eventos, configurar eventos no Resend e cadastrar RESEND_WEBHOOK_SECRET; campanhas permanecem desligadas.
+- [x] Teste aceito e entregue pelo Resend em 10/11 a asilveira57@gmail.com, consulta de entrega pelo painel.
+- [ ] Validar eventos e envio real ponta a ponta — depende de publicar as correções e verificar eventos; envio à lista real não autorizado nesta tarefa.
 ## Fotos exclusivas de admin (04/11)
 - [x] Barra acima da galeria, download direto por código e aviso de fotos faltantes.
 - [x] Download em cada linha da lista de fotos do Admin; visitante sem controles/HTML sem botões e download real admin conferidos (7 fotos), 3 testes de ZIP.
