@@ -3,11 +3,6 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { publicClient } from "./property-search.functions";
 
-// Cache de 5 min por slug no servidor. A rotina diária de conciliação altera
-// imóveis, mas o cache é por instância do servidor e não dá para invalidá-lo
-// de fora de forma confiável — o TTL de 5 min é o limite de defasagem.
-const TTL = 300_000;
-const MAX_ENTRIES = 3000;
 
 const isUsableImg = (u: string) =>
   /^https?:\/\//.test(u) &&
@@ -75,7 +70,6 @@ export type PropertyDetailDTO = {
   related: RelatedProperty[];
 };
 
-const cache = new Map<string, { at: number; value: PropertyDetailDTO | null }>();
 
 async function fetchProperty(slug: string): Promise<PropertyDetailDTO | null> {
   const { data, error } = await publicClient()
@@ -115,11 +109,6 @@ async function fetchProperty(slug: string): Promise<PropertyDetailDTO | null> {
 export const getPropertyBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => z.object({ slug: z.string().min(1).max(220) }).parse(d))
   .handler(async ({ data }): Promise<PropertyDetailDTO | null> => {
-    setResponseHeader("Cache-Control", "public, max-age=300");
-    const hit = cache.get(data.slug);
-    if (hit && Date.now() - hit.at < TTL) return hit.value;
-    const value = await fetchProperty(data.slug);
-    if (cache.size >= MAX_ENTRIES) cache.clear();
-    cache.set(data.slug, { at: Date.now(), value });
-    return value;
+    setResponseHeader("Cache-Control", "no-store");
+    return fetchProperty(data.slug);
   });

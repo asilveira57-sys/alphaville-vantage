@@ -22,6 +22,7 @@ type Area = {
 };
 
 const AREAS: Area[] = [
+  { title: "Imóveis bloqueados", description: "Imóveis removidos do portal e impedidos de retornar pela sincronização.", admin: "/admin-imoveis-bloqueados" },
   {
     title: "Blog e artigos",
     description: "Posts, artigos editoriais, FAQ do post, CTA e SEO.",

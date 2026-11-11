@@ -65,6 +65,7 @@ import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/
 import { Route as AuthenticatedAdminEtiquetasUnivenRouteImport } from './routes/_authenticated/admin-etiquetas-univen'
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminFotosImoveisRouteImport } from './routes/_authenticated/admin-fotos-imoveis'
+import { Route as AuthenticatedAdminImoveisBloqueadosRouteImport } from './routes/_authenticated/admin-imoveis-bloqueados'
 import { Route as AuthenticatedAdminImportarImovelRouteImport } from './routes/_authenticated/admin-importar-imovel'
 import { Route as AuthenticatedAdminIncorporadorasRouteImport } from './routes/_authenticated/admin-incorporadoras'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin-leads'
@@ -422,6 +423,12 @@ const AuthenticatedAdminFotosImoveisRoute =
   AuthenticatedAdminFotosImoveisRouteImport.update({
     id: '/admin-fotos-imoveis',
     path: '/admin-fotos-imoveis',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminImoveisBloqueadosRoute =
+  AuthenticatedAdminImoveisBloqueadosRouteImport.update({
+    id: '/admin-imoveis-bloqueados',
+    path: '/admin-imoveis-bloqueados',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminImportarImovelRoute =
@@ -858,6 +865,7 @@ export interface FileRoutesByFullPath {
   '/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
+  '/admin-imoveis-bloqueados': typeof AuthenticatedAdminImoveisBloqueadosRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
   '/admin-leads': typeof AuthenticatedAdminLeadsRoute
@@ -977,6 +985,7 @@ export interface FileRoutesByTo {
   '/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
+  '/admin-imoveis-bloqueados': typeof AuthenticatedAdminImoveisBloqueadosRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
   '/admin-leads': typeof AuthenticatedAdminLeadsRoute
@@ -1103,6 +1112,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/_authenticated/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
+  '/_authenticated/admin-imoveis-bloqueados': typeof AuthenticatedAdminImoveisBloqueadosRoute
   '/_authenticated/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/_authenticated/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
   '/_authenticated/admin-leads': typeof AuthenticatedAdminLeadsRoute
@@ -1231,6 +1241,7 @@ export interface FileRouteTypes {
     | '/admin-etiquetas-univen'
     | '/admin-financiamento'
     | '/admin-fotos-imoveis'
+    | '/admin-imoveis-bloqueados'
     | '/admin-importar-imovel'
     | '/admin-incorporadoras'
     | '/admin-leads'
@@ -1350,6 +1361,7 @@ export interface FileRouteTypes {
     | '/admin-etiquetas-univen'
     | '/admin-financiamento'
     | '/admin-fotos-imoveis'
+    | '/admin-imoveis-bloqueados'
     | '/admin-importar-imovel'
     | '/admin-incorporadoras'
     | '/admin-leads'
@@ -1475,6 +1487,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-etiquetas-univen'
     | '/_authenticated/admin-financiamento'
     | '/_authenticated/admin-fotos-imoveis'
+    | '/_authenticated/admin-imoveis-bloqueados'
     | '/_authenticated/admin-importar-imovel'
     | '/_authenticated/admin-incorporadoras'
     | '/_authenticated/admin-leads'
@@ -2012,6 +2025,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminFotosImoveisRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-imoveis-bloqueados': {
+      id: '/_authenticated/admin-imoveis-bloqueados'
+      path: '/admin-imoveis-bloqueados'
+      fullPath: '/admin-imoveis-bloqueados'
+      preLoaderRoute: typeof AuthenticatedAdminImoveisBloqueadosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-importar-imovel': {
       id: '/_authenticated/admin-importar-imovel'
       path: '/admin-importar-imovel'
@@ -2543,6 +2563,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminEtiquetasUnivenRoute: typeof AuthenticatedAdminEtiquetasUnivenRoute
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
   AuthenticatedAdminFotosImoveisRoute: typeof AuthenticatedAdminFotosImoveisRoute
+  AuthenticatedAdminImoveisBloqueadosRoute: typeof AuthenticatedAdminImoveisBloqueadosRoute
   AuthenticatedAdminImportarImovelRoute: typeof AuthenticatedAdminImportarImovelRoute
   AuthenticatedAdminIncorporadorasRoute: typeof AuthenticatedAdminIncorporadorasRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
@@ -2581,6 +2602,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAdminEtiquetasUnivenRoute,
   AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
   AuthenticatedAdminFotosImoveisRoute: AuthenticatedAdminFotosImoveisRoute,
+  AuthenticatedAdminImoveisBloqueadosRoute:
+    AuthenticatedAdminImoveisBloqueadosRoute,
   AuthenticatedAdminImportarImovelRoute: AuthenticatedAdminImportarImovelRoute,
   AuthenticatedAdminIncorporadorasRoute: AuthenticatedAdminIncorporadorasRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,

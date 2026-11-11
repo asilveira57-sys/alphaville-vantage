@@ -192,6 +192,7 @@ function AdminPage() {
             <Link to="/admin-sem-foto" className="border border-ink text-ink px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink hover:text-canvas">Sem foto real →</Link>
 
             <Link to="/admin-mapa" className="bg-ink text-canvas px-4 py-2 text-xs uppercase tracking-widest font-medium hover:bg-ink/85">Mapa do sistema →</Link>
+            <Link to="/admin-imoveis-bloqueados" className="border border-border px-4 py-2 text-xs">Imóveis bloqueados →</Link>
 
 
 

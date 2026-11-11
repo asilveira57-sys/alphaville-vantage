@@ -3292,6 +3292,7 @@ export type Database = {
         }
         Returns: Json
       }
+      property_is_blocked: { Args: { p_slug: string }; Returns: boolean }
       property_main_image: { Args: { p_images: Json }; Returns: string }
       property_search_facets: { Args: never; Returns: Json }
       search_norm: { Args: { t: string }; Returns: string }
@@ -3338,6 +3339,10 @@ export type Database = {
           title: string
           total: number
         }[]
+      }
+      set_property_block: {
+        Args: { p_blocked: boolean; p_id: string }
+        Returns: undefined
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

@@ -1,4 +1,7 @@
 # Visual da home
+## Bloqueio administrativo de imóveis (11/11)
+- [x] Botão com confirmação na ficha administrativa, bloqueio durável/410 (inclusive endereços antigos) e proteção na sincronização.
+- [x] Lista paginada em Sistema com desbloqueio para pausado; 15 testes passaram, bloqueio/lista/desbloqueio admin e HTTP 410 visitante conferidos; ação visitante negada.
 ## Correções de Campanhas (10/11)
 - [x] Cancelar Reconfirmação antes de envios e diagnosticar fila vazia.
 - [x] Excluir 18 fictícios e bloquear domínios reservados no enfileiramento e no envio.

@@ -7,6 +7,7 @@ import { PropertyGallery } from "@/components/property-gallery";
 import { FinancingSimulator } from "@/components/financing-simulator";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { getPropertyBySlug } from "@/lib/property-detail.functions";
+import { getPropertyBlocked } from "@/lib/property-blocking.functions";
 import { buildRealEstateJsonLd, safeSuites, type SeoSource } from "@/lib/property-seo";
 import { humanizeOriginalDescription } from "@/lib/property-parser";
 import { OpportunityBanner } from "@/components/opportunities/opportunity-banner";
@@ -30,9 +31,9 @@ const fmtPrice = (n: number | null) =>
     : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(n));
 
 async function loadProperty(slug: string) {
+  if (await getPropertyBlocked({ data: { slug } })) throw new Error("Imóvel removido (410)");
   const [property, opportunity] = await Promise.all([
-    // Ficha vem do servidor com cache de 5 min por slug — ver
-    // src/lib/property-detail.functions.ts.
+    // Leitura atual para respeitar remoções administrativas imediatamente.
     getPropertyBySlug({ data: { slug } }),
     // Curadoria da vitrine: quando existe, a ficha ganha o layout de
     // oportunidade. A URL continua sendo a mesma — não há segunda página.

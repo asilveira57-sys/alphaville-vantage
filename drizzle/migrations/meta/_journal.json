@@ -288,6 +288,20 @@
       "when": 1794322532167,
       "tag": "0040_campaign_safety_tests_internal_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794420532763,
+      "tag": "0041_property_manual_block",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794420628234,
+      "tag": "0042_fix_property_block_audit",
+      "breakpoints": true
     }
   ]
 }

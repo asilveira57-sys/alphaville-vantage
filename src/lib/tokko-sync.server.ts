@@ -8,6 +8,7 @@ import { regenerateSeoForIds } from "./property-seo-regen.server";
 import { fetchAllRows } from "./fetch-all";
 import { SITE_URL } from "./site";
 import { buildCondoIndex, hasManualCondo, matchTag, univenTag, type CondoIndex } from "./univen-condo-match";
+import { canSyncProperty, isPropertyBlocked } from "./property-blocking";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SB = any;
@@ -21,6 +22,7 @@ export const PORTAL_COLS =
 export type PortalRow = Record<string, unknown> & {
   id: string; slug: string; status: string; created_at: string; internal_code: string | null;
   source_id: string | null; source_url: string | null;
+  review_status?: unknown; manual_overrides?: unknown;
 };
 
 const ORIGIN = "https://www.saimoveisalphaville.com.br";
@@ -87,13 +89,13 @@ export function codeAnomaly(code: string | null | undefined, sourceId?: string |
 export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOptions) {
   const rows = await fetchAllRows<PortalRow>((f, t) => sb.from("properties").select(PORTAL_COLS).order("created_at").range(f, t));
   // Imóveis que a própria sincronização desativou voltam se reaparecerem na API.
-  const openAll = rows.filter((r) => !CLOSED.has(r.status));
+  const openAll = rows.filter((r) => !CLOSED.has(r.status) && canSyncProperty(r));
   const openCodes = new Set(openAll.map((r) => referenceKey(r.internal_code)).filter(Boolean));
   const returnable = rows.filter((r) => r.status === "inactive" && r.review_status === GONE
-    && !openCodes.has(referenceKey(r.internal_code)));
+    && canSyncProperty(r) && !openCodes.has(referenceKey(r.internal_code)));
   const open = [...openAll, ...returnable];
   // Qualquer registro do portal (até inativo) bloqueia importar de novo o mesmo código/ID.
-  const knownCodes = new Set(rows.map((r) => referenceKey(r.internal_code)).filter(Boolean));
+  const knownCodes = new Set(rows.flatMap((r) => [referenceKey(r.internal_code), ...(isPropertyBlocked(r) && Array.isArray(r.previous_codes) ? r.previous_codes.map((c) => referenceKey(String(c))) : [])]).filter(Boolean));
   const knownIds = new Set(rows.map((r) => r.source_id).filter(Boolean) as string[]);
   const apiById = new Map(api.map((a) => [String(a.id), a]));
   const count = <T,>(xs: T[], k: (x: T) => string) => xs.reduce((m, x) => m.set(k(x), (m.get(k(x)) ?? 0) + 1), new Map<string, number>());
@@ -185,6 +187,7 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
           const ref = link.external_ref as string | undefined;
           await sb.from("properties").update({ external_ref: null, source_id: null })
             .in("status", ["inactive"]).neq("id", row.id)
+            .not("manual_overrides", "cs", '{"blocked":true}')
             .or(`source_id.eq.${link.source_id}${ref ? `,external_ref.eq."${ref}"` : ""}`);
         }
         const { error } = await sb.from("properties").update({ ...patch, ...link }).eq("id", row.id);

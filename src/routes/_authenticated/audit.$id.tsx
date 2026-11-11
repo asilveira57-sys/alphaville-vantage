@@ -7,6 +7,8 @@ import { checkIsAdmin } from "@/lib/admin.functions";
 import { getPropertyForReview, saveManualReview, reprocessProperties } from "@/lib/property-review.functions";
 import { regenerateSeo } from "@/lib/property-seo.functions";
 import { MoneyInput, formatBRL } from "@/components/ui/money-input";
+import { PropertyBlockButton } from "@/components/admin/property-block-button";
+import { isPropertyBlocked } from "@/lib/property-blocking";
 
 
 export const Route = createFileRoute("/_authenticated/audit/$id")({
@@ -125,6 +127,7 @@ function AuditEditPage() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <Link to="/audit" className="text-xs uppercase tracking-widest underline">← Voltar à auditoria</Link>
           <div className="flex gap-2 flex-wrap">
+            <PropertyBlockButton id={id} code={String(p.internal_code ?? "este imóvel")} blocked={isPropertyBlocked(p)} onSuccess={() => { setMsg(isPropertyBlocked(p) ? "Imóvel desbloqueado e pausado." : "Imóvel excluído do catálogo e bloqueado; página removida (410)."); void propQ.refetch(); }} />
             <button
               onClick={() => reprocessMut.mutate()}
               disabled={pending}
