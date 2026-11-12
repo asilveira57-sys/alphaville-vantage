@@ -17,7 +17,7 @@ export const PORTAL_COLS =
   "id,slug,status,created_at,internal_code,source_id,source_url,external_ref,manual_overrides,images," +
   "property_type,purpose,price_sale,price_rent,condominium_name,condo_fee,iptu,iptu_period,city,state,neighborhood," +
   "address,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_total,area_built,area_useful," +
-  "description,descricao_original,review_status,condominium_id,previous_codes,univen_empreendimento";
+  "description,descricao_original,review_status,condominium_id,previous_codes,univen_empreendimento,univen_purpose";
 
 export type PortalRow = Record<string, unknown> & {
   id: string; slug: string; status: string; created_at: string; internal_code: string | null;
@@ -169,6 +169,8 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
     const tag = univenTag(a);
     let condoLinked: { id: string; name: string } | null = null;
     if ((row.univen_empreendimento ?? null) !== tag) link.univen_empreendimento = tag;
+    // Finalidade como a Univen informa hoje (sale/rent/both): base do relatório de divergências.
+    if ((row.univen_purpose ?? null) !== (facts.purpose ?? null)) link.univen_purpose = facts.purpose ?? null;
     if (tag && !row.condominium_id && !hasManualCondo(row.manual_overrides as Record<string, unknown> | null)) {
       const m = matchTag(condoIdx, tag, (patch.property_type ?? row.property_type) as string | null);
       if (m.kind === "match") { condoLinked = { id: m.condo.id, name: m.condo.name }; link.condominium_id = m.condo.id; link.condominium_name = m.condo.name; }
@@ -179,7 +181,7 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       if (row.review_status === GONE) { link.review_status = null; reactivatedSlugs.push(`/imoveis/${row.slug}`); }
     }
     const linkChanged = row.source_id !== link.source_id || (url && row.source_url !== url);
-    if (Object.keys(patch).length || linkChanged || link.status || codeChange || condoLinked || "univen_empreendimento" in link) {
+    if (Object.keys(patch).length || linkChanged || link.status || codeChange || condoLinked || "univen_empreendimento" in link || "univen_purpose" in link) {
       if (opts.apply) {
         // Duplicados inativos (importados na troca de IDs) seguram o mesmo external_ref/ID:
         // liberar antes, senão o índice único bloqueia a atualização do registro ativo.
