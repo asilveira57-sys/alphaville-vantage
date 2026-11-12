@@ -66,7 +66,7 @@ function Lgpd() {
           <h2 className="font-serif text-3xl mb-4">Como solicitar</h2>
           <p className="text-ink/85 leading-relaxed">
             Envie sua solicitação para{" "}
-            <a href="mailto:contato@saimoveisalphaville.com.br" className="underline underline-offset-4">contato@saimoveisalphaville.com.br</a>
+            <a href="mailto:contato@saimoveisalpha.com.br" className="underline underline-offset-4">contato@saimoveisalpha.com.br</a>
             {" "}informando o direito que deseja exercer e dados que permitam a sua identificação.
             Responderemos no prazo legal.
           </p>

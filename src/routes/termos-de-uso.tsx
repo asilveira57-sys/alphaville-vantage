@@ -59,7 +59,7 @@ function Terms() {
         <p>Aplica-se a legislação brasileira. Fica eleito o foro da comarca de Santana de Parnaíba/SP para dirimir eventuais controvérsias.</p>
 
         <h2>10. Contato</h2>
-        <p>Dúvidas sobre estes termos: <a href="mailto:contato@saimoveisalphaville.com.br">contato@saimoveisalphaville.com.br</a>.</p>
+        <p>Dúvidas sobre estes termos: <a href="mailto:contato@saimoveisalpha.com.br">contato@saimoveisalpha.com.br</a>.</p>
 
         <p>Veja também: <Link to="/politica-de-privacidade">Política de Privacidade</Link>, <Link to="/politica-de-cookies">Política de Cookies</Link> e <Link to="/lgpd">LGPD</Link>.</p>
 

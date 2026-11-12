@@ -36,7 +36,7 @@ function Atendimento() {
           <ul className="list-disc list-inside space-y-1 text-ink/85">
             <li>Telefone (11) 94788-8299</li>
             <li>WhatsApp (11) 99551-5053</li>
-            <li>E-mail contato@saimoveisalphaville.com.br</li>
+            <li>E-mail contato@saimoveisalpha.com.br</li>
             <li>Formulário na página de <Link to="/contato" className="underline underline-offset-4">contato</Link></li>
             <li>Atendimento presencial em Tamboré, com hora marcada</li>
           </ul>

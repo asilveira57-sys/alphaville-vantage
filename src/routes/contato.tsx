@@ -33,7 +33,7 @@ export const Route = createFileRoute("/contato")({
           legalName: "Padilha Assessoria em Vendas Ltda",
           taxID: "13.349.385/0001-49",
           telephone: "+55-11-94788-8299",
-          email: "contato@saimoveisalphaville.com.br",
+          email: "contato@saimoveisalpha.com.br",
           address: {
             "@type": "PostalAddress",
             streetAddress: "Av. Marcos Penteado de Ulhôa Rodrigues, 4053 - Loja 4",
@@ -80,7 +80,7 @@ function Contato() {
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="h-4 w-4 mt-1 text-brand-yellow" />
-                <a href="mailto:contato@saimoveisalphaville.com.br" className="hover:underline">contato@saimoveisalphaville.com.br</a>
+                <a href="mailto:contato@saimoveisalpha.com.br" className="hover:underline">contato@saimoveisalpha.com.br</a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 mt-1 text-brand-yellow" />

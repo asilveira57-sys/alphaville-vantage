@@ -72,7 +72,7 @@ function Privacy() {
         <p>Esta política pode ser atualizada a qualquer momento. A versão vigente é sempre a publicada neste endereço.</p>
 
         <h2>11. Contato</h2>
-        <p>Dúvidas ou solicitações relacionadas a dados pessoais: <a href="mailto:contato@saimoveisalphaville.com.br">contato@saimoveisalphaville.com.br</a>.</p>
+        <p>Dúvidas ou solicitações relacionadas a dados pessoais: <a href="mailto:contato@saimoveisalpha.com.br">contato@saimoveisalpha.com.br</a>.</p>
 
         <p className="text-sm text-muted-foreground">Última atualização: julho de 2026.</p>
       </div>

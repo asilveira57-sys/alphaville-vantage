@@ -115,7 +115,7 @@ export function SiteFooter() {
               </a>
             </li>
             <li>
-              <a href="mailto:contato@saimoveisalphaville.com.br" className="inline-flex items-center gap-2 hover:text-brand-yellow">
+              <a href="mailto:contato@saimoveisalpha.com.br" className="inline-flex items-center gap-2 hover:text-brand-yellow">
                 <Mail className="h-3.5 w-3.5" /> contato@saimoveis…
               </a>
             </li>

@@ -172,10 +172,10 @@ function CookiesPolicyPage() {
             <p className="text-ink/85 leading-relaxed">
               Dúvidas sobre o uso de cookies podem ser enviadas por e-mail para{" "}
               <a
-                href="mailto:contato@saimoveisalphaville.com.br"
+                href="mailto:contato@saimoveisalpha.com.br"
                 className="underline underline-offset-4 hover:text-ink"
               >
-                contato@saimoveisalphaville.com.br
+                contato@saimoveisalpha.com.br
               </a>
               .
             </p>
