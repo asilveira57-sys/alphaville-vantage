@@ -54,6 +54,7 @@ import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
 import { Route as TransparenciaRouteImport } from './routes/transparencia'
 import { Route as VenderMeuImovelRouteImport } from './routes/vender-meu-imovel'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminArtigosRouteImport } from './routes/_authenticated/admin-artigos'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated/admin-auditoria'
 import { Route as AuthenticatedAdminCampanhasRouteImport } from './routes/_authenticated/admin-campanhas'
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
@@ -62,6 +63,7 @@ import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
+import { Route as AuthenticatedAdminEquipeRouteImport } from './routes/_authenticated/admin-equipe'
 import { Route as AuthenticatedAdminEtiquetasUnivenRouteImport } from './routes/_authenticated/admin-etiquetas-univen'
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminFotosImoveisRouteImport } from './routes/_authenticated/admin-fotos-imoveis'
@@ -70,6 +72,7 @@ import { Route as AuthenticatedAdminImportarImovelRouteImport } from './routes/_
 import { Route as AuthenticatedAdminIncorporadorasRouteImport } from './routes/_authenticated/admin-incorporadoras'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin-leads'
 import { Route as AuthenticatedAdminLeadsPesquisaRouteImport } from './routes/_authenticated/admin-leads-pesquisa'
+import { Route as AuthenticatedAdminLegadoRouteImport } from './routes/_authenticated/admin-legado'
 import { Route as AuthenticatedAdminListaOportunidadesRouteImport } from './routes/_authenticated/admin-lista-oportunidades'
 import { Route as AuthenticatedAdminMapaRouteImport } from './routes/_authenticated/admin-mapa'
 import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authenticated/admin-midia'
@@ -361,6 +364,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminArtigosRoute =
+  AuthenticatedAdminArtigosRouteImport.update({
+    id: '/admin-artigos',
+    path: '/admin-artigos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminAuditoriaRoute =
   AuthenticatedAdminAuditoriaRouteImport.update({
     id: '/admin-auditoria',
@@ -405,6 +414,12 @@ const AuthenticatedAdminEmpreendimentosRoute =
   AuthenticatedAdminEmpreendimentosRouteImport.update({
     id: '/admin-empreendimentos',
     path: '/admin-empreendimentos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminEquipeRoute =
+  AuthenticatedAdminEquipeRouteImport.update({
+    id: '/admin-equipe',
+    path: '/admin-equipe',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminEtiquetasUnivenRoute =
@@ -452,6 +467,12 @@ const AuthenticatedAdminLeadsPesquisaRoute =
   AuthenticatedAdminLeadsPesquisaRouteImport.update({
     id: '/admin-leads-pesquisa',
     path: '/admin-leads-pesquisa',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminLegadoRoute =
+  AuthenticatedAdminLegadoRouteImport.update({
+    id: '/admin-legado',
+    path: '/admin-legado',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminListaOportunidadesRoute =
@@ -854,6 +875,7 @@ export interface FileRoutesByFullPath {
   '/transparencia': typeof TransparenciaRoute
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-artigos': typeof AuthenticatedAdminArtigosRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
@@ -862,6 +884,7 @@ export interface FileRoutesByFullPath {
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-equipe': typeof AuthenticatedAdminEquipeRoute
   '/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
@@ -870,6 +893,7 @@ export interface FileRoutesByFullPath {
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
   '/admin-leads': typeof AuthenticatedAdminLeadsRoute
   '/admin-leads-pesquisa': typeof AuthenticatedAdminLeadsPesquisaRoute
+  '/admin-legado': typeof AuthenticatedAdminLegadoRoute
   '/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
@@ -974,6 +998,7 @@ export interface FileRoutesByTo {
   '/transparencia': typeof TransparenciaRoute
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-artigos': typeof AuthenticatedAdminArtigosRoute
   '/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
@@ -982,6 +1007,7 @@ export interface FileRoutesByTo {
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/admin-equipe': typeof AuthenticatedAdminEquipeRoute
   '/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
@@ -990,6 +1016,7 @@ export interface FileRoutesByTo {
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
   '/admin-leads': typeof AuthenticatedAdminLeadsRoute
   '/admin-leads-pesquisa': typeof AuthenticatedAdminLeadsPesquisaRoute
+  '/admin-legado': typeof AuthenticatedAdminLegadoRoute
   '/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/admin-midia': typeof AuthenticatedAdminMidiaRoute
@@ -1101,6 +1128,7 @@ export interface FileRoutesById {
   '/transparencia': typeof TransparenciaRoute
   '/vender-meu-imovel': typeof VenderMeuImovelRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-artigos': typeof AuthenticatedAdminArtigosRoute
   '/_authenticated/admin-auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin-campanhas': typeof AuthenticatedAdminCampanhasRoute
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
@@ -1109,6 +1137,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
+  '/_authenticated/admin-equipe': typeof AuthenticatedAdminEquipeRoute
   '/_authenticated/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/_authenticated/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
@@ -1117,6 +1146,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
   '/_authenticated/admin-leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin-leads-pesquisa': typeof AuthenticatedAdminLeadsPesquisaRoute
+  '/_authenticated/admin-legado': typeof AuthenticatedAdminLegadoRoute
   '/_authenticated/admin-lista-oportunidades': typeof AuthenticatedAdminListaOportunidadesRoute
   '/_authenticated/admin-mapa': typeof AuthenticatedAdminMapaRoute
   '/_authenticated/admin-midia': typeof AuthenticatedAdminMidiaRoute
@@ -1230,6 +1260,7 @@ export interface FileRouteTypes {
     | '/transparencia'
     | '/vender-meu-imovel'
     | '/admin'
+    | '/admin-artigos'
     | '/admin-auditoria'
     | '/admin-campanhas'
     | '/admin-cards'
@@ -1238,6 +1269,7 @@ export interface FileRouteTypes {
     | '/admin-ctas'
     | '/admin-emails'
     | '/admin-empreendimentos'
+    | '/admin-equipe'
     | '/admin-etiquetas-univen'
     | '/admin-financiamento'
     | '/admin-fotos-imoveis'
@@ -1246,6 +1278,7 @@ export interface FileRouteTypes {
     | '/admin-incorporadoras'
     | '/admin-leads'
     | '/admin-leads-pesquisa'
+    | '/admin-legado'
     | '/admin-lista-oportunidades'
     | '/admin-mapa'
     | '/admin-midia'
@@ -1350,6 +1383,7 @@ export interface FileRouteTypes {
     | '/transparencia'
     | '/vender-meu-imovel'
     | '/admin'
+    | '/admin-artigos'
     | '/admin-auditoria'
     | '/admin-campanhas'
     | '/admin-cards'
@@ -1358,6 +1392,7 @@ export interface FileRouteTypes {
     | '/admin-ctas'
     | '/admin-emails'
     | '/admin-empreendimentos'
+    | '/admin-equipe'
     | '/admin-etiquetas-univen'
     | '/admin-financiamento'
     | '/admin-fotos-imoveis'
@@ -1366,6 +1401,7 @@ export interface FileRouteTypes {
     | '/admin-incorporadoras'
     | '/admin-leads'
     | '/admin-leads-pesquisa'
+    | '/admin-legado'
     | '/admin-lista-oportunidades'
     | '/admin-mapa'
     | '/admin-midia'
@@ -1476,6 +1512,7 @@ export interface FileRouteTypes {
     | '/transparencia'
     | '/vender-meu-imovel'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-artigos'
     | '/_authenticated/admin-auditoria'
     | '/_authenticated/admin-campanhas'
     | '/_authenticated/admin-cards'
@@ -1484,6 +1521,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-emails'
     | '/_authenticated/admin-empreendimentos'
+    | '/_authenticated/admin-equipe'
     | '/_authenticated/admin-etiquetas-univen'
     | '/_authenticated/admin-financiamento'
     | '/_authenticated/admin-fotos-imoveis'
@@ -1492,6 +1530,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-incorporadoras'
     | '/_authenticated/admin-leads'
     | '/_authenticated/admin-leads-pesquisa'
+    | '/_authenticated/admin-legado'
     | '/_authenticated/admin-lista-oportunidades'
     | '/_authenticated/admin-mapa'
     | '/_authenticated/admin-midia'
@@ -1948,6 +1987,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-artigos': {
+      id: '/_authenticated/admin-artigos'
+      path: '/admin-artigos'
+      fullPath: '/admin-artigos'
+      preLoaderRoute: typeof AuthenticatedAdminArtigosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-auditoria': {
       id: '/_authenticated/admin-auditoria'
       path: '/admin-auditoria'
@@ -2004,6 +2050,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEmpreendimentosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-equipe': {
+      id: '/_authenticated/admin-equipe'
+      path: '/admin-equipe'
+      fullPath: '/admin-equipe'
+      preLoaderRoute: typeof AuthenticatedAdminEquipeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-etiquetas-univen': {
       id: '/_authenticated/admin-etiquetas-univen'
       path: '/admin-etiquetas-univen'
@@ -2058,6 +2111,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-leads-pesquisa'
       fullPath: '/admin-leads-pesquisa'
       preLoaderRoute: typeof AuthenticatedAdminLeadsPesquisaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-legado': {
+      id: '/_authenticated/admin-legado'
+      path: '/admin-legado'
+      fullPath: '/admin-legado'
+      preLoaderRoute: typeof AuthenticatedAdminLegadoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-lista-oportunidades': {
@@ -2552,6 +2612,7 @@ const AuthenticatedCmsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminArtigosRoute: typeof AuthenticatedAdminArtigosRoute
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminCampanhasRoute: typeof AuthenticatedAdminCampanhasRoute
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
@@ -2560,6 +2621,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
+  AuthenticatedAdminEquipeRoute: typeof AuthenticatedAdminEquipeRoute
   AuthenticatedAdminEtiquetasUnivenRoute: typeof AuthenticatedAdminEtiquetasUnivenRoute
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
   AuthenticatedAdminFotosImoveisRoute: typeof AuthenticatedAdminFotosImoveisRoute
@@ -2568,6 +2630,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminIncorporadorasRoute: typeof AuthenticatedAdminIncorporadorasRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminLeadsPesquisaRoute: typeof AuthenticatedAdminLeadsPesquisaRoute
+  AuthenticatedAdminLegadoRoute: typeof AuthenticatedAdminLegadoRoute
   AuthenticatedAdminListaOportunidadesRoute: typeof AuthenticatedAdminListaOportunidadesRoute
   AuthenticatedAdminMapaRoute: typeof AuthenticatedAdminMapaRoute
   AuthenticatedAdminMidiaRoute: typeof AuthenticatedAdminMidiaRoute
@@ -2589,6 +2652,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminArtigosRoute: AuthenticatedAdminArtigosRoute,
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
   AuthenticatedAdminCampanhasRoute: AuthenticatedAdminCampanhasRoute,
   AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
@@ -2598,6 +2662,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminEmpreendimentosRoute:
     AuthenticatedAdminEmpreendimentosRoute,
+  AuthenticatedAdminEquipeRoute: AuthenticatedAdminEquipeRoute,
   AuthenticatedAdminEtiquetasUnivenRoute:
     AuthenticatedAdminEtiquetasUnivenRoute,
   AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
@@ -2608,6 +2673,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminIncorporadorasRoute: AuthenticatedAdminIncorporadorasRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminLeadsPesquisaRoute: AuthenticatedAdminLeadsPesquisaRoute,
+  AuthenticatedAdminLegadoRoute: AuthenticatedAdminLegadoRoute,
   AuthenticatedAdminListaOportunidadesRoute:
     AuthenticatedAdminListaOportunidadesRoute,
   AuthenticatedAdminMapaRoute: AuthenticatedAdminMapaRoute,
