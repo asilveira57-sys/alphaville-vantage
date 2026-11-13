@@ -116,12 +116,16 @@ export function SiteFooter() {
             </li>
             <li>
               <a href="mailto:contato@saimoveisalpha.com.br" className="inline-flex items-center gap-2 hover:text-brand-yellow">
-                <Mail className="h-3.5 w-3.5" /> contato@saimoveis…
+                <Mail className="h-3.5 w-3.5 shrink-0" /> <span className="break-all">contato@saimoveisalpha.com.br</span>
               </a>
             </li>
             <li className="inline-flex items-start gap-2 text-white/60">
               <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              <span>Alphaville · Barueri · SP</span>
+              <address className="not-italic leading-relaxed">
+                Av. Marcos Penteado de Ulhôa Rodrigues, 4053 – Loja 4<br />
+                Tamboré · Santana de Parnaíba/SP<br />
+                CEP 06543-001
+              </address>
             </li>
           </FooterGroup>
         </div>
@@ -129,8 +133,8 @@ export function SiteFooter() {
 
       <div className="bg-brand-yellow text-brand-dark">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <p className="text-[11px] uppercase tracking-[0.2em] font-semibold">
-            © {new Date().getFullYear()} S.A Imóveis Alphaville
+          <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-center sm:text-left">
+            © {new Date().getFullYear()} S.A Imóveis Alphaville · CRECI 26075-J · CNPJ 13.349.385/0001-49
           </p>
           <p className="text-[11px] uppercase tracking-[0.2em] font-medium">
             Aluga · Vende · Permuta · Administra · Reforma
