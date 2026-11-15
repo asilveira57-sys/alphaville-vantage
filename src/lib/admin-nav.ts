@@ -76,6 +76,8 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     label: "Leads",
     items: [
       { label: "Leads (CRM)", to: "/admin-leads", description: "Todos os contatos dos formulários, com a origem." },
+      { label: "Propostas", to: "/admin-propostas", description: "Seleções de imóveis enviadas pelos corretores.", match: ["/admin-propostas/"] },
+      { label: "Corretores", to: "/admin-corretores", description: "Foto, CRECI e WhatsApp de cada corretor." },
       { label: "Radar S.A", to: "/admin-radar", description: "Respostas do questionário Radar." },
       { label: "Pesquisa inteligente", to: "/admin-leads-pesquisa", description: "Buscas salvas pelos visitantes." },
     ],

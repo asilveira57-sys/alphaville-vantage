@@ -60,6 +60,7 @@ import { Route as AuthenticatedAdminCampanhasRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
 import { Route as AuthenticatedAdminConciliacaoRouteImport } from './routes/_authenticated/admin-conciliacao'
 import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_authenticated/admin-condominios'
+import { Route as AuthenticatedAdminCorretoresRouteImport } from './routes/_authenticated/admin-corretores'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
 import { Route as AuthenticatedAdminEmpreendimentosRouteImport } from './routes/_authenticated/admin-empreendimentos'
@@ -79,6 +80,7 @@ import { Route as AuthenticatedAdminMidiaRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminOportunidadesRouteImport } from './routes/_authenticated/admin-oportunidades'
 import { Route as AuthenticatedAdminParceirosRouteImport } from './routes/_authenticated/admin-parceiros'
 import { Route as AuthenticatedAdminPendentesRouteImport } from './routes/_authenticated/admin-pendentes'
+import { Route as AuthenticatedAdminPropostasRouteImport } from './routes/_authenticated/admin-propostas'
 import { Route as AuthenticatedAdminRadarRouteImport } from './routes/_authenticated/admin-radar'
 import { Route as AuthenticatedAdminRecapturaRouteImport } from './routes/_authenticated/admin-recaptura'
 import { Route as AuthenticatedAdminRuasRouteImport } from './routes/_authenticated/admin-ruas'
@@ -114,10 +116,13 @@ import { Route as OportunidadesDescadastroRouteImport } from './routes/oportunid
 import { Route as OportunidadesMetodologiaRouteImport } from './routes/oportunidades.metodologia'
 import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
+import { Route as PropostaTokenRouteImport } from './routes/proposta.$token'
 import { Route as RadarIndexRouteImport } from './routes/radar.index'
 import { Route as RadarObjetivoRouteImport } from './routes/radar.$objetivo'
 import { Route as RuasIndexRouteImport } from './routes/ruas.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
+import { Route as AuthenticatedAdminPropostasIndexRouteImport } from './routes/_authenticated/admin-propostas.index'
+import { Route as AuthenticatedAdminPropostasIdRouteImport } from './routes/_authenticated/admin-propostas.$id'
 import { Route as AuthenticatedAdminRuasIndexRouteImport } from './routes/_authenticated/admin-ruas.index'
 import { Route as AuthenticatedAdminRuasIdRouteImport } from './routes/_authenticated/admin-ruas.$id'
 import { Route as AuthenticatedAdminRuasRelatoriosRouteImport } from './routes/_authenticated/admin-ruas.relatorios'
@@ -399,6 +404,12 @@ const AuthenticatedAdminCondominiosRoute =
     path: '/admin-condominios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminCorretoresRoute =
+  AuthenticatedAdminCorretoresRouteImport.update({
+    id: '/admin-corretores',
+    path: '/admin-corretores',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCtasRoute = AuthenticatedAdminCtasRouteImport.update({
   id: '/admin-ctas',
   path: '/admin-ctas',
@@ -507,6 +518,12 @@ const AuthenticatedAdminPendentesRoute =
   AuthenticatedAdminPendentesRouteImport.update({
     id: '/admin-pendentes',
     path: '/admin-pendentes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminPropostasRoute =
+  AuthenticatedAdminPropostasRouteImport.update({
+    id: '/admin-propostas',
+    path: '/admin-propostas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminRadarRoute = AuthenticatedAdminRadarRouteImport.update({
@@ -695,6 +712,11 @@ const ParceirosMpdRoute = ParceirosMpdRouteImport.update({
   path: '/parceiros/mpd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PropostaTokenRoute = PropostaTokenRouteImport.update({
+  id: '/proposta/$token',
+  path: '/proposta/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RadarIndexRoute = RadarIndexRouteImport.update({
   id: '/radar/',
   path: '/radar/',
@@ -715,6 +737,18 @@ const RuasSlugRoute = RuasSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => RuasRoute,
 } as any)
+const AuthenticatedAdminPropostasIndexRoute =
+  AuthenticatedAdminPropostasIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminPropostasRoute,
+  } as any)
+const AuthenticatedAdminPropostasIdRoute =
+  AuthenticatedAdminPropostasIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminPropostasRoute,
+  } as any)
 const AuthenticatedAdminRuasIndexRoute =
   AuthenticatedAdminRuasIndexRouteImport.update({
     id: '/',
@@ -881,6 +915,7 @@ export interface FileRoutesByFullPath {
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
+  '/admin-corretores': typeof AuthenticatedAdminCorretoresRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
@@ -900,6 +935,7 @@ export interface FileRoutesByFullPath {
   '/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
   '/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
+  '/admin-propostas': typeof AuthenticatedAdminPropostasRouteWithChildren
   '/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -927,6 +963,7 @@ export interface FileRoutesByFullPath {
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
+  '/proposta/$token': typeof PropostaTokenRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -939,6 +976,7 @@ export interface FileRoutesByFullPath {
   '/oportunidades/': typeof OportunidadesIndexRoute
   '/radar/': typeof RadarIndexRoute
   '/ruas/': typeof RuasIndexRoute
+  '/admin-propostas/$id': typeof AuthenticatedAdminPropostasIdRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
   '/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
@@ -946,6 +984,7 @@ export interface FileRoutesByFullPath {
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/admin-propostas/': typeof AuthenticatedAdminPropostasIndexRoute
   '/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit/': typeof AuthenticatedAuditIndexRoute
@@ -1004,6 +1043,7 @@ export interface FileRoutesByTo {
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
+  '/admin-corretores': typeof AuthenticatedAdminCorretoresRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
@@ -1048,6 +1088,7 @@ export interface FileRoutesByTo {
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
+  '/proposta/$token': typeof PropostaTokenRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros': typeof BairrosIndexRoute
@@ -1060,6 +1101,7 @@ export interface FileRoutesByTo {
   '/oportunidades': typeof OportunidadesIndexRoute
   '/radar': typeof RadarIndexRoute
   '/ruas': typeof RuasIndexRoute
+  '/admin-propostas/$id': typeof AuthenticatedAdminPropostasIdRoute
   '/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
   '/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
@@ -1067,6 +1109,7 @@ export interface FileRoutesByTo {
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/admin-propostas': typeof AuthenticatedAdminPropostasIndexRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasIndexRoute
   '/area-do-parceiro': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit': typeof AuthenticatedAuditIndexRoute
@@ -1134,6 +1177,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/_authenticated/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/_authenticated/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
+  '/_authenticated/admin-corretores': typeof AuthenticatedAdminCorretoresRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin-empreendimentos': typeof AuthenticatedAdminEmpreendimentosRoute
@@ -1153,6 +1197,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-oportunidades': typeof AuthenticatedAdminOportunidadesRoute
   '/_authenticated/admin-parceiros': typeof AuthenticatedAdminParceirosRoute
   '/_authenticated/admin-pendentes': typeof AuthenticatedAdminPendentesRoute
+  '/_authenticated/admin-propostas': typeof AuthenticatedAdminPropostasRouteWithChildren
   '/_authenticated/admin-radar': typeof AuthenticatedAdminRadarRoute
   '/_authenticated/admin-recaptura': typeof AuthenticatedAdminRecapturaRoute
   '/_authenticated/admin-ruas': typeof AuthenticatedAdminRuasRouteWithChildren
@@ -1180,6 +1225,7 @@ export interface FileRoutesById {
   '/oportunidades/metodologia': typeof OportunidadesMetodologiaRoute
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
+  '/proposta/$token': typeof PropostaTokenRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -1192,6 +1238,7 @@ export interface FileRoutesById {
   '/oportunidades/': typeof OportunidadesIndexRoute
   '/radar/': typeof RadarIndexRoute
   '/ruas/': typeof RuasIndexRoute
+  '/_authenticated/admin-propostas/$id': typeof AuthenticatedAdminPropostasIdRoute
   '/_authenticated/admin-ruas/$id': typeof AuthenticatedAdminRuasIdRoute
   '/_authenticated/admin-ruas/relatorios': typeof AuthenticatedAdminRuasRelatoriosRoute
   '/_authenticated/area-do-parceiro/$slug': typeof AuthenticatedAreaDoParceiroSlugRoute
@@ -1199,6 +1246,7 @@ export interface FileRoutesById {
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/_authenticated/admin-propostas/': typeof AuthenticatedAdminPropostasIndexRoute
   '/_authenticated/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/_authenticated/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
@@ -1266,6 +1314,7 @@ export interface FileRouteTypes {
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
+    | '/admin-corretores'
     | '/admin-ctas'
     | '/admin-emails'
     | '/admin-empreendimentos'
@@ -1285,6 +1334,7 @@ export interface FileRouteTypes {
     | '/admin-oportunidades'
     | '/admin-parceiros'
     | '/admin-pendentes'
+    | '/admin-propostas'
     | '/admin-radar'
     | '/admin-recaptura'
     | '/admin-ruas'
@@ -1312,6 +1362,7 @@ export interface FileRouteTypes {
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
+    | '/proposta/$token'
     | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros/'
@@ -1324,6 +1375,7 @@ export interface FileRouteTypes {
     | '/oportunidades/'
     | '/radar/'
     | '/ruas/'
+    | '/admin-propostas/$id'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
     | '/area-do-parceiro/$slug'
@@ -1331,6 +1383,7 @@ export interface FileRouteTypes {
     | '/cms/$id'
     | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
+    | '/admin-propostas/'
     | '/admin-ruas/'
     | '/area-do-parceiro/'
     | '/audit/'
@@ -1389,6 +1442,7 @@ export interface FileRouteTypes {
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
+    | '/admin-corretores'
     | '/admin-ctas'
     | '/admin-emails'
     | '/admin-empreendimentos'
@@ -1433,6 +1487,7 @@ export interface FileRouteTypes {
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
+    | '/proposta/$token'
     | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros'
@@ -1445,6 +1500,7 @@ export interface FileRouteTypes {
     | '/oportunidades'
     | '/radar'
     | '/ruas'
+    | '/admin-propostas/$id'
     | '/admin-ruas/$id'
     | '/admin-ruas/relatorios'
     | '/area-do-parceiro/$slug'
@@ -1452,6 +1508,7 @@ export interface FileRouteTypes {
     | '/cms/$id'
     | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
+    | '/admin-propostas'
     | '/admin-ruas'
     | '/area-do-parceiro'
     | '/audit'
@@ -1518,6 +1575,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-cards'
     | '/_authenticated/admin-conciliacao'
     | '/_authenticated/admin-condominios'
+    | '/_authenticated/admin-corretores'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-emails'
     | '/_authenticated/admin-empreendimentos'
@@ -1537,6 +1595,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-oportunidades'
     | '/_authenticated/admin-parceiros'
     | '/_authenticated/admin-pendentes'
+    | '/_authenticated/admin-propostas'
     | '/_authenticated/admin-radar'
     | '/_authenticated/admin-recaptura'
     | '/_authenticated/admin-ruas'
@@ -1564,6 +1623,7 @@ export interface FileRouteTypes {
     | '/oportunidades/metodologia'
     | '/parceiros/$slug'
     | '/parceiros/mpd'
+    | '/proposta/$token'
     | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros/'
@@ -1576,6 +1636,7 @@ export interface FileRouteTypes {
     | '/oportunidades/'
     | '/radar/'
     | '/ruas/'
+    | '/_authenticated/admin-propostas/$id'
     | '/_authenticated/admin-ruas/$id'
     | '/_authenticated/admin-ruas/relatorios'
     | '/_authenticated/area-do-parceiro/$slug'
@@ -1583,6 +1644,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cms/$id'
     | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
+    | '/_authenticated/admin-propostas/'
     | '/_authenticated/admin-ruas/'
     | '/_authenticated/area-do-parceiro/'
     | '/_authenticated/audit/'
@@ -1653,6 +1715,7 @@ export interface RootRouteChildren {
   EmpreendimentosTerrahAlphavilleRoute: typeof EmpreendimentosTerrahAlphavilleRoute
   ParceirosSlugRoute: typeof ParceirosSlugRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
+  PropostaTokenRoute: typeof PropostaTokenRoute
   RadarObjetivoRoute: typeof RadarObjetivoRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
@@ -2029,6 +2092,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCondominiosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-corretores': {
+      id: '/_authenticated/admin-corretores'
+      path: '/admin-corretores'
+      fullPath: '/admin-corretores'
+      preLoaderRoute: typeof AuthenticatedAdminCorretoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-ctas': {
       id: '/_authenticated/admin-ctas'
       path: '/admin-ctas'
@@ -2160,6 +2230,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-pendentes'
       fullPath: '/admin-pendentes'
       preLoaderRoute: typeof AuthenticatedAdminPendentesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-propostas': {
+      id: '/_authenticated/admin-propostas'
+      path: '/admin-propostas'
+      fullPath: '/admin-propostas'
+      preLoaderRoute: typeof AuthenticatedAdminPropostasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-radar': {
@@ -2407,6 +2484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceirosMpdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/proposta/$token': {
+      id: '/proposta/$token'
+      path: '/proposta/$token'
+      fullPath: '/proposta/$token'
+      preLoaderRoute: typeof PropostaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/radar/': {
       id: '/radar/'
       path: '/radar'
@@ -2434,6 +2518,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/ruas/$slug'
       preLoaderRoute: typeof RuasSlugRouteImport
       parentRoute: typeof RuasRoute
+    }
+    '/_authenticated/admin-propostas/': {
+      id: '/_authenticated/admin-propostas/'
+      path: '/'
+      fullPath: '/admin-propostas/'
+      preLoaderRoute: typeof AuthenticatedAdminPropostasIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminPropostasRoute
+    }
+    '/_authenticated/admin-propostas/$id': {
+      id: '/_authenticated/admin-propostas/$id'
+      path: '/$id'
+      fullPath: '/admin-propostas/$id'
+      preLoaderRoute: typeof AuthenticatedAdminPropostasIdRouteImport
+      parentRoute: typeof AuthenticatedAdminPropostasRoute
     }
     '/_authenticated/admin-ruas/': {
       id: '/_authenticated/admin-ruas/'
@@ -2578,6 +2676,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminPropostasRouteChildren {
+  AuthenticatedAdminPropostasIdRoute: typeof AuthenticatedAdminPropostasIdRoute
+  AuthenticatedAdminPropostasIndexRoute: typeof AuthenticatedAdminPropostasIndexRoute
+}
+
+const AuthenticatedAdminPropostasRouteChildren: AuthenticatedAdminPropostasRouteChildren =
+  {
+    AuthenticatedAdminPropostasIdRoute: AuthenticatedAdminPropostasIdRoute,
+    AuthenticatedAdminPropostasIndexRoute:
+      AuthenticatedAdminPropostasIndexRoute,
+  }
+
+const AuthenticatedAdminPropostasRouteWithChildren =
+  AuthenticatedAdminPropostasRoute._addFileChildren(
+    AuthenticatedAdminPropostasRouteChildren,
+  )
+
 interface AuthenticatedAdminRuasRouteChildren {
   AuthenticatedAdminRuasIdRoute: typeof AuthenticatedAdminRuasIdRoute
   AuthenticatedAdminRuasRelatoriosRoute: typeof AuthenticatedAdminRuasRelatoriosRoute
@@ -2618,6 +2733,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
   AuthenticatedAdminConciliacaoRoute: typeof AuthenticatedAdminConciliacaoRoute
   AuthenticatedAdminCondominiosRoute: typeof AuthenticatedAdminCondominiosRoute
+  AuthenticatedAdminCorretoresRoute: typeof AuthenticatedAdminCorretoresRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminEmpreendimentosRoute: typeof AuthenticatedAdminEmpreendimentosRoute
@@ -2637,6 +2753,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminOportunidadesRoute: typeof AuthenticatedAdminOportunidadesRoute
   AuthenticatedAdminParceirosRoute: typeof AuthenticatedAdminParceirosRoute
   AuthenticatedAdminPendentesRoute: typeof AuthenticatedAdminPendentesRoute
+  AuthenticatedAdminPropostasRoute: typeof AuthenticatedAdminPropostasRouteWithChildren
   AuthenticatedAdminRadarRoute: typeof AuthenticatedAdminRadarRoute
   AuthenticatedAdminRecapturaRoute: typeof AuthenticatedAdminRecapturaRoute
   AuthenticatedAdminRuasRoute: typeof AuthenticatedAdminRuasRouteWithChildren
@@ -2658,6 +2775,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
   AuthenticatedAdminConciliacaoRoute: AuthenticatedAdminConciliacaoRoute,
   AuthenticatedAdminCondominiosRoute: AuthenticatedAdminCondominiosRoute,
+  AuthenticatedAdminCorretoresRoute: AuthenticatedAdminCorretoresRoute,
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminEmpreendimentosRoute:
@@ -2681,6 +2799,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminOportunidadesRoute: AuthenticatedAdminOportunidadesRoute,
   AuthenticatedAdminParceirosRoute: AuthenticatedAdminParceirosRoute,
   AuthenticatedAdminPendentesRoute: AuthenticatedAdminPendentesRoute,
+  AuthenticatedAdminPropostasRoute:
+    AuthenticatedAdminPropostasRouteWithChildren,
   AuthenticatedAdminRadarRoute: AuthenticatedAdminRadarRoute,
   AuthenticatedAdminRecapturaRoute: AuthenticatedAdminRecapturaRoute,
   AuthenticatedAdminRuasRoute: AuthenticatedAdminRuasRouteWithChildren,
@@ -2850,6 +2970,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosTerrahAlphavilleRoute: EmpreendimentosTerrahAlphavilleRoute,
   ParceirosSlugRoute: ParceirosSlugRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
+  PropostaTokenRoute: PropostaTokenRoute,
   RadarObjetivoRoute: RadarObjetivoRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
