@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Mapa de Condomínios — S.A Imóveis Alphaville (protótipo)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -34,7 +34,7 @@ svg#map.drag{cursor:grabbing}
 .lbl.muni{font-size:13px;color:#56564e;letter-spacing:.35em;font-weight:700}
 #layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 /* ---------- bolhas ---------- */
-.bub{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;transform:translate(-50%,-50%);will-change:transform}
+.bub{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;transform:translate(-50%,-50%);will-change:transform;touch-action:none;-webkit-tap-highlight-color:transparent}
 .bub .float{animation:float var(--dur,6s) ease-in-out infinite;animation-delay:var(--del,0s)}
 .bub .sphere{position:relative;width:var(--s);height:var(--s);border-radius:50%;
   background:
@@ -54,8 +54,9 @@ svg#map.drag{cursor:grabbing}
 .bub .num{position:relative;z-index:2;text-align:center;line-height:1;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7)}
 .bub .num b{display:block;font-size:calc(var(--s)*.34)}
 .bub .num small{display:block;font-size:max(8px,calc(var(--s)*.12));font-weight:600;letter-spacing:.04em;opacity:.9;margin-top:2px}
-.bub .cap{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:4px;font-size:11px;font-weight:700;letter-spacing:.03em;white-space:nowrap;color:var(--ink);text-shadow:0 1px 3px #000,0 0 10px #000;pointer-events:none;opacity:0;transition:opacity .2s}
-.showcap .bub .cap{opacity:1}
+.bub .cap{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:3px;font-size:11.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;color:var(--ink);background:rgba(10,10,10,.72);padding:2px 7px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .2s}
+.bub.capon .cap{opacity:1}
+.bub:hover .cap{opacity:1;z-index:3}
 .bub.region .sphere{box-shadow:inset 0 0 calc(var(--s)*.2) rgba(255,239,4,.5),0 0 calc(var(--s)*.5) rgba(255,239,4,.25)}
 .bub.region .cap{opacity:1;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--y)}
 .bub.gone{pointer-events:none}
@@ -111,28 +112,44 @@ svg#map.drag{cursor:grabbing}
 #panel .sort{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;font-size:12px;color:var(--mute);border-bottom:1px solid var(--line)}
 #panel .sort select{background:#1a1a18;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font:500 12px Inter,sans-serif}
 #list{overflow:auto;flex:1;padding:8px 12px 24px}
-.card{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 4px;background:#171715;transition:border-color .15s,transform .15s;animation:cardin .35s both}
+.card{display:flex;gap:12px;align-items:stretch;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:14px;padding:10px;margin:8px 4px;background:#171715;transition:border-color .15s,transform .15s;animation:cardin .35s both}
+.card .th{flex:0 0 92px;height:92px;border-radius:10px;background:#22221e center/cover no-repeat;position:relative;overflow:hidden}
+.card .th::after{content:'S.A';position:absolute;inset:0;display:grid;place-items:center;font-weight:800;color:#3a3a33;font-size:15px}
+.card .th.has::after{display:none}
+.card .bd{flex:1;min-width:0}
 .card:hover{border-color:var(--y);transform:translateY(-1px)}
 .card .r1{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute)}
 .card .tag{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:10.5px;padding:2px 7px;border-radius:6px;background:#26261f;color:#e9e9de}
 .card .tag.v{background:rgba(255,239,4,.15);color:var(--y)}
 .card .tag.l{background:rgba(140,205,255,.15);color:#a9dcff}
-.card .t{font-size:15px;font-weight:700;margin:6px 0 2px;text-transform:capitalize}
+.card .t{font-size:14.5px;font-weight:700;margin:5px 0 1px;text-transform:capitalize}
 .card .f{font-size:12.5px;color:#bdbdb3}
-.card .p{margin-top:8px;font-size:16px;font-weight:800}
+.card .p{margin-top:5px;font-size:15.5px;font-weight:800}
 .card .p small{font-size:12px;color:var(--mute);font-weight:600;margin-left:6px}
-.card .go{font-size:12px;color:var(--y);font-weight:600;margin-top:6px}
+.card .go{font-size:12px;color:var(--y);font-weight:600;margin-top:4px}
 @keyframes cardin{from{opacity:0;transform:translateY(8px)}}
 #panel .cta{padding:12px 20px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
 #hint{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);background:rgba(10,10,10,.85);border:1px solid var(--line);padding:8px 14px;border-radius:999px;font-size:12.5px;color:#d5d5cc;z-index:4;transition:opacity .6s}
 @media (max-width:700px){
-  #panel{top:auto;height:72%;width:100%;border-left:0;border-top:1px solid var(--line);border-radius:18px 18px 0 0;transform:translateY(105%)}
-  .search input{width:150px}
+  #top{left:10px;right:10px;top:10px;gap:8px}
+  .brand{padding:7px 11px;border-radius:12px}
+  .brand h1{font-size:13.5px}
+  .brand p{font-size:10.5px}
+  .seg button{padding:6px 10px;font-size:12px}
+  .search{flex:1 1 150px}
+  .search input{width:100%;padding:10px 14px;font-size:16px}
+  #panel{top:auto;height:70%;width:100%;border-left:0;border-top:1px solid var(--line);border-radius:18px 18px 0 0;transform:translateY(105%)}
+  #panel header{padding:14px 16px 10px}
+  #panel header::before{content:"";display:block;width:40px;height:4px;border-radius:4px;background:#3a3a34;margin:-4px auto 10px}
+  #panel h2{font-size:19px}
+  #panel .x{top:16px;right:10px}
   #legend{display:none}
-  .brand p{display:none}
-  #foot{right:16px;bottom:8px;font-size:10px}
-  #zoom{bottom:40px}
-  #hint{bottom:44px;font-size:11.5px;white-space:nowrap}
+  #foot{left:10px;right:60px;bottom:8px;font-size:9.5px;line-height:1.3}
+  #zoom{right:10px;bottom:46px}
+  #zoom button{width:38px;height:38px}
+  #hint{bottom:58px;font-size:12px;white-space:nowrap}
+  .bub .cap{font-size:10.5px;padding:2px 6px}
+  .card .th{flex-basis:84px;height:84px}
 }
 </style>
 </head>
@@ -240,17 +257,31 @@ Object.values(regions).forEach(r=>{let w=0,x=0,y=0;r.list.forEach(c=>{w+=c.n;x+=
   r.n=r.list.reduce((s,c)=>s+c.n,0);r.v=r.list.reduce((s,c)=>s+c.v,0);r.l=r.list.reduce((s,c)=>s+c.l,0);
   const xs=r.list.map(c=>c.c[0]),ys=r.list.map(c=>c.c[1]);r.bb=[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)];makeBubble(r,true)});
 function refreshCounts(){bubbles.forEach(({b,obj,region})=>{const n=cnt(obj);b.querySelector('b').textContent=n;
-  b.querySelector('small').textContent=n===1?'imóvel':'imóveis';const s=sizeFor(n,region);b.querySelector('.sphere').style.setProperty('--s',s+'px');b.dataset.n=n})}
+  b.querySelector('small').textContent=n===1?'imóvel':'imóveis';const s=sizeFor(n,region);b.dataset.n=n;b.dataset.base=s});lastZf=-1;applySizes()}
+let lastZf=-1;
+function applySizes(){const mob=MOB();const zf=Math.round(Math.min(1,Math.max(.55,.5+.1*rz()))*(mob?.72:1)*20)/20;if(zf===lastZf)return;lastZf=zf;
+  bubbles.forEach(({b,region})=>{const s=Math.round(+b.dataset.base*(region?(mob?.55:1):zf));b.querySelector('.sphere').style.setProperty('--s',s+'px');b.querySelector('small').style.display=s<46?'none':'';b.dataset.s=s})}
 // ---------- vista / zoom ----------
-const view={k:1,x:0,y:0};let K0=1;const REGION_K=1.9;const rz=()=>view.k/K0;
+const view={k:1,x:0,y:0};let K0=1;const MOB=()=>innerWidth<=700;let REGION_K=1.9;const rz=()=>view.k/K0;
 function W(){return svg.clientWidth}function H(){return svg.clientHeight}
 function apply(){world.setAttribute('transform',`translate(${view.x},${view.y}) scale(${view.k})`);
-  const showReg=rz()<REGION_K;app.classList.toggle('showcap',rz()>4.5);
+  REGION_K=MOB()?3.0:1.9;applySizes();const showReg=rz()<REGION_K;const shown=[];
   for(const r of bubbles){const ll=r.obj.c;const p=P(ll[0],ll[1]);const x=p[0]*view.k+view.x,y=p[1]*view.k+view.y;
     const vis=(r.region?showReg:!showReg)&&+r.b.dataset.n>0;
-    r.b.style.display=vis?'':'none';if(vis)r.b.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%)`}
+    r.b.style.display=vis?'':'none';if(vis){r.b.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%)`;if(!r.region)shown.push({r,x,y,s:+r.b.dataset.s})}}
+  if(showReg){const R=bubbles.filter(r=>r.region&&r.b.style.display!=='none').map(r=>{const p=P(r.obj.c[0],r.obj.c[1]);return {r,x:p[0]*view.k+view.x,y:p[1]*view.k+view.y,s:+r.b.dataset.s}});
+    for(let it=0;it<20;it++)for(let i=0;i<R.length;i++)for(let j=i+1;j<R.length;j++){const A=R[i],B=R[j];let dx=B.x-A.x,dy=B.y-A.y;const d=Math.hypot(dx,dy)||1,min=(A.s+B.s)/2+30;if(d<min){const m=(min-d)/2;dx/=d;dy/=d;A.x-=dx*m;A.y-=dy*m;B.x+=dx*m;B.y+=dy*m}}
+    R.forEach(o=>o.r.b.style.transform=`translate(${o.x}px,${o.y}px) translate(-50%,-50%)`)}
+  placeCaptions(shown)
   for(const l of labels){const vis=rz()>=l.minK&&rz()<l.maxK;l.d.style.display=vis?'':'none';if(vis){const p=P(l.ll[0],l.ll[1]);l.d.style.transform=`translate(${p[0]*view.k+view.x}px,${p[1]*view.k+view.y}px) translate(-50%,-50%)`}}}
 const app=$('#app');
+// nomes sempre visíveis: os maiores primeiro, sem sobrepor outro nome ou bolha
+function placeCaptions(shown){const mob=innerWidth<=700;const cw=mob?6.0:6.5;const boxes=shown.map(o=>({x0:o.x-o.s/2,y0:o.y-o.s/2-6,x1:o.x+o.s/2,y1:o.y+o.s/2,own:o.r}));
+  const W0=W(),H0=H();
+  shown.slice().sort((a,b)=>(+b.r.b.dataset.n)-(+a.r.b.dataset.n)).forEach(o=>{const w=o.r.obj.name.length*cw+16;const rc={x0:o.x-w/2,x1:o.x+w/2,y0:o.y+o.s/2-4,y1:o.y+o.s/2+20};
+    let ok=rc.x1>0&&rc.x0<W0&&rc.y1>0&&rc.y0<H0;
+    if(ok)for(const b of boxes){if(b.own===o.r)continue;if(rc.x0<b.x1&&rc.x1>b.x0&&rc.y0<b.y1&&rc.y1>b.y0){ok=false;break}}
+    o.r.b.classList.toggle('capon',ok);if(ok)boxes.push(rc)})}
 function fitBounds(b,pad){const a=P(b[0],b[3]),c=P(b[2],b[1]);const w=c[0]-a[0],h=c[1]-a[1];const k=Math.min((W()-pad*2)/w,(H()-pad*2)/h);return {k,x:W()/2-(a[0]+w/2)*k,y:H()/2-(a[1]+h/2)*k}}
 let anim=null;
 function animateTo(t,ms=700){cancelAnimationFrame(anim);const s={...view},t0=performance.now();
@@ -263,7 +294,7 @@ function zoomAt(f,cx,cy,animate){const k=Math.max(K0*.6,Math.min(K0*90,view.k*f)
 const ALL=(()=>{const pts=condos.filter(c=>c.c&&['Alphaville','Tamboré'].includes(c.reg)).map(c=>c.c);return [Math.min(...pts.map(p=>p[0]))-.004,Math.min(...pts.map(p=>p[1]))-.004,Math.max(...pts.map(p=>p[0]))+.004,Math.max(...pts.map(p=>p[1]))+.004]})();
 function fitAll(animate){const t=fitBounds(ALL,40);K0=t.k;const c=P((ALL[0]+ALL[2])/2,(ALL[1]+ALL[3])/2);t.x=W()/2-c[0]*t.k;t.y=H()/2-c[1]*t.k;animate?animateTo(t):(Object.assign(view,t),apply())}
 function flyToRegion(r){const t=fitBounds([r.bb[0]-.003,r.bb[1]-.003,r.bb[2]+.003,r.bb[3]+.003],70);t.k=Math.max(t.k,K0*REGION_K*1.15);if(r.list.length===1)t.k=Math.max(t.k,K0*8);animateTo(t,900)}
-function flyTo(c,k){const p=P(c.c[0],c.c[1]);const off=(innerWidth>700&&$('#panel').classList.contains('open'))?-210:0;animateTo({k,x:W()/2+off-p[0]*k,y:H()/2-p[1]*k},850)}
+function flyTo(c,k){const p=P(c.c[0],c.c[1]);const open=$('#panel').classList.contains('open'),mob=innerWidth<=700;const cx=W()/2+(!mob&&open?-210:0),cy=mob&&open?H()*.17:H()/2;animateTo({k,x:cx-p[0]*k,y:cy-p[1]*k},850)}
 // arrastar / pinça / roda
 let drag=null,moved=false;const pts=new Map();
 svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);moved=false;cancelAnimationFrame(anim);
@@ -303,7 +334,7 @@ function openCondo(c,fromPop){cur=c;pf=filt;hideTip();
   $('#pt').textContent=c.name;
   $('#ps').textContent=`${c.n} ${c.n===1?'imóvel ativo':'imóveis ativos'} na S.A`;
   renderChips();renderList();$('#panel').classList.add('open');
-  if(rz()<4)flyTo(c,K0*4.5);else if(innerWidth>700)flyTo(c,view.k)}
+  flyTo(c,Math.max(view.k,K0*4.5))}
 function renderChips(){const c=cur;$('#pc').innerHTML='';[['all','Todos',c.n],['v','Venda',c.v],['l','Locação',c.l]].forEach(([k,t,n])=>{if(k!=='all'&&!n)return;
   const b=document.createElement('button');b.className='chip'+(pf===k?' on':'');b.innerHTML=`<b>${n}</b>${t}`;b.onclick=()=>{pf=k;renderChips();renderList()};$('#pc').appendChild(b)})}
 function renderList(){const c=cur;let L=c.props.filter(p=>pf==='all'||(pf==='v'?p[2]!=='rent':p[2]!=='sale'));
@@ -314,7 +345,20 @@ function renderList(){const c=cur;let L=c.props.filter(p=>pf==='all'||(pf==='v'?
     const tags=(pur!=='rent'?'<span class="tag v">Venda</span> ':'')+(pur!=='sale'?'<span class="tag l">Locação</span>':'');
     const feats=[beds?beds+(beds===1?' dorm.':' dorms.'):'',area?area.toLocaleString('pt-BR')+' m²':''].filter(Boolean).join(' · ');
     let pr='';if(sale&&pf!=='l')pr+=fmt(sale);if(rent&&pf!=='v')pr+=(pr?'<small>ou '+fmt(rent)+'/mês</small>':fmt(rent)+'<small>/mês</small>');if(!pr)pr='<small style="margin:0">Consulte</small>';
-    return `<a class="card" style="animation-delay:${Math.min(i,12)*35}ms" href="${PORTAL}/imoveis?q=${encodeURIComponent(code)}" target="_blank" rel="noopener"><div class="r1"><span>${tags}</span><span>${code}</span></div><div class="t">${type}</div><div class="f">${feats||'&nbsp;'}</div><div class="p">${pr}</div><div class="go">Ver no portal ↗</div></a>`}).join('')}
+    const inf=INFO[code];const img=inf&&inf.img?`style="background-image:url('${inf.img}')"`:'';
+    return `<a class="card" data-code="${code}" style="animation-delay:${Math.min(i,12)*35}ms" href="${hrefOf(code)}" target="_blank" rel="noopener"><div class="th${img?' has':''}" ${img}></div><div class="bd"><div class="r1"><span>${tags}</span><span>${code}</span></div><div class="t">${type}</div><div class="f">${feats||'&nbsp;'}</div><div class="p">${pr}</div><div class="go">Ver no portal ↗</div></div></a>`}).join('');
+  loadInfo(L.map(p=>p[0]))}
+// fotos e link direto: busca no banco do portal (quando a página roda no portal)
+const SB='https://mwjhentjtmlzgcszmsbl.supabase.co/rest/v1/properties',SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13amhlbnRqdG1semdjc3ptc2JsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1ODM1OTcsImV4cCI6MjA5NzE1OTU5N30.fiLOdGVJNMR13O8mZNRz0dqiyHpThfL57theSN_hzZ0';
+const INFO={};
+function hrefOf(code){const i=INFO[code];return i&&i.slug?PORTAL+'/imoveis/'+i.slug:PORTAL+'/imoveis?q='+encodeURIComponent(code)}
+async function loadInfo(codes){const need=codes.filter(c=>!(c in INFO));if(!need.length)return;need.forEach(c=>INFO[c]=null);
+  for(let i=0;i<need.length;i+=60){try{const part=need.slice(i,i+60);
+    const r=await fetch(SB+'?select=internal_code,card_image_url,slug&internal_code=in.('+part.map(encodeURIComponent).join(',')+')',{headers:{apikey:SBK,Authorization:'Bearer '+SBK}});
+    if(!r.ok)continue;const rows=await r.json();
+    rows.forEach(x=>{INFO[x.internal_code]={img:x.card_image_url?x.card_image_url.replace(/([?&])w=\d+/,'$1w=220'):null,slug:x.slug}});
+    rows.forEach(x=>{const a=document.querySelector(`.card[data-code="${x.internal_code}"]`);if(!a)return;a.href=hrefOf(x.internal_code);const th=a.querySelector('.th');const im=INFO[x.internal_code].img;
+      if(im){const pre=new Image();pre.onload=()=>{th.style.backgroundImage=`url('${im}')`;th.classList.add('has')};pre.src=im}})}catch(e){}}}
 $('#psort').onchange=renderList;
 function closePanel(){$('#panel').classList.remove('open');Object.values(terrEls).forEach(e=>e.classList.remove('hl'));if(openRec){restore(openRec);openRec=null}}
 $('#close').onclick=closePanel;addEventListener('keydown',e=>{if(e.key==='Escape')closePanel()});
