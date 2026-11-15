@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /mapa-prototipo
 
 Sitemap: https://portal.saimoveisalpha.com.br/sitemap.xml
