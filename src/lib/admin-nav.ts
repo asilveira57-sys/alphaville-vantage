@@ -8,6 +8,8 @@ export type AdminNavItem = {
   description: string;
   /** Prefixos extras que também marcam o item como ativo (ex.: /cms/123). */
   match?: string[];
+  /** Página fora do roteador (arquivo estático em public/): abre com <a> comum. */
+  static?: boolean;
 };
 
 export type AdminNavGroup = {
@@ -48,6 +50,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     id: "locais",
     label: "Condomínios e locais",
     items: [
+      { label: "Mapa de condomínios (protótipo)", to: "/mapa-prototipo.html", description: "Bolhas por condomínio com os imóveis ativos (dados de 15/11).", static: true },
       { label: "Central de condomínios", to: "/admin-condominios", description: "Cadastro oficial, apelidos e guias." },
       { label: "Ruas e avenidas", to: "/admin-ruas", description: "Guia de ruas, mídia e SEO.", match: ["/admin-ruas/"] },
       { label: "Relatórios de ruas", to: "/admin-ruas/relatorios", description: "Cobertura e pendências do guia de ruas." },

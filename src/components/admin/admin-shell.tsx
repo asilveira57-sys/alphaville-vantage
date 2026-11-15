@@ -145,15 +145,25 @@ function AdminSidebar({ pathname }: { pathname: string }) {
                     const on = active(i.to, i.match);
                     return (
                       <li key={i.to}>
-                        <Link
-                          to={i.to}
-                          title={i.description}
-                          className={`mx-2 block px-3 py-1.5 text-[13px] leading-snug ${
-                            on ? "bg-white/10 text-[#F2DA00] font-medium" : "text-white/75 hover:bg-white/5 hover:text-white"
-                          }`}
-                        >
-                          {i.label}
-                        </Link>
+                        {i.static ? (
+                          <a
+                            href={i.to}
+                            title={i.description}
+                            className="mx-2 block px-3 py-1.5 text-[13px] leading-snug text-white/75 hover:bg-white/5 hover:text-white"
+                          >
+                            {i.label}
+                          </a>
+                        ) : (
+                          <Link
+                            to={i.to}
+                            title={i.description}
+                            className={`mx-2 block px-3 py-1.5 text-[13px] leading-snug ${
+                              on ? "bg-white/10 text-[#F2DA00] font-medium" : "text-white/75 hover:bg-white/5 hover:text-white"
+                            }`}
+                          >
+                            {i.label}
+                          </Link>
+                        )}
                       </li>
                     );
                   })}

@@ -140,16 +140,20 @@ function AdminPage() {
             <section key={g.id}>
               <h2 className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-3">{g.label}</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {g.items.map((i) => (
-                  <Link
-                    key={i.to}
-                    to={i.to}
-                    className="group border border-ink/10 bg-white/40 px-4 py-3 hover:border-ink/40 hover:bg-white/70"
-                  >
-                    <div className="text-sm font-medium text-ink group-hover:underline">{i.label} →</div>
-                    <div className="text-xs text-muted-foreground mt-1 leading-snug">{i.description}</div>
-                  </Link>
-                ))}
+                {g.items.map((i) => {
+                  const cls = "group border border-ink/10 bg-white/40 px-4 py-3 hover:border-ink/40 hover:bg-white/70";
+                  const body = (
+                    <>
+                      <div className="text-sm font-medium text-ink group-hover:underline">{i.label} →</div>
+                      <div className="text-xs text-muted-foreground mt-1 leading-snug">{i.description}</div>
+                    </>
+                  );
+                  return i.static ? (
+                    <a key={i.to} href={i.to} className={cls}>{body}</a>
+                  ) : (
+                    <Link key={i.to} to={i.to} className={cls}>{body}</Link>
+                  );
+                })}
               </div>
             </section>
           ))}
