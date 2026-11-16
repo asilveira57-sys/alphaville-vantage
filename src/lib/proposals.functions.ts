@@ -4,13 +4,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { SITE_URL } from "@/lib/site";
 import { requireStaff } from "@/lib/staff.server";
+import { fichaLine, type FichaSource } from "@/lib/property-ficha";
 
 // Propostas do Corretor: o corretor monta uma seleção de até 12 imóveis e envia
 // um link /proposta/{token} ao cliente. Tabelas: broker_profiles, proposals,
 // proposal_items (supabase/sql/propostas-corretor.sql). Só admins gerenciam;
 // a página pública lê pelo servidor com a chave de serviço.
 
-export const PROPOSAL_MAX_ITEMS = 12;
+export const PROPOSAL_MAX_ITEMS = 40;
 export const PROPOSAL_DAYS = 14;
 
 type Ctx = { supabase: { rpc: (fn: "has_role", a: { _user_id: string; _role: "admin" }) => PromiseLike<{ data: unknown }> }; userId: string };
@@ -55,11 +56,42 @@ function newToken() {
 
 export const proposalUrl = (token: string) => `${SITE_URL}/proposta/${token}`;
 
-export function proposalWhatsappHref(p: { client_phone: string | null; client_name: string; broker_name: string; items: number; token: string }) {
-  const text = `Olá ${p.client_name.split(" ")[0]}, aqui é ${p.broker_name}, da S.A Imóveis Alphaville. Separei ${p.items} ${p.items === 1 ? "imóvel" : "imóveis"} para você: ${proposalUrl(p.token)}`;
-  const n = waNumber(p.client_phone);
-  return `https://wa.me/${n}?text=${encodeURIComponent(text)}`;
+export function proposalWhatsappText(
+  p: { client_name: string; broker_name: string; items: number; token: string },
+  summary?: FichaSource[],
+) {
+  const first = p.client_name.trim().split(/\s+/)[0];
+  const head = `Olá ${first}, aqui é ${p.broker_name}, da S.A Imóveis Alphaville. Separei ${p.items} ${p.items === 1 ? "imóvel" : "imóveis"} para você.`;
+  if (!summary?.length) return `${head}\n\nVeja fotos e detalhes: ${proposalUrl(p.token)}`;
+  const lines = summary.map((s, i) => fichaLine(s, i)).join("\n\n");
+  return `${head}\n\n${lines}\n\nFotos, ficha completa e localização:\n${proposalUrl(p.token)}\n\n_Valores e disponibilidade sujeitos a confirmação._`;
 }
+
+export function proposalWhatsappHref(
+  p: { client_phone: string | null; client_name: string; broker_name: string; items: number; token: string },
+  summary?: FichaSource[],
+) {
+  const n = waNumber(p.client_phone);
+  return `https://wa.me/${n}?text=${encodeURIComponent(proposalWhatsappText(p, summary))}`;
+}
+
+/** Imóveis da proposta para montar o resumo do WhatsApp na lista de propostas. */
+export const getProposalSummary = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await assertStaff(context);
+    const sb = await db();
+    const { data: rows, error } = await sb
+      .from("proposal_items")
+      .select(`position,properties(${PROPERTY_COLS})`)
+      .eq("proposal_id", data.id)
+      .order("position");
+    fail(error);
+    return ((rows ?? []) as Record<string, unknown>[])
+      .map((r) => r.properties as ProposalPropertyHit)
+      .filter((p) => p && p.status === "active");
+  });
 
 // ---------- Corretores ----------
 
@@ -67,6 +99,7 @@ export type BrokerProfile = {
   user_id: string;
   display_name: string;
   photo_url: string | null;
+  figure_url: string | null;
   creci: string | null;
   whatsapp: string | null;
   role_title: string | null;
@@ -104,6 +137,8 @@ export const saveBroker = createServerFn({ method: "POST" })
       tagline: z.string().trim().max(120).nullable().optional(),
       active: z.boolean().default(true),
       photo_data_url: z.string().max(6_000_000).nullable().optional(),
+      figure_data_url: z.string().max(8_000_000).nullable().optional(),
+      remove_figure: z.boolean().optional(),
     }).parse(d),
   )
   .handler(async ({ context, data }) => {
@@ -120,6 +155,16 @@ export const saveBroker = createServerFn({ method: "POST" })
       if (up.error) throw new Error(`Falha no envio da foto: ${up.error.message}`);
       photo_url = sb.storage.from("broker-photos").getPublicUrl(path).data.publicUrl;
     }
+    let figure_url: string | undefined;
+    if (data.figure_data_url) {
+      const m = /^data:(image\/(png|webp));base64,(.+)$/.exec(data.figure_data_url);
+      if (!m) throw new Error("A foto de corpo precisa ser PNG ou WebP sem fundo.");
+      const bin = Uint8Array.from(atob(m[3]), (c) => c.charCodeAt(0));
+      const path = `${data.user_id}/figura-${Date.now()}.${m[2]}`;
+      const up = await sb.storage.from("broker-photos").upload(path, bin, { contentType: m[1], upsert: true, cacheControl: "31536000" });
+      if (up.error) throw new Error(`Falha no envio da foto de corpo: ${up.error.message}`);
+      figure_url = sb.storage.from("broker-photos").getPublicUrl(path).data.publicUrl;
+    }
     const row: Record<string, unknown> = {
       user_id: data.user_id,
       display_name: data.display_name,
@@ -131,6 +176,8 @@ export const saveBroker = createServerFn({ method: "POST" })
       updated_at: new Date().toISOString(),
     };
     if (photo_url) row.photo_url = photo_url;
+    if (figure_url) row.figure_url = figure_url;
+    if (data.remove_figure) row.figure_url = null;
     const { error } = await sb.from("broker_profiles").upsert(row, { onConflict: "user_id" });
     fail(error);
     return { ok: true };
@@ -158,10 +205,16 @@ export type ProposalPropertyHit = {
   large_image_url: string | null;
   property_type: string | null;
   status: string | null;
+  suites: number | null;
+  bathrooms: number | null;
+  condo_fee: number | null;
+  iptu: number | null;
+  iptu_period: string | null;
+  furnished: boolean | null;
 };
 
 const PROPERTY_COLS =
-  "id,slug,title,internal_code,purpose,price_sale,price_rent,bedrooms,parking,area_useful,area_built,area_total,condominium_name,neighborhood,city,card_image_url,large_image_url,property_type,status";
+  "id,slug,title,internal_code,purpose,price_sale,price_rent,bedrooms,suites,bathrooms,parking,area_useful,area_built,area_total,condo_fee,iptu,iptu_period,furnished,condominium_name,neighborhood,city,card_image_url,large_image_url,property_type,status";
 
 export const searchPropertiesForProposal = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -425,7 +478,7 @@ export type PublicProposal = {
   client_name: string;
   message: string | null;
   expires_at: string;
-  broker: { name: string; photo_url: string | null; creci: string | null; whatsapp: string; role_title: string | null; tagline: string | null };
+  broker: { name: string; photo_url: string | null; figure_url: string | null; creci: string | null; whatsapp: string; role_title: string | null; tagline: string | null };
   items: {
     property: ProposalPropertyHit;
     broker_note: string | null;
@@ -440,7 +493,7 @@ export const getPublicProposal = createServerFn({ method: "GET" })
     const sb = await db();
     const { data: p } = await sb
       .from("proposals")
-      .select("id,client_name,message,expires_at,broker_profiles(display_name,photo_url,creci,whatsapp,role_title,tagline)")
+      .select("id,client_name,message,expires_at,broker_profiles(display_name,photo_url,figure_url,creci,whatsapp,role_title,tagline)")
       .eq("token", data.token)
       .maybeSingle();
     if (!p) return null;
@@ -478,6 +531,7 @@ export const getPublicProposal = createServerFn({ method: "GET" })
       broker: {
         name: b.display_name ?? "S.A Imóveis",
         photo_url: b.photo_url ?? null,
+        figure_url: b.figure_url ?? null,
         creci: b.creci ?? null,
         whatsapp: waNumber(b.whatsapp) || "5511995515053",
         role_title: b.role_title ?? "Corretor",

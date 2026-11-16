@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site-layout";
 import { AdminGate, AdminPageHeader } from "@/components/admin/admin-gate";
+import { SummaryButton } from "@/components/proposals/summary-button";
 import { deleteProposal, listProposals, proposalUrl, renewProposal, proposalWhatsappHref, type ProposalListRow } from "@/lib/proposals.functions";
 
 export const Route = createFileRoute("/_authenticated/admin-propostas/")({
@@ -87,7 +88,8 @@ function Row({ p }: { p: ProposalListRow }) {
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
-        <a href={proposalWhatsappHref(p)} target="_blank" rel="noreferrer" className={`${btn} bg-[#25D366]/10`}>WhatsApp</a>
+        <SummaryButton proposal={p} label="WhatsApp + resumo" className={`${btn} bg-[#25D366]/15`} />
+        <a href={proposalWhatsappHref(p)} target="_blank" rel="noreferrer" className={btn}>WhatsApp link</a>
         <button type="button" onClick={copy} className={btn}>{copied ? "Copiado!" : "Copiar link"}</button>
         <a href={`/proposta/${p.token}`} target="_blank" rel="noreferrer" className={btn}>Ver</a>
         <Link to="/admin-propostas/$id" params={{ id: p.id }} className={btn}>Editar</Link>

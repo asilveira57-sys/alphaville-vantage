@@ -45,12 +45,12 @@ create table if not exists public.proposal_items (
 );
 create index if not exists proposal_items_proposal_idx on public.proposal_items(proposal_id, position);
 
--- No máximo 12 imóveis por proposta.
+-- No máximo 40 imóveis por proposta.
 create or replace function public.proposal_items_limit()
 returns trigger language plpgsql as $$
 begin
-  if (select count(*) from public.proposal_items where proposal_id = new.proposal_id) >= 12 then
-    raise exception 'Uma proposta pode ter no máximo 12 imóveis.';
+  if (select count(*) from public.proposal_items where proposal_id = new.proposal_id) >= 40 then
+    raise exception 'Uma proposta pode ter no máximo 40 imóveis.';
   end if;
   return new;
 end $$;

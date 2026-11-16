@@ -182,21 +182,26 @@ export function ProposalEditor({
 
   // Tela de sucesso
   if (save.data) {
-    const wa = proposalWhatsappHref({
+    const shareBase = {
       client_phone: clientPhone || null,
       client_name: clientName,
       broker_name: broker?.display_name ?? "a equipe",
       items: items.length,
       token: save.data.token,
-    });
+    };
+    const wa = proposalWhatsappHref(shareBase);
+    const waResumo = proposalWhatsappHref(shareBase, items.map((i) => i.property));
     return (
       <div className="max-w-xl mx-auto px-5 py-14 text-center">
         <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-3">Proposta salva</p>
         <h1 className="font-serif text-3xl text-ink mb-6">Pronta para enviar a {clientName}</h1>
         <div className="border border-ink/15 px-3 py-2 text-xs break-all mb-6 bg-white/50">{save.data.url}</div>
         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
-          <a href={wa} target="_blank" rel="noreferrer" className="bg-[#25D366] text-white px-5 py-3.5 text-xs uppercase tracking-widest font-semibold">
-            Enviar no WhatsApp
+          <a href={waResumo} target="_blank" rel="noreferrer" className="bg-[#25D366] text-white px-5 py-3.5 text-xs uppercase tracking-widest font-semibold">
+            WhatsApp com resumo
+          </a>
+          <a href={wa} target="_blank" rel="noreferrer" className="border border-[#25D366] text-[#128C4B] px-5 py-3.5 text-xs uppercase tracking-widest font-semibold">
+            WhatsApp só com o link
           </a>
           <button type="button" onClick={() => navigator.clipboard.writeText(save.data!.url)} className="border border-ink px-5 py-3.5 text-xs uppercase tracking-widest">
             Copiar link

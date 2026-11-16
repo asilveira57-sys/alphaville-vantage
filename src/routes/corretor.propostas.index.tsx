@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listProposals, proposalUrl, proposalWhatsappHref, renewProposal } from "@/lib/proposals.functions";
 import { useCorretorSession } from "@/components/corretor/session";
+import { SummaryButton } from "@/components/proposals/summary-button";
 
 export const Route = createFileRoute("/corretor/propostas/")({
   component: PropostasApp,
@@ -58,9 +59,10 @@ function PropostasApp() {
                   <div className="text-muted-foreground">{p.view_count > 0 ? `Aberta ${p.view_count}x` : "Não aberta"}</div>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-1.5 mt-3 text-[10px] uppercase tracking-widest">
-                <a href={proposalWhatsappHref(p)} target="_blank" rel="noreferrer" className="text-center bg-[#25D366] text-white py-2.5">
-                  Enviar
+              <div className="grid grid-cols-5 gap-1.5 mt-3 text-[10px] uppercase tracking-widest">
+                <SummaryButton proposal={p} label="Resumo" className="text-center bg-[#25D366] text-white py-2.5 uppercase tracking-widest" />
+                <a href={proposalWhatsappHref(p)} target="_blank" rel="noreferrer" className="text-center border border-[#25D366] text-[#128C4B] py-2.5">
+                  Link
                 </a>
                 <button
                   type="button"
@@ -71,7 +73,7 @@ function PropostasApp() {
                   }}
                   className="border border-ink/20 py-2.5"
                 >
-                  {copied === p.id ? "Copiado" : "Link"}
+                  {copied === p.id ? "Copiado" : "Copiar"}
                 </button>
                 <a href={`/proposta/${p.token}`} target="_blank" rel="noreferrer" className="text-center border border-ink/20 py-2.5">
                   Ver
