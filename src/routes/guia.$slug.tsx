@@ -1,5 +1,6 @@
 import { SITE_URL } from "@/lib/site";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+import { getRedirectFor } from "@/lib/seo.functions";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
@@ -27,7 +28,12 @@ const relatedQO = (slug: string) => queryOptions({
 export const Route = createFileRoute("/guia/$slug")({
   loader: async ({ params, context }) => {
     const page = await context.queryClient.ensureQueryData(pageQO(params.slug));
-    if (!page || page.content_type !== "guia") throw notFound();
+    if (!page || page.content_type !== "guia") {
+      // Guia fundido/arquivado: 301 cadastrado em seo_redirects.
+      const r = await getRedirectFor({ data: { path: `/guia/${params.slug}` } }).catch(() => null);
+      if (r?.new_url) throw redirect({ href: r.new_url, statusCode: r.redirect_type === 302 ? 302 : 301 });
+      throw notFound();
+    }
     await context.queryClient.ensureQueryData(relatedQO(params.slug));
     return { page };
   },
