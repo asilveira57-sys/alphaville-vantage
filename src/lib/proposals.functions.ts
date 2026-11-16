@@ -163,6 +163,7 @@ export const searchPropertiesForProposal = createServerFn({ method: "GET" })
     z.object({
       q: z.string().trim().max(80).default(""),
       purpose: z.enum(["all", "sale", "rent"]).default("all"),
+      types: z.array(z.string().max(20)).max(10).default([]),
       min: z.number().nonnegative().nullable().optional(),
       max: z.number().nonnegative().nullable().optional(),
     }).parse(d),
@@ -175,6 +176,7 @@ export const searchPropertiesForProposal = createServerFn({ method: "GET" })
     let query = sb.from("properties").select(PROPERTY_COLS).eq("status", "active");
     if (data.purpose === "sale") query = query.in("purpose", ["sale", "both"]);
     if (data.purpose === "rent") query = query.in("purpose", ["rent", "both"]);
+    if (data.types.length) query = query.in("property_type", data.types);
     if (data.min) query = query.gte(priceCol, data.min);
     if (data.max) query = query.lte(priceCol, data.max);
     const q = data.q.replace(/[%,()]/g, " ").trim();

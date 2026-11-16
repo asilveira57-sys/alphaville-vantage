@@ -27,6 +27,17 @@ export const Route = createFileRoute("/_authenticated/admin-propostas/$id")({
 
 type Item = { property: ProposalPropertyHit; broker_note: string };
 
+// Filtro de tipo (grupos sobre properties.property_type).
+const TYPE_OPTIONS: { id: string; label: string; types: string[] }[] = [
+  { id: "all", label: "Todos os tipos", types: [] },
+  { id: "apartamento", label: "Apartamento", types: ["apartamento"] },
+  { id: "casa", label: "Casa", types: ["casa"] },
+  { id: "terreno", label: "Terreno", types: ["terreno", "área"] },
+  { id: "sala", label: "Sala / Loja", types: ["sala", "loja"] },
+  { id: "galpao", label: "Galpão / Prédio", types: ["galpão", "prédio"] },
+  { id: "rural", label: "Chácara / Fazenda", types: ["chácara", "fazenda"] },
+];
+
 const DEFAULT_MESSAGE =
   "Olá {cliente}! Separei estes imóveis pensando no que você me contou. Qualquer um que chamar sua atenção, me chama aqui que eu organizo a visita.";
 
@@ -70,6 +81,8 @@ function EditorPage() {
   const [search, setSearch] = useState("");
   const [term, setTerm] = useState("");
   const [purpose, setPurpose] = useState<"all" | "sale" | "rent">("all");
+  const [typeId, setTypeId] = useState("all");
+  const types = TYPE_OPTIONS.find((t) => t.id === typeId)?.types ?? [];
   const [minTxt, setMinTxt] = useState("");
   const [maxTxt, setMaxTxt] = useState("");
   const [loaded, setLoaded] = useState(isNew);
@@ -112,10 +125,10 @@ function EditorPage() {
     }, 450);
     return () => clearTimeout(t);
   }, [minTxt, maxTxt]);
-  const hasFilter = term.length >= 2 || purpose !== "all" || minV != null || maxV != null;
+  const hasFilter = term.length >= 2 || purpose !== "all" || typeId !== "all" || minV != null || maxV != null;
   const resultsQ = useQuery({
-    queryKey: ["proposalSearch", term, purpose, minV, maxV],
-    queryFn: () => searchFn({ data: { q: term, purpose, min: minV, max: maxV } }),
+    queryKey: ["proposalSearch", term, purpose, typeId, minV, maxV],
+    queryFn: () => searchFn({ data: { q: term, purpose, types, min: minV, max: maxV } }),
     enabled: hasFilter,
   });
   const priceFor = (p: ProposalPropertyHit) => {
@@ -293,6 +306,9 @@ function EditorPage() {
                 </button>
               ))}
             </div>
+            <select value={typeId} onChange={(e) => setTypeId(e.target.value)} className={`${input} mb-2`}>
+              {TYPE_OPTIONS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+            </select>
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -343,7 +359,7 @@ function EditorPage() {
                   </div>
                 );
               })}
-              {!hasFilter && <p className="text-xs text-muted-foreground">Escolha Venda ou Aluguel, digite um código/condomínio ou um valor.</p>}
+              {!hasFilter && <p className="text-xs text-muted-foreground">Escolha Venda ou Aluguel, o tipo, um código/condomínio ou um valor.</p>}
               {hasFilter && resultsQ.isSuccess && resultsQ.data.length === 0 && (
                 <p className="text-xs text-muted-foreground">Nenhum imóvel ativo encontrado.</p>
               )}
