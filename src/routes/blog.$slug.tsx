@@ -9,6 +9,9 @@ import { resolveImage } from "@/lib/image-fallbacks";
 import { BrandPlaceholder } from "@/components/brand-placeholder";
 import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
 import { getRedirectFor } from "@/lib/seo.functions";
+import { SITE_URL } from "@/lib/site";
+import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
+import { EDITORIAL_AUTHOR, EDITORIAL_PUBLISHER, topicPropsQO, topicBlockTitle } from "@/lib/editorial-topic-properties";
 
 
 const postQO = (slug: string) => queryOptions({
@@ -39,10 +42,11 @@ export const Route = createFileRoute("/blog/$slug")({
       if (r?.new_url) throw redirect({ href: r.new_url, statusCode: (r.redirect_type as 301 | 302) ?? 301 });
       throw notFound();
     }
+    const topic = await context.queryClient.ensureQueryData(topicPropsQO("blog", params.slug, post as never)).catch(() => null);
     const related = await listRelatedPosts({
       data: { excludeSlug: params.slug, tags: (post as any).tags ?? [], limit: 3 },
     }).catch(() => []);
-    return { post, related };
+    return { post, related, topic };
 
   },
   head: ({ loaderData }) => {
@@ -64,6 +68,21 @@ export const Route = createFileRoute("/blog/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: p.canonical_url || `/blog/${p.slug}` }],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: p.title,
+          description: p.meta_description ?? p.excerpt ?? undefined,
+          image: social ? (social.startsWith("http") ? social : `${SITE_URL}${social}`) : undefined,
+          url: `${SITE_URL}/blog/${p.slug}`,
+          datePublished: p.published_at ?? undefined,
+          dateModified: p.updated_at ?? p.published_at ?? undefined,
+          author: { "@type": "Organization", name: EDITORIAL_AUTHOR, url: SITE_URL },
+          publisher: { "@type": "Organization", name: EDITORIAL_PUBLISHER, url: SITE_URL },
+        }),
+      }],
     };
   },
   component: PostPage,
@@ -83,10 +102,11 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function PostPage() {
-  const { post, related } = Route.useLoaderData() as { post: any; related: any[] };
+  const { post, related, topic } = Route.useLoaderData() as { post: any; related: any[]; topic: any };
   const cover = resolveImage(post.featured_image);
   const category = post.categoria_editorial || post.tags?.[0] || "Editorial";
   const date = fmtDate(post.published_at);
+  const updated = fmtDate(post.updated_at);
   const readMin = typeof post.reading_minutes === "number" && post.reading_minutes > 0
     ? post.reading_minutes
     : estimateReadMinutes(post.html_content);
@@ -141,11 +161,14 @@ function PostPage() {
               {post.excerpt}
             </p>
           )}
-          {(date || readMin) && (
-            <p className="mt-8 text-[11px] uppercase tracking-[0.22em] text-canvas/60">
-              {[date, readMin ? `${readMin} min de leitura` : null].filter(Boolean).join(" · ")}
-            </p>
-          )}
+          <p className="mt-8 text-[11px] uppercase tracking-[0.22em] text-canvas/60">
+            {[
+              `Por ${EDITORIAL_AUTHOR}`,
+              date,
+              updated && updated !== date ? `Atualizado em ${updated}` : null,
+              readMin ? `${readMin} min de leitura` : null,
+            ].filter(Boolean).join(" · ")}
+          </p>
         </div>
       </header>
 
@@ -191,6 +214,16 @@ function PostPage() {
           {/* personalization_enabled === true no futuro poderá substituir/complementar o CTA */}
         </div>
       </article>
+
+      {topic && topic.items?.length > 0 && (
+        <CondoPropertiesBlock
+          title={topicBlockTitle(post)}
+          condominiumName={topic.condominiumName ?? null}
+          items={topic.items}
+          rentItems={topic.rentItems}
+          saleItems={topic.saleItems}
+        />
+      )}
 
       {/* CTA contextual */}
       {!post.personalization_enabled && (

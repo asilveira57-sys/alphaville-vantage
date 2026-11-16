@@ -1,11 +1,13 @@
 import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { getRedirectFor } from "@/lib/seo.functions";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
+import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
+import { EDITORIAL_AUTHOR, EDITORIAL_PUBLISHER, topicPropsQO, topicBlockTitle } from "@/lib/editorial-topic-properties";
 
 
 const SECTIONS = [
@@ -35,6 +37,7 @@ export const Route = createFileRoute("/guia/$slug")({
       throw notFound();
     }
     await context.queryClient.ensureQueryData(relatedQO(params.slug));
+    await context.queryClient.ensureQueryData(topicPropsQO("guia", params.slug, page as never)).catch(() => null);
     return { page };
   },
   head: ({ params, loaderData }) => {
@@ -64,6 +67,10 @@ export const Route = createFileRoute("/guia/$slug")({
           description: p.excerpt ?? undefined,
           image: image ?? undefined,
           url,
+          datePublished: p.published_at ?? undefined,
+          dateModified: p.updated_at ?? p.published_at ?? undefined,
+          author: { "@type": "Organization", name: EDITORIAL_AUTHOR, url: SITE_URL },
+          publisher: { "@type": "Organization", name: EDITORIAL_PUBLISHER, url: SITE_URL },
         }),
       }],
     };
@@ -86,7 +93,12 @@ function GuiaPage() {
   const { slug } = Route.useParams();
   const { data: page } = useSuspenseQuery(pageQO(slug));
   const { data: related } = useSuspenseQuery(relatedQO(slug));
+  const { data: topic } = useQuery(topicPropsQO("guia", slug, page as never));
   if (!page) return null;
+  const updatedLabel = (() => {
+    const d = new Date(page.updated_at ?? page.published_at ?? "");
+    return isNaN(d.getTime()) ? null : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+  })();
 
   const html = page.html_content ?? "";
   const presentSections = SECTIONS.filter((s) => new RegExp(`id=["']${s.id}["']`).test(html));
@@ -105,6 +117,9 @@ function GuiaPage() {
           <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-4">Guia do bairro</p>
           <h1 className="font-serif text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-balance max-w-[22ch]">{page.title}</h1>
           {page.excerpt && <p className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-[60ch] text-pretty">{page.excerpt}</p>}
+          <p className="mt-6 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+            {[`Por ${EDITORIAL_AUTHOR}`, updatedLabel ? `Atualizado em ${updatedLabel}` : null].filter(Boolean).join(" · ")}
+          </p>
         </div>
       </section>
 
@@ -137,6 +152,16 @@ function GuiaPage() {
           </div>
         )}
       </section>
+
+      {topic && topic.items.length > 0 && (
+        <CondoPropertiesBlock
+          title={topicBlockTitle(page)}
+          condominiumName={topic.condominiumName ?? null}
+          items={topic.items}
+          rentItems={topic.rentItems}
+          saleItems={topic.saleItems}
+        />
+      )}
 
       {related.length > 0 && (
         <section className="px-6 py-16 border-t border-ink/8 bg-ink/[0.02]">
