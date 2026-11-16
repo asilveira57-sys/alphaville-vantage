@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      broker_profiles: {
+        Row: {
+          active: boolean
+          created_at: string
+          creci: string | null
+          display_name: string
+          photo_url: string | null
+          role_title: string | null
+          tagline: string | null
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          creci?: string | null
+          display_name: string
+          photo_url?: string | null
+          role_title?: string | null
+          tagline?: string | null
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          creci?: string | null
+          display_name?: string
+          photo_url?: string | null
+          role_title?: string | null
+          tagline?: string | null
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       cities: {
         Row: {
           created_at: string
@@ -1961,6 +2000,7 @@ export type Database = {
           thumb_source: string | null
           title: string
           univen_empreendimento: string | null
+          univen_purpose: string | null
           updated_at: string
         }
         Insert: {
@@ -2045,6 +2085,7 @@ export type Database = {
           thumb_source?: string | null
           title: string
           univen_empreendimento?: string | null
+          univen_purpose?: string | null
           updated_at?: string
         }
         Update: {
@@ -2129,6 +2170,7 @@ export type Database = {
           thumb_source?: string | null
           title?: string
           univen_empreendimento?: string | null
+          univen_purpose?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -2381,6 +2423,110 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "properties"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_items: {
+        Row: {
+          broker_note: string | null
+          id: string
+          position: number
+          price_rent_at_send: number | null
+          price_sale_at_send: number | null
+          property_id: string
+          proposal_id: string
+        }
+        Insert: {
+          broker_note?: string | null
+          id?: string
+          position?: number
+          price_rent_at_send?: number | null
+          price_sale_at_send?: number | null
+          property_id: string
+          proposal_id: string
+        }
+        Update: {
+          broker_note?: string | null
+          id?: string
+          position?: number
+          price_rent_at_send?: number | null
+          price_sale_at_send?: number | null
+          property_id?: string
+          proposal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_items_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_items_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposals: {
+        Row: {
+          broker_user_id: string
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          first_viewed_at: string | null
+          id: string
+          last_viewed_at: string | null
+          message: string | null
+          status: string
+          token: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          broker_user_id: string
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          first_viewed_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          message?: string | null
+          status?: string
+          token: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          broker_user_id?: string
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          first_viewed_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          message?: string | null
+          status?: string
+          token?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_broker_user_id_fkey"
+            columns: ["broker_user_id"]
+            isOneToOne: false
+            referencedRelation: "broker_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
