@@ -94,7 +94,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     id: "sistema",
     label: "Sistema",
     items: [
-      { label: "Equipe e acessos", to: "/admin-equipe", description: "Cadastrar colaboradores e tirar acessos." },
+      { label: "Equipe e acessos", to: "/admin-equipe", description: "Cadastrar administradores e corretores, trocar senha e tirar acessos." },
       { label: "Central de SEO", to: "/admin-seo", description: "Sitemap, IndexNow e redirecionamentos." },
       { label: "Mapa do sistema", to: "/admin-mapa", description: "Onde cada tipo de página é editado no site." },
       { label: "Ferramentas antigas", to: "/admin-legado", description: "Crawler antigo e reprocessamentos (desligados)." },

@@ -1,0 +1,23 @@
+{
+  "name": "S.A Corretor",
+  "short_name": "S.A Corretor",
+  "id": "/corretor",
+  "start_url": "/corretor?origem=app-corretor",
+  "scope": "/corretor",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D0D0D",
+  "theme_color": "#0D0D0D",
+  "lang": "pt-BR",
+  "description": "Propostas e leads da equipe S.A Imóveis Alphaville.",
+  "icons": [
+    { "src": "/icons/corretor-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/corretor-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/corretor-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/corretor-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Nova proposta", "url": "/corretor/propostas/nova?origem=app-corretor", "icons": [{ "src": "/icons/corretor-192.png", "sizes": "192x192" }] },
+    { "name": "Leads", "url": "/corretor/leads?origem=app-corretor", "icons": [{ "src": "/icons/corretor-192.png", "sizes": "192x192" }] }
+  ]
+}

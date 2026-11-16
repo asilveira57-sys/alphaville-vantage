@@ -27,9 +27,10 @@ function EquipePage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
+  const [role, setRole] = useState<"admin" | "corretor">("corretor");
 
   const createMut = useMutation({
-    mutationFn: () => createFn({ data: { name, email, password } }),
+    mutationFn: () => createFn({ data: { name, email, password, role } }),
     onSuccess: () => {
       setName("");
       setEmail("");
@@ -49,12 +50,25 @@ function EquipePage() {
         <AdminPageHeader eyebrow="Sistema" title="Equipe e acessos" />
 
         <section className="border border-ink/10 bg-white/40 p-6 mb-12 max-w-2xl">
-          <h2 className="font-serif text-2xl text-ink mb-1">Cadastrar colaborador</h2>
+          <h2 className="font-serif text-2xl text-ink mb-1">Cadastrar pessoa da equipe</h2>
           <p className="text-xs text-muted-foreground mb-5">
-            O colaborador tem acesso total ao admin. Defina uma senha provisória e passe para ele; ele entra em
-            /auth com o e-mail e essa senha.
+            Defina uma senha provisória e passe para a pessoa. <b>Corretor</b> entra pelo app do corretor
+            (portal.saimoveisalpha.com.br/corretor) e só vê propostas e leads. <b>Administrador</b> entra em /auth e tem
+            acesso total ao admin (e também ao app).
           </p>
           <form onSubmit={submit} className="space-y-3">
+            <div className="flex border border-ink/15 w-fit">
+              {([["corretor", "Corretor"], ["admin", "Administrador"]] as const).map(([v, label]) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setRole(v)}
+                  className={`px-4 py-2 text-[11px] uppercase tracking-widest ${role === v ? "bg-ink text-canvas" : "hover:bg-ink/5"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <input
               value={name} onChange={(e) => setName(e.target.value)} required placeholder="Nome (ex.: João Carvalho)"
               className="w-full border border-ink/15 px-4 py-3 text-sm bg-transparent focus:outline-none focus:border-ink"
@@ -78,20 +92,20 @@ function EquipePage() {
               type="submit" disabled={createMut.isPending}
               className="bg-ink text-canvas px-5 py-3 text-xs uppercase tracking-widest font-medium hover:bg-ink/85 disabled:opacity-50"
             >
-              {createMut.isPending ? "Cadastrando…" : "Cadastrar com acesso total"}
+              {createMut.isPending ? "Cadastrando…" : role === "corretor" ? "Cadastrar corretor" : "Cadastrar administrador"}
             </button>
             {createMut.error && <p className="text-xs text-red-600">{(createMut.error as Error).message}</p>}
             {createMut.data && (
               <p className="text-xs text-emerald-700">
                 {createMut.data.existed
-                  ? "Essa pessoa já tinha conta no portal. O acesso ao admin foi liberado e a senha antiga dela continua valendo. Se precisar, use “Trocar senha” na lista."
-                  : "Colaborador cadastrado. Passe o e-mail e a senha provisória para ele."}
+                  ? "Essa pessoa já tinha conta no portal. O acesso foi liberado e a senha antiga dela continua valendo. Se precisar, use “Trocar senha” na lista."
+                  : "Cadastrado. Passe o e-mail e a senha provisória para a pessoa."}
               </p>
             )}
           </form>
         </section>
 
-        <h2 className="font-serif text-2xl text-ink mb-4">Quem tem acesso ao admin</h2>
+        <h2 className="font-serif text-2xl text-ink mb-4">Quem tem acesso</h2>
         {teamQ.isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
         {teamQ.error && <p className="text-sm text-red-600">{(teamQ.error as Error).message}</p>}
         <div className="border border-ink/10">
@@ -127,7 +141,11 @@ function MemberRow({ m }: { m: TeamMember }) {
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex-1 min-w-[200px]">
           <div className="font-medium text-ink">
-            {m.name ?? m.email} {m.isSelf && <span className="text-[10px] uppercase tracking-widest text-muted-foreground ml-1">(você)</span>}
+            {m.name ?? m.email}{" "}
+            <span className={`text-[10px] uppercase tracking-widest ml-1 px-1.5 py-0.5 ${m.role === "admin" ? "bg-ink text-canvas" : "bg-[#F2DA00] text-[#0D0D0D]"}`}>
+              {m.role === "admin" ? "Administrador" : "Corretor"}
+            </span>
+            {m.isSelf && <span className="text-[10px] uppercase tracking-widest text-muted-foreground ml-1">(você)</span>}
           </div>
           <div className="text-xs text-muted-foreground">{m.email}</div>
         </div>
@@ -143,7 +161,7 @@ function MemberRow({ m }: { m: TeamMember }) {
             <button
               type="button" disabled={removeMut.isPending}
               onClick={() => {
-                if (window.confirm(`Tirar o acesso de ${m.name ?? m.email} ao admin? A conta continua existindo.`)) removeMut.mutate();
+                if (window.confirm(`Tirar o acesso de ${m.name ?? m.email}? A conta continua existindo.`)) removeMut.mutate();
               }}
               className="border border-red-300 text-red-700 px-3 py-1.5 text-[11px] uppercase tracking-widest hover:bg-red-50 disabled:opacity-50"
             >

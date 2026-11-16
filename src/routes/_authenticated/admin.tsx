@@ -2,12 +2,13 @@ import { ReconciliationAlert } from "@/components/admin/reconciliation-alert";
 import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/site-layout";
 import { checkIsAdmin, grantSelfAdminIfFirst } from "@/lib/admin.functions";
 import { getScrapAudit, exportPropertiesCsv } from "@/lib/property-review.functions";
 import { ADMIN_NAV } from "@/lib/admin-nav";
+import { getStaffSession } from "@/lib/corretor.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Portal S.A" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -25,6 +26,12 @@ function AdminPage() {
   const [exportError, setExportError] = useState<string | null>(null);
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkFn() });
+  // Corretor que entrar pelo /auth vai direto para o app do corretor.
+  const staffFn = useServerFn(getStaffSession);
+  const staffQ = useQuery({ queryKey: ["staffSession"], queryFn: () => staffFn(), enabled: adminQ.isSuccess && !adminQ.data?.isAdmin });
+  useEffect(() => {
+    if (staffQ.data?.ok && staffQ.data.isCorretor) router.navigate({ to: "/corretor" });
+  }, [staffQ.data, router]);
   const auditQ = useQuery({
     queryKey: ["scrapAudit"],
     queryFn: () => auditFn(),

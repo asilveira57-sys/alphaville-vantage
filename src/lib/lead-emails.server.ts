@@ -97,6 +97,9 @@ export async function dispatchLeadEmails(sourceTable: string, sourceId: string) 
     const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
     const { data: lead } = await admin.from("leads").select("*").eq("source_table", sourceTable).eq("source_id", sourceId).maybeSingle();
     if (!lead) return;
+    // Aviso no celular da equipe (app do corretor). Não bloqueia os e-mails.
+    const { notifyNewLead } = await import("./push.server");
+    await notifyNewLead(lead.id);
     const vars = {
       nome: (lead.name ?? "").split(" ")[0] || "cliente",
       origem: lead.source_label, pagina: lead.landing_page ?? "", resumo: lead.summary ?? "",

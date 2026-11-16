@@ -7,7 +7,7 @@ type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ out
 const VISITS_KEY = "sa_pwa_visits";
 const DISMISS_KEY = "sa_pwa_dismissed_at";
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-const PRIVATE = /^\/(admin|cms|auth|audit|reset-password|area-do-parceiro|proposta)/;
+const PRIVATE = /^\/(admin|cms|auth|audit|reset-password|area-do-parceiro|proposta|corretor)/;
 
 let deferred: BIPEvent | null = null;
 const listeners = new Set<() => void>();

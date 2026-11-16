@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { SITE_URL } from "@/lib/site";
+import { requireStaff } from "@/lib/staff.server";
 
 // Propostas do Corretor: o corretor monta uma seleção de até 12 imóveis e envia
 // um link /proposta/{token} ao cliente. Tabelas: broker_profiles, proposals,
@@ -19,6 +20,11 @@ async function assertAdmin(ctx: unknown) {
   const { data } = await c.supabase.rpc("has_role", { _user_id: c.userId, _role: "admin" });
   if (!data) throw new Error("Apenas administradores.");
   return c.userId;
+}
+
+/** Administrador ou corretor (app do corretor). */
+async function assertStaff(ctx: unknown) {
+  return requireStaff((ctx as Ctx).userId);
 }
 
 async function db(): Promise<SupabaseClient> {
@@ -71,14 +77,14 @@ export type BrokerProfile = {
 export const listBrokers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const me = await assertAdmin(context);
+    const me = (await assertStaff(context)).userId;
     const sb = await db();
     const { data, error } = await sb.from("broker_profiles").select("*").order("display_name");
     fail(error);
-    // Equipe (papel admin) para vincular um perfil a um login.
-    const { data: roles } = await sb.from("user_roles").select("user_id").eq("role", "admin");
+    // Equipe (administradores e corretores) para vincular um perfil a um login.
+    const { data: roles } = await sb.from("user_roles").select("user_id").in("role", ["admin", "corretor"]);
     const team: { userId: string; email: string; name: string | null }[] = [];
-    for (const r of (roles ?? []) as { user_id: string }[]) {
+    for (const r of [...new Map(((roles ?? []) as { user_id: string }[]).map((x) => [x.user_id, x])).values()]) {
       const { data: u } = await sb.auth.admin.getUserById(r.user_id);
       const meta = (u?.user?.user_metadata ?? {}) as Record<string, unknown>;
       team.push({ userId: r.user_id, email: u?.user?.email ?? "", name: (meta.full_name as string) ?? null });
@@ -169,7 +175,7 @@ export const searchPropertiesForProposal = createServerFn({ method: "GET" })
     }).parse(d),
   )
   .handler(async ({ context, data }) => {
-    await assertAdmin(context);
+    await assertStaff(context);
     const sb = await db();
     // Coluna de preço conforme a finalidade escolhida.
     const priceCol = data.purpose === "sale" ? "price_sale" : data.purpose === "rent" ? "price_rent" : "listing_price";
@@ -216,7 +222,7 @@ export type ProposalListRow = {
 export const listProposals = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertStaff(context);
     const sb = await db();
     const { data, error } = await sb
       .from("proposals")
@@ -254,7 +260,7 @@ export const getProposalForEdit = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }): Promise<ProposalEdit> => {
-    await assertAdmin(context);
+    await assertStaff(context);
     const sb = await db();
     const { data: p, error } = await sb.from("proposals").select("*").eq("id", data.id).maybeSingle();
     fail(error);
@@ -295,8 +301,14 @@ export const saveProposal = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ context, data }) => {
-    const me = await assertAdmin(context);
+    const staff = await assertStaff(context);
+    const me = staff.userId;
+    if (!staff.isAdmin && data.broker_user_id !== me) throw new Error("O corretor só cria propostas em nome próprio.");
     const sb = await db();
+    if (data.id && !staff.isAdmin) {
+      const { data: own } = await sb.from("proposals").select("broker_user_id").eq("id", data.id).maybeSingle();
+      if (own && own.broker_user_id !== me) throw new Error("Só o corretor da proposta pode editá-la.");
+    }
 
     const ids = [...new Set(data.items.map((i) => i.property_id))];
     const { data: props, error: pe } = await sb.from("properties").select("id,price_sale,price_rent,internal_code").in("id", ids);
@@ -368,6 +380,12 @@ export const saveProposal = createServerFn({ method: "POST" })
         .then(({ error }) => {
           if (error) console.error("[propostas] upsert_lead", error.message);
         });
+      // O cliente da proposta já é do corretor que enviou.
+      await sb
+        .from("leads")
+        .update({ owner_user_id: data.broker_user_id, owner_at: new Date().toISOString(), stage: "proposta", pushed_at: new Date().toISOString() })
+        .eq("source_table", "proposals")
+        .eq("source_id", id);
     }
 
     return { id: id!, token, url: proposalUrl(token) };
@@ -377,7 +395,7 @@ export const renewProposal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    await assertAdmin(context);
+    await assertStaff(context);
     const sb = await db();
     const expires = new Date(Date.now() + PROPOSAL_DAYS * 86400_000).toISOString();
     const { error } = await sb.from("proposals").update({ expires_at: expires, updated_at: new Date().toISOString() }).eq("id", data.id);
@@ -389,8 +407,12 @@ export const deleteProposal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    await assertAdmin(context);
+    const staff = await assertStaff(context);
     const sb = await db();
+    if (!staff.isAdmin) {
+      const { data: own } = await sb.from("proposals").select("broker_user_id").eq("id", data.id).maybeSingle();
+      if (own && own.broker_user_id !== staff.userId) throw new Error("Só o corretor da proposta pode excluí-la.");
+    }
     const { error } = await sb.from("proposals").delete().eq("id", data.id);
     fail(error);
     return { ok: true };

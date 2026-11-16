@@ -21,6 +21,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as ComoTrabalhamosRouteImport } from './routes/como-trabalhamos'
 import { Route as ConfirmarEmailRouteImport } from './routes/confirmar-email'
 import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as DescadastrarRouteImport } from './routes/descadastrar'
 import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as EscolasRouteImport } from './routes/escolas'
@@ -95,6 +96,9 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CondominiosIndexRouteImport } from './routes/condominios.index'
 import { Route as CondominiosSlugRouteImport } from './routes/condominios.$slug'
+import { Route as CorretorIndexRouteImport } from './routes/corretor.index'
+import { Route as CorretorLeadsRouteImport } from './routes/corretor.leads'
+import { Route as CorretorPropostasRouteImport } from './routes/corretor.propostas'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as EmpreendimentosAndromedaByMpdRouteImport } from './routes/empreendimentos.andromeda-by-mpd'
 import { Route as EmpreendimentosFloraAlphavilleRouteImport } from './routes/empreendimentos.flora-alphaville'
@@ -134,6 +138,10 @@ import { Route as AuthenticatedCmsIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCmsIdRouteImport } from './routes/_authenticated/cms.$id'
 import { Route as ApiPublicGaConfigRouteImport } from './routes/api/public/ga-config'
 import { Route as ApiPublicIndexnowKeyDottxtRouteImport } from './routes/api/public/indexnow-key[.]txt'
+import { Route as CorretorLeadsIndexRouteImport } from './routes/corretor.leads.index'
+import { Route as CorretorLeadsIdRouteImport } from './routes/corretor.leads.$id'
+import { Route as CorretorPropostasIndexRouteImport } from './routes/corretor.propostas.index'
+import { Route as CorretorPropostasIdRouteImport } from './routes/corretor.propostas.$id'
 import { Route as ApiPublicCampaignImageNameRouteImport } from './routes/api/public/campaign-image.$name'
 import { Route as ApiPublicEditorialImageSplatRouteImport } from './routes/api/public/editorial-image.$'
 import { Route as ApiPublicHooksCampaignQueueRouteImport } from './routes/api/public/hooks/campaign-queue'
@@ -201,6 +209,11 @@ const ConfirmarEmailRoute = ConfirmarEmailRouteImport.update({
 const ContatoRoute = ContatoRouteImport.update({
   id: '/contato',
   path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorretorRoute = CorretorRouteImport.update({
+  id: '/corretor',
+  path: '/corretor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DescadastrarRoute = DescadastrarRouteImport.update({
@@ -599,6 +612,21 @@ const CondominiosSlugRoute = CondominiosSlugRouteImport.update({
   path: '/condominios/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CorretorIndexRoute = CorretorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CorretorRoute,
+} as any)
+const CorretorLeadsRoute = CorretorLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => CorretorRoute,
+} as any)
+const CorretorPropostasRoute = CorretorPropostasRouteImport.update({
+  id: '/propostas',
+  path: '/propostas',
+  getParentRoute: () => CorretorRoute,
+} as any)
 const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
   id: '/empreendimentos/$slug',
   path: '/empreendimentos/$slug',
@@ -810,6 +838,26 @@ const ApiPublicIndexnowKeyDottxtRoute =
     path: '/api/public/indexnow-key.txt',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CorretorLeadsIndexRoute = CorretorLeadsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CorretorLeadsRoute,
+} as any)
+const CorretorLeadsIdRoute = CorretorLeadsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => CorretorLeadsRoute,
+} as any)
+const CorretorPropostasIndexRoute = CorretorPropostasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CorretorPropostasRoute,
+} as any)
+const CorretorPropostasIdRoute = CorretorPropostasIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => CorretorPropostasRoute,
+} as any)
 const ApiPublicCampaignImageNameRoute =
   ApiPublicCampaignImageNameRouteImport.update({
     id: '/api/public/campaign-image/$name',
@@ -876,6 +924,7 @@ export interface FileRoutesByFullPath {
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
   '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/corretor': typeof CorretorRouteWithChildren
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
@@ -947,6 +996,8 @@ export interface FileRoutesByFullPath {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/corretor/leads': typeof CorretorLeadsRouteWithChildren
+  '/corretor/propostas': typeof CorretorPropostasRouteWithChildren
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
   '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
@@ -969,6 +1020,7 @@ export interface FileRoutesByFullPath {
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
+  '/corretor/': typeof CorretorIndexRoute
   '/guia-de-ruas-alphaville/': typeof GuiaDeRuasAlphavilleIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
@@ -984,11 +1036,15 @@ export interface FileRoutesByFullPath {
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/corretor/leads/$id': typeof CorretorLeadsIdRoute
+  '/corretor/propostas/$id': typeof CorretorPropostasIdRoute
   '/admin-propostas/': typeof AuthenticatedAdminPropostasIndexRoute
   '/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit/': typeof AuthenticatedAuditIndexRoute
   '/cms/': typeof AuthenticatedCmsIndexRoute
+  '/corretor/leads/': typeof CorretorLeadsIndexRoute
+  '/corretor/propostas/': typeof CorretorPropostasIndexRoute
   '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
@@ -1094,6 +1150,7 @@ export interface FileRoutesByTo {
   '/bairros': typeof BairrosIndexRoute
   '/blog': typeof BlogIndexRoute
   '/condominios': typeof CondominiosIndexRoute
+  '/corretor': typeof CorretorIndexRoute
   '/guia-de-ruas-alphaville': typeof GuiaDeRuasAlphavilleIndexRoute
   '/guia': typeof GuiaIndexRoute
   '/imoveis': typeof ImoveisIndexRoute
@@ -1109,11 +1166,15 @@ export interface FileRoutesByTo {
   '/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/corretor/leads/$id': typeof CorretorLeadsIdRoute
+  '/corretor/propostas/$id': typeof CorretorPropostasIdRoute
   '/admin-propostas': typeof AuthenticatedAdminPropostasIndexRoute
   '/admin-ruas': typeof AuthenticatedAdminRuasIndexRoute
   '/area-do-parceiro': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/audit': typeof AuthenticatedAuditIndexRoute
   '/cms': typeof AuthenticatedCmsIndexRoute
+  '/corretor/leads': typeof CorretorLeadsIndexRoute
+  '/corretor/propostas': typeof CorretorPropostasIndexRoute
   '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
@@ -1138,6 +1199,7 @@ export interface FileRoutesById {
   '/como-trabalhamos': typeof ComoTrabalhamosRoute
   '/confirmar-email': typeof ConfirmarEmailRoute
   '/contato': typeof ContatoRoute
+  '/corretor': typeof CorretorRouteWithChildren
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
@@ -1209,6 +1271,8 @@ export interface FileRoutesById {
   '/bairros/$slug': typeof BairrosSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/condominios/$slug': typeof CondominiosSlugRoute
+  '/corretor/leads': typeof CorretorLeadsRouteWithChildren
+  '/corretor/propostas': typeof CorretorPropostasRouteWithChildren
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/empreendimentos/andromeda-by-mpd': typeof EmpreendimentosAndromedaByMpdRoute
   '/empreendimentos/flora-alphaville': typeof EmpreendimentosFloraAlphavilleRoute
@@ -1231,6 +1295,7 @@ export interface FileRoutesById {
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
+  '/corretor/': typeof CorretorIndexRoute
   '/guia-de-ruas-alphaville/': typeof GuiaDeRuasAlphavilleIndexRoute
   '/guia/': typeof GuiaIndexRoute
   '/imoveis/': typeof ImoveisIndexRoute
@@ -1246,11 +1311,15 @@ export interface FileRoutesById {
   '/_authenticated/cms/$id': typeof AuthenticatedCmsIdRoute
   '/api/public/ga-config': typeof ApiPublicGaConfigRoute
   '/api/public/indexnow-key.txt': typeof ApiPublicIndexnowKeyDottxtRoute
+  '/corretor/leads/$id': typeof CorretorLeadsIdRoute
+  '/corretor/propostas/$id': typeof CorretorPropostasIdRoute
   '/_authenticated/admin-propostas/': typeof AuthenticatedAdminPropostasIndexRoute
   '/_authenticated/admin-ruas/': typeof AuthenticatedAdminRuasIndexRoute
   '/_authenticated/area-do-parceiro/': typeof AuthenticatedAreaDoParceiroIndexRoute
   '/_authenticated/audit/': typeof AuthenticatedAuditIndexRoute
   '/_authenticated/cms/': typeof AuthenticatedCmsIndexRoute
+  '/corretor/leads/': typeof CorretorLeadsIndexRoute
+  '/corretor/propostas/': typeof CorretorPropostasIndexRoute
   '/api/public/campaign-image/$name': typeof ApiPublicCampaignImageNameRoute
   '/api/public/editorial-image/$': typeof ApiPublicEditorialImageSplatRoute
   '/api/public/hooks/campaign-queue': typeof ApiPublicHooksCampaignQueueRoute
@@ -1275,6 +1344,7 @@ export interface FileRouteTypes {
     | '/como-trabalhamos'
     | '/confirmar-email'
     | '/contato'
+    | '/corretor'
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
@@ -1346,6 +1416,8 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/corretor/leads'
+    | '/corretor/propostas'
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
     | '/empreendimentos/flora-alphaville'
@@ -1368,6 +1440,7 @@ export interface FileRouteTypes {
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
+    | '/corretor/'
     | '/guia-de-ruas-alphaville/'
     | '/guia/'
     | '/imoveis/'
@@ -1383,11 +1456,15 @@ export interface FileRouteTypes {
     | '/cms/$id'
     | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
+    | '/corretor/leads/$id'
+    | '/corretor/propostas/$id'
     | '/admin-propostas/'
     | '/admin-ruas/'
     | '/area-do-parceiro/'
     | '/audit/'
     | '/cms/'
+    | '/corretor/leads/'
+    | '/corretor/propostas/'
     | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/campaign-queue'
@@ -1493,6 +1570,7 @@ export interface FileRouteTypes {
     | '/bairros'
     | '/blog'
     | '/condominios'
+    | '/corretor'
     | '/guia-de-ruas-alphaville'
     | '/guia'
     | '/imoveis'
@@ -1508,11 +1586,15 @@ export interface FileRouteTypes {
     | '/cms/$id'
     | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
+    | '/corretor/leads/$id'
+    | '/corretor/propostas/$id'
     | '/admin-propostas'
     | '/admin-ruas'
     | '/area-do-parceiro'
     | '/audit'
     | '/cms'
+    | '/corretor/leads'
+    | '/corretor/propostas'
     | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/campaign-queue'
@@ -1536,6 +1618,7 @@ export interface FileRouteTypes {
     | '/como-trabalhamos'
     | '/confirmar-email'
     | '/contato'
+    | '/corretor'
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
@@ -1607,6 +1690,8 @@ export interface FileRouteTypes {
     | '/bairros/$slug'
     | '/blog/$slug'
     | '/condominios/$slug'
+    | '/corretor/leads'
+    | '/corretor/propostas'
     | '/empreendimentos/$slug'
     | '/empreendimentos/andromeda-by-mpd'
     | '/empreendimentos/flora-alphaville'
@@ -1629,6 +1714,7 @@ export interface FileRouteTypes {
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
+    | '/corretor/'
     | '/guia-de-ruas-alphaville/'
     | '/guia/'
     | '/imoveis/'
@@ -1644,11 +1730,15 @@ export interface FileRouteTypes {
     | '/_authenticated/cms/$id'
     | '/api/public/ga-config'
     | '/api/public/indexnow-key.txt'
+    | '/corretor/leads/$id'
+    | '/corretor/propostas/$id'
     | '/_authenticated/admin-propostas/'
     | '/_authenticated/admin-ruas/'
     | '/_authenticated/area-do-parceiro/'
     | '/_authenticated/audit/'
     | '/_authenticated/cms/'
+    | '/corretor/leads/'
+    | '/corretor/propostas/'
     | '/api/public/campaign-image/$name'
     | '/api/public/editorial-image/$'
     | '/api/public/hooks/campaign-queue'
@@ -1673,6 +1763,7 @@ export interface RootRouteChildren {
   ComoTrabalhamosRoute: typeof ComoTrabalhamosRoute
   ConfirmarEmailRoute: typeof ConfirmarEmailRoute
   ContatoRoute: typeof ContatoRoute
+  CorretorRoute: typeof CorretorRouteWithChildren
   DescadastrarRoute: typeof DescadastrarRoute
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
@@ -1817,6 +1908,13 @@ declare module '@tanstack/react-router' {
       path: '/contato'
       fullPath: '/contato'
       preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corretor': {
+      id: '/corretor'
+      path: '/corretor'
+      fullPath: '/corretor'
+      preLoaderRoute: typeof CorretorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/descadastrar': {
@@ -2337,6 +2435,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CondominiosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/corretor/': {
+      id: '/corretor/'
+      path: '/'
+      fullPath: '/corretor/'
+      preLoaderRoute: typeof CorretorIndexRouteImport
+      parentRoute: typeof CorretorRoute
+    }
+    '/corretor/leads': {
+      id: '/corretor/leads'
+      path: '/leads'
+      fullPath: '/corretor/leads'
+      preLoaderRoute: typeof CorretorLeadsRouteImport
+      parentRoute: typeof CorretorRoute
+    }
+    '/corretor/propostas': {
+      id: '/corretor/propostas'
+      path: '/propostas'
+      fullPath: '/corretor/propostas'
+      preLoaderRoute: typeof CorretorPropostasRouteImport
+      parentRoute: typeof CorretorRoute
+    }
     '/empreendimentos/$slug': {
       id: '/empreendimentos/$slug'
       path: '/empreendimentos/$slug'
@@ -2610,6 +2729,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIndexnowKeyDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/corretor/leads/': {
+      id: '/corretor/leads/'
+      path: '/'
+      fullPath: '/corretor/leads/'
+      preLoaderRoute: typeof CorretorLeadsIndexRouteImport
+      parentRoute: typeof CorretorLeadsRoute
+    }
+    '/corretor/leads/$id': {
+      id: '/corretor/leads/$id'
+      path: '/$id'
+      fullPath: '/corretor/leads/$id'
+      preLoaderRoute: typeof CorretorLeadsIdRouteImport
+      parentRoute: typeof CorretorLeadsRoute
+    }
+    '/corretor/propostas/': {
+      id: '/corretor/propostas/'
+      path: '/'
+      fullPath: '/corretor/propostas/'
+      preLoaderRoute: typeof CorretorPropostasIndexRouteImport
+      parentRoute: typeof CorretorPropostasRoute
+    }
+    '/corretor/propostas/$id': {
+      id: '/corretor/propostas/$id'
+      path: '/$id'
+      fullPath: '/corretor/propostas/$id'
+      preLoaderRoute: typeof CorretorPropostasIdRouteImport
+      parentRoute: typeof CorretorPropostasRoute
+    }
     '/api/public/campaign-image/$name': {
       id: '/api/public/campaign-image/$name'
       path: '/api/public/campaign-image/$name'
@@ -2829,6 +2976,49 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface CorretorLeadsRouteChildren {
+  CorretorLeadsIdRoute: typeof CorretorLeadsIdRoute
+  CorretorLeadsIndexRoute: typeof CorretorLeadsIndexRoute
+}
+
+const CorretorLeadsRouteChildren: CorretorLeadsRouteChildren = {
+  CorretorLeadsIdRoute: CorretorLeadsIdRoute,
+  CorretorLeadsIndexRoute: CorretorLeadsIndexRoute,
+}
+
+const CorretorLeadsRouteWithChildren = CorretorLeadsRoute._addFileChildren(
+  CorretorLeadsRouteChildren,
+)
+
+interface CorretorPropostasRouteChildren {
+  CorretorPropostasIdRoute: typeof CorretorPropostasIdRoute
+  CorretorPropostasIndexRoute: typeof CorretorPropostasIndexRoute
+}
+
+const CorretorPropostasRouteChildren: CorretorPropostasRouteChildren = {
+  CorretorPropostasIdRoute: CorretorPropostasIdRoute,
+  CorretorPropostasIndexRoute: CorretorPropostasIndexRoute,
+}
+
+const CorretorPropostasRouteWithChildren =
+  CorretorPropostasRoute._addFileChildren(CorretorPropostasRouteChildren)
+
+interface CorretorRouteChildren {
+  CorretorLeadsRoute: typeof CorretorLeadsRouteWithChildren
+  CorretorPropostasRoute: typeof CorretorPropostasRouteWithChildren
+  CorretorIndexRoute: typeof CorretorIndexRoute
+}
+
+const CorretorRouteChildren: CorretorRouteChildren = {
+  CorretorLeadsRoute: CorretorLeadsRouteWithChildren,
+  CorretorPropostasRoute: CorretorPropostasRouteWithChildren,
+  CorretorIndexRoute: CorretorIndexRoute,
+}
+
+const CorretorRouteWithChildren = CorretorRoute._addFileChildren(
+  CorretorRouteChildren,
+)
+
 interface GuiaRouteChildren {
   GuiaSlugRoute: typeof GuiaSlugRoute
   GuiaIndexRoute: typeof GuiaIndexRoute
@@ -2928,6 +3118,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComoTrabalhamosRoute: ComoTrabalhamosRoute,
   ConfirmarEmailRoute: ConfirmarEmailRoute,
   ContatoRoute: ContatoRoute,
+  CorretorRoute: CorretorRouteWithChildren,
   DescadastrarRoute: DescadastrarRoute,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,

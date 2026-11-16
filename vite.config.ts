@@ -31,6 +31,7 @@ export default defineConfig({
         devOptions: { enabled: false },
         workbox: {
           cacheId: "sa-app-icons-v2",
+          importScripts: ["/sw-push.js"],
           globPatterns: ["assets/**/*.{js,css,woff2}", "offline.html", "icons/*.png", "favicon.ico"],
           navigateFallback: null,
           cleanupOutdatedCaches: true,
@@ -42,7 +43,7 @@ export default defineConfig({
               urlPattern: ({ url, request }) =>
                 request.mode === "navigate" &&
                 url.origin === self.location.origin &&
-                !/^\/(admin|cms|auth|audit|reset-password|area-do-parceiro|api|_serverFn|lovable|~oauth)/.test(url.pathname),
+                !/^\/(admin|cms|auth|audit|reset-password|area-do-parceiro|corretor|proposta|api|_serverFn|lovable|~oauth)/.test(url.pathname),
               handler: "NetworkFirst",
               options: {
                 cacheName: "sa-pages",
