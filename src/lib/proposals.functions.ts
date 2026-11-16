@@ -159,17 +159,28 @@ const PROPERTY_COLS =
 
 export const searchPropertiesForProposal = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ q: z.string().trim().min(2).max(80) }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({
+      q: z.string().trim().max(80).default(""),
+      purpose: z.enum(["all", "sale", "rent"]).default("all"),
+      min: z.number().nonnegative().nullable().optional(),
+      max: z.number().nonnegative().nullable().optional(),
+    }).parse(d),
+  )
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
     const sb = await db();
+    // Coluna de preço conforme a finalidade escolhida.
+    const priceCol = data.purpose === "sale" ? "price_sale" : data.purpose === "rent" ? "price_rent" : "listing_price";
+    let query = sb.from("properties").select(PROPERTY_COLS).eq("status", "active");
+    if (data.purpose === "sale") query = query.in("purpose", ["sale", "both"]);
+    if (data.purpose === "rent") query = query.in("purpose", ["rent", "both"]);
+    if (data.min) query = query.gte(priceCol, data.min);
+    if (data.max) query = query.lte(priceCol, data.max);
     const q = data.q.replace(/[%,()]/g, " ").trim();
-    const code = q.toUpperCase().replace(/\s+/g, "");
-    const { data: rows, error } = await sb
-      .from("properties")
-      .select(PROPERTY_COLS)
-      .eq("status", "active")
-      .or(
+    if (q.length >= 2) {
+      const code = q.toUpperCase().replace(/\s+/g, "");
+      query = query.or(
         [
           `internal_code.ilike.%${code}%`,
           `previous_codes.cs.{${code}}`,
@@ -177,9 +188,9 @@ export const searchPropertiesForProposal = createServerFn({ method: "GET" })
           `title.ilike.%${q}%`,
           `neighborhood.ilike.%${q}%`,
         ].join(","),
-      )
-      .order("listing_price", { ascending: true, nullsFirst: false })
-      .limit(30);
+      );
+    }
+    const { data: rows, error } = await query.order(priceCol, { ascending: true, nullsFirst: false }).limit(40);
     fail(error);
     return (rows ?? []) as ProposalPropertyHit[];
   });

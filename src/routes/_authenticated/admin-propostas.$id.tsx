@@ -69,6 +69,9 @@ function EditorPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [search, setSearch] = useState("");
   const [term, setTerm] = useState("");
+  const [purpose, setPurpose] = useState<"all" | "sale" | "rent">("all");
+  const [minTxt, setMinTxt] = useState("");
+  const [maxTxt, setMaxTxt] = useState("");
   const [loaded, setLoaded] = useState(isNew);
 
   // Preenche ao editar.
@@ -96,11 +99,30 @@ function EditorPage() {
     const t = setTimeout(() => setTerm(search.trim()), 350);
     return () => clearTimeout(t);
   }, [search]);
+  const toNum = (t: string) => {
+    const n = Number(t.replace(/\D/g, ""));
+    return n > 0 ? n : null;
+  };
+  const [minV, setMinV] = useState<number | null>(null);
+  const [maxV, setMaxV] = useState<number | null>(null);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setMinV(toNum(minTxt));
+      setMaxV(toNum(maxTxt));
+    }, 450);
+    return () => clearTimeout(t);
+  }, [minTxt, maxTxt]);
+  const hasFilter = term.length >= 2 || purpose !== "all" || minV != null || maxV != null;
   const resultsQ = useQuery({
-    queryKey: ["proposalSearch", term],
-    queryFn: () => searchFn({ data: { q: term } }),
-    enabled: term.length >= 2,
+    queryKey: ["proposalSearch", term, purpose, minV, maxV],
+    queryFn: () => searchFn({ data: { q: term, purpose, min: minV, max: maxV } }),
+    enabled: hasFilter,
   });
+  const priceFor = (p: ProposalPropertyHit) => {
+    if (purpose === "rent" && p.price_rent) return `R$ ${Number(p.price_rent).toLocaleString("pt-BR")}/mês`;
+    if (purpose === "sale" && p.price_sale) return `R$ ${Number(p.price_sale).toLocaleString("pt-BR")}`;
+    return listingPrices(p.price_sale, p.price_rent, "", p.purpose).primary;
+  };
 
   const save = useMutation({
     mutationFn: () =>
@@ -119,6 +141,11 @@ function EditorPage() {
   const add = (p: ProposalPropertyHit) => {
     if (items.some((i) => i.property.id === p.id) || items.length >= PROPOSAL_MAX_ITEMS) return;
     setItems([...items, { property: p, broker_note: "" }]);
+  };
+  const addAll = () => {
+    const room = PROPOSAL_MAX_ITEMS - items.length;
+    const fresh = (resultsQ.data ?? []).filter((p) => !items.some((i) => i.property.id === p.id)).slice(0, room);
+    setItems([...items, ...fresh.map((p) => ({ property: p, broker_note: "" }))]);
   };
   const move = (idx: number, dir: -1 | 1) => {
     const j = idx + dir;
@@ -254,12 +281,41 @@ function EditorPage() {
           {/* Coluna 2: busca */}
           <section>
             <h2 className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-4">2. Escolher imóveis</h2>
+            <div className="flex mb-3 border border-ink/15 w-fit">
+              {([["all", "Todos"], ["sale", "Venda"], ["rent", "Aluguel"]] as const).map(([v, label]) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setPurpose(v)}
+                  className={`px-4 py-2 text-[11px] uppercase tracking-widest ${purpose === v ? "bg-ink text-canvas" : "hover:bg-ink/5"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Código (AP07146), condomínio ou bairro"
               className={input}
             />
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <input inputMode="numeric" value={minTxt} onChange={(e) => setMinTxt(e.target.value)} placeholder="Valor a partir de (R$)" className={input} />
+              <input inputMode="numeric" value={maxTxt} onChange={(e) => setMaxTxt(e.target.value)} placeholder="Valor até (R$, opcional)" className={input} />
+            </div>
+            {(resultsQ.data?.length ?? 0) > 0 && (
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-xs text-muted-foreground">{resultsQ.data!.length >= 40 ? "40+ imóveis (refine a busca)" : `${resultsQ.data!.length} imóveis`}</span>
+                <button
+                  type="button"
+                  onClick={addAll}
+                  disabled={items.length >= PROPOSAL_MAX_ITEMS}
+                  className="bg-[#F2DA00] text-[#0D0D0D] px-3 py-1.5 text-[11px] uppercase tracking-widest font-medium disabled:opacity-40"
+                >
+                  Adicionar todos{items.length > 0 || (resultsQ.data?.length ?? 0) > PROPOSAL_MAX_ITEMS ? ` (até ${PROPOSAL_MAX_ITEMS - items.length})` : ""}
+                </button>
+              </div>
+            )}
             <div className="mt-3 space-y-2 max-h-[70vh] overflow-y-auto">
               {resultsQ.isFetching && <p className="text-xs text-muted-foreground">Buscando…</p>}
               {resultsQ.error && <p className="text-xs text-red-600">{(resultsQ.error as Error).message}</p>}
@@ -272,7 +328,7 @@ function EditorPage() {
                     <div className="flex-1 min-w-0 text-xs">
                       <div className="font-medium text-ink truncate">{p.title}</div>
                       <div className="text-muted-foreground truncate">
-                        Cód. {p.internal_code} · {listingPrices(p.price_sale, p.price_rent, "", p.purpose).primary}
+                        Cód. {p.internal_code} · {priceFor(p)}
                         {facts(p) ? ` · ${facts(p)}` : ""}
                       </div>
                     </div>
@@ -287,7 +343,8 @@ function EditorPage() {
                   </div>
                 );
               })}
-              {term.length >= 2 && resultsQ.isSuccess && resultsQ.data.length === 0 && (
+              {!hasFilter && <p className="text-xs text-muted-foreground">Escolha Venda ou Aluguel, digite um código/condomínio ou um valor.</p>}
+              {hasFilter && resultsQ.isSuccess && resultsQ.data.length === 0 && (
                 <p className="text-xs text-muted-foreground">Nenhum imóvel ativo encontrado.</p>
               )}
             </div>
