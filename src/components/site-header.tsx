@@ -2,11 +2,10 @@ import { useInstallPrompt } from "@/components/pwa-prompts";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Phone, MessageCircle, Search, Menu, X } from "lucide-react";
-import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
+import { LOGO_URL } from "@/lib/brand";
 import { LISTING_NAV, LISTING_GROUPS } from "@/lib/listing-pages-nav";
 
 const NAV = [
-  { label: "Home", to: "/" },
   { label: "Imóveis", to: "/imoveis" },
   { label: "Alphaville", to: "/alphaville" },
   { label: "Bairros", to: "/bairros" },
@@ -48,11 +47,11 @@ export function SiteHeader() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 lg:h-20 grid grid-cols-[minmax(0,1fr)_auto] lg:flex items-center justify-between gap-4 lg:gap-6">
           <Link to="/" aria-label="S.A Imóveis Alphaville — Início" className="flex min-w-0 items-center gap-3 shrink-0">
             <img
-              src={logoAsset.url}
+              src={LOGO_URL}
               alt="S.A Imóveis Alphaville"
-              width={180}
-              height={48}
-              className="h-9 lg:h-11 w-auto"
+              width={100}
+              height={49}
+              className="h-10 lg:h-12 w-auto"
               loading="eager"
               decoding="async"
               fetchPriority="high"

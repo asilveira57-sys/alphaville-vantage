@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
 import { FileText, Home, LogOut, Plus, Users } from "lucide-react";
-import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
+import { LOGO_URL } from "@/lib/brand";
 import { supabase } from "@/integrations/supabase/client";
 import { getStaffSession } from "@/lib/corretor.functions";
 import { SessionCtx, type CorretorSession } from "@/components/corretor/session";
@@ -88,7 +88,7 @@ function CorretorLayout() {
 function Splash({ text }: { text?: string }) {
   return (
     <div className="min-h-screen bg-[#0D0D0D] flex flex-col items-center justify-center gap-6 px-6 text-center">
-      <img src={logoAsset.url} alt="S.A Imóveis" className="h-12 w-auto" />
+      <img src={LOGO_URL} alt="S.A Imóveis" className="h-12 w-auto" />
       <p className="text-xs uppercase tracking-[0.25em] text-white/50">{text ?? "Carregando…"}</p>
     </div>
   );
@@ -97,7 +97,7 @@ function Splash({ text }: { text?: string }) {
 function NoAccess() {
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col items-center justify-center gap-5 px-6 text-center">
-      <img src={logoAsset.url} alt="S.A Imóveis" className="h-12 w-auto" />
+      <img src={LOGO_URL} alt="S.A Imóveis" className="h-12 w-auto" />
       <h1 className="font-serif text-2xl">Sem acesso ao app do corretor</h1>
       <p className="text-sm text-white/60 max-w-xs">Peça ao administrador para liberar seu acesso em Equipe e acessos.</p>
       <button type="button" onClick={() => supabase.auth.signOut()} className="border border-white/30 px-5 py-3 text-xs uppercase tracking-widest">
@@ -124,7 +124,7 @@ function Login() {
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col justify-center px-6">
       <div className="max-w-sm w-full mx-auto">
-        <img src={logoAsset.url} alt="S.A Imóveis Alphaville" className="h-12 w-auto mb-8" />
+        <img src={LOGO_URL} alt="S.A Imóveis Alphaville" className="h-12 w-auto mb-8" />
         <p className="text-[10px] uppercase tracking-[0.3em] text-[#F2DA00] mb-2">App do corretor</p>
         <h1 className="font-serif text-3xl mb-8">Entrar</h1>
         <form onSubmit={submit} className="space-y-3">
@@ -162,7 +162,7 @@ function Shell({ session, children }: { session: Session; children: React.ReactN
       <header className="sticky top-0 z-40 bg-[#0D0D0D] text-white" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="h-14 px-4 flex items-center justify-between">
           <Link to="/corretor" className="flex items-center gap-2">
-            <img src={logoAsset.url} alt="S.A" className="h-8 w-auto" />
+            <img src={LOGO_URL} alt="S.A" className="h-8 w-auto" />
             <span className="text-[10px] uppercase tracking-[0.25em] text-[#F2DA00]">Corretor</span>
           </Link>
           <div className="flex items-center gap-3">

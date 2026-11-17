@@ -23,3 +23,6 @@ export const hasCreci = () => BRAND.creci.trim().length > 0;
 
 /** Versão do termo de adesão do parceiro. Suba a versão a cada alteração do texto. */
 export const PARTNER_AGREEMENT_VERSION = "parceiros-1.0";
+
+/** Logo vetorial (SVG) — nítido em qualquer tamanho/tela. Proporção 631 × 308. */
+export const LOGO_URL = "/brand/logo-sa-imoveis-amarela.svg";

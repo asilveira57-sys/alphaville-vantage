@@ -3,7 +3,7 @@ import { RADAR_PAGES } from "@/lib/radar-pages";
 import { interestLabel } from "@/lib/radar-config";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Phone, MessageCircle, Mail, MapPin } from "lucide-react";
-import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
+import { LOGO_URL } from "@/lib/brand";
 
 function FooterGroup({
   title,
@@ -50,9 +50,9 @@ export function SiteFooter() {
           <div className="md:col-span-1">
             <Link to="/" className="inline-block mb-6">
               <img
-                src={logoAsset.url}
+                src={LOGO_URL}
                 alt="S.A Imóveis Alphaville"
-                width={200}
+                width={115}
                 height={56}
                 loading="lazy"
                 decoding="async"

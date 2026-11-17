@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { LayoutGrid, MessageCircle, Table2 } from "lucide-react";
-import logoAsset from "@/assets/logo-sa-imoveis-amarela.png.asset.json";
+import { LOGO_URL } from "@/lib/brand";
 import { supabase } from "@/integrations/supabase/client";
 import { listingCode } from "@/lib/property-listing";
 import { fichaPrices, fichaRows, iptuMonthly, mainArea, placeLine, shortTitle } from "@/lib/property-ficha";
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/proposta/$token")({
   }),
   notFoundComponent: () => (
     <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col items-center justify-center px-6 text-center">
-      <img src={logoAsset.url} alt="S.A Imóveis Alphaville" className="h-10 w-auto mb-10" />
+      <img src={LOGO_URL} alt="S.A Imóveis Alphaville" className="h-10 w-auto mb-10" />
       <h1 className="font-serif text-3xl mb-3">Proposta não encontrada</h1>
       <p className="text-sm text-white/60 mb-8">O link pode estar incompleto. Fale com a nossa equipe.</p>
       <a href="https://wa.me/5511995515053" className="inline-flex items-center gap-2 bg-[#F2DA00] text-[#0D0D0D] px-6 py-3 text-xs uppercase tracking-widest font-semibold">
@@ -82,7 +82,7 @@ function ProposalPage() {
       <aside className="relative bg-[#0D0D0D] text-white lg:sticky lg:top-0 lg:h-screen overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 55% 75%, rgba(242,218,0,0.18), transparent 60%)` }} />
         <div className="relative z-10 px-6 pt-6 flex items-center justify-between">
-          <img src={logoAsset.url} alt="S.A Imóveis Alphaville" className="h-9 w-auto" />
+          <img src={LOGO_URL} alt="S.A Imóveis Alphaville" className="h-9 w-auto" />
           <span className="text-[10px] uppercase tracking-[0.2em] text-white/50">CRECI 26075-J</span>
         </div>
 
