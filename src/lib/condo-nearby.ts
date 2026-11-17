@@ -81,7 +81,7 @@ export async function computeNearby(lat: number, lng: number, pois: Poi[]): Prom
       .map((p) => ({ ...p, d: hav(O, [p.lat, p.lon]) }))
       .filter((p) => p.d <= 8)
       .sort((a, b) => a.d * a.boost - b.d * b.boost)
-      .forEach((p) => { const k = p.name.toLowerCase(); if (!seen.has(k) && seen.size < PICK[cat] + 3) { seen.add(k); cands.push(p); } });
+      .forEach((p) => { const k = p.name.normalize("NFD").replace(/[\u0300-\u036f\s]/g, "").toLowerCase(); if (!seen.has(k) && seen.size < PICK[cat] + 3) { seen.add(k); cands.push(p); } });
   });
   if (!cands.length) return [];
   const coords = [[lng, lat], ...cands.map((c) => [c.lon, c.lat])].map((c) => c.join(",")).join(";");
