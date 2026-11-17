@@ -7,6 +7,7 @@ import { EditorialContent } from "@/components/editorial-content";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { getListingPage } from "@/lib/listing-pages.functions";
 import { EDITORIAL_PUBLISHER } from "@/lib/editorial-topic-properties";
+import { ListingSelections } from "@/components/listing-pages/listing-selections";
 
 const pageQO = (slug: string) => queryOptions({
   queryKey: ["listing-page", slug],
@@ -17,7 +18,10 @@ const brl = (n: number | null | undefined) =>
   n == null ? "—" : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(n);
 const brlShort = (n: number | null | undefined) => {
   if (n == null) return "—";
-  if (n >= 1_000_000) return `R$ ${(n / 1_000_000).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} milhões`;
+  if (n >= 1_000_000) {
+    const v = n / 1_000_000;
+    return `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} ${v < 2 ? "milhão" : "milhões"}`;
+  }
   if (n >= 10_000) return `R$ ${Math.round(n / 1000).toLocaleString("pt-BR")} mil`;
   return brl(n);
 };
@@ -254,6 +258,8 @@ function ListingPage() {
           </div>
         </section>
       )}
+
+      <ListingSelections title="Outras seleções de imóveis" />
 
       <InstitutionalBlock />
     </SiteLayout>

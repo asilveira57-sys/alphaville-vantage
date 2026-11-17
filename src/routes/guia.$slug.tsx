@@ -4,6 +4,7 @@ import { getRedirectFor } from "@/lib/seo.functions";
 import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
+import { ListingSelections } from "@/components/listing-pages/listing-selections";
 import { EditorialContent } from "@/components/editorial-content";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
@@ -217,6 +218,8 @@ function GuiaPage() {
           </div>
         </section>
       )}
+
+      <ListingSelections title="Imóveis em Alphaville por perfil" />
 
       <InstitutionalBlock />
     </SiteLayout>

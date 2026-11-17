@@ -3,6 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site-layout";
 import { EditorialContent } from "@/components/editorial-content";
 import { InstitutionalBlock } from "@/components/section-page";
+import { ListingSelections } from "@/components/listing-pages/listing-selections";
 import { PostHelpBlock } from "@/components/post-help-block";
 import { ResolvedCta } from "@/components/resolved-cta";
 import { resolveImage } from "@/lib/image-fallbacks";
@@ -282,6 +283,8 @@ function PostPage() {
           </div>
         </section>
       )}
+
+      <ListingSelections title="Imóveis em Alphaville por perfil" />
 
       <InstitutionalBlock />
     </SiteLayout>

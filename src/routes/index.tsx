@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/site";
+import { ListingSelections } from "@/components/listing-pages/listing-selections";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
@@ -251,6 +252,9 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* =============== SELEÇÕES VIVAS DE IMÓVEIS =============== */}
+      <ListingSelections />
 
       {/* =============== VITRINE DE OPORTUNIDADES =============== */}
       <div className="pt-6 lg:pt-12">
