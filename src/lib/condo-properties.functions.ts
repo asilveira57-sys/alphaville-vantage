@@ -28,6 +28,7 @@ const SELECT =
   "id,slug,title,images,purpose,property_type,city,neighborhood,region,condominium_name,internal_code,bedrooms,parking,parking_covered,parking_uncovered,area_useful,area_built,area_total,price_sale,price_rent,status";
 
 type Row = Record<string, unknown>;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
@@ -108,13 +109,14 @@ export const listCondoProperties = createServerFn({ method: "GET" })
     let condominiumName: string | null = null;
     const auto: Row[] = [];
 
-    // Filtro por nomes de condomínio definidos no admin
+    // Filtro por nomes de condomínio definidos no admin. Um termo que é UUID vale como id de condomínio:
+    // assim a página de um complexo (ex.: Gramercy Park) lista os imóveis de todos os prédios dele.
     if (data.condoTerms.length) {
       for (const term of data.condoTerms.slice(0, 20)) {
         const rows = await fetchAllRows<Row>((from, to) => sb
           .from("properties")
           .select(SELECT)
-          .eq("condominium_name", term)
+          .eq(UUID_RE.test(term) ? "condominium_id" : "condominium_name", term)
           .eq("status", "active")
           .order("listing_sale_group", { ascending: true }).order("listing_price", { ascending: true, nullsFirst: false }).order("id", { ascending: true })
           .range(from, to));
