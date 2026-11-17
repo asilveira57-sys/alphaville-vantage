@@ -11,6 +11,9 @@ import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-
 import { CondoMarketStats } from "@/components/condominios/condo-market-stats";
 import { getListingLinksForCondo } from "@/lib/listing-pages.functions";
 import { ResolvedCta } from "@/components/resolved-cta";
+import { getCondoDetails, type CondoDetailsDTO } from "@/lib/condo-details.functions";
+import { CondoFacts, CondoAmenities, CondoGallery, CondoMap, CondoNearbyTable, CondoFaqBlock, CondoToc, mapQuery, buildCondoFaq } from "@/components/condominios/condo-details";
+import { resized } from "@/lib/img-resize";
 
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 import { listCondoProperties } from "@/lib/condo-properties.functions";
@@ -33,6 +36,10 @@ const linksQO = (condominiumId: string | null) => queryOptions({
   queryKey: ["condominio", "listing-links", condominiumId],
   queryFn: () => getListingLinksForCondo({ data: { condominiumId } }),
 });
+const detailsQO = (condominiumId: string | null) => queryOptions({
+  queryKey: ["condominio", "details", condominiumId],
+  queryFn: () => getCondoDetails({ data: { id: condominiumId } }),
+});
 const propsArgsFrom = (page: Record<string, unknown> | null | undefined): PropsArgs => ({
   condominiumId: (page?.["related_condominium"] as string | null) ?? null,
   condoTerms: (page?.["properties_condo_terms"] as string[] | null) ?? [],
@@ -51,9 +58,11 @@ export const Route = createFileRoute("/condominios/$slug")({
       throw notFound();
     }
     await context.queryClient.ensureQueryData(relatedQO(params.slug));
-    await context.queryClient.ensureQueryData(propsQO(params.slug, propsArgsFrom(page as never)));
+    const propsLoaded = await context.queryClient.ensureQueryData(propsQO(params.slug, propsArgsFrom(page as never)));
     await context.queryClient.ensureQueryData(linksQO(propsArgsFrom(page as never).condominiumId)).catch(() => []);
-    return { page };
+    const details = await context.queryClient.ensureQueryData(detailsQO(propsArgsFrom(page as never).condominiumId)).catch(() => null);
+    const faq = buildCondoFaq(details, propsLoaded.items, page.title);
+    return { page, details, faq };
   },
 
   head: ({ params, loaderData }) => {
@@ -63,7 +72,10 @@ export const Route = createFileRoute("/condominios/$slug")({
     const title = p.meta_title ?? `${p.title} — S.A Imóveis Alphaville`;
     const description = p.meta_description ?? p.excerpt ?? "";
     // Same photo order as the cards: guide photo → condominium photo → latest active property photo.
-    const image = absoluteImageUrl(firstRealImage(p.og_image, largeVariant(p.card_image)), SITE_URL) ?? undefined;
+    const d = (loaderData as { details?: CondoDetailsDTO | null } | undefined)?.details ?? null;
+    const faqAll = (loaderData as { faq?: Array<{ question: string; answer: string }> } | undefined)?.faq ?? [];
+    const galleryImg = d?.gallery?.[0]?.url ? resized(d.gallery[0].url, 1200) : null;
+    const image = absoluteImageUrl(firstRealImage(p.og_image, galleryImg, largeVariant(p.card_image)), SITE_URL) ?? undefined;
     return {
       meta: [
         { title },
@@ -76,18 +88,54 @@ export const Route = createFileRoute("/condominios/$slug")({
         { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
       ],
       links: [{ rel: "canonical", href: p.canonical_url || url }],
-      scripts: [{
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": p.schema_type ?? "Place",
-          name: p.title,
-          description: p.excerpt ?? undefined,
-          image: image ?? undefined,
-          url,
-          ...(p.related_neighborhood ? { address: { "@type": "PostalAddress", addressLocality: p.related_neighborhood } } : {}),
-        }),
-      }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": d ? "ApartmentComplex" : (p.schema_type ?? "Place"),
+            ...(d?.parent ? { containedInPlace: { "@type": "Place", name: d.parent } } : {}),
+            name: d?.official_name || p.title,
+            alternateName: d?.official_name && d.official_name !== p.title ? p.title : undefined,
+            description: description || undefined,
+            image: d?.gallery?.length ? d.gallery.slice(0, 6).map((g) => resized(g.url, 1200)) : (image ?? undefined),
+            url,
+            address: {
+              "@type": "PostalAddress",
+              ...(d?.address ? { streetAddress: d.address } : {}),
+              ...(p.related_neighborhood ? { addressLocality: p.related_neighborhood } : {}),
+              ...(d?.postal_code ? { postalCode: d.postal_code } : {}),
+              addressRegion: "SP",
+              addressCountry: "BR",
+            },
+            ...(d?.lat != null && d?.lng != null ? { geo: { "@type": "GeoCoordinates", latitude: d.lat, longitude: d.lng } } : {}),
+            ...(d?.amenities?.length ? { amenityFeature: d.amenities.map((a) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })) } : {}),
+            ...(d?.units_count ? { numberOfAccommodationUnits: d.units_count } : {}),
+            ...(d?.year_built ? { yearBuilt: d.year_built } : {}),
+            ...(d ? { hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery(d))}` } : {}),
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Início", item: SITE_URL },
+              { "@type": "ListItem", position: 2, name: "Condomínios", item: `${SITE_URL}/condominios` },
+              { "@type": "ListItem", position: 3, name: p.title, item: url },
+            ],
+          }),
+        },
+        ...(faqAll.length ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqAll.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
+          }),
+        }] : []),
+      ],
     };
   },
   component: CondoPage,
@@ -118,6 +166,9 @@ function CondoPage() {
   const { data: related } = useSuspenseQuery(relatedQO(slug));
   const { data: propsData } = useSuspenseQuery(propsQO(slug, propsArgsFrom(page as never)));
   const { data: listingLinks } = useSuspenseQuery(linksQO(propsArgsFrom(page as never).condominiumId));
+  const { data: details } = useSuspenseQuery(detailsQO(propsArgsFrom(page as never).condominiumId));
+  const city = propsData.items.find((i) => i.city)?.city ?? null;
+  const parentName = details?.parent ?? null;
   if (!page) return null;
   const blockEnabled = (page as { properties_block_enabled?: boolean }).properties_block_enabled !== false;
   const blockTitle =
@@ -141,14 +192,17 @@ function CondoPage() {
               Condomínio · {page.related_neighborhood}
             </p>
           )}
-          <h1 className="font-serif text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-balance max-w-[22ch]">{page.title}</h1>
+          <h1 className="font-serif text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-balance max-w-[22ch]">{details?.official_name || page.title}</h1>
           {page.excerpt && (
             <p className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-[60ch] text-pretty">{page.excerpt}</p>
           )}
+          {details && <CondoToc d={details} hasProps={blockEnabled && propsData.items.length > 0} />}
         </div>
       </section>
 
-      {page.card_image && (
+      {details?.gallery.length ? (
+        <CondoGallery d={details} />
+      ) : page.card_image && (
         <section className="px-6 py-12 bg-ink/[0.02]">
           <div className="max-w-5xl mx-auto">
             <img width={1200} height={675} decoding="async" src={largeVariant(page.card_image) ?? page.card_image} alt={page.title} className="w-full h-auto" loading="lazy" />
@@ -162,11 +216,17 @@ function CondoPage() {
         </div>
       </section>
 
+      {details && <CondoFacts d={details} items={propsData.items} neighborhood={page.related_neighborhood} city={city} parentName={parentName} />}
+      {details && <CondoAmenities d={details} />}
+      {details && <CondoMap d={details} city={city} />}
+      {details && <CondoNearbyTable d={details} />}
+
       {blockEnabled && (
         <CondoMarketStats name={page.title} items={propsData.items} links={listingLinks} />
       )}
 
       {blockEnabled && (
+        <div id="imoveis" className="scroll-mt-28">
         <CondoPropertiesBlock
           title={blockTitle}
           condominiumName={propsData.condominiumName ?? page.title}
@@ -174,7 +234,10 @@ function CondoPage() {
           rentItems={propsData.rentItems}
           saleItems={propsData.saleItems}
         />
+        </div>
       )}
+
+      <CondoFaqBlock items={buildCondoFaq(details, propsData.items, page.title)} />
 
       <ResolvedCta
         contentType="condominio"
