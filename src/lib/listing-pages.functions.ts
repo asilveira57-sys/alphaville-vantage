@@ -151,3 +151,17 @@ export const getListingPage = createServerFn({ method: "GET" })
       generatedAt: new Date().toISOString(),
     };
   });
+
+/** Seleções publicadas que filtram por este condomínio (para o atalho na página do condomínio). */
+export const getListingLinksForCondo = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ condominiumId: z.string().max(64).nullable() }).parse(d))
+  .handler(async ({ data }) => {
+    if (!data.condominiumId || !/^[0-9a-f-]{36}$/i.test(data.condominiumId)) return [] as { slug: string; title: string; purpose: string }[];
+    const { data: rows, error } = await publicClient()
+      .from("listing_pages")
+      .select("slug,title,purpose")
+      .eq("status", "published")
+      .contains("filters", { condominium_ids: [data.condominiumId] });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as { slug: string; title: string; purpose: string }[];
+  });

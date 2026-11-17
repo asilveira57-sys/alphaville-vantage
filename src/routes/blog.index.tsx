@@ -9,11 +9,15 @@ import { PremiumPostCard } from "@/components/premium-cards/post-card";
 import { PremiumRegionCard } from "@/components/premium-cards/region-card";
 import { listPublishedPosts } from "@/lib/blog.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { getPillarCounts } from "@/lib/pillars.functions";
+import { PillarNav } from "@/components/pillar-nav";
 
 const postsQO = queryOptions({
   queryKey: ["publishedPosts"],
   queryFn: () => listPublishedPosts(),
 });
+
+const pillarsQO = queryOptions({ queryKey: ["pillar-counts"], queryFn: () => getPillarCounts() });
 
 const GUIDE_SLUGS = [
   "guia-alphaville",
@@ -73,6 +77,7 @@ export const Route = createFileRoute("/blog/")({
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(postsQO),
     context.queryClient.ensureQueryData(guideImagesQO),
+    context.queryClient.ensureQueryData(pillarsQO),
   ]),
   component: BlogIndex,
   errorComponent: ({ error }) => (
@@ -86,6 +91,7 @@ export const Route = createFileRoute("/blog/")({
 function BlogIndex() {
   const { data: posts } = useSuspenseQuery(postsQO);
   const { data: guideImages } = useSuspenseQuery(guideImagesQO);
+  const { data: pillars } = useSuspenseQuery(pillarsQO);
   const { q, tag, page } = Route.useSearch();
   const navigate = useNavigate({ from: "/blog/" });
 
@@ -144,6 +150,10 @@ function BlogIndex() {
             Mercado imobiliário, arquitetura, história e estilo de vida em Alphaville, Tamboré,
             Barueri e Santana de Parnaíba.
           </p>
+          <div className="mt-10">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-canvas/50 mb-3">Navegue por tema</p>
+            <PillarNav items={pillars} />
+          </div>
         </div>
       </section>
 

@@ -47,10 +47,9 @@ const SECTIONS: { title: string; links: { to: string; label: string }[] }[] = [
       { to: "/blog", label: "Blog" },
       { to: "/mercado-imobiliario", label: "Mercado imobiliário" },
       { to: "/meio-ambiente", label: "Meio ambiente" },
-      { to: "/investimentos", label: "Investimentos" },
-      { to: "/empresas", label: "Empresas" },
-      { to: "/escolas", label: "Escolas" },
-      { to: "/restaurantes", label: "Restaurantes" },
+      { to: "/temas/negocios", label: "Empresas" },
+      { to: "/temas/educacao", label: "Escolas" },
+      { to: "/temas/gastronomia", label: "Restaurantes" },
     ],
   },
   {

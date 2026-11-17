@@ -32,7 +32,7 @@ export const Route = createFileRoute("/meio-ambiente/areas")({
       `}
       related={[
         { label: "Fauna silvestre", to: "/meio-ambiente/fauna" },
-        { label: "Parques e trilhas", to: "/meio-ambiente/lazer" },
+        { label: "Parques e trilhas", to: "/temas/lazer-e-passeios" },
       ]}
     />
   ),

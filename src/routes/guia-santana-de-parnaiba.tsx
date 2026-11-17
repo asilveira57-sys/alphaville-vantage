@@ -8,9 +8,9 @@ const DEFAULTS = {
   title: "Santana de Parnaíba em profundidade",
   lead: "Um dos centros históricos mais bem preservados do estado convive com condomínios de alto padrão e uma cena gastronômica em ascensão. Conheça a cidade que une tradição colonial e sofisticação contemporânea.",
   cards: [
-    { eyebrow: "História", title: "Centro histórico tombado", lead: "Casarões coloniais, igrejas e o legado bandeirante.", to: "/artigos/santana-centro-historico" },
-    { eyebrow: "Condomínios", title: "Novos residenciais", lead: "Onde Santana cresce e por que atrai novos moradores.", to: "/artigos/santana-residenciais" },
-    { eyebrow: "Gastronomia", title: "Restaurantes premiados", lead: "Da culinária tradicional aos novos endereços autorais.", to: "/artigos/santana-restaurantes" },
+    { eyebrow: "História", title: "Centro histórico tombado", lead: "Casarões coloniais, igrejas e o legado bandeirante.", to: "/guia/centro-historico-santana-de-parnaiba" },
+    { eyebrow: "Condomínios", title: "Novos residenciais", lead: "Onde Santana cresce e por que atrai novos moradores.", to: "/blog/condominios-de-santana-de-parnaiba-guia-completo-dos-melhores-residenciais" },
+    { eyebrow: "Gastronomia", title: "Restaurantes premiados", lead: "Da culinária tradicional aos novos endereços autorais.", to: "/blog/santana-restaurantes" },
   ],
 };
 

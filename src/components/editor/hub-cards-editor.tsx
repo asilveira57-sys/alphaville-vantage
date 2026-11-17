@@ -120,7 +120,7 @@ export function HubCardsEditor({
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Página de destino</span>
             <div className="flex flex-wrap items-center gap-2">
               <input
-                placeholder="/artigos/slug"
+                placeholder="/blog/slug"
                 value={c.to}
                 onChange={(e) => patch(i, { to: e.target.value })}
                 className={`${inputCls} flex-1 min-w-[200px] font-mono`}

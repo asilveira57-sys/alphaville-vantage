@@ -8,8 +8,8 @@ import { SITE_URL, SITE_HOST } from "@/lib/site";
 const STATIC_ROUTES = [
   "/", "/blog", "/alphaville", "/guia-alphaville", "/guia-tambore",
   "/guia-barueri", "/guia-santana-de-parnaiba", "/condominios", "/bairros",
-  "/escolas", "/restaurantes", "/empresas", "/mercado-imobiliario",
-  "/historia", "/meio-ambiente", "/investimentos", "/imoveis",
+  "/temas/educacao", "/temas/gastronomia", "/temas/negocios", "/mercado-imobiliario",
+  "/historia", "/meio-ambiente", "/imoveis",
   "/oportunidades", "/oportunidades/metodologia",
   "/quem-somos", "/como-trabalhamos", "/servicos", "/areas-de-atuacao",
   "/perguntas-frequentes", "/contato", "/transparencia",

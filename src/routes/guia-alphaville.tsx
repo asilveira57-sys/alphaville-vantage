@@ -8,12 +8,12 @@ const DEFAULTS = {
   title: "Alphaville em profundidade",
   lead: "O dossiê completo sobre o primeiro grande complexo de condomínios fechados do Brasil: história, residenciais, escolas, gastronomia, lazer e mercado imobiliário.",
   cards: [
-    { eyebrow: "Residenciais", title: "Os primeiros condomínios", lead: "Como surgiram os Residenciais 1, 2 e 3 e por que continuam icônicos.", to: "/artigos/alphaville-residenciais-pioneiros" },
-    { eyebrow: "Educação", title: "Principais escolas particulares", lead: "Da educação infantil ao ensino médio bilíngue.", to: "/artigos/alphaville-escolas" },
-    { eyebrow: "Gastronomia", title: "Restaurantes do Calçadão", lead: "Da culinária autoral às pizzarias clássicas.", to: "/artigos/alphaville-calcadao" },
-    { eyebrow: "Lazer", title: "Parques e clubes", lead: "Estrutura esportiva, áreas verdes e centros sociais.", to: "/artigos/alphaville-parques-clubes" },
-    { eyebrow: "Mobilidade", title: "Castelo Branco e Rodoanel", lead: "Acessos, fluxo e o futuro da mobilidade local.", to: "/artigos/alphaville-mobilidade" },
-    { eyebrow: "Saúde", title: "Hospitais e clínicas de referência", lead: "Rede médica que atende a região.", to: "/artigos/alphaville-saude" },
+    { eyebrow: "Residenciais", title: "Os primeiros condomínios", lead: "Como surgiram os Residenciais 1, 2 e 3 e por que continuam icônicos.", to: "/blog/alphaville-residenciais-pioneiros" },
+    { eyebrow: "Educação", title: "Principais escolas particulares", lead: "Da educação infantil ao ensino médio bilíngue.", to: "/temas/educacao" },
+    { eyebrow: "Gastronomia", title: "Gastronomia da região", lead: "Restaurantes, pizzarias e sushi em Alphaville e arredores.", to: "/temas/gastronomia" },
+    { eyebrow: "Lazer", title: "Parques e clubes", lead: "Estrutura esportiva, áreas verdes e centros sociais.", to: "/blog/alphaville-parques-clubes" },
+    { eyebrow: "Bairros", title: "Onde morar em Alphaville", lead: "Barueri, Santana de Parnaíba e Tamboré: qual lado combina com você.", to: "/guia/os-melhores-bairros-para-morar-em-alphaville-guia-completo-para-escolher-a-regia" },
+    { eyebrow: "Saúde", title: "Hospitais e clínicas de referência", lead: "Rede médica que atende a região.", to: "/blog/hospitais-e-clinicas-de-referencia-em-alphaville" },
   ],
 };
 

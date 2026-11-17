@@ -8,6 +8,8 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
 import { PremiumCondoCard } from "@/components/premium-cards/condo-card";
 import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
+import { CondoMarketStats } from "@/components/condominios/condo-market-stats";
+import { getListingLinksForCondo } from "@/lib/listing-pages.functions";
 import { ResolvedCta } from "@/components/resolved-cta";
 
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
@@ -26,6 +28,10 @@ type PropsArgs = { condominiumId: string | null; condoTerms: string[]; includedI
 const propsQO = (slug: string, a: PropsArgs) => queryOptions({
   queryKey: ["condominio", "properties", slug, a],
   queryFn: () => listCondoProperties({ data: a }),
+});
+const linksQO = (condominiumId: string | null) => queryOptions({
+  queryKey: ["condominio", "listing-links", condominiumId],
+  queryFn: () => getListingLinksForCondo({ data: { condominiumId } }),
 });
 const propsArgsFrom = (page: Record<string, unknown> | null | undefined): PropsArgs => ({
   condominiumId: (page?.["related_condominium"] as string | null) ?? null,
@@ -46,6 +52,7 @@ export const Route = createFileRoute("/condominios/$slug")({
     }
     await context.queryClient.ensureQueryData(relatedQO(params.slug));
     await context.queryClient.ensureQueryData(propsQO(params.slug, propsArgsFrom(page as never)));
+    await context.queryClient.ensureQueryData(linksQO(propsArgsFrom(page as never).condominiumId)).catch(() => []);
     return { page };
   },
 
@@ -110,6 +117,7 @@ function CondoPage() {
   const { data: page } = useSuspenseQuery(pageQO(slug));
   const { data: related } = useSuspenseQuery(relatedQO(slug));
   const { data: propsData } = useSuspenseQuery(propsQO(slug, propsArgsFrom(page as never)));
+  const { data: listingLinks } = useSuspenseQuery(linksQO(propsArgsFrom(page as never).condominiumId));
   if (!page) return null;
   const blockEnabled = (page as { properties_block_enabled?: boolean }).properties_block_enabled !== false;
   const blockTitle =
@@ -153,6 +161,10 @@ function CondoPage() {
           <EditorialContent html={page.html_content} />
         </div>
       </section>
+
+      {blockEnabled && (
+        <CondoMarketStats name={page.title} items={propsData.items} links={listingLinks} />
+      )}
 
       {blockEnabled && (
         <CondoPropertiesBlock

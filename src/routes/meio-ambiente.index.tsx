@@ -23,7 +23,7 @@ export const Route = createFileRoute("/meio-ambiente/")({
         items={[
           { eyebrow: "Fauna", title: "Animais silvestres da região", lead: "Espécies que ainda habitam os fragmentos de Mata Atlântica.", to: "/meio-ambiente/fauna" },
           { eyebrow: "Áreas", title: "Áreas de preservação", lead: "Reservas, APPs e a importância dos cinturões verdes.", to: "/meio-ambiente/areas" },
-          { eyebrow: "Lazer", title: "Parques e trilhas", lead: "Onde se conectar com a natureza na região.", to: "/meio-ambiente/lazer" },
+          { eyebrow: "Lazer", title: "Parques e trilhas", lead: "Onde se conectar com a natureza na região.", to: "/temas/lazer-e-passeios" },
         ]}
       />
     </SectionPage>

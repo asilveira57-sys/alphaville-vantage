@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetch-all";
-import { SYMBOLIC_ARTICLES } from "@/lib/symbolic-articles";
+import { PILLARS } from "@/lib/pillars";
 
 const BASE_URL = `${SITE_URL}`;
 
@@ -32,13 +32,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ruas", changefreq: "weekly", priority: "0.85" },
           { path: "/condominios", changefreq: "weekly", priority: "0.8" },
           { path: "/bairros", changefreq: "weekly", priority: "0.8" },
-          { path: "/escolas", changefreq: "monthly", priority: "0.7" },
-          { path: "/restaurantes", changefreq: "monthly", priority: "0.7" },
-          { path: "/empresas", changefreq: "monthly", priority: "0.7" },
           { path: "/mercado-imobiliario", changefreq: "weekly", priority: "0.8" },
           { path: "/historia", changefreq: "monthly", priority: "0.7" },
           { path: "/meio-ambiente", changefreq: "monthly", priority: "0.6" },
-          { path: "/investimentos", changefreq: "weekly", priority: "0.8" },
           { path: "/imoveis", changefreq: "daily", priority: "0.9" },
           { path: "/simulador-de-financiamento", lastmod: "2026-10-27", changefreq: "monthly", priority: "0.8" },
           { path: "/oportunidades", changefreq: "daily", priority: "0.9" },
@@ -129,13 +125,16 @@ export const Route = createFileRoute("/sitemap.xml")({
         }
 
         // Hubs e subpáginas estáticas que faltavam
-        for (const p of ["/guia", "/meio-ambiente/areas", "/meio-ambiente/fauna", "/meio-ambiente/lazer"]) {
+        for (const p of ["/guia", "/meio-ambiente/areas", "/meio-ambiente/fauna"]) {
           entries.push({ path: p, changefreq: "monthly", priority: "0.6" });
         }
 
-        // Artigos institucionais fixos
-        for (const slug of Object.keys(SYMBOLIC_ARTICLES)) {
-          entries.push({ path: `/artigos/${slug}`, changefreq: "monthly", priority: "0.6" });
+        // Pilares editoriais (/temas/:slug), só os que têm conteúdo publicado
+        {
+          const { data: cats } = await supabase.from("editorial_pages").select("categoria_editorial")
+            .eq("status", "published").in("content_type", ["blog", "guia"]).not("categoria_editorial", "is", null);
+          const used = new Set(((cats ?? []) as { categoria_editorial: string }[]).map((c) => c.categoria_editorial));
+          for (const p of PILLARS) if (used.has(p.label)) entries.push({ path: `/temas/${p.slug}`, changefreq: "weekly", priority: "0.8" });
         }
 
         // Incorporadoras cadastradas (páginas /parceiros/:slug)

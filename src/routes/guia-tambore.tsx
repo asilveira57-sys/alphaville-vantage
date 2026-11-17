@@ -8,9 +8,9 @@ const DEFAULTS = {
   title: "Tamboré em profundidade",
   lead: "Considerada uma das regiões de maior valorização do estado de São Paulo, o Tamboré reúne residenciais com arquitetura contemporânea, clubes privativos e infraestrutura de excelência.",
   cards: [
-    { eyebrow: "Residenciais", title: "Tamboré 1 ao 11", lead: "Diferenças, perfis e dinâmica de preços.", to: "/artigos/tambore-residenciais" },
-    { eyebrow: "Clubes", title: "Estrutura esportiva e social", lead: "Golfe, equitação, tênis e clubes familiares.", to: "/artigos/tambore-clubes" },
-    { eyebrow: "Mercado", title: "Valorização e liquidez", lead: "Por que o Tamboré tem o m² mais disputado.", to: "/artigos/tambore-mercado" },
+    { eyebrow: "Bairro", title: "Morar no Tamboré", lead: "Bairro, condomínios e perfil de quem mora.", to: "/guia/tambore-barueri" },
+    { eyebrow: "Clubes", title: "Estrutura esportiva e social", lead: "Golfe, equitação, tênis e clubes familiares.", to: "/blog/tambore-clubes" },
+    { eyebrow: "Mercado", title: "Valorização e liquidez", lead: "Por que o Tamboré tem o m² mais disputado.", to: "/blog/tambore-mercado" },
   ],
 };
 

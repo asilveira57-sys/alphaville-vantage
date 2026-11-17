@@ -301,8 +301,8 @@ function StreetGuidePage() {
               { to: "/guia-santana-de-parnaiba", label: "Guia de Santana de Parnaíba" },
               { to: "/condominios", label: "Condomínios de Alphaville" },
               { to: "/imoveis", label: "Todos os imóveis" },
-              { to: "/escolas", label: "Escolas próximas" },
-              { to: "/restaurantes", label: "Restaurantes" },
+              { to: "/temas/educacao", label: "Escolas próximas" },
+              { to: "/temas/gastronomia", label: "Restaurantes" },
               { to: "/mercado-imobiliario", label: "Mercado imobiliário" },
             ].map((l) => (
               <Link key={l.to} to={l.to as never} className="border border-ink/10 px-4 py-3 hover:border-ink hover:bg-ink hover:text-canvas transition-colors">
