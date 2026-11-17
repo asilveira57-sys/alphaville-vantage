@@ -98,7 +98,7 @@ export const Route = createFileRoute("/condominios/$slug")({
             name: d?.official_name || p.title,
             alternateName: d?.official_name && d.official_name !== p.title ? p.title : undefined,
             description: description || undefined,
-            image: d?.gallery?.length ? d.gallery.slice(0, 6).map((g) => resized(g.url, 1200)) : (image ?? undefined),
+            image: d?.gallery?.length ? d.gallery.slice(0, 6).map((g) => absoluteImageUrl(resized(g.url, 1200), SITE_URL)) : (image ?? undefined),
             url,
             address: {
               "@type": "PostalAddress",

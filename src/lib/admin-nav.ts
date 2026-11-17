@@ -50,8 +50,9 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     id: "locais",
     label: "Condomínios e locais",
     items: [
-      { label: "Mapa de condomínios (protótipo)", to: "/mapa-prototipo.html", description: "Bolhas por condomínio com os imóveis ativos (dados de 15/11).", static: true },
+      { label: "Mapa de condomínios (protótipo)", to: "/mapa-prototipo.html", description: "Bolhas por condomínio com os imóveis ativos, ao vivo. Use ?ajustar=1 para arrastar.", static: true },
       { label: "Central de condomínios", to: "/admin-condominios", description: "Cadastro oficial, apelidos e guias." },
+      { label: "Ficha dos condomínios", to: "/admin-condominios-ficha", description: "Fotos, lazer, ficha técnica, proximidades e FAQ da página de cada condomínio." },
       { label: "Ruas e avenidas", to: "/admin-ruas", description: "Guia de ruas, mídia e SEO.", match: ["/admin-ruas/"] },
       { label: "Relatórios de ruas", to: "/admin-ruas/relatorios", description: "Cobertura e pendências do guia de ruas." },
       { label: "Empreendimentos", to: "/admin-empreendimentos", description: "Páginas de lançamento: galeria, plantas e tour." },

@@ -18,8 +18,10 @@ const range = (vals: number[], unit = "") => {
 
 export function mapQuery(d: CondoDetailsDTO, city?: string | null) {
   const label = d.official_name || d.name;
-  if (d.address) return `${label}, ${d.address}${city ? ` - ${city}` : ""}, SP`;
+  // Endereço com número → o Google acha o prédio pelo nome. Sem número, o ponto cadastrado é mais preciso que a rua.
+  if (d.address && /\d/.test(d.address)) return `${label}, ${d.address}${city ? ` - ${city}` : ""}, SP`;
   if (d.lat != null && d.lng != null) return `${d.lat},${d.lng}`;
+  if (d.address) return `${label}, ${d.address}${city ? ` - ${city}` : ""}, SP`;
   return `${label}, ${city ?? "Barueri"}, SP`;
 }
 
