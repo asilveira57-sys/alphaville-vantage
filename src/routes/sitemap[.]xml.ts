@@ -109,6 +109,14 @@ export const Route = createFileRoute("/sitemap.xml")({
           if (r.robots_index === false) continue;
           entries.push({ path: `/ruas/${r.slug}`, lastmod: r.updated_at?.slice(0, 10), changefreq: "weekly", priority: "0.75" });
         }
+        // Páginas vivas de imóveis (/imoveis-alphaville/:slug)
+        {
+          const { data: lps } = await supabase.from("listing_pages").select("slug,updated_at").eq("status", "published");
+          for (const lp of (lps ?? []) as { slug: string; updated_at: string | null }[]) {
+            entries.push({ path: `/imoveis-alphaville/${lp.slug}`, lastmod: new Date().toISOString().slice(0, 10), changefreq: "daily", priority: "0.8" });
+          }
+        }
+
         // Parceiros e empreendimentos (páginas fixas)
         for (const p of [
           "/parceiros/mpd",

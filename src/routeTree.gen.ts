@@ -121,6 +121,7 @@ import { Route as OportunidadesMetodologiaRouteImport } from './routes/oportunid
 import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
 import { Route as PropostaTokenRouteImport } from './routes/proposta.$token'
+import { Route as ImoveisAlphavilleSlugRouteImport } from './routes/imoveis-alphaville.$slug'
 import { Route as RadarIndexRouteImport } from './routes/radar.index'
 import { Route as RadarObjetivoRouteImport } from './routes/radar.$objetivo'
 import { Route as RuasIndexRouteImport } from './routes/ruas.index'
@@ -740,6 +741,11 @@ const ParceirosMpdRoute = ParceirosMpdRouteImport.update({
   path: '/parceiros/mpd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImoveisAlphavilleSlugRoute = ImoveisAlphavilleSlugRouteImport.update({
+  id: '/imoveis-alphaville/$slug',
+  path: '/imoveis-alphaville/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PropostaTokenRoute = PropostaTokenRouteImport.update({
   id: '/proposta/$token',
   path: '/proposta/$token',
@@ -1015,6 +1021,7 @@ export interface FileRoutesByFullPath {
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/proposta/$token': typeof PropostaTokenRoute
+  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -1145,6 +1152,7 @@ export interface FileRoutesByTo {
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/proposta/$token': typeof PropostaTokenRoute
+  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros': typeof BairrosIndexRoute
@@ -1290,6 +1298,7 @@ export interface FileRoutesById {
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/proposta/$token': typeof PropostaTokenRoute
+  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
@@ -1435,6 +1444,7 @@ export interface FileRouteTypes {
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/proposta/$token'
+    | '/imoveis-alphaville/$slug'
     | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros/'
@@ -1565,6 +1575,7 @@ export interface FileRouteTypes {
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/proposta/$token'
+    | '/imoveis-alphaville/$slug'
     | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros'
@@ -1709,6 +1720,7 @@ export interface FileRouteTypes {
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/proposta/$token'
+    | '/imoveis-alphaville/$slug'
     | '/radar/$objetivo'
     | '/ruas/$slug'
     | '/bairros/'
@@ -1807,6 +1819,7 @@ export interface RootRouteChildren {
   ParceirosSlugRoute: typeof ParceirosSlugRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   PropostaTokenRoute: typeof PropostaTokenRoute
+  ImoveisAlphavilleSlugRoute: typeof ImoveisAlphavilleSlugRoute
   RadarObjetivoRoute: typeof RadarObjetivoRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
@@ -2603,6 +2616,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceirosMpdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/imoveis-alphaville/$slug': {
+      id: '/imoveis-alphaville/$slug'
+      path: '/imoveis-alphaville/$slug'
+      fullPath: '/imoveis-alphaville/$slug'
+      preLoaderRoute: typeof ImoveisAlphavilleSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/proposta/$token': {
       id: '/proposta/$token'
       path: '/proposta/$token'
@@ -3162,6 +3182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParceirosSlugRoute: ParceirosSlugRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
   PropostaTokenRoute: PropostaTokenRoute,
+  ImoveisAlphavilleSlugRoute: ImoveisAlphavilleSlugRoute,
   RadarObjetivoRoute: RadarObjetivoRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
