@@ -25,6 +25,7 @@ import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as DescadastrarRouteImport } from './routes/descadastrar'
 import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as EscolasRouteImport } from './routes/escolas'
+import { Route as MapaPrototipoRouteImport } from './routes/mapa-prototipo'
 import { Route as GuiaRouteImport } from './routes/guia'
 import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as GuiaBarueriRouteImport } from './routes/guia-barueri'
@@ -231,6 +232,11 @@ const EmpresasRoute = EmpresasRouteImport.update({
 const EscolasRoute = EscolasRouteImport.update({
   id: '/escolas',
   path: '/escolas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaPrototipoRoute = MapaPrototipoRouteImport.update({
+  id: '/mapa-prototipo',
+  path: '/mapa-prototipo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuiaRoute = GuiaRouteImport.update({
@@ -940,6 +946,7 @@ export interface FileRoutesByFullPath {
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
+  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
@@ -1083,6 +1090,7 @@ export interface FileRoutesByTo {
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
+  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
   '/guia-de-ruas': typeof GuiaDeRuasRoute
@@ -1219,6 +1227,7 @@ export interface FileRoutesById {
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
+  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
@@ -1366,6 +1375,7 @@ export interface FileRouteTypes {
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
+    | '/mapa-prototipo'
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
@@ -1509,6 +1519,7 @@ export interface FileRouteTypes {
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
+    | '/mapa-prototipo'
     | '/guia-alphaville'
     | '/guia-barueri'
     | '/guia-de-ruas'
@@ -1644,6 +1655,7 @@ export interface FileRouteTypes {
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
+    | '/mapa-prototipo'
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
@@ -1791,6 +1803,7 @@ export interface RootRouteChildren {
   DescadastrarRoute: typeof DescadastrarRoute
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
+  MapaPrototipoRoute: typeof MapaPrototipoRoute
   GuiaRoute: typeof GuiaRouteWithChildren
   GuiaAlphavilleRoute: typeof GuiaAlphavilleRoute
   GuiaBarueriRoute: typeof GuiaBarueriRoute
@@ -1962,6 +1975,13 @@ declare module '@tanstack/react-router' {
       path: '/escolas'
       fullPath: '/escolas'
       preLoaderRoute: typeof EscolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa-prototipo': {
+      id: '/mapa-prototipo'
+      path: '/mapa-prototipo'
+      fullPath: '/mapa-prototipo'
+      preLoaderRoute: typeof MapaPrototipoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guia': {
@@ -3162,6 +3182,7 @@ const rootRouteChildren: RootRouteChildren = {
   DescadastrarRoute: DescadastrarRoute,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
+  MapaPrototipoRoute: MapaPrototipoRoute,
   GuiaRoute: GuiaRouteWithChildren,
   GuiaAlphavilleRoute: GuiaAlphavilleRoute,
   GuiaBarueriRoute: GuiaBarueriRoute,
