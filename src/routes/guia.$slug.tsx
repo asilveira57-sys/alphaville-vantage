@@ -27,6 +27,25 @@ const relatedQO = (slug: string) => queryOptions({
   queryFn: () => listRelated({ data: { type: "guia", excludeSlug: slug, limit: 3 } }),
 });
 
+type FaqItem = { question: string; answer: string };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped editorial row
+function guiaFaq(p: any): FaqItem[] {
+  return Array.isArray(p?.faq) ? p.faq.filter((f: FaqItem) => f?.question && f?.answer) : [];
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped editorial row
+function guiaFaqScripts(p: any) {
+  const items = guiaFaq(p);
+  if (!items.length) return [];
+  return [{
+    type: "application/ld+json",
+    children: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: items.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
+    }),
+  }];
+}
+
 export const Route = createFileRoute("/guia/$slug")({
   loader: async ({ params, context }) => {
     const page = await context.queryClient.ensureQueryData(pageQO(params.slug));
@@ -58,7 +77,7 @@ export const Route = createFileRoute("/guia/$slug")({
         ...(image ? [{ property: "og:image", content: image }] : []),
       ],
       links: [{ rel: "canonical", href: p.canonical_url || url }],
-      scripts: [{
+      scripts: [...guiaFaqScripts(p), {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
@@ -152,6 +171,25 @@ function GuiaPage() {
           </div>
         )}
       </section>
+
+      {guiaFaq(page).length > 0 && (
+        <section className="px-6 py-16 border-t border-ink/8">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6">Perguntas frequentes</h2>
+            <div className="divide-y divide-ink/10 border-y border-ink/10">
+              {guiaFaq(page).map((f, i) => (
+                <details key={i} className="group py-4">
+                  <summary className="cursor-pointer list-none flex items-start justify-between gap-4 text-ink font-medium">
+                    <span>{f.question}</span>
+                    <span aria-hidden className="text-ink/40 group-open:rotate-45 transition-transform">+</span>
+                  </summary>
+                  <div className="mt-3 text-ink/75 leading-relaxed whitespace-pre-line">{f.answer}</div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {topic && topic.items.length > 0 && (
         <CondoPropertiesBlock
