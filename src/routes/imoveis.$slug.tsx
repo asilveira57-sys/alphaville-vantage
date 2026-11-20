@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/site";
+import { CATEGORY_LABEL, FURNISHING_LABEL, FEATURE_GROUP_LABEL, featureGroup, type FeatureGroup } from "@/lib/property-features";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { getRedirectFor } from "@/lib/seo.functions";
 import { SiteLayout } from "@/components/site-layout";
@@ -213,6 +214,27 @@ function PropertyDetail() {
                 </div>
               </details>
             )}
+            {p.features && p.features.length > 0 && (
+              <div className="mt-10">
+                <h2 className="font-serif text-2xl mb-4">Características</h2>
+                <div className="space-y-4">
+                  {(["lazer", "imovel", "estado"] as FeatureGroup[]).map((g) => {
+                    const list = p.features!.filter((f) => featureGroup(f) === g);
+                    if (!list.length) return null;
+                    return (
+                      <div key={g}>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">{FEATURE_GROUP_LABEL[g]}</p>
+                        <ul className="flex flex-wrap gap-2">
+                          {list.map((f) => (
+                            <li key={f} className="border border-ink/15 px-3 py-1.5 text-sm text-ink">{f}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             {p.source_url && (
               <a
                 href={p.source_url ?? undefined}
@@ -240,6 +262,8 @@ function PropertyDetail() {
               <Row label="Região" value={p.region} />
               <Row label="Dormitórios" value={p.bedrooms} />
               <Row label="Suítes" value={safeSuites(p.bedrooms, p.suites)} />
+              <Row label="Estilo" value={p.category ? CATEGORY_LABEL[p.category] ?? p.category : null} />
+              <Row label="Mobília" value={p.furnishing ? FURNISHING_LABEL[p.furnishing] ?? null : null} />
               <Row label="Banheiros" value={p.bathrooms} />
               <Row label="Lavabos" value={p.lavabos} />
               <Row label="Vagas" value={

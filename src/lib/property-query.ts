@@ -19,16 +19,31 @@ export type ImoveisSearch = {
   sort: string;
   q: string;
   page: number;
+  // "Mais filtros": suítes mínimas, estilo e mobília (OU), características (E). Listas por vírgula.
+  suites: number;
+  estilo: string;
+  mobilia: string;
+  carac: string;
 };
 
 export const IMOVEIS_DEFAULTS: ImoveisSearch = {
   purpose: "", type: "", city: "", neighborhood: "", condo: "",
   bedrooms: 0, parking: 0, priceMin: 0, priceMax: 0, min: 0, max: 0, areaMin: 0,
   sort: "price_asc", q: "", page: 1,
+  suites: 0, estilo: "", mobilia: "", carac: "",
 };
+
+export const listParam = (v: string | null | undefined) =>
+  (v ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+
+/** Quantos filtros do painel "Mais filtros" estão ativos. */
+export function moreFiltersCount(s: Partial<ImoveisSearch>): number {
+  return (s.suites ? 1 : 0) + listParam(s.estilo).length + listParam(s.mobilia).length + listParam(s.carac).length;
+}
 
 export function effectiveSearch(s: ImoveisSearch): ImoveisSearch {
   s = {
+    ...IMOVEIS_DEFAULTS,
     ...s,
     q: appliedQuery(s.q),
     sort: ["recent", "price_asc", "price_desc", "area_desc"].includes(s.sort) ? s.sort : "price_asc",
@@ -82,5 +97,17 @@ export function toRpcArgs(raw: ImoveisSearch, limit: number, offset: number, con
     p_area_min: s.areaMin, p_sort: s.sort, p_phrase: phrase as string | undefined, p_tokens: tokens,
     p_limit: limit, p_offset: offset,
     p_condo_ids: byIds ? condoIds : undefined,
+    ...moreFilterArgs(s),
+  };
+}
+
+/** Argumentos do painel "Mais filtros" (mesmos nomes no banco: search_properties e property_more_facets). */
+export function moreFilterArgs(s: Partial<ImoveisSearch>) {
+  const list = (v: string | undefined) => { const l = listParam(v); return l.length ? l : undefined; };
+  return {
+    p_suites: s.suites || 0,
+    p_categories: list(s.estilo),
+    p_furnishing: list(s.mobilia),
+    p_features: list(s.carac),
   };
 }

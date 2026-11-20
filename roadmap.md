@@ -68,6 +68,14 @@
 - [ ] Gerar fotos leves automaticamente na captura — bloqueado: o servidor do site não processa imagens.
 - [x] Ficha só com as colunas usadas.
 - [ ] Medir PageSpeed depois — depende de publicar.
+# Mais filtros na busca /imoveis (20/11)
+- [x] Banco: features/category/furnishing + feature_slugs (GIN); search_properties e property_more_facets estendidos sem mudar os filtros antigos (total sem filtros igual: 2.424).
+- [x] Sincronização grava etiquetas da API (nulo não apaga, ajuste manual protegido, etiquetas comerciais ocultas).
+- [x] Painel "Mais filtros" (desktop/celular), chips, URL, noindex com características, PDF e compartilhamento com os mesmos filtros.
+- [x] Página do imóvel: Características por grupo, Estilo e Mobília.
+- [ ] Conferir grupos das características com os nomes reais depois da 1ª sincronização.
+- [ ] Mobília: aprovar números (etiqueta × descrição) antes de substituir o furnished antigo.
+
 # Filtros da busca /imoveis (31/10)
 - [x] Valor de/até digitáveis com máscara R$, aplica no blur/Enter, URL ?min=&max= (compat com priceMin/priceMax).
 - [x] Condomínio com seleção múltipla (dropdown + busca + checkbox; mobile tela cheia com Aplicar), match por condominium_id, contagens respeitando outros filtros, URL ?condo=slug1,slug2, compat com nome antigo, noindex com 2+ condomínios.

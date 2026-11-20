@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { findPropertyByCode, type CondoFacet } from "@/lib/property-search.functions";
+import { findPropertyByCode, MORE_FILTER_MIN, type CondoFacet, type MoreFacets } from "@/lib/property-search.functions";
+import { CATEGORY_LABEL, FURNISHING_LABEL, FEATURE_GROUP_LABEL, type FeatureGroup } from "@/lib/property-features";
+import { listParam, moreFiltersCount } from "@/lib/property-query";
 import { appliedQuery, maskBrlInput, parseBrlInput, SEARCH_DELAY_MS } from "@/lib/property-listing";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +18,7 @@ export type FilterOptions = {
   condoOptions?: CondoFacet[];
   priceMax: number;
   isRent: boolean;
+  moreFacets?: MoreFacets;
 };
 
 export type FilterState = {
@@ -34,6 +37,10 @@ export type FilterState = {
   sort: string;
   q: string;
   page: number;
+  suites?: number;
+  estilo?: string;
+  mobilia?: string;
+  carac?: string;
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -210,6 +217,136 @@ function CondoMultiSelect({
   );
 }
 
+// "Mais filtros": suítes, estilo, mobília e características. Painel no desktop,
+// tela cheia no celular. Cada clique já filtra; contagens respeitam os outros filtros.
+function MoreFiltersPanel({
+  facets,
+  state,
+  onChange,
+  onClear,
+}: {
+  facets?: MoreFacets;
+  state: FilterState;
+  onChange: (patch: Partial<FilterState>) => void;
+  onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const n = moreFiltersCount(state);
+  const estilo = listParam(state.estilo);
+  const mobilia = listParam(state.mobilia);
+  const carac = listParam(state.carac);
+  const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]).join(",");
+  const cats = Object.entries(facets?.categories ?? {})
+    .filter(([k, c]) => c >= MORE_FILTER_MIN || estilo.includes(k))
+    .sort((a, b) => b[1] - a[1]);
+  const furn = (["mobiliado", "semi-mobiliado"] as const)
+    .map((k) => [k, facets?.furnishing?.[k] ?? 0] as const)
+    .filter(([k, c]) => c >= MORE_FILTER_MIN || mobilia.includes(k));
+  const groups = (["lazer", "imovel", "estado"] as FeatureGroup[])
+    .map((g) => ({ g, items: (facets?.features ?? []).filter((f) => f.group === g) }))
+    .filter((x) => x.items.length);
+  const pill = (active: boolean) =>
+    `inline-flex items-center gap-1.5 px-3 py-2 text-sm rounded-sm border transition-colors ${
+      active ? "bg-brand-yellow text-brand-dark border-brand-yellow font-semibold" : "border-white/15 text-white hover:border-white/40"
+    }`;
+  const count = (c: number) => <span className={"text-xs opacity-60"}>({c})</span>;
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        className={`${selectCls} text-left flex items-center justify-between gap-2 ${n ? "border-brand-yellow text-brand-yellow" : ""}`}
+      >
+        <span className="truncate">Mais filtros{n ? ` (${n})` : ""}</span>
+        <span aria-hidden>▾</span>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40 md:bg-black/40" onClick={() => setOpen(false)} aria-hidden />
+          <div
+            role="dialog"
+            aria-label="Mais filtros"
+            className="fixed inset-0 z-50 bg-brand-dark flex flex-col md:inset-auto md:right-6 md:top-24 md:w-[720px] md:max-h-[80vh] md:border md:border-white/15 md:rounded-sm md:shadow-2xl"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <p className="font-bold uppercase tracking-widest text-xs">Mais filtros</p>
+              <button type="button" onClick={() => setOpen(false)} aria-label="Fechar" className="px-2 py-1 text-white/70 hover:text-white">✕</button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-4 space-y-6">
+              <fieldset>
+                <legend className="text-[11px] uppercase tracking-widest text-white/60 mb-2">Suítes</legend>
+                <div className="flex flex-wrap gap-2">
+                  {[1, 2, 3, 4].map((k) => {
+                    const c = facets?.suites?.[String(k)] ?? 0;
+                    const active = state.suites === k;
+                    if (c < MORE_FILTER_MIN && !active) return null;
+                    return (
+                      <button key={k} type="button" aria-pressed={active} className={pill(active)} onClick={() => onChange({ suites: active ? 0 : k })}>
+                        {k}+ {count(c)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+              {cats.length > 0 && (
+                <fieldset>
+                  <legend className="text-[11px] uppercase tracking-widest text-white/60 mb-2">Estilo</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {cats.map(([k, c]) => (
+                      <button key={k} type="button" aria-pressed={estilo.includes(k)} className={pill(estilo.includes(k))} onClick={() => onChange({ estilo: toggle(estilo, k) })}>
+                        {CATEGORY_LABEL[k] ?? cap(k)} {count(c)}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
+              {furn.length > 0 && (
+                <fieldset>
+                  <legend className="text-[11px] uppercase tracking-widest text-white/60 mb-2">Mobília</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {furn.map(([k, c]) => (
+                      <button key={k} type="button" aria-pressed={mobilia.includes(k)} className={pill(mobilia.includes(k))} onClick={() => onChange({ mobilia: toggle(mobilia, k) })}>
+                        {FURNISHING_LABEL[k]} {count(c)}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
+              {groups.map(({ g, items }) => (
+                <fieldset key={g}>
+                  <legend className="text-[11px] uppercase tracking-widest text-white/60 mb-2">{FEATURE_GROUP_LABEL[g]}</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {items.map((f) => (
+                      <button key={f.slug} type="button" aria-pressed={carac.includes(f.slug)} className={pill(carac.includes(f.slug))} onClick={() => onChange({ carac: toggle(carac, f.slug) })}>
+                        {f.label} {count(f.n)}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+              {!cats.length && !furn.length && !groups.length && (
+                <p className="text-sm text-white/60">Características, estilo e mobília aparecem aqui conforme os imóveis são atualizados.</p>
+              )}
+            </div>
+            <div className="p-3 border-t border-white/10 flex gap-2">
+              {n > 0 && (
+                <button type="button" onClick={onClear} className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-white/70 border border-white/15 rounded-sm">
+                  Limpar
+                </button>
+              )}
+              <button type="button" onClick={() => setOpen(false)} className="flex-1 bg-brand-yellow text-brand-dark font-bold uppercase tracking-widest text-xs py-3 rounded-sm">
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function PropertyFilters({
   options,
   state,
@@ -278,6 +415,10 @@ export function PropertyFilters({
         sort: "price_asc",
         q: "",
         page: 1,
+        suites: 0,
+        estilo: "",
+        mobilia: "",
+        carac: "",
       },
     });
 
@@ -300,6 +441,16 @@ export function PropertyFilters({
   if (state.priceMin) activeChips.push({ label: `≥ ${brlShort(state.priceMin)}${isRent ? "/mês" : ""}`, clear: () => update({ priceMin: 0, min: 0 }) });
   if (state.priceMax) activeChips.push({ label: `≤ ${brlShort(state.priceMax)}${isRent ? "/mês" : ""}`, clear: () => update({ priceMax: 0, max: 0 }) });
   if (state.areaMin) activeChips.push({ label: `≥ ${state.areaMin} m²`, clear: () => update({ areaMin: 0 }) });
+  if (state.suites) activeChips.push({ label: `${state.suites}+ suítes`, clear: () => update({ suites: 0 }) });
+  const estiloSel = listParam(state.estilo);
+  for (const k of estiloSel) activeChips.push({ label: CATEGORY_LABEL[k] ?? cap(k), clear: () => update({ estilo: estiloSel.filter((x) => x !== k).join(",") }) });
+  const mobSel = listParam(state.mobilia);
+  for (const k of mobSel) activeChips.push({ label: FURNISHING_LABEL[k] ?? cap(k), clear: () => update({ mobilia: mobSel.filter((x) => x !== k).join(",") }) });
+  const caracSel = listParam(state.carac);
+  for (const k of caracSel) {
+    const label = options.moreFacets?.features.find((f) => f.slug === k)?.label ?? cap(k.replace(/-/g, " "));
+    activeChips.push({ label, clear: () => update({ carac: caracSel.filter((x) => x !== k).join(",") }) });
+  }
   if (state.q) activeChips.push({ label: `"${state.q}"`, clear: () => update({ q: "" }) });
 
   return (
@@ -405,8 +556,14 @@ export function PropertyFilters({
               <option key={a} value={a}>{a} m²+</option>
             ))}
           </select>
+          <MoreFiltersPanel
+            facets={options.moreFacets}
+            state={state}
+            onChange={update}
+            onClear={() => update({ suites: 0, estilo: "", mobilia: "", carac: "" })}
+          />
           <input
-            className={`${selectCls} md:col-span-2`}
+            className={selectCls}
             type="search"
             placeholder="Buscar por título, condomínio…"
             value={query}

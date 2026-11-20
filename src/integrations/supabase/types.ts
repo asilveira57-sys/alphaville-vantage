@@ -1944,6 +1944,10 @@ export type Database = {
           external_ref: string | null
           extracted_at: string | null
           furnished: boolean | null
+          category: string | null
+          feature_slugs: string[] | null
+          features: string[] | null
+          furnishing: string | null
           id: string
           images: Json
           in_acervo: boolean
@@ -2029,6 +2033,9 @@ export type Database = {
           external_ref?: string | null
           extracted_at?: string | null
           furnished?: boolean | null
+          category?: string | null
+          features?: string[] | null
+          furnishing?: string | null
           id?: string
           images?: Json
           in_acervo?: boolean
@@ -2114,6 +2121,9 @@ export type Database = {
           external_ref?: string | null
           extracted_at?: string | null
           furnished?: boolean | null
+          category?: string | null
+          features?: string[] | null
+          furnishing?: string | null
           id?: string
           images?: Json
           in_acervo?: boolean

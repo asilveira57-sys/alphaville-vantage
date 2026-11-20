@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { toRpcArgs, effectiveSearch, IMOVEIS_DEFAULTS, type ImoveisSearch } from "./property-query";
+import { featureGroup, featureSlug, type FeatureGroup } from "./property-features";
 import { cityOrder } from "./cities";
 
 export const PAGE_SIZE = 15;
@@ -32,6 +33,10 @@ const searchInput = z.object({
   areaMin: z.number().min(0),
   sort: z.string().max(20), q: z.string().max(200), page: z.number().int().min(1).max(1000),
   limit: z.number().int().min(1).max(60).optional(),
+  suites: z.number().int().min(0).max(10).default(0),
+  estilo: z.string().max(200).default(""),
+  mobilia: z.string().max(60).default(""),
+  carac: z.string().max(600).default(""),
 });
 
 // Central de Condomínios: resolve o parâmetro condo (slugs separados por
@@ -74,7 +79,7 @@ export type SearchCard = {
 };
 
 export const searchProperties = createServerFn({ method: "GET" })
-  .inputValidator((d: ImoveisSearch & { limit?: number }) => searchInput.parse(d))
+  .inputValidator((d: ImoveisSearch & { limit?: number }) => searchInput.parse({ ...IMOVEIS_DEFAULTS, ...d }))
   .handler(async ({ data }) => {
     const limit = data.limit ?? PAGE_SIZE;
     const condoIds = data.condo ? resolveCondoTokens(data.condo, await condoDirectory()) : null;
@@ -166,3 +171,34 @@ export const getSearchFacets = createServerFn({ method: "GET" }).handler(async (
   facetCache = { at: Date.now(), value };
   return value;
 });
+
+// Painel "Mais filtros": contagens de suítes, estilo, mobília e características
+// respeitando todos os outros filtros. Só aparecem opções com 5+ imóveis.
+export const MORE_FILTER_MIN = 5;
+export type MoreFacets = {
+  suites: Record<string, number>;
+  categories: Record<string, number>;
+  furnishing: Record<string, number>;
+  features: { slug: string; label: string; n: number; group: FeatureGroup }[];
+};
+
+export const getMoreFacets = createServerFn({ method: "GET" })
+  .inputValidator((d: Partial<ImoveisSearch>) => searchInput.parse({ ...IMOVEIS_DEFAULTS, ...d, page: 1 }))
+  .handler(async ({ data }): Promise<MoreFacets> => {
+    const condoIds = data.condo ? resolveCondoTokens(data.condo, await condoDirectory()) : null;
+    const a = toRpcArgs(data, 1, 0, condoIds) as Record<string, unknown>;
+    delete a.p_sort; delete a.p_limit; delete a.p_offset;
+    const { data: r, error } = await publicClient().rpc("property_more_facets", a as never);
+    if (error) {
+      console.error("property_more_facets", error);
+      return { suites: {}, categories: {}, furnishing: {}, features: [] };
+    }
+    const f = (r ?? {}) as { suites?: Record<string, number>; categories?: Record<string, number>; furnishing?: Record<string, number>; features?: Record<string, number> };
+    const selected = new Set((data.carac ?? "").split(",").map((t) => t.trim()).filter(Boolean));
+    const features = Object.entries(f.features ?? {})
+      .map(([label, n]) => ({ slug: featureSlug(label), label, n: Number(n), group: featureGroup(label) }))
+      // Marcadas continuam visíveis mesmo com poucas ocorrências, para poder desmarcar.
+      .filter((x) => x.n >= MORE_FILTER_MIN || selected.has(x.slug))
+      .sort((x, y) => y.n - x.n || x.label.localeCompare(y.label, "pt-BR"));
+    return { suites: f.suites ?? {}, categories: f.categories ?? {}, furnishing: f.furnishing ?? {}, features };
+  });

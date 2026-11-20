@@ -6,7 +6,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { PropertyFilters, type FilterOptions } from "@/components/property-filters";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { SaveSearchLead, type PdfProperty } from "@/components/save-search-lead";
-import { searchProperties, getSearchFacets, getCondoFacets, PAGE_SIZE, type SearchCard } from "@/lib/property-search.functions";
+import { searchProperties, getSearchFacets, getCondoFacets, getMoreFacets, PAGE_SIZE, type SearchCard } from "@/lib/property-search.functions";
 import { effectiveSearch, IMOVEIS_DEFAULTS } from "@/lib/property-query";
 import { SITE_URL } from "@/lib/site";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,10 @@ const searchSchema = z.object({
   sort: fallback(z.string(), "price_asc").default("price_asc"),
   q: fallback(z.string(), "").default(""),
   page: fallback(z.number().int(), 1).default(1),
+  suites: fallback(z.number().int(), 0).default(0),
+  estilo: fallback(z.string(), "").default(""),
+  mobilia: fallback(z.string(), "").default(""),
+  carac: fallback(z.string(), "").default(""),
 });
 
 export const Route = createFileRoute("/imoveis/")({
@@ -38,21 +42,26 @@ export const Route = createFileRoute("/imoveis/")({
   search: { middlewares: [stripSearchParams(IMOVEIS_DEFAULTS as never)] },
   loaderDeps: ({ search }) => search,
   loader: async ({ deps }) => {
-    const [result, facets, condoOptions] = await Promise.all([
+    const [result, facets, condoOptions, moreFacets] = await Promise.all([
       searchProperties({ data: { ...deps, page: Math.max(1, deps.page || 1) } }),
       getSearchFacets(),
       getCondoFacets({ data: deps }),
+      getMoreFacets({ data: deps }),
     ]);
     // Combinações de 2+ condomínios não entram no índice; canonical aponta /imoveis.
-    const noindex = (deps.condo ?? "").split(",").filter((t) => t.trim()).length >= 2;
-    return { ...result, facets, condoOptions, noindex, sharePath: selectionSharePath(deps), sharePurpose: effectiveSearch(deps).purpose };
+    // Com características marcadas: noindex e canonical sem elas.
+    const multiCondo = (deps.condo ?? "").split(",").filter((t) => t.trim()).length >= 2;
+    const withCarac = !!(deps.carac ?? "").trim();
+    const noindex = multiCondo || withCarac;
+    const canonicalPath = multiCondo ? "/imoveis" : selectionSharePath({ ...deps, carac: "" });
+    return { ...result, facets, condoOptions, moreFacets, noindex, canonicalPath, sharePath: selectionSharePath(deps), sharePurpose: effectiveSearch(deps).purpose };
   },
   head: ({ loaderData }) => {
     const first = loaderData?.items[0];
     const title = loaderData?.sharePath !== "/imoveis" ? `${loaderData?.total ?? 0} imóveis selecionados — S.A Imóveis Alphaville` : "Imóveis em Alphaville — S.A Imóveis Alphaville";
     const description = first ? `${loaderData?.total} imóveis na seleção. ${listingPrices(first.price_sale, first.price_rent, loaderData?.sharePurpose, first.purpose).primary} · ${propertyShareFacts({ ...first, condominium_name: first.condo_name })}` : "Catálogo de imóveis para venda e locação em Alphaville, Tamboré, Barueri e Santana de Parnaíba.";
     const image = shareCoverImage(first?.image);
-    const url = `${SITE_URL}${loaderData?.noindex ? "/imoveis" : loaderData?.sharePath ?? "/imoveis"}`;
+    const url = `${SITE_URL}${loaderData?.canonicalPath ?? "/imoveis"}`;
     return {
     meta: [
       { title },
@@ -103,10 +112,10 @@ function PropertyCard({ p, eager, filteredPurpose }: { p: SearchCard; eager?: bo
 }
 
 function ImoveisPage() {
-  const { items, total: filteredCount, facets, condoOptions } = Route.useLoaderData();
+  const { items, total: filteredCount, facets, condoOptions, moreFacets } = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const options: FilterOptions = { ...facets, condoOptions };
+  const options: FilterOptions = { ...facets, condoOptions, moreFacets };
   const total = facets.total;
   // min/max são os parâmetros atuais; priceMin/priceMax chegam só de links antigos.
   const filterState = { ...search, priceMin: search.min || search.priceMin, priceMax: search.max || search.priceMax };
