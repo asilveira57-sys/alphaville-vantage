@@ -365,3 +365,15 @@ export const listPublishedStreetSlugsForSitemap = createServerFn({ method: "GET"
         .order("slug").range(f, t),
     );
   });
+
+/** Números ao vivo da rua: imóveis por tipo, preços e condomínios (RPC street_overview). */
+export const getStreetOverview = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
+  .handler(async ({ data }) => {
+    const { data: row, error } = await publicClient().rpc("street_overview" as never, { p_slug: data.slug } as never);
+    if (error) {
+      console.error("[ruas] street_overview", error.message);
+      return null;
+    }
+    return (row ?? null) as unknown as import("./street-overview").StreetOverview | null;
+  });

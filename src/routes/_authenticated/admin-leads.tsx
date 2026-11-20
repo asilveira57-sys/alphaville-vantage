@@ -29,6 +29,7 @@ const SOURCE_STYLE: Record<string, string> = {
   parceiro: "bg-violet-700 text-white",
   empreendimento: "bg-violet-700 text-white",
   proposta: "bg-[#25D366] text-white",
+  ficha: "bg-amber-700 text-white",
 };
 
 const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();

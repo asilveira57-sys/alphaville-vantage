@@ -8,10 +8,13 @@ import { PremiumCard } from "@/components/premium-card";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { EditorialContent } from "@/components/editorial-content";
 import { ResolvedCta } from "@/components/resolved-cta";
+import { GuideDownloadLead } from "@/components/guide-download-lead";
+import { brl, computedStreetFaq, groupNearby, kmLabel, type StreetOverview } from "@/lib/street-overview";
 import {
   getStreetBySlug,
   findPropertiesOnStreet,
   listNearbyStreets,
+  getStreetOverview,
 } from "@/lib/streets.functions";
 
 
@@ -23,6 +26,10 @@ const propsQO = (slug: string) => queryOptions({
   queryKey: ["ruas", "properties", slug],
   queryFn: () => findPropertiesOnStreet({ data: { slug, limit: 12 } }),
 });
+const overviewQO = (slug: string) => queryOptions({
+  queryKey: ["ruas", "overview", slug],
+  queryFn: () => getStreetOverview({ data: { slug } }),
+});
 const nearbyQO = (slug: string) => queryOptions({
   queryKey: ["ruas", "nearby", slug],
   queryFn: () => listNearbyStreets({ data: { slug, limit: 6 } }),
@@ -32,15 +39,20 @@ export const Route = createFileRoute("/ruas/$slug")({
   loader: async ({ params, context }) => {
     const street = await context.queryClient.ensureQueryData(streetQO(params.slug));
     if (!street) throw notFound();
+    const overview = await context.queryClient.ensureQueryData(overviewQO(params.slug));
     void context.queryClient.prefetchQuery(propsQO(params.slug));
     void context.queryClient.prefetchQuery(nearbyQO(params.slug));
-    return { street };
+    return { street, overview };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) {
       return { meta: [{ title: "Rua não encontrada" }, { name: "robots", content: "noindex" }] };
     }
     const s: any = loaderData.street;
+    const faqAll = [
+      ...(Array.isArray(s.faq) ? s.faq : []),
+      ...computedStreetFaq(s.name, (loaderData.overview ?? null) as StreetOverview | null, s.nearby),
+    ];
     const title = s.seo_title || `${s.name} — ${s.neighborhood ?? s.city ?? "Alphaville"}`;
     const desc = s.seo_description || s.short_description || `Imóveis, informações e entorno da ${s.name}${s.neighborhood ? `, em ${s.neighborhood}` : ""}.`;
     const url = `${SITE_URL}/ruas/${params.slug}`;
@@ -78,14 +90,16 @@ export const Route = createFileRoute("/ruas/$slug")({
             ...(s.latitude && s.longitude ? {
               geo: { "@type": "GeoCoordinates", latitude: s.latitude, longitude: s.longitude },
             } : {}),
+            hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.name}, ${s.city ?? ""} - SP`)}`,
+            url,
           }),
         },
-        ...(Array.isArray(s.faq) && s.faq.length > 0 ? [{
+        ...(faqAll.length > 0 ? [{
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: s.faq.map((f: any) => ({
+            mainEntity: faqAll.map((f: any) => ({
               "@type": "Question",
               name: f.question,
               acceptedAnswer: { "@type": "Answer", text: f.answer },
@@ -105,7 +119,7 @@ export const Route = createFileRoute("/ruas/$slug")({
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Rua não encontrada</p>
         <h1 className="mt-4 font-serif text-3xl">Essa rua ainda não foi cadastrada</h1>
         <p className="mt-4 text-sm text-muted-foreground">
-          Volte para o <Link to="/ruas" className="underline">guia de ruas</Link> ou fale com nossa equipe.
+          Volte para o <Link to="/guia-de-ruas" className="underline">guia de ruas</Link> ou fale com nossa equipe.
         </p>
       </section>
     </SiteLayout>
@@ -136,6 +150,10 @@ function StreetDetail() {
   const { data: street } = useSuspenseQuery(streetQO(slug)) as any;
   const { data: propsData } = useSuspenseQuery(propsQO(slug));
   const { data: nearby } = useSuspenseQuery(nearbyQO(slug));
+  const { data: overview } = useSuspenseQuery(overviewQO(slug)) as { data: StreetOverview | null };
+  const nearGroups = groupNearby(street.nearby);
+  const faqAll = [...(Array.isArray(street.faq) ? street.faq : []), ...computedStreetFaq(street.name, overview, street.nearby)];
+  const mapQuery = `${street.name}, ${street.city ?? ""} - SP`;
 
   const local = [street.neighborhood, street.city].filter(Boolean).join(" · ");
   const tierMessage =
@@ -150,7 +168,7 @@ function StreetDetail() {
       title={street.h1 || street.name}
       lead={street.short_description ?? `Informações sobre a ${street.name}, entorno e imóveis disponíveis na região.`}
       breadcrumbs={[
-        { label: "Ruas e Avenidas", to: "/ruas" },
+        { label: "Ruas e Avenidas", to: "/guia-de-ruas" },
         { label: street.name },
       ]}
     >
@@ -159,11 +177,50 @@ function StreetDetail() {
           <figure className="max-w-4xl">
             <img width={800} height={600} decoding="async"
               src={largeVariant(street.card_image) ?? street.card_image}
-              alt={street.hero_image_alt || street.name}
+              alt={street.hero_image_alt || `Imóvel da carteira S.A na ${street.name}${street.city ? `, ${street.city}` : ""}`}
               loading="lazy"
               className="w-full object-cover aspect-[16/9] border border-ink/10"
             />
           </figure>
+        )}
+
+        {overview && overview.total > 0 && (
+          <section>
+            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-2">{street.name} em números hoje</h2>
+            <p className="text-sm text-muted-foreground mb-8">Imóveis ativos na carteira da S.A Imóveis. Os números mudam conforme os imóveis entram e saem.</p>
+            <div className="grid grid-cols-3 gap-px bg-ink/10 border border-ink/10 max-w-3xl">
+              {[["Imóveis", overview.total], ["À venda", overview.venda], ["Para alugar", overview.aluguel]].map(([l, v]) => (
+                <div key={l as string} className="bg-background p-5">
+                  <p className="font-serif text-3xl md:text-4xl text-ink">{v as number}</p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">{l as string}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 overflow-x-auto max-w-4xl">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-ink/15 text-left text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <th className="py-3 pr-4 font-medium">Tipo</th>
+                    <th className="py-3 pr-4 font-medium">Imóveis</th>
+                    <th className="py-3 pr-4 font-medium">Venda a partir de</th>
+                    <th className="py-3 pr-4 font-medium">Venda (mediana)</th>
+                    <th className="py-3 font-medium">Aluguel a partir de</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overview.tipos.map((t) => (
+                    <tr key={t.grupo} className="border-b border-ink/10">
+                      <td className="py-3 pr-4 text-ink">{t.grupo}</td>
+                      <td className="py-3 pr-4">{t.n}</td>
+                      <td className="py-3 pr-4">{brl(t.min_venda) ?? "—"}</td>
+                      <td className="py-3 pr-4">{brl(t.med_venda) ?? "—"}</td>
+                      <td className="py-3">{t.min_aluguel ? `${brl(t.min_aluguel)}/mês` : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         )}
 
         {street.description && (
@@ -176,6 +233,63 @@ function StreetDetail() {
                 {street.description}
               </div>
             )}
+          </section>
+        )}
+
+        {overview && overview.condominios.length > 0 && (
+          <section className="max-w-4xl">
+            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-2">Condomínios e edifícios na {street.name}</h2>
+            <p className="text-sm text-muted-foreground mb-6">Com imóveis ativos na nossa carteira hoje.</p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
+              {overview.condominios.map((c) => (
+                <li key={c.nome} className="flex justify-between gap-4 border-b border-ink/10 py-3 text-sm">
+                  {c.slug ? (
+                    <Link to={"/condominios/$slug" as never} params={{ slug: c.slug } as never} className="text-ink underline-offset-4 hover:underline">{c.nome}</Link>
+                  ) : (
+                    <span className="text-ink">{c.nome}</span>
+                  )}
+                  <span className="text-muted-foreground shrink-0">{c.n} {c.n === 1 ? "imóvel" : "imóveis"}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section className="max-w-5xl">
+          <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6">Mapa da {street.name}</h2>
+          <div className="aspect-[16/9] w-full border border-ink/10 bg-muted">
+            <iframe
+              title={`Mapa da ${street.name}`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`}
+              className="h-full w-full"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
+          <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}`} target="_blank" rel="noopener noreferrer"
+            className="mt-4 inline-block text-[11px] uppercase tracking-[0.2em] underline">Traçar rota →</a>
+        </section>
+
+        {nearGroups.length > 0 && (
+          <section className="max-w-4xl">
+            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-2">O que tem perto da {street.name}</h2>
+            <p className="text-sm text-muted-foreground mb-8">Distâncias de carro pelas ruas a partir dos condomínios da rua, sem trânsito. Fonte: OpenStreetMap.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+              {nearGroups.map((g) => (
+                <div key={g.cat}>
+                  <h3 className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground mb-2">{g.cat}</h3>
+                  <ul>
+                    {g.items.map((i) => (
+                      <li key={i.name} className="flex justify-between gap-4 border-b border-ink/10 py-2 text-sm">
+                        <span className="text-ink">{i.name}</span>
+                        <span className="text-muted-foreground shrink-0">{kmLabel(i)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 
@@ -256,11 +370,27 @@ function StreetDetail() {
           )}
         </section>
 
-        {Array.isArray(street.faq) && street.faq.length > 0 && (
+        <GuideDownloadLead
+          kind="rua"
+          slug={street.slug}
+          title={street.name}
+          heading={`Baixe a ficha da ${street.name}`}
+          text="PDF com os imóveis e preços de hoje, os condomínios da rua e o que tem perto. Gratuito: só pedimos seu contato."
+          fileName={`ficha-${street.slug}-sa-imoveis.pdf`}
+          buildPdf={async (firstName) => {
+            const { buildStreetFichaPdf } = await import("@/lib/street-ficha-pdf");
+            return buildStreetFichaPdf({
+              name: street.name, slug: street.slug, local: [street.neighborhood, street.city].filter(Boolean).join(", "),
+              firstName, overview, nearby: street.nearby, summary: street.short_description,
+            });
+          }}
+        />
+
+        {faqAll.length > 0 && (
           <section className="max-w-3xl">
             <h2 className="font-serif text-2xl md:text-3xl text-ink mb-8">Perguntas frequentes</h2>
             <div className="space-y-6">
-              {street.faq.map((f: any, i: number) => (
+              {faqAll.map((f: any, i: number) => (
                 <div key={i} className="border-t border-ink/10 pt-6">
                   <h3 className="text-base font-medium text-ink">{f.question}</h3>
                   <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.answer}</p>

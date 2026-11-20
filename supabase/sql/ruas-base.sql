@@ -9,3 +9,6 @@
 alter table public.streets add column if not exists nearby jsonb;
 -- 4) streets.nearby = união das proximidades (condominiums.nearby) dos condomínios da rua,
 --    menor km por local, limite por categoria: Escolas 4, Shopping 3, Supermercado 3, Farmácia 2, Hospital 3, Parque 1.
+-- 5) public.street_overview(p_slug) → jsonb {total, venda, aluguel, tipos[], condominios[]} (security definer, anon).
+--    Usada em /ruas/$slug (bloco "em números hoje", condomínios, FAQ calculada) e na ficha em PDF.
+-- 6) Ficha em PDF em troca de contato: leads source 'ficha', source_table 'guide_downloads' (id aleatório), via upsert_lead.
