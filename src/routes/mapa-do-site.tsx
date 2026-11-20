@@ -38,7 +38,6 @@ const SECTIONS: { title: string; links: { to: string; label: string }[] }[] = [
       { to: "/guia-barueri", label: "Guia Barueri" },
       { to: "/guia-santana-de-parnaiba", label: "Guia Santana de Parnaíba" },
       { to: "/guia-de-ruas", label: "Guia de ruas e avenidas" },
-      { to: "/ruas", label: "Índice completo de ruas" },
     ],
   },
   {

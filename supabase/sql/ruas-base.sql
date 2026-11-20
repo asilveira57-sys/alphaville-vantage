@@ -1,0 +1,11 @@
+-- Base das páginas de rua (20/11/2026) — registro do que foi aplicado via SQL.
+-- 1) 16 ruas novas em rascunho (status draft, active true) a partir dos endereços com mais imóveis
+--    e 2+ condomínios: avenida-sagitario, rua-bonnard, avenida-omega, alameda-das-aroeiras, avenida-copacabana,
+--    avenida-cauaxi, alameda-terras-altas, alameda-washington, alameda-america, avenida-andromeda,
+--    avenida-parkinson, avenida-honorio-alvares-penteado, avenida-dos-parques, avenida-piraiba, avenida-delmar, alameda-mamore.
+--    latitude/longitude = mediana das coordenadas dos condomínios dos imóveis na rua.
+-- 2) match_property_streets() reexecutado para todos os imóveis ativos (o trigger trg_properties_rematch_street mantém).
+-- 3) latitude/longitude das ruas antigas preenchidas pela mesma mediana (Via Parque segue sem: 0 imóveis).
+alter table public.streets add column if not exists nearby jsonb;
+-- 4) streets.nearby = união das proximidades (condominiums.nearby) dos condomínios da rua,
+--    menor km por local, limite por categoria: Escolas 4, Shopping 3, Supermercado 3, Farmácia 2, Hospital 3, Parque 1.

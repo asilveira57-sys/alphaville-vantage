@@ -94,7 +94,7 @@ function GuiaIndex() {
             Encontre imóveis por endereço — ruas, alamedas e avenidas de Alphaville, Tamboré, Barueri e Santana de Parnaíba.
           </p>
         </div>
-        <Link to="/ruas" className="text-[11px] uppercase tracking-[0.2em] hover:underline">Abrir guia de ruas →</Link>
+        <Link to="/guia-de-ruas" className="text-[11px] uppercase tracking-[0.2em] hover:underline">Abrir guia de ruas →</Link>
       </div>
     </SectionPage>
 

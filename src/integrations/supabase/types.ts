@@ -3104,6 +3104,7 @@ export type Database = {
           manually_reviewed: boolean
           map_embed: string | null
           name: string
+          nearby: Json | null
           nearby_business_centers: Json
           nearby_condominium_ids: string[]
           nearby_hospitals: Json
@@ -3165,6 +3166,7 @@ export type Database = {
           manually_reviewed?: boolean
           map_embed?: string | null
           name: string
+          nearby?: Json | null
           nearby_business_centers?: Json
           nearby_condominium_ids?: string[]
           nearby_hospitals?: Json
@@ -3226,6 +3228,7 @@ export type Database = {
           manually_reviewed?: boolean
           map_embed?: string | null
           name?: string
+          nearby?: Json | null
           nearby_business_centers?: Json
           nearby_condominium_ids?: string[]
           nearby_hospitals?: Json

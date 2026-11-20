@@ -278,8 +278,7 @@ function GuiaDeRuasHub() {
       )}
 
       <div className="mt-20 pt-12 border-t border-ink/10 flex flex-wrap gap-6 text-[11px] uppercase tracking-[0.2em]">
-        <Link to="/ruas" className="hover:underline">Ver índice completo de ruas →</Link>
-        <Link to="/guia-de-ruas-alphaville" className="hover:underline">Guia editorial de Alphaville →</Link>
+        <Link to="/guia-alphaville" className="hover:underline">Guia de Alphaville →</Link>
         <Link to="/imoveis" className="hover:underline">Buscar imóveis →</Link>
       </div>
     </SectionPage>
