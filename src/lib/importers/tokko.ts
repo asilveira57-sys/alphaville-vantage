@@ -1,11 +1,13 @@
 /** Pure API adapter and migration preview. Never writes or changes portal slugs. */
 import { SITE_URL } from '../site';
+import { tokkoExtras } from '../property-features';
 export type TokkoProperty = {
   id: number; reference_code: string; public_url?: string; status?: number;
   type?: { name?: string }; location?: { full_location?: string; name?: string; type?: string };
   operations?: { operation_id?: number; operation_type?: string; prices?: { currency?: string; price?: number }[] }[];
   photos?: { image?: string; original?: string; order?: number; is_front_cover?: boolean }[];
   custom_tags?: { group_name?: string; name?: string }[];
+  tags?: { name?: string; type?: number }[];
   extra_attributes?: { name?: string; value?: string }[];
   development?: { name?: string } | null;
   [key: string]: unknown;
@@ -101,6 +103,8 @@ export function tokkoFacts(p: TokkoProperty, officialUrl: string | null = null) 
     area_built: positive(p.roofed_surface) ?? positive(p.total_surface),
     area_useful: positive(p.private_area) ?? positive(p.livable_area),
     description: htmlToText(p.description_only), descricao_original: htmlToText(p.description_only), images,
+    // Características (tags), estilo (Categoria) e mobília; nulo = API sem o dado, nunca apaga.
+    ...tokkoExtras(p),
   };
 }
 

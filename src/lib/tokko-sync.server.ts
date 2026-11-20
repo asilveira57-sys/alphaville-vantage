@@ -17,7 +17,7 @@ export const PORTAL_COLS =
   "id,slug,status,created_at,internal_code,source_id,source_url,external_ref,manual_overrides,images," +
   "property_type,purpose,price_sale,price_rent,condominium_name,condo_fee,iptu,iptu_period,city,state,neighborhood," +
   "address,bedrooms,suites,bathrooms,lavabos,parking,parking_covered,parking_uncovered,area_total,area_built,area_useful," +
-  "description,descricao_original,review_status,condominium_id,previous_codes,univen_empreendimento,univen_purpose";
+  "description,descricao_original,review_status,condominium_id,previous_codes,univen_empreendimento,univen_purpose,features,category,furnishing";
 
 export type PortalRow = Record<string, unknown> & {
   id: string; slug: string; status: string; created_at: string; internal_code: string | null;
@@ -204,7 +204,7 @@ export async function syncFromTokko(sb: SB, api: TokkoProperty[], opts: SyncOpti
       if (codeChange) { codeChanges.push({ ...codeChange, slug: row.slug }); codeIds.push(row.id); }
       if (factChanged || link.status || codeChange || condoLinked) changedUrls.add(propUrl(row.slug));
     }
-    const changes = Object.keys(patch).filter((k) => k !== "images" && k !== "description" && k !== "descricao_original");
+    const changes = Object.keys(patch).filter((k) => k !== "images" && k !== "description" && k !== "descricao_original" && k !== "features");
     if (changes.length || mainPhotoChanged || conflicts.length) report.push({
       code: row.internal_code, slug: row.slug, new_source_id: a.id,
       changes: changes.map((k) => `${k}: ${JSON.stringify(row[k] ?? null)} → ${JSON.stringify(patch[k])}`).join(" | "),
