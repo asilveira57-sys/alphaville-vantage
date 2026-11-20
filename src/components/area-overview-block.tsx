@@ -77,7 +77,7 @@ export function AreaOverviewBlock({ slug, o }: { slug: string; o: AreaOverview }
 
         {o.ruas.length > 0 && (
           <div>
-            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6">Ruas {onde} com guia no portal</h2>
+            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6">Ruas do bairro com guia no portal</h2>
             <ul className="flex flex-wrap gap-3">
               {o.ruas.map((r) => (
                 <li key={r.slug}>
