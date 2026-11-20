@@ -12,3 +12,8 @@ alter table public.streets add column if not exists nearby jsonb;
 -- 5) public.street_overview(p_slug) → jsonb {total, venda, aluguel, tipos[], condominios[]} (security definer, anon).
 --    Usada em /ruas/$slug (bloco "em números hoje", condomínios, FAQ calculada) e na ficha em PDF.
 -- 6) Ficha em PDF em troca de contato: leads source 'ficha', source_table 'guide_downloads' (id aleatório), via upsert_lead.
+-- 7) Guias de bairro (20/11/2026): editorial_pages.area_filter jsonb {cities[], neighborhoods[], map_query, label, onde}
+--    preenchido em 14 guias; public.area_overview(p_slug) → números, tipos, condomínios (top 30), ruas publicadas,
+--    proximidades agregadas dos condomínios, lat/lng. bairro/cidade dos guias preenchidos (CTA {bairro}).
+--    Via Parque: texto novo com dados do Alexandre (Leroy Merlin, posto, ACM, Hyundai na entrada da Tocantins, Sorvetes Jundiá);
+--    lat/lng e proximidades copiados da Alameda Tocantins (rua sem condomínios).

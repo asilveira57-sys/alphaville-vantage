@@ -42,12 +42,20 @@ export async function buildStreetFichaPdf(opts: {
   name: string; slug: string; local: string; firstName: string;
   overview: StreetOverview | null; nearby: unknown; summary?: string | null;
   assets?: FichaAssets; date?: Date;
+  /** Textos para reaproveitar a ficha em bairros (padrão: rua). */
+  kind?: "rua" | "bairro";
+  urlPath?: string;
+  ruas?: { nome: string; n: number }[];
 }) {
+  const isRua = (opts.kind ?? "rua") === "rua";
+  const T = isRua
+    ? { label: "FICHA DA RUA", link: "Ver a página da rua com fotos, mapa e imóveis  >", nums: "A rua em números hoje", condos: "Condomínios e edifícios na rua", cta: "Quer visitar um imóvel nesta rua?" }
+    : { label: "FICHA DO BAIRRO", link: "Ver o guia completo do bairro no portal  >", nums: "O bairro em números hoje", condos: "Condomínios com imóveis na nossa carteira", cta: "Quer visitar um imóvel neste bairro?" };
   const { jsPDF } = await import("jspdf");
   const a = opts.assets ?? (await loadFichaAssets());
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const W = 210, H = 297, M = 16;
-  const url = `${SITE_URL}/ruas/${opts.slug}`;
+  const url = `${SITE_URL}${opts.urlPath ?? `/ruas/${opts.slug}`}`;
   const hoje = (opts.date ?? new Date()).toLocaleDateString("pt-BR");
   const FOOT = 20; // altura reservada ao rodapé
 
@@ -64,7 +72,7 @@ export async function buildStreetFichaPdf(opts: {
     doc.setTextColor(242, 218, 0);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
-    doc.text("FICHA DA RUA", W - M, 11, { align: "right" });
+    doc.text(T.label, W - M, 11, { align: "right" });
     doc.setTextColor(234, 234, 230);
     doc.setFont("helvetica", "normal");
     doc.text(`Dados de ${hoje}`, W - M, 16, { align: "right" });
@@ -110,7 +118,7 @@ export async function buildStreetFichaPdf(opts: {
   y += 5;
   doc.setTextColor(13, 13, 13);
   doc.setFont("helvetica", "bold");
-  doc.textWithLink("Ver a página da rua com fotos, mapa e imóveis  >", M, y, { url });
+  doc.textWithLink(T.link, M, y, { url });
   y += 9;
 
   if (opts.summary) { para(opts.summary, { size: 10.5, color: [30, 30, 30], indent: 0 }); y += 3; }
@@ -118,7 +126,7 @@ export async function buildStreetFichaPdf(opts: {
   // ---- Números
   const o = opts.overview;
   if (o && o.total > 0) {
-    h2("A rua em números hoje");
+    h2(T.nums);
     need(22);
     const boxW = (W - 2 * M - 8) / 3;
     [["Imóveis", o.total], ["À venda", o.venda], ["Para alugar", o.aluguel]].forEach(([l, v], i) => {
@@ -160,10 +168,16 @@ export async function buildStreetFichaPdf(opts: {
     }
     y += 4;
     if (o.condominios.length) {
-      h2("Condomínios e edifícios na rua");
+      h2(T.condos);
       para(o.condominios.slice(0, 24).map((c) => `${c.nome} (${c.n})`).join("  ·  "));
       y += 2;
     }
+  }
+
+  if (opts.ruas?.length) {
+    h2("Ruas do bairro com guia no portal");
+    para(opts.ruas.slice(0, 20).map((r) => `${r.nome} (${r.n})`).join("  ·  "));
+    y += 2;
   }
 
   // ---- Entorno
@@ -196,7 +210,7 @@ export async function buildStreetFichaPdf(opts: {
       if (col === 1) { y = colBottom + 2; col = 0; } else col = 1;
     }
     if (col === 1) y = colBottom + 2;
-    para("Distâncias de carro pelas ruas, a partir dos condomínios da rua, sem trânsito. Fonte: OpenStreetMap.", { size: 7.5, color: [120, 120, 120], indent: 0 });
+    para("Distâncias de carro pelas ruas, sem trânsito, medidas a partir dos condomínios da região. Fonte: OpenStreetMap.", { size: 7.5, color: [120, 120, 120], indent: 0 });
     y += 4;
   }
 
@@ -208,7 +222,7 @@ export async function buildStreetFichaPdf(opts: {
   doc.setTextColor(242, 218, 0);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text("Quer visitar um imóvel nesta rua?", M + 7, boxTop + 9);
+  doc.text(T.cta, M + 7, boxTop + 9);
   doc.setTextColor(234, 234, 230);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);

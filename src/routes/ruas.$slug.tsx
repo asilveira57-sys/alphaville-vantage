@@ -274,7 +274,7 @@ function StreetDetail() {
         {nearGroups.length > 0 && (
           <section className="max-w-4xl">
             <h2 className="font-serif text-2xl md:text-3xl text-ink mb-2">O que tem perto da {street.name}</h2>
-            <p className="text-sm text-muted-foreground mb-8">Distâncias de carro pelas ruas a partir dos condomínios da rua, sem trânsito. Fonte: OpenStreetMap.</p>
+            <p className="text-sm text-muted-foreground mb-8">Distâncias de carro pelas ruas, sem trânsito, medidas a partir dos condomínios da região. Fonte: OpenStreetMap.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
               {nearGroups.map((g) => (
                 <div key={g.cat}>

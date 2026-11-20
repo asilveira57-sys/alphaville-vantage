@@ -4,7 +4,8 @@ import { Download, FileText, X } from "lucide-react";
 import { submitGuideLead, GUIDE_LEAD_CONSENT } from "@/lib/guide-leads.functions";
 
 /** Bloco "Baixe a ficha": nome + e-mail + WhatsApp viram lead; o PDF é gerado no navegador. */
-export function GuideDownloadLead({ kind, slug, title, heading, text, buildPdf, fileName }: {
+export function GuideDownloadLead({ kind, slug, title, heading, text, buildPdf, fileName, modalTitle }: {
+  modalTitle?: string;
   kind: "rua" | "bairro" | "condominio";
   slug: string;
   title: string;
@@ -70,7 +71,7 @@ export function GuideDownloadLead({ kind, slug, title, heading, text, buildPdf, 
               </>
             ) : (
               <>
-                <h3 className="mt-2 font-serif text-2xl leading-tight">Receba a ficha da {title}</h3>
+                <h3 className="mt-2 font-serif text-2xl leading-tight">{modalTitle ?? `Receba a ficha da ${title}`}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">PDF com imóveis, preços, condomínios e o que tem perto, atualizado hoje.</p>
                 <div className="mt-5 space-y-3">
                   <input className={input} placeholder="Seu nome" autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} maxLength={120} />

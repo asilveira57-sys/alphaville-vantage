@@ -10,6 +10,9 @@ import { ListingSelections } from "@/components/listing-pages/listing-selections
 import { EditorialContent } from "@/components/editorial-content";
 import { getEditorialBySlug, listRelated } from "@/lib/editorial.functions";
 import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
+import { AreaOverviewBlock } from "@/components/area-overview-block";
+import { getAreaOverview } from "@/lib/area-overview.functions";
+import { computedAreaFaq, type AreaOverview } from "@/lib/street-overview";
 import { EDITORIAL_AUTHOR, EDITORIAL_PUBLISHER, topicPropsQO, topicBlockTitle } from "@/lib/editorial-topic-properties";
 
 
@@ -30,14 +33,21 @@ const relatedQO = (slug: string) => queryOptions({
   queryFn: () => listRelated({ data: { type: "guia", excludeSlug: slug, limit: 3 } }),
 });
 
+const areaQO = (slug: string) => queryOptions({
+  queryKey: ["editorial", "guia", "area", slug],
+  queryFn: () => getAreaOverview({ data: { slug } }),
+});
+
 type FaqItem = { question: string; answer: string };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped editorial row
-function guiaFaq(p: any): FaqItem[] {
-  return Array.isArray(p?.faq) ? p.faq.filter((f: FaqItem) => f?.question && f?.answer) : [];
+function guiaFaq(p: any, area?: AreaOverview | null): FaqItem[] {
+  const own: FaqItem[] = Array.isArray(p?.faq) ? p.faq.filter((f: FaqItem) => f?.question && f?.answer) : [];
+  const calc = area && area.onde ? computedAreaFaq(area.onde, area.total > 0 ? area : null, area.nearby) : [];
+  return [...own, ...calc];
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped editorial row
-function guiaFaqScripts(p: any) {
-  const items = guiaFaq(p);
+function guiaFaqScripts(p: any, area?: AreaOverview | null) {
+  const items = guiaFaq(p, area);
   if (!items.length) return [];
   return [{
     type: "application/ld+json",
@@ -59,8 +69,9 @@ export const Route = createFileRoute("/guia/$slug")({
       throw notFound();
     }
     await context.queryClient.ensureQueryData(relatedQO(params.slug));
+    const area = await context.queryClient.ensureQueryData(areaQO(params.slug)).catch(() => null);
     await context.queryClient.ensureQueryData(topicPropsQO("guia", params.slug, page as never)).catch(() => null);
-    return { page };
+    return { page, area };
   },
   head: ({ params, loaderData }) => {
     const p = loaderData?.page;
@@ -80,7 +91,7 @@ export const Route = createFileRoute("/guia/$slug")({
         ...(image ? [{ property: "og:image", content: image }] : []),
       ],
       links: [{ rel: "canonical", href: p.canonical_url || url }],
-      scripts: [...guiaFaqScripts(p), {
+      scripts: [...guiaFaqScripts(p, loaderData?.area ?? null), {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
@@ -116,6 +127,8 @@ function GuiaPage() {
   const { data: page } = useSuspenseQuery(pageQO(slug));
   const { data: related } = useSuspenseQuery(relatedQO(slug));
   const { data: topic } = useQuery(topicPropsQO("guia", slug, page as never));
+  const { data: area } = useQuery(areaQO(slug));
+  const faqItems = guiaFaq(page, area ?? null);
   if (!page) return null;
   const updatedLabel = (() => {
     const d = new Date(page.updated_at ?? page.published_at ?? "");
@@ -175,12 +188,14 @@ function GuiaPage() {
         )}
       </section>
 
-      {guiaFaq(page).length > 0 && (
+      {area && <AreaOverviewBlock slug={slug} o={area} />}
+
+      {faqItems.length > 0 && (
         <section className="px-6 py-16 border-t border-ink/8">
           <div className="max-w-3xl mx-auto">
             <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6">Perguntas frequentes</h2>
             <div className="divide-y divide-ink/10 border-y border-ink/10">
-              {guiaFaq(page).map((f, i) => (
+              {faqItems.map((f, i) => (
                 <details key={i} className="group py-4">
                   <summary className="cursor-pointer list-none flex items-start justify-between gap-4 text-ink font-medium">
                     <span>{f.question}</span>
@@ -224,7 +239,7 @@ function GuiaPage() {
       <ResolvedCta
         contentType="guia"
         keys={ctaPillarGroup((page as { categoria_editorial?: string | null }).categoria_editorial) ? [`guia:${ctaPillarGroup((page as { categoria_editorial?: string | null }).categoria_editorial)}`] : []}
-        vars={{ titulo: page.title }}
+        vars={{ titulo: page.title, bairro: area?.label ?? (page as { bairro?: string | null }).bairro ?? "" }}
         ctaId={(page as { cta_id?: string | null }).cta_id ?? null}
         hidden={(page as { cta_hidden?: boolean | null }).cta_hidden ?? false}
         legacy={{
