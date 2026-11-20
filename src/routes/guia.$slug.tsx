@@ -2,6 +2,8 @@ import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { getRedirectFor } from "@/lib/seo.functions";
 import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
+import { ResolvedCta } from "@/components/resolved-cta";
+import { ctaPillarGroup } from "@/lib/cta.functions";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { ListingSelections } from "@/components/listing-pages/listing-selections";
@@ -218,6 +220,20 @@ function GuiaPage() {
           </div>
         </section>
       )}
+
+      <ResolvedCta
+        contentType="guia"
+        keys={ctaPillarGroup((page as { categoria_editorial?: string | null }).categoria_editorial) ? [`guia:${ctaPillarGroup((page as { categoria_editorial?: string | null }).categoria_editorial)}`] : []}
+        vars={{ titulo: page.title }}
+        ctaId={(page as { cta_id?: string | null }).cta_id ?? null}
+        hidden={(page as { cta_hidden?: boolean | null }).cta_hidden ?? false}
+        legacy={{
+          title: (page as { cta_title?: string | null }).cta_title,
+          text: (page as { cta_text?: string | null }).cta_text,
+          buttonLabel: (page as { cta_button_label?: string | null }).cta_button_label,
+          buttonUrl: (page as { cta_button_url?: string | null }).cta_button_url,
+        }}
+      />
 
       <ListingSelections title="Imóveis em Alphaville por perfil" />
 

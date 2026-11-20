@@ -6,6 +6,7 @@ import { InstitutionalBlock } from "@/components/section-page";
 import { ListingSelections } from "@/components/listing-pages/listing-selections";
 import { PostHelpBlock } from "@/components/post-help-block";
 import { ResolvedCta } from "@/components/resolved-cta";
+import { ctaPillarGroup } from "@/lib/cta.functions";
 import { resolveImage } from "@/lib/image-fallbacks";
 import { BrandPlaceholder } from "@/components/brand-placeholder";
 import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
@@ -230,6 +231,8 @@ function PostPage() {
       {!post.personalization_enabled && (
         <ResolvedCta
           contentType={post.content_type || "blog"}
+          keys={ctaPillarGroup(post.categoria_editorial) ? [`${post.content_type || "blog"}:${ctaPillarGroup(post.categoria_editorial)}`] : []}
+          vars={{ titulo: post.title, bairro: post.bairro ?? "", cidade: post.cidade ?? "" }}
           ctaId={post.cta_id}
           hidden={post.cta_hidden}
           legacy={{

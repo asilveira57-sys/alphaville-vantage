@@ -27,6 +27,7 @@ export type CondoDetailsDTO = {
   nearby: CondoNearby[];
   faq: CondoFaq[];
   parent: string | null;
+  usage: string | null;
 };
 
 function publicClient() {
@@ -52,7 +53,7 @@ export const getCondoDetails = createServerFn({ method: "GET" })
     if (!data.id) return null;
     const { data: r, error } = await publicClient()
       .from("condominiums")
-      .select("id,name,official_name,address,postal_code,region,lat,lng,developer,year_built,towers,floors,units_count,amenities,gallery,nearby,faq")
+      .select("id,name,official_name,address,postal_code,region,lat,lng,developer,year_built,towers,floors,units_count,amenities,gallery,nearby,faq,usage")
       .eq("id", data.id)
       .maybeSingle();
     if (error || !r) return null;
@@ -77,6 +78,7 @@ export const getCondoDetails = createServerFn({ method: "GET" })
       nearby: arr<CondoNearby>(row.nearby).filter((n) => n && n.name && typeof n.km === "number"),
       faq: arr<CondoFaq>(row.faq).filter((f) => f && f.question && f.answer),
       parent: ((mp as { parent?: string | null } | null)?.parent) ?? null,
+      usage: (row.usage as string | null) ?? null,
     };
   });
 

@@ -7,6 +7,7 @@ import { checkIsAdmin } from "@/lib/admin.functions";
 import { CtaBlockView } from "@/components/cta-block-view";
 import {
   CTA_CONTENT_TYPES,
+  CTA_RULE_KEYS,
   CTA_TYPES,
   CTA_TYPE_LABELS,
   CTA_VARIANTS,
@@ -210,9 +211,17 @@ function AdminCtas() {
 
             <h2 className="font-serif text-xl mt-10 mb-4">CTA padrão por tipo de conteúdo</h2>
             <div className="space-y-2">
-              {["site", ...CTA_CONTENT_TYPES].map((ct) => (
+              <p className="text-xs text-muted-foreground mb-3">
+                A página usa a regra mais específica que tiver CTA; sem ela, o padrão do tipo; sem ele, o geral do site.
+                Use {"{condominio}"}, {"{bairro}"}, {"{rua}"} ou {"{titulo}"} no texto para o nome entrar sozinho.
+              </p>
+              {[
+                { key: "site", label: "Geral do site" },
+                ...CTA_RULE_KEYS,
+                ...CTA_CONTENT_TYPES.map((t) => ({ key: t, label: `Tipo · ${t}` })),
+              ].map(({ key: ct, label }) => (
                 <div key={ct} className="flex items-center gap-3">
-                  <span className="text-xs w-36 uppercase tracking-widest text-muted-foreground">{ct === "site" ? "Geral do site" : ct}</span>
+                  <span className="text-xs w-56 uppercase tracking-widest text-muted-foreground">{label}</span>
                   <select
                     value={defaults.get(ct) ?? ""}
                     onChange={(e) => defMut.mutate({ content_type: ct, cta_id: e.target.value || null })}

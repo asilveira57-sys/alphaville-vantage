@@ -241,6 +241,8 @@ function CondoPage() {
 
       <ResolvedCta
         contentType="condominio"
+        keys={[details?.usage === "comercial" ? "condominio:comercial" : "condominio:residencial"]}
+        vars={{ condominio: propsData.condominiumName ?? page.title, titulo: page.title }}
         ctaId={(page as { cta_id?: string | null }).cta_id ?? null}
         hidden={(page as { cta_hidden?: boolean | null }).cta_hidden ?? false}
         legacy={{

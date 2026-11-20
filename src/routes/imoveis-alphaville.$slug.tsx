@@ -1,6 +1,7 @@
 import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { ResolvedCta } from "@/components/resolved-cta";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
@@ -259,9 +260,22 @@ function ListingPage() {
         </section>
       )}
 
+      <ResolvedCta
+        contentType="lista"
+        keys={[listingCtaKey(d.page as { purpose: string; filters?: { types?: string[] } })]}
+        vars={{ titulo: d.page.h1 ?? d.page.title }}
+      />
+
       <ListingSelections title="Outras seleções de imóveis" />
 
       <InstitutionalBlock />
     </SiteLayout>
   );
+}
+
+/** Regra de CTA da lista pronta: comercial (sala, loja, galpão…) ou residencial, venda ou aluguel. */
+function listingCtaKey(p: { purpose: string; filters?: { types?: string[] } }) {
+  const types = p.filters?.types ?? [];
+  const comercial = types.length > 0 && types.every((t) => /sala|loja|galp|pr[eé]dio|comercial|ponto/i.test(t));
+  return `lista:${comercial ? "comercial" : "residencial"}-${p.purpose === "rent" ? "aluguel" : "venda"}`;
 }

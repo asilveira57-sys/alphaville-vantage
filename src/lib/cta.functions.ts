@@ -42,7 +42,46 @@ export const CTA_CONTENT_TYPES = [
   "parceiro",
   "empreendimento",
   "institucional",
+  "tema",
+  "lista",
 ] as const;
+
+/**
+ * Regras automáticas (chave mais específica primeiro). Cada página informa as suas
+ * chaves; o CTA padrão de cada chave se define em /admin-ctas.
+ */
+export const CTA_RULE_KEYS: { key: string; label: string }[] = [
+  { key: "condominio:residencial", label: "Condomínio residencial" },
+  { key: "condominio:comercial", label: "Condomínio comercial" },
+  { key: "blog:morar", label: "Blog · Morar" },
+  { key: "blog:negocios", label: "Blog · Negócios" },
+  { key: "blog:educacao", label: "Blog · Educação" },
+  { key: "blog:lazer", label: "Blog · Lazer, gastronomia, cultura, esporte, saúde, lifestyle" },
+  { key: "guia:morar", label: "Guia · Morar" },
+  { key: "guia:negocios", label: "Guia · Negócios" },
+  { key: "guia:educacao", label: "Guia · Educação" },
+  { key: "guia:lazer", label: "Guia · Lazer e estilo de vida" },
+  { key: "lista:residencial-venda", label: "Lista pronta · residencial à venda" },
+  { key: "lista:residencial-aluguel", label: "Lista pronta · residencial para alugar" },
+  { key: "lista:comercial-venda", label: "Lista pronta · comercial à venda" },
+  { key: "lista:comercial-aluguel", label: "Lista pronta · comercial para alugar" },
+];
+
+/** Grupo do pilar editorial para as regras de CTA. */
+export function ctaPillarGroup(categoria: string | null | undefined): string | null {
+  const k = (categoria ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!k) return null;
+  if (k.startsWith("morar")) return "morar";
+  if (k.startsWith("negocio")) return "negocios";
+  if (k.startsWith("educa")) return "educacao";
+  return "lazer";
+}
+
+/** Troca {chave} pelos valores da página (ex.: {condominio}). Chave sem valor some. */
+export function fillCtaText(s: string | null | undefined, vars: Record<string, string> = {}): string | null {
+  if (!s) return s ?? null;
+  return s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "").replace(/\s{2,}/g, " ").trim();
+}
 
 export const CTA_VARIANTS = ["dark", "light", "gold"] as const;
 
@@ -106,7 +145,7 @@ export const listCtaDefaults = createServerFn({ method: "GET" }).handler(async (
 
 /**
  * Resolve o CTA efetivo de uma página:
- * 1. CTA específico da página → 2. CTA padrão do tipo de conteúdo → 3. CTA geral → 4. nenhum
+ * 1. CTA específico da página → 2. regras (keys, da mais específica) → 3. padrão do tipo → 4. CTA geral → 5. nenhum
  */
 export const resolveCta = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) =>
@@ -114,6 +153,8 @@ export const resolveCta = createServerFn({ method: "GET" })
       .object({
         ctaId: z.string().uuid().nullable().optional(),
         contentType: z.string().optional(),
+        /** Chaves de regra, da mais específica para a mais geral (antes do tipo). */
+        keys: z.array(z.string().max(60)).max(6).optional(),
         hidden: z.boolean().optional(),
       })
       .parse(d ?? {}),
@@ -126,10 +167,14 @@ export const resolveCta = createServerFn({ method: "GET" })
       const { data: row } = await sb.from("cta_blocks").select("*").eq("id", data.ctaId).eq("active", true).maybeSingle();
       if (row) return row as CtaBlock;
     }
-    if (data.contentType) {
-      const { data: def } = await sb.from("cta_defaults").select("cta_id").eq("content_type", data.contentType).maybeSingle();
-      if (def?.cta_id) {
-        const { data: row } = await sb.from("cta_blocks").select("*").eq("id", def.cta_id).eq("active", true).maybeSingle();
+    const keys = [...(data.keys ?? []), ...(data.contentType ? [data.contentType] : [])];
+    if (keys.length) {
+      const { data: defs } = await sb.from("cta_defaults").select("content_type,cta_id").in("content_type", keys);
+      const byKey = new Map((defs ?? []).map((d: { content_type: string; cta_id: string | null }) => [d.content_type, d.cta_id]));
+      for (const k of keys) {
+        const id = byKey.get(k);
+        if (!id) continue;
+        const { data: row } = await sb.from("cta_blocks").select("*").eq("id", id).eq("active", true).maybeSingle();
         if (row) return row as CtaBlock;
       }
     }

@@ -272,6 +272,7 @@ function StreetDetail() {
 
         <ResolvedCta
           contentType="rua"
+          vars={{ rua: (street as { name?: string }).name ?? "" }}
           ctaId={(street as any).cta_id}
           hidden={(street as any).cta_hidden}
         />

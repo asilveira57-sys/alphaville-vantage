@@ -1,6 +1,8 @@
 import { SITE_URL } from "@/lib/site";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { ResolvedCta } from "@/components/resolved-cta";
+import { ctaPillarGroup } from "@/lib/cta.functions";
 import { SiteLayout } from "@/components/site-layout";
 import { PremiumPostCard } from "@/components/premium-cards/post-card";
 import { ListingSelections } from "@/components/listing-pages/listing-selections";
@@ -105,6 +107,7 @@ function PillarPage() {
           ))}
         </div>
       </section>
+      <ResolvedCta contentType="tema" keys={ctaPillarGroup(d.pillar.label) ? [`blog:${ctaPillarGroup(d.pillar.label)}`] : []} vars={{ titulo: d.pillar.h1 }} />
       <ListingSelections title="Imóveis em Alphaville por perfil" />
     </SiteLayout>
   );

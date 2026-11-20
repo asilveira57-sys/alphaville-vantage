@@ -2,6 +2,8 @@ import { SITE_URL } from "@/lib/site";
 import { absoluteImageUrl, firstRealImage, largeVariant } from "@/lib/image-fallbacks";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { ResolvedCta } from "@/components/resolved-cta";
+import { ctaPillarGroup } from "@/lib/cta.functions";
 import { SiteLayout } from "@/components/site-layout";
 import { InstitutionalBlock } from "@/components/section-page";
 import { EditorialContent } from "@/components/editorial-content";
@@ -125,6 +127,19 @@ function BairroPage() {
           </div>
         </section>
       )}
+
+      <ResolvedCta
+        contentType="bairro"
+        vars={{ bairro: (page as { related_neighborhood?: string | null }).related_neighborhood ?? page.title, titulo: page.title }}
+        ctaId={(page as { cta_id?: string | null }).cta_id ?? null}
+        hidden={(page as { cta_hidden?: boolean | null }).cta_hidden ?? false}
+        legacy={{
+          title: (page as { cta_title?: string | null }).cta_title,
+          text: (page as { cta_text?: string | null }).cta_text,
+          buttonLabel: (page as { cta_button_label?: string | null }).cta_button_label,
+          buttonUrl: (page as { cta_button_url?: string | null }).cta_button_url,
+        }}
+      />
 
       <InstitutionalBlock />
     </SiteLayout>
