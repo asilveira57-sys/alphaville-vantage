@@ -14,6 +14,9 @@ export type ListingFilters = {
   cities?: string[];
   bedrooms?: number;
   bedrooms_min?: number;
+  bedrooms_max?: number;
+  /** Estilo (properties.category): terreo, sobrado, duplex, cobertura, garden, flat… */
+  categories?: string[];
   price_min?: number;
   price_max?: number;
   furnished?: boolean;
@@ -102,6 +105,8 @@ export const getListingPage = createServerFn({ method: "GET" })
       if (f.cities?.length) q = q.in("city", f.cities);
       if (typeof f.bedrooms === "number") q = q.eq("bedrooms", f.bedrooms);
       if (typeof f.bedrooms_min === "number") q = q.gte("bedrooms", f.bedrooms_min);
+      if (typeof f.bedrooms_max === "number") q = q.lte("bedrooms", f.bedrooms_max);
+      if (f.categories?.length) q = q.in("category", f.categories);
       if (typeof f.price_min === "number") q = q.gte(priceCol, f.price_min);
       if (typeof f.price_max === "number") q = q.lte(priceCol, f.price_max);
       if (f.furnished === true) q = q.eq("furnished", true);
