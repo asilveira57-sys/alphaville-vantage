@@ -13,6 +13,9 @@ export const featureSlug = (label: string) => fold(label).replace(/[^a-z0-9]+/g,
 const HIDDEN = new Set([
   "imovel com parceria", "direto com proprietario", "portal destaque", "destaque", "permuta", "aceita permuta",
   "exclusividade", "exclusivo", "placa", "com placa", "financiamento", "aceita financiamento",
+  // Portais, etiquetas de controle e estilo (estilo vem do grupo Categoria).
+  "grupo zap", "casa mineira", "chaves na mao", "imovel direto com proprietario", "condicao do imovel",
+  "preco negociavel", "cobertura [outras caracteristicas]", "cobertura", "maison",
 ].map(fold));
 /** Grupos de etiqueta personalizada que não são característica. */
 const HIDDEN_GROUPS = new Set(["finalidade", "tipo", "empreendimento", "categoria", "situacao", "andar"].map(fold));
@@ -102,8 +105,8 @@ export type FeatureGroup = "lazer" | "imovel" | "estado";
 export const FEATURE_GROUP_LABEL: Record<FeatureGroup, string> = {
   lazer: "Lazer do condomínio", imovel: "Imóvel", estado: "Estado e vista",
 };
-const LAZER = /piscina|academia|fitness|salao|playground|brinquedoteca|quadra|sauna|spa|espaco gourmet|churrasqueira(?! de varanda)|portaria|seguranca|vigilancia|elevador|gerador|bicicletario|pet|coworking|cinema|jogos|tenis|campo|pista|lago|bosque|clube|area verde|area de lazer|recreacao|hidromassagem coletiva|lavanderia coletiva|mercado|delivery/;
-const ESTADO = /vista|reformad|novo|nunca habitad|pronto|andar alto|sol da manha|sol da tarde|ensolarad|ventilad|silencios|esquina|lancamento|em construcao|na planta/;
+const LAZER = /comum|coletiv|guarita|zelador|piscina|academia|fitness|salao|playground|brinquedoteca|quadra|sauna|spa|espaco gourmet|churrasqueira(?! de varanda)|portaria|seguranca|vigilancia|elevador|gerador|bicicletario|pet|coworking|cinema|jogos|tenis|campo|pista|lago|bosque|clube|area verde|area de lazer|recreacao|hidromassagem coletiva|lavanderia coletiva|mercado|delivery/;
+const ESTADO = /vista|reformad|renovad|decorad|contrapiso|rua tranquila|perto d|luz natural|novo|nunca habitad|pronto|andar alto|sol da manha|sol da tarde|ensolarad|ventilad|silencios|esquina|lancamento|em construcao|na planta/;
 export function featureGroup(label: string): FeatureGroup {
   const k = fold(label);
   if (k === "varanda gourmet") return "imovel";

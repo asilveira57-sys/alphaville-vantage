@@ -28,5 +28,10 @@ describe("tokkoExtras", () => {
     expect(featureGroup("Varanda gourmet")).toBe("imovel");
     expect(featureGroup("Vista panorâmica")).toBe("estado");
     expect(featureSlug("Varanda gourmet")).toBe("varanda-gourmet");
+    expect(featureGroup("Área de churrasco comum")).toBe("lazer");
+    expect(featureGroup("Lavanderia coletiva")).toBe("lazer");
+    expect(featureGroup("Lavanderia")).toBe("imovel");
+    expect(featureGroup("Renovado")).toBe("estado");
+    expect(tokkoExtras({ tags: [{ name: "Grupo ZAP" }, { name: "Piscina" }] }).features).toEqual(["Piscina"]);
   });
 });

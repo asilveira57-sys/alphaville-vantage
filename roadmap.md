@@ -73,7 +73,7 @@
 - [x] Sincronização grava etiquetas da API (nulo não apaga, ajuste manual protegido, etiquetas comerciais ocultas).
 - [x] Painel "Mais filtros" (desktop/celular), chips, URL, noindex com características, PDF e compartilhamento com os mesmos filtros.
 - [x] Página do imóvel: Características por grupo, Estilo e Mobília.
-- [ ] Conferir grupos das características com os nomes reais depois da 1ª sincronização.
+- [x] Conferir grupos com os nomes reais (1ª sincronização em 20/11: 2.011 com características, 1.139 com estilo, 409 com mobília); portais (Grupo ZAP, Casa Mineira, Chaves na Mão) e etiquetas de controle ocultos.
 - [ ] Mobília: aprovar números (etiqueta × descrição) antes de substituir o furnished antigo.
 
 # Filtros da busca /imoveis (31/10)
