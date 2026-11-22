@@ -21,3 +21,7 @@ alter table public.streets add column if not exists nearby jsonb;
 -- 2026-11-22: CEPs oficiais (Correios via ViaCEP, buscados com net.http_get) por rua.
 -- Formato: [{cep, logradouro, complemento, bairro, cidade, tipo: 'geral'|'numero'}]
 alter table streets add column if not exists ceps jsonb not null default '[]'::jsonb;
+-- 2026-11-22: expansão para 50 ruas, 5 por vez, por quantidade de imóveis (endereço sem rua cadastrada).
+--   Lote 1 (publicado): alameda-das-camelias (Residencial 6), avenida-ceci (Tamboré 1, Barueri),
+--   avenida-gemini (Gênesis 1), alameda-michelangelo (Burle Marx), avenida-paisagem (Itahyê).
+--   CEPs via ViaCEP; nearby copiado do condomínio; match_property_streets() rodado nos imóveis dessas ruas.
