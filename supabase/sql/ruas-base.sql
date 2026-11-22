@@ -25,3 +25,6 @@ alter table streets add column if not exists ceps jsonb not null default '[]'::j
 --   Lote 1 (publicado): alameda-das-camelias (Residencial 6), avenida-ceci (Tamboré 1, Barueri),
 --   avenida-gemini (Gênesis 1), alameda-michelangelo (Burle Marx), avenida-paisagem (Itahyê).
 --   CEPs via ViaCEP; nearby copiado do condomínio; match_property_streets() rodado nos imóveis dessas ruas.
+--   Lote 2 (publicado): avenida-bom-pastor (Residenciais 10 e 9), avenida-aruana (Aruanã 601, Fatto, Win, Garden Hill),
+--   avenida-universitario (Alpha Vita), alameda-manhattan (Gran Alphaville, Terrah, Signature, Flora), alameda-van-gogh (Burle Marx).
+--   nearby = menor km por local entre os condomínios da rua.
