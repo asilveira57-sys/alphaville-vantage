@@ -9,6 +9,7 @@ import { CleanPropertyCard } from "@/components/premium-cards/clean-property-car
 import { EditorialContent } from "@/components/editorial-content";
 import { ResolvedCta } from "@/components/resolved-cta";
 import { GuideDownloadLead } from "@/components/guide-download-lead";
+import { areaShort, cepFaq, cepLabel, cleanBairro, parseCeps } from "@/lib/street-ceps";
 import { brl, computedStreetFaq, groupNearby, kmLabel, type StreetOverview } from "@/lib/street-overview";
 import {
   getStreetBySlug,
@@ -49,12 +50,18 @@ export const Route = createFileRoute("/ruas/$slug")({
       return { meta: [{ title: "Rua não encontrada" }, { name: "robots", content: "noindex" }] };
     }
     const s: any = loaderData.street;
+    const ceps = parseCeps(s.ceps);
+    const cl = cepLabel(ceps);
     const faqAll = [
+      ...cepFaq(s.name, ceps),
       ...(Array.isArray(s.faq) ? s.faq : []),
       ...computedStreetFaq(s.name, (loaderData.overview ?? null) as StreetOverview | null, s.nearby),
     ];
-    const title = s.seo_title || `${s.name} — ${s.neighborhood ?? s.city ?? "Alphaville"}`;
-    const desc = s.seo_description || s.short_description || `Imóveis, informações e entorno da ${s.name}${s.neighborhood ? `, em ${s.neighborhood}` : ""}.`;
+    const title = cl
+      ? `${s.name}, ${areaShort(s.neighborhood, s.city)}: CEP ${cl}, mapa e imóveis`
+      : s.seo_title || `${s.name} — ${s.neighborhood ?? s.city ?? "Alphaville"}`;
+    const baseDesc = s.seo_description || s.short_description || `Imóveis, informações e entorno da ${s.name}${s.neighborhood ? `, em ${s.neighborhood}` : ""}.`;
+    const desc = cl ? `CEP da ${s.name}: ${cl}. ${baseDesc}` : baseDesc;
     const url = `${SITE_URL}/ruas/${params.slug}`;
     const social = absoluteImageUrl(firstRealImage(s.social_image, largeVariant(s.card_image)), SITE_URL);
     const robots = `${s.robots_index === false ? "noindex" : "index"},${s.robots_follow === false ? "nofollow" : "follow"}`;
@@ -85,6 +92,7 @@ export const Route = createFileRoute("/ruas/$slug")({
               streetAddress: s.name,
               addressLocality: s.city,
               addressRegion: s.state ?? "SP",
+              ...(ceps.find((c) => c.tipo === "geral") ? { postalCode: ceps.find((c) => c.tipo === "geral")!.cep } : {}),
               addressCountry: "BR",
             },
             ...(s.latitude && s.longitude ? {
@@ -152,7 +160,10 @@ function StreetDetail() {
   const { data: nearby } = useSuspenseQuery(nearbyQO(slug));
   const { data: overview } = useSuspenseQuery(overviewQO(slug)) as { data: StreetOverview | null };
   const nearGroups = groupNearby(street.nearby);
-  const faqAll = [...(Array.isArray(street.faq) ? street.faq : []), ...computedStreetFaq(street.name, overview, street.nearby)];
+  const ceps = parseCeps(street.ceps);
+  const cepsGerais = ceps.filter((c) => c.tipo === "geral");
+  const cepsNumero = ceps.filter((c) => c.tipo === "numero");
+  const faqAll = [...cepFaq(street.name, ceps), ...(Array.isArray(street.faq) ? street.faq : []), ...computedStreetFaq(street.name, overview, street.nearby)];
   const mapQuery = `${street.name}, ${street.city ?? ""} - SP`;
 
   const local = [street.neighborhood, street.city].filter(Boolean).join(" · ");
@@ -173,6 +184,35 @@ function StreetDetail() {
       ]}
     >
       <div className="space-y-20">
+        {cepsGerais.length > 0 && (
+          <section id="cep" className="max-w-4xl border border-ink/15 p-6 md:p-8">
+            <h2 className="font-serif text-2xl md:text-3xl text-ink mb-4">CEP da {street.name}</h2>
+            <ul className="space-y-3">
+              {cepsGerais.map((c) => (
+                <li key={c.cep} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <span className="font-serif text-3xl md:text-4xl text-ink tabular-nums">{c.cep}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {[c.logradouro !== street.name ? c.logradouro : null, c.complemento, cleanBairro(c.bairro), c.cidade].filter(Boolean).join(" · ")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {cepsNumero.length > 0 && (
+              <details className="mt-6 text-sm">
+                <summary className="cursor-pointer text-ink">Prédios e empresas com CEP próprio ({cepsNumero.length})</summary>
+                <table className="mt-3 w-full max-w-md">
+                  <thead><tr className="text-left text-[10px] uppercase tracking-[0.2em] text-muted-foreground"><th className="py-1">Número</th><th className="py-1">CEP</th></tr></thead>
+                  <tbody>
+                    {[...cepsNumero].sort((a, b) => parseInt(a.complemento ?? "0") - parseInt(b.complemento ?? "0")).map((c) => (
+                      <tr key={c.cep} className="border-t border-ink/10"><td className="py-1.5">nº {c.complemento}</td><td className="py-1.5 tabular-nums">{c.cep}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </details>
+            )}
+            <p className="mt-6 text-xs text-muted-foreground">Fonte: base de CEPs dos Correios. Confira o número do imóvel antes de enviar uma correspondência.</p>
+          </section>
+        )}
         {street.card_image && (
           <figure className="max-w-4xl">
             <img width={800} height={600} decoding="async"

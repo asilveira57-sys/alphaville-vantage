@@ -17,3 +17,7 @@ alter table public.streets add column if not exists nearby jsonb;
 --    proximidades agregadas dos condomínios, lat/lng. bairro/cidade dos guias preenchidos (CTA {bairro}).
 --    Via Parque: texto novo com dados do Alexandre (Leroy Merlin, posto, ACM, Hyundai na entrada da Tocantins, Sorvetes Jundiá);
 --    lat/lng e proximidades copiados da Alameda Tocantins (rua sem condomínios).
+
+-- 2026-11-22: CEPs oficiais (Correios via ViaCEP, buscados com net.http_get) por rua.
+-- Formato: [{cep, logradouro, complemento, bairro, cidade, tipo: 'geral'|'numero'}]
+alter table streets add column if not exists ceps jsonb not null default '[]'::jsonb;
