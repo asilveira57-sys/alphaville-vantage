@@ -10,7 +10,7 @@ const NAV = [
   { label: "Alphaville", to: "/alphaville" },
   { label: "Bairros", to: "/bairros" },
   { label: "Condomínios", to: "/condominios" },
-  { label: "Mapa", to: "/mapa-prototipo" },
+  { label: "Mapa", to: "/mapa" },
   { label: "Guia", to: "/guia" },
   { label: "Ruas", to: "/guia-de-ruas" },
   { label: "Mercado", to: "/mercado-imobiliario" },

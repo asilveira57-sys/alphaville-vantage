@@ -51,6 +51,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/termos-de-uso", changefreq: "yearly", priority: "0.4" },
           { path: "/aviso-legal", changefreq: "yearly", priority: "0.4" },
           { path: "/mapa-do-site", changefreq: "monthly", priority: "0.5" },
+          { path: "/mapa", changefreq: "daily", priority: "0.8" },
           { path: "/anuncie-seu-imovel", lastmod: "2026-10-29", changefreq: "monthly", priority: "0.8" },
           { path: "/vender-meu-imovel", lastmod: "2026-10-29", changefreq: "monthly", priority: "0.8" },
           { path: "/alugar-meu-imovel", lastmod: "2026-10-29", changefreq: "monthly", priority: "0.8" },

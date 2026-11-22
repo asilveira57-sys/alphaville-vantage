@@ -169,7 +169,7 @@ svg#map.drag{cursor:grabbing}
   </div>
   <div id="zoom"><button id="zin" aria-label="Aproximar">+</button><button id="zout" aria-label="Afastar">−</button><button id="zfit" aria-label="Ver tudo" style="font-size:15px">⤢</button></div>
   <div id="legend"><span><i style="background:rgba(255,239,4,.25);border:1px solid var(--y)"></i>Residencial</span><span><i style="background:rgba(140,205,255,.25);border:1px solid #8ccdff"></i>Comercial</span><span><i style="border:1px dashed #aaa"></i>Complexo com vários condomínios</span></div>
-  <div id="foot"><b>Protótipo</b> · imóveis ativos do portal <span id="dt"></span> · sem número de casa ou apartamento · contornos © OpenStreetMap contributors</div>
+  <div id="foot"><b>S.A Imóveis</b> · imóveis ativos do portal <span id="dt"></span> · sem número de casa ou apartamento · contornos © OpenStreetMap contributors</div>
   <div id="hint">Toque numa bolha para estourar e ver os imóveis</div>
   <div id="tip"></div>
   <aside id="panel" aria-live="polite">
@@ -420,6 +420,21 @@ $('#dt').textContent=LIVE?'ao vivo':'em '+new Date(DATA.generated).toLocaleDateS
 refreshCounts();fitAll(false);
 svg.addEventListener('pointerdown',()=>{$('#hint').style.opacity=0},{once:true});
 setTimeout(()=>$('#hint').style.opacity=0,9000);
+})();
+</script>
+<script>
+/* Integração com /mapa (iframe): métricas via postMessage. */
+(function(){
+  var embed = /[?&]embed=1/.test(location.search) && window.parent !== window;
+  if (!embed) return;
+  document.documentElement.classList.add('embed');
+  function send(m){ try { window.parent.postMessage(m, location.origin); } catch(e){} }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a.card');
+    if (a) send({ type: 'map_property_click', code: a.getAttribute('data-code'), condo: (document.getElementById('pt')||{}).textContent || '' });
+  }, true);
+  var pt = document.getElementById('pt');
+  if (pt) new MutationObserver(function(){ if (pt.textContent) send({ type: 'map_condo_open', condo: pt.textContent }); }).observe(pt, { childList: true, characterData: true, subtree: true });
 })();
 </script>
 </body>
