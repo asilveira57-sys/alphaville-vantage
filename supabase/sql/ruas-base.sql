@@ -30,3 +30,6 @@ alter table streets add column if not exists ceps jsonb not null default '[]'::j
 --   nearby = menor km por local entre os condomínios da rua.
 --   Lote 3 (publicado): estrada-municipal-bela-vista (Burle Marx + Comercial; 2 CEPs), avenida-altos-de-alphaville (Uptown Housing),
 --   alameda-apetubas (Residencial 10), calcada-procion (Centro de Apoio 2; street_type 'calcada'), avenida-victor-civita (Tamboré 4).
+--   Lote 4 (publicado): alameda-cores-da-mata (Premium Tamboré), alameda-iberica (Tamboré 6), alameda-topazio (Residencial 9),
+--   estrada-de-santo-andre (Reserva Santa Anna), avenida-marechal-mascarenhas-de-moraes (Altavis; nome oficial dos Correios,
+--   3 CEPs por trecho; street_aliases "Estrada Marechal Mascarenhas de Moraes" para casar os anúncios).
