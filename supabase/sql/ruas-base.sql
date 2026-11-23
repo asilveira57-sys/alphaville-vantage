@@ -28,3 +28,5 @@ alter table streets add column if not exists ceps jsonb not null default '[]'::j
 --   Lote 2 (publicado): avenida-bom-pastor (Residenciais 10 e 9), avenida-aruana (Aruanã 601, Fatto, Win, Garden Hill),
 --   avenida-universitario (Alpha Vita), alameda-manhattan (Gran Alphaville, Terrah, Signature, Flora), alameda-van-gogh (Burle Marx).
 --   nearby = menor km por local entre os condomínios da rua.
+--   Lote 3 (publicado): estrada-municipal-bela-vista (Burle Marx + Comercial; 2 CEPs), avenida-altos-de-alphaville (Uptown Housing),
+--   alameda-apetubas (Residencial 10), calcada-procion (Centro de Apoio 2; street_type 'calcada'), avenida-victor-civita (Tamboré 4).

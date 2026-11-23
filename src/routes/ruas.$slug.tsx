@@ -143,6 +143,7 @@ function typeLabel(t: string | null | undefined) {
     case "estrada": return "Estrada";
     case "praca": return "Praça";
     case "travessa": return "Travessa";
+    case "calcada": return "Calçada";
     case "via": return "Via";
     default: return "Rua";
   }
