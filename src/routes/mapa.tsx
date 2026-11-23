@@ -18,7 +18,7 @@ const REGIOES = [
   { to: "/guia/aldeia-da-serra-santana-de-parnaiba", label: "Aldeia da Serra" },
 ];
 
-/** Mapa de condomínios dentro do portal. O mapa em si é o arquivo estático public/mapa-prototipo.html (?embed=1), lido ao vivo do banco. */
+/** Mapa de condomínios dentro do portal. O mapa em si é o arquivo estático public/mapa-condominios.html (MapLibre + OpenFreeMap) (?embed=1), lido ao vivo do banco. */
 export const Route = createFileRoute("/mapa")({
   head: () => ({
     meta: [
@@ -62,6 +62,7 @@ function MapaPage() {
       const d = e.data as { type?: string; code?: string; condo?: string } | null;
       if (d?.type === "map_property_click") w.gtag?.("event", "map_property_click", { code: d.code, condo: d.condo });
       if (d?.type === "map_condo_open") w.gtag?.("event", "map_condo_open", { condo: d.condo });
+      if (d?.type === "map_filter") w.gtag?.("event", "map_filter", { f: (d as any).f, tipo: (d as any).tipo });
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
@@ -73,7 +74,7 @@ function MapaPage() {
         <h1 className="sr-only">Mapa de condomínios de Alphaville e Tamboré</h1>
         <iframe
           title="Mapa de condomínios de Alphaville e Tamboré"
-          src="/mapa-prototipo.html?embed=1"
+          src="/mapa-condominios.html?embed=1"
           className="block w-full border-0"
           style={{ height: "calc(100svh - 110px)", minHeight: 520 }}
           loading="eager"
@@ -87,7 +88,7 @@ function MapaPage() {
             <p className="text-ink/80 leading-relaxed">
               Cada bolha é um condomínio com imóveis à venda ou para alugar na carteira da S.A Imóveis. O número na bolha é a
               quantidade de imóveis disponíveis hoje. Toque na bolha para ver a lista, com foto, preço e link para cada anúncio.
-              Use os botões no topo para mostrar só venda ou só locação, ou busque o condomínio pelo nome.
+              Use os botões no topo para mostrar só venda ou só locação, escolha o tipo de imóvel (apartamento, casa, terreno ou comercial) ou busque o condomínio pelo nome. Dá para arrastar e aproximar o mapa como no celular.
             </p>
             <p className="mt-4 text-ink/80 leading-relaxed">
               Os contornos tracejados são complexos com vários condomínios dentro, como o Green Valley, o Gramercy Park e o
