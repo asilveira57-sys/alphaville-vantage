@@ -626,7 +626,7 @@ async function runReel(name){const msg=document.createElement('div');msg.id='ree
     try{const cg=g.createConicGradient(n,x,y);['#ff9de2','#9fe7ff','#fff3a0','#b6ffcf','#d7b5ff','#ff9de2'].forEach((c,i)=>cg.addColorStop(i/5,c));g.globalAlpha=.6;g.lineWidth=R*.09;g.strokeStyle=cg;g.beginPath();g.arc(x,y,R*.93,0,7);g.stroke();g.globalAlpha=1}catch(e){}
     gr=g.createRadialGradient(x-R*.36,y-R*.42,0,x-R*.36,y-R*.42,R*.32);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(x-R*.36,y-R*.42,R*.32,0,7);g.fill();
     g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(0,0,0,.75)';g.shadowBlur=8;g.font=`800 ${Math.round(R*.68)}px Inter`;g.fillText(n,x,y+R*.02);g.restore();return R}
-  function bubbles(nearC,showLabels,k0){const items=[];r.stops.forEach(({c})=>{const n=cnt(c);if(!n)return;const [x,y]=pr(c.c);if(y<H*.16||y>H*.95||x<-80||x>W+80)return;items.push({c,n,x,y})});
+  function bubbles(nearC,showLabels,k0){const items=[];r.stops.forEach(({c})=>{const n=cnt(c);if(!n)return;const [x,y]=pr(c.c);if(y<H*.16||y>H*.55||x<-80||x>W+80)return;items.push({c,n,x,y})});
     items.sort((a,b)=>a.y-b.y);const boxes=[];
     items.forEach(o=>{const near=o.c===nearC;const k=(k0||1)*(near?1.3:1)*Math.max(.55,Math.min(1.15,o.y/(H*.55)));o.R=bubble(o.x,o.y,o.n,k);boxes.push([o.x-o.R,o.y-o.R,o.x+o.R,o.y+o.R])});
     if(!showLabels)return;g.font='700 27px Inter';
@@ -662,9 +662,9 @@ async function runReel(name){const msg=document.createElement('div');msg.id='ree
   for(let i=0;i<36;i++){base();bubbles(null,false,.7);avCard(null);attr();await emit()}
   for(let i=0;i<=100;i++){await cam(mix(OV,ST,ease(i/100)));base();bubbles(null,i>60,.7+.3*i/100);avCard(0);attr();await emit()}
   // passeio
-  let s=0,brg=ST.bearing,shown=null,alpha=0;const SPD=34;
-  while(s<r.len){const nx=r.stops.find(x=>Math.abs(x.t-s)<90);s=Math.min(r.len,s+SPD*(nx?.5:1)/FPS);
-    const want=headingAt(r,s);brg=brg+(((want-brg+540)%360)-180)*.045;
+  let s=0,brg=ST.bearing,shown=null,alpha=0;const SPD=58;
+  while(s<r.len){const nx=r.stops.find(x=>Math.abs(x.t-s)<70);s=Math.min(r.len,s+SPD*(nx?.6:1)/FPS);
+    const want=headingAt(r,s);brg=brg+(((want-brg+540)%360)-180)*.06;
     await cam({center:r.at(s),zoom:16.6,pitch:60,bearing:brg});
     let best=null;r.stops.forEach(x=>{const d=Math.abs(x.t-s);if(d<240&&cnt(x.c)&&(!best||d<best.d))best={c:x.c,d}});
     const nc=best&&best.c;if(nc!==shown){if(alpha>0.05)alpha=Math.max(0,alpha-.2);else{shown=nc;alpha=0}}else alpha=Math.min(1,alpha+.15);
@@ -675,7 +675,7 @@ async function runReel(name){const msg=document.createElement('div');msg.id='ree
   for(let i=0;i<=75;i++){await cam(mix(last,END,ease(i/75)));base();bubbles(null,false,.7);attr();await emit()}
   const tot=r.stops.reduce((a,x)=>a+cnt(x.c),0);
   for(let i=0;i<75;i++){base();bubbles(null,false,.7);g.save();g.globalAlpha=Math.min(1,i/12);
-    g.fillStyle='rgba(12,12,11,.88)';rr(60,1060,880,360,26);g.fill();g.textAlign='left';g.font='800 28px Inter';g.fillStyle='#FFEF04';g.fillText('S.A IMÓVEIS ALPHAVILLE',110,1130);
+    g.fillStyle='rgba(12,12,11,.96)';rr(60,1060,880,360,26);g.fill();g.textAlign='left';g.font='800 28px Inter';g.fillStyle='#FFEF04';g.fillText('S.A IMÓVEIS ALPHAVILLE',110,1130);
     g.font='800 56px Inter';g.fillStyle='#fff';g.fillText(tot.toLocaleString('pt-BR')+' imóveis nesta avenida',110,1210);
     g.font='600 34px Inter';g.fillStyle='#e2e2d8';g.fillText('Passeie pelo mapa no portal:',110,1280);g.font='800 36px Inter';g.fillStyle='#FFEF04';g.fillText('portal.saimoveisalpha.com.br/mapa',110,1336);
     g.font='500 24px Inter';g.fillStyle='#9a9a92';g.fillText('CRECI 26075-J',110,1390);g.restore();attr();await emit()}
