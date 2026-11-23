@@ -369,14 +369,14 @@ function placeCaptions(shown){const cw=MOB()?6.0:6.5;const bx=shown.map(o=>({x0:
 map.on('move',apply);map.on('resize',apply);
 // ---------- fundo: mapa (OpenFreeMap) ou satélite (Esri, chave restrita aos domínios do portal) ----------
 const ESRI_KEY='AAPTazv4cFD6jYEtxF6_UUoQLmw..5Li-DMWk6rYWialQTNKlaf2iTztzqoaqgmezORsTPXFVTweiM_Dr4Buz6OkwLxfrStGYo6ZFPZ_RyDe-zJOK2_Xlh7coVR65dS1baeAs_MyD8QWJwe-L1--XoXD1tdkocsFpU7OWROPXNwt1iVIl9JHz47tIx4EaPZYOzFp_TBefXXm2b4GIejM0h1zqaFH_jRFuyyFMIOD7E-BDwurlROuRJoAcrqDwjbMRZ9k2lb8NFhOzf5KWUNw9AT1_GUV4CbDA';
-const ESRI_BASE='https://static-map-tiles-api.arcgis.com/arcgis/rest/services/static-basemap-tiles-service/v1/arcgis/imagery/static';
+const ESRI_BASE='https://ibasemaps-api.arcgis.com/arcgis/rest/services/World_Imagery/MapServer';
 let base=(URLP.get('base')==='sat')?'sat':'map';
 function setBase(b){base=b;document.querySelectorAll('#basemap button').forEach(x=>x.classList.toggle('on',x.dataset.b===b));
   const go=()=>{if(b==='sat'&&!map.getSource('sat')){
-      map.addSource('sat',{type:'raster',tiles:[ESRI_BASE+'/tile/{z}/{y}/{x}?token='+ESRI_KEY],tileSize:512,maxzoom:19});
+      map.addSource('sat',{type:'raster',tiles:[ESRI_BASE+'/tile/{z}/{y}/{x}?token='+ESRI_KEY],tileSize:256,maxzoom:19});
       const firstSym=(map.getStyle().layers.find(l=>l.type==='symbol')||{}).id;
       map.addLayer({id:'sat',type:'raster',source:'sat',paint:{'raster-opacity':1}},firstSym);
-      fetch(ESRI_BASE+'?token='+ESRI_KEY).then(r=>r.json()).then(d=>{if(d&&d.copyrightText)$('#esriattr').textContent='Imagens: Powered by Esri · '+d.copyrightText}).catch(()=>{});
+      fetch(ESRI_BASE+'?f=json&token='+ESRI_KEY).then(r=>r.json()).then(d=>{if(d&&d.copyrightText)$('#esriattr').textContent='Imagens: Powered by Esri · '+d.copyrightText}).catch(()=>{});
       $('#esriattr').textContent='Imagens: Powered by Esri'}
     if(map.getLayer('sat'))map.setLayoutProperty('sat','visibility',b==='sat'?'visible':'none');
     $('#esriattr').style.display=b==='sat'?'block':'none';
