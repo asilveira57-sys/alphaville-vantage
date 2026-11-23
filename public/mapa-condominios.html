@@ -199,6 +199,35 @@ html.embed .brand{display:none}
   #zoom{bottom:30px}
   #hint{bottom:40px}
 }
+
+/* ---------- passeio pela avenida ---------- */
+.tour{position:relative}
+.tour>button{all:unset;cursor:pointer;display:flex;align-items:center;gap:7px;background:rgba(10,10,10,.82);border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:12.5px;font-weight:600;color:#cfcfc6;backdrop-filter:blur(8px);white-space:nowrap}
+.tour>button:hover,.tour>button.on{border-color:var(--y);color:var(--y)}
+.tour>button i{width:0;height:0;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.tour .tmenu{min-width:270px}
+.tour .tmenu .h{padding:8px 12px 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+#tourbar{position:absolute;left:50%;bottom:22px;transform:translate(-50%,140%);width:min(560px,calc(100% - 24px));background:rgba(12,12,11,.92);border:1px solid var(--line);border-radius:18px;padding:12px 14px 12px;z-index:9;backdrop-filter:blur(10px);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+#tourbar.on{transform:translate(-50%,0)}
+#tourbar .r{display:flex;align-items:center;gap:10px}
+#tourbar .nm{flex:1;min-width:0}
+#tourbar .nm small{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--y);font-weight:700}
+#tourbar .nm b{display:block;font-size:15.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tourbar button{all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#1e1e1b;border:1px solid var(--line);color:var(--ink);font-size:15px;flex:none}
+#tourbar button:hover{border-color:var(--y);color:var(--y)}
+#tourbar .pg{height:3px;background:#2a2a25;border-radius:3px;margin-top:10px;overflow:hidden}
+#tourbar .pg i{display:block;height:100%;width:0;background:var(--y)}
+#tourbar .now{display:flex;align-items:center;gap:10px;margin-top:10px;min-height:40px;border-top:1px solid var(--line);padding-top:10px;font-size:13px;color:#d9d9cf}
+#tourbar .now:empty{display:none}
+#tourbar .now .t{flex:1;min-width:0}
+#tourbar .now .t b{display:block;font-size:14px;color:#fff}
+#tourbar .now .t span{color:var(--mute);font-size:12px}
+#tourbar .now a{all:unset;cursor:pointer;flex:none;background:var(--y);color:#111;font-weight:700;font-size:12.5px;padding:8px 12px;border-radius:999px}
+#tourbar .now{animation:cardin .35s both}
+html.touring #zoom,html.touring #legend,html.touring #hint,html.touring #foot{display:none}
+.bub.near .sphere{transform:scale(1.22)}
+.bub.near .cap{opacity:1;color:var(--y)}
+@media (max-width:700px){#tourbar{bottom:12px;padding:10px 12px}html.touring #basemap{bottom:150px}}
 </style>
 </head>
 <body>
@@ -210,6 +239,7 @@ html.embed .brand{display:none}
     <div class="filters">
       <div class="seg" id="fseg"><button data-f="all" class="on">Todos</button><button data-f="v">Venda</button><button data-f="l">Locação</button></div>
       <div class="tipo"><button id="tbtn" aria-haspopup="true">Tipo</button><div class="tmenu" id="tmenu" role="menu"></div></div>
+      <div class="tour"><button id="tourbtn" aria-haspopup="true"><i></i>Passeio</button><div class="tmenu" id="tourmenu" role="menu"></div></div>
     </div>
     <div class="search"><input id="q" placeholder="Buscar condomínio…" autocomplete="off" enterkeyhint="search"><div class="sugg" id="sugg"></div></div>
   </div>
@@ -219,6 +249,7 @@ html.embed .brand{display:none}
   <div id="foot"><b>S.A Imóveis</b> · imóveis ativos do portal <span id="dt"></span> · sem número de casa ou apartamento</div>
   <div id="hint">Toque numa bolha para estourar e ver os imóveis</div>
   <div id="tip"></div>
+  <div id="tourbar" aria-live="polite"><div class="r"><div class="nm"><small>Passeio pela avenida</small><b id="tourname"></b></div><button id="tourpp" aria-label="Pausar">❚❚</button><button id="tourx" aria-label="Sair do passeio">✕</button></div><div class="pg"><i id="tourpg"></i></div><div class="now" id="tournow"></div></div>
   <aside id="panel" aria-live="polite">
     <button class="x" id="close" aria-label="Fechar">×</button>
     <header><div class="kick" id="pk"></div><h2 id="pt"></h2><div class="sub" id="ps"></div><div id="pc"></div></header>
@@ -329,7 +360,7 @@ const labels=[];
 function addLabel(text,ll,cls,minK,maxK){const d=document.createElement('div');d.className='lbl '+(cls||'');d.textContent=text;layer.appendChild(d);labels.push({d,ll,minK,maxK:maxK||99})}
 Object.keys(boxes).forEach(pn=>{const par=byName[pn];if(!par||!par.c)return;const ys=bigRing(par.geom).map(p=>p[1]);const top=Math.max(...ys);addLabel(pn,[par.c[0],top-(top-par.c[1])*0.22],'cx',5)});
 // ---------- bolhas ----------
-const bubbles=[];let bubT=0;
+const bubbles=[];let bubT=0;let TOUR=null;
 function sizeFor(n,region){return region?Math.min(150,58+Math.sqrt(n)*4.2):Math.min(96,34+Math.sqrt(n)*6.5)}
 function makeBubble(obj,region){const b=document.createElement('div');b.className='bub'+(region?' region':'');
   b.innerHTML='<div class="float"><div class="sphere"><div class="num"><b></b><small></small></div></div></div><div class="cap"></div>';
@@ -352,9 +383,11 @@ function refreshCounts(){bubbles.forEach(({b,obj,region})=>{const n=cnt(obj);b.q
 let lastZf=-1;
 function applySizes(){const mob=MOB();const zf=Math.round(Math.min(1,Math.max(.55,.5+.1*rz()))*(mob?.72:1)*20)/20;if(zf===lastZf)return;lastZf=zf;
   bubbles.forEach(({b,region})=>{const s=Math.round(+b.dataset.base*(region?(mob?.55:1):zf));b.querySelector('.sphere').style.setProperty('--s',s+'px');b.querySelector('small').style.display=s<46?'none':'';b.dataset.s=s})}
-function apply(){applySizes();const showReg=map.getZoom()<ZREG();const shown=[];
-  for(const r of bubbles){const vis=(r.region?showReg:!showReg)&&+r.b.dataset.n>0;r.b.style.display=vis?'':'none';
-    if(vis){const p=map.project(r.obj.c);r.b.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`;if(!r.region)shown.push({r,x:p.x,y:p.y,s:+r.b.dataset.s})}}
+function apply(){applySizes();const showReg=!TOUR&&map.getZoom()<ZREG();const shown=[];const H0=layer.clientHeight;
+  for(const r of bubbles){let vis=(r.region?showReg:!showReg)&&+r.b.dataset.n>0&&(!TOUR||TOUR.set.has(r.obj));let p=null;
+    if(vis&&TOUR){p=map.project(r.obj.c);if(p.y<H0*.14)vis=false}
+    r.b.style.display=vis?'':'none';
+    if(vis){p=p||map.project(r.obj.c);r.b.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`;if(!r.region)shown.push({r,x:p.x,y:p.y,s:+r.b.dataset.s})}}
   if(showReg){const R=bubbles.filter(r=>r.region&&r.b.style.display!=='none').map(r=>{const p=map.project(r.obj.c);return {r,x:p.x,y:p.y,s:+r.b.dataset.s}});
     for(let it=0;it<20;it++)for(let i=0;i<R.length;i++)for(let j=i+1;j<R.length;j++){const A=R[i],B=R[j];let dx=B.x-A.x,dy=B.y-A.y;const d=Math.hypot(dx,dy)||1,min=(A.s+B.s)/2+30;if(d<min){const m=(min-d)/2;dx/=d;dy/=d;A.x-=dx*m;A.y-=dy*m;B.x+=dx*m;B.y+=dy*m}}
     R.forEach(o=>o.r.b.style.transform=`translate(${o.x}px,${o.y}px) translate(-50%,-50%)`)}
@@ -489,6 +522,78 @@ sg.addEventListener('mousedown',e=>{const d=e.target.closest('[data-i]');if(d)go
 q.addEventListener('keydown',e=>{if(e.key==='Enter'&&res[sel])go(res[sel]);if(e.key==='ArrowDown'||e.key==='ArrowUp'){sel=(sel+(e.key==='ArrowDown'?1:-1)+res.length)%res.length;[...sg.children].forEach((d,i)=>d.classList.toggle('on',i===sel))}});
 q.addEventListener('blur',()=>setTimeout(()=>sg.style.display='none',150));
 function go(c){sg.style.display='none';q.value=c.name;q.blur();openCondo(c)}
+// ---------- passeio pela avenida (traçado do OpenStreetMap, sentido único) ----------
+const ROUTES={"Alameda Rio Negro":[[-46.84914,-23.49116],[-46.84917,-23.4915],[-46.8494,-23.49176],[-46.84936,-23.49197],[-46.84966,-23.49242],[-46.84926,-23.49281],[-46.84853,-23.49818],[-46.84863,-23.49866],[-46.84839,-23.49912],[-46.84779,-23.50345],[-46.84719,-23.50471],[-46.84727,-23.5052],[-46.84738,-23.50531]],"Avenida Andrômeda":[[-46.86874,-23.48793],[-46.86812,-23.48767],[-46.86782,-23.4873],[-46.86738,-23.48624],[-46.86696,-23.48581],[-46.86643,-23.48536],[-46.86557,-23.48485],[-46.86494,-23.48471],[-46.86423,-23.48486],[-46.86161,-23.48609],[-46.8606,-23.48665],[-46.85791,-23.48635],[-46.85764,-23.48648],[-46.85707,-23.48698],[-46.85648,-23.48709]],"Alameda Araguaia":[[-46.82346,-23.50367],[-46.83149,-23.50281],[-46.83332,-23.50246],[-46.83766,-23.50134],[-46.83862,-23.5012],[-46.84363,-23.49998],[-46.84473,-23.49945],[-46.84538,-23.49899],[-46.8459,-23.49874],[-46.84624,-23.49881],[-46.84677,-23.49856],[-46.84745,-23.4985],[-46.85103,-23.499],[-46.8562,-23.49824],[-46.85687,-23.49823],[-46.85875,-23.49911],[-46.85943,-23.49952],[-46.85959,-23.49975],[-46.85977,-23.50111]],"Avenida Sagitário":[[-46.86668,-23.48337],[-46.86641,-23.48338],[-46.86616,-23.48385],[-46.86524,-23.48375],[-46.863,-23.48454],[-46.86015,-23.48437],[-46.85965,-23.48445],[-46.85864,-23.48492],[-46.85803,-23.48507],[-46.85694,-23.48478],[-46.85668,-23.4848]],"Avenida Yojiro Takaoka":[[-46.87118,-23.47101],[-46.87165,-23.4702],[-46.87175,-23.4697],[-46.87169,-23.46903],[-46.87132,-23.46853],[-46.87004,-23.46757],[-46.86967,-23.46715],[-46.86945,-23.46599],[-46.86946,-23.46513],[-46.86968,-23.46483],[-46.87082,-23.46457],[-46.87372,-23.46355],[-46.87544,-23.46282],[-46.87826,-23.46179],[-46.87841,-23.46151],[-46.87883,-23.4617],[-46.87963,-23.46144],[-46.88263,-23.46042],[-46.88627,-23.45895]],"Avenida Tamboré":[[-46.84537,-23.50475],[-46.844,-23.5037],[-46.84367,-23.50331],[-46.84341,-23.50279],[-46.84133,-23.49299],[-46.84116,-23.49266],[-46.84052,-23.49195],[-46.84002,-23.49104]],"Avenida Alphaville":[[-46.87081,-23.47133],[-46.87109,-23.47142],[-46.86958,-23.47292],[-46.86723,-23.474],[-46.86526,-23.47454],[-46.86233,-23.47495],[-46.86178,-23.47515],[-46.86111,-23.47512],[-46.86014,-23.47529],[-46.85956,-23.47551],[-46.85882,-23.47611],[-46.85839,-23.4768],[-46.85822,-23.47752],[-46.85816,-23.48076],[-46.85847,-23.48291],[-46.85849,-23.48366],[-46.85812,-23.48521],[-46.85763,-23.48642],[-46.85698,-23.48696],[-46.85605,-23.48719],[-46.85579,-23.48737],[-46.85512,-23.4884],[-46.85394,-23.48992],[-46.85351,-23.4913],[-46.85304,-23.4921],[-46.85322,-23.49267]],"Avenida Marcos Penteado de Ulhôa Rodrigues":[[-46.83241,-23.47858],[-46.83235,-23.47795],[-46.83302,-23.47789],[-46.8334,-23.47776],[-46.83501,-23.47681],[-46.83544,-23.4767],[-46.83751,-23.47649],[-46.83836,-23.47618],[-46.83886,-23.47584],[-46.83914,-23.47542],[-46.83951,-23.47424],[-46.84043,-23.47339],[-46.84085,-23.47262],[-46.84163,-23.47103],[-46.84254,-23.46863],[-46.84309,-23.46753],[-46.8438,-23.46645],[-46.84443,-23.46577],[-46.84495,-23.46559],[-46.84555,-23.46569],[-46.84685,-23.46641],[-46.84795,-23.46752],[-46.84825,-23.46771],[-46.84991,-23.46792],[-46.85231,-23.46715],[-46.85288,-23.46688],[-46.85492,-23.46518],[-46.85534,-23.46457],[-46.8565,-23.46395],[-46.85802,-23.46346],[-46.85918,-23.46341],[-46.86006,-23.46292],[-46.86056,-23.46251]]};
+const MPD=111320,dist=(a,b)=>Math.hypot((a[0]-b[0])*KX,a[1]-b[1])*MPD;
+const slugOf=t=>norm(t).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const shortName=n=>n.replace(/^Avenida /,'Av. ').replace(/^Alameda /,'Al. ');
+function routeInfo(name){const pts=ROUTES[name];const cum=[0];for(let i=1;i<pts.length;i++)cum.push(cum[i-1]+dist(pts[i-1],pts[i]));
+  const at=s=>{s=Math.max(0,Math.min(cum[cum.length-1],s));let i=1;while(i<cum.length-1&&cum[i]<s)i++;const f=(s-cum[i-1])/((cum[i]-cum[i-1])||1);
+    return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*f,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*f]};
+  // distância de um ponto à linha e posição ao longo dela
+  const near=q=>{let best=[1e9,0];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];const ax=(b[0]-a[0])*KX,ay=b[1]-a[1],px=(q[0]-a[0])*KX,py=q[1]-a[1];
+    const L2=ax*ax+ay*ay||1e-12;const t=Math.max(0,Math.min(1,(px*ax+py*ay)/L2));const dd=Math.hypot(px-ax*t,py-ay*t)*MPD;if(dd<best[0])best=[dd,cum[i-1]+t*(cum[i]-cum[i-1])]}return best};
+  const stops=[];condos.forEach(c=>{if(!c.c||!c.n||c.reg==='Granja Viana')return;let [dd,t]=near(c.c);
+    if(dd>170&&c.geom){for(const p of bigRing(c.geom)){const [d2,t2]=near(p);if(d2<dd){dd=d2;t=t2}}if(dd<=60)dd=0}
+    if(c.inBox){const par=byName[c.inBox];if(par&&par.geom)for(const p of bigRing(par.geom)){const [d2]=near(p);if(d2<dd)dd=Math.min(dd,d2)}}
+    if(dd<=170)stops.push({c,t})});
+  stops.sort((a,b)=>a.t-b.t);
+  return {name,pts,len:cum[cum.length-1],at,stops}}
+const RINFO={};const rinfo=n=>RINFO[n]||(RINFO[n]=routeInfo(n));
+const tourbtn=$('#tourbtn'),tourmenu=$('#tourmenu');
+function renderTourMenu(){const rows=Object.keys(ROUTES).map(n=>{const r=rinfo(n);return [n,r.stops.reduce((s,x)=>s+cnt(x.c),0),r.len]}).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  tourmenu.innerHTML='<div class="h">Escolha a avenida</div>'+rows.map(([n,k,l])=>`<button data-r="${n}">${shortName(n)}<span>${k.toLocaleString('pt-BR')} imóveis · ${(l/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})} km</span></button>`).join('')}
+tourbtn.onclick=e=>{e.stopPropagation();closeTipo();renderTourMenu();tourmenu.classList.toggle('open')};
+tourmenu.onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;tourmenu.classList.remove('open');startTour(b.dataset.r)};
+document.addEventListener('click',e=>{if(!e.target.closest('.tour'))tourmenu.classList.remove('open')});
+function headingAt(r,s){const a=r.at(s-60),b=r.at(s+140);return (Math.atan2((b[0]-a[0])*KX,b[1]-a[1])*180/Math.PI+360)%360}
+function tourUrl(n){[[window,location],PAR&&[PAR,PAR.location]].filter(Boolean).forEach(([w,l])=>{try{const u=new URL(l.href);n?u.searchParams.set('passeio',slugOf(n)):u.searchParams.delete('passeio');w.history.replaceState(w.history.state,'',u)}catch(e){}})}
+function ensureRouteLayer(){if(!map.getSource('tour'))return map.addSource('tour',{type:'geojson',data:{type:'FeatureCollection',features:[]}}),
+  map.addLayer({id:'tour-glow',type:'line',source:'tour',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#FFEF04','line-width':14,'line-opacity':.16,'line-blur':6}}),
+  map.addLayer({id:'tour-line',type:'line',source:'tour',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#FFEF04','line-width':3.2,'line-opacity':.9}})}
+let raf=0;
+function startTour(name){if(!ROUTES[name])return;stopTour(true);closePanel();const r=rinfo(name);
+  TOUR={r,set:new Set(r.stops.map(x=>x.c)),s:0,playing:false,cur:null,last:0};
+  document.documentElement.classList.add('touring');tourbtn.classList.add('on');
+  $('#tourname').textContent=shortName(name)+' · '+r.stops.length+(r.stops.length===1?' condomínio':' condomínios');$('#tournow').innerHTML='';$('#tourpg').style.width='0';
+  $('#tourbar').classList.add('on');tourUrl(name);
+  const go=()=>{ensureRouteLayer();map.getSource('tour').setData({type:'Feature',geometry:{type:'LineString',coordinates:r.pts}});
+    map.setMaxPitch(70);lastZf=-1;apply();
+    map.flyTo({center:r.at(0),zoom:MOB()?15.6:16.2,pitch:62,bearing:headingAt(r,0),duration:2200,essential:true});
+    map.once('moveend',()=>{if(TOUR&&TOUR.r===r)play()})};
+  map.isStyleLoaded()?go():map.once('load',go);
+  try{(PAR||window).gtag&&(PAR||window).gtag('event','map_tour',{avenida:name})}catch(e){}}
+function play(){if(!TOUR)return;TOUR.playing=true;TOUR.last=0;$('#tourpp').textContent='❚❚';$('#tourpp').setAttribute('aria-label','Pausar');cancelAnimationFrame(raf);raf=requestAnimationFrame(step)}
+function pause(){if(!TOUR)return;TOUR.playing=false;cancelAnimationFrame(raf);$('#tourpp').textContent='▶';$('#tourpp').setAttribute('aria-label','Continuar')}
+const SPEED=()=>MOB()?42:48; // metros por segundo de passeio
+function step(ts){if(!TOUR||!TOUR.playing)return;const r=TOUR.r;const dt=TOUR.last?Math.min(.05,(ts-TOUR.last)/1000):0;TOUR.last=ts;
+  // desacelera perto de um condomínio
+  const nx=r.stops.find(x=>Math.abs(x.t-TOUR.s)<90);TOUR.s+=SPEED()*(nx?.45:1)*dt;
+  if(TOUR.s>=r.len){TOUR.s=r.len;showNow();pause();$('#tourpg').style.width='100%';
+    setTimeout(()=>{if(TOUR&&!TOUR.playing&&TOUR.s>=r.len){map.easeTo({pitch:0,bearing:0,duration:1200});const b=new maplibregl.LngLatBounds();r.pts.forEach(p=>b.extend(p));map.fitBounds(b,{padding:90,pitch:0,bearing:0,duration:1400})}},900);return}
+  const cur=map.getBearing(),want=headingAt(r,TOUR.s);let db=((want-cur+540)%360)-180;
+  map.jumpTo({center:r.at(TOUR.s),bearing:cur+db*Math.min(1,dt*1.6),pitch:62});
+  $('#tourpg').style.width=(TOUR.s/r.len*100).toFixed(1)+'%';showNow();raf=requestAnimationFrame(step)}
+function showNow(){const r=TOUR.r;let best=null;r.stops.forEach(x=>{const d=Math.abs(x.t-TOUR.s);if(d<260&&(!best||d<best.d))best={...x,d}});
+  bubbles.forEach(({b,obj})=>b.classList.toggle('near',!!best&&obj===best.c));
+  const c=best&&best.c;if(c===TOUR.cur)return;TOUR.cur=c;const box=$('#tournow');
+  if(!c){box.innerHTML='';return}
+  const tp=p=>tipo==='all'||p[7]===tipo;const v=c.props.filter(p=>tp(p)&&p[2]!=='rent').length,l=c.props.filter(p=>tp(p)&&p[2]!=='sale').length,n=cnt(c);
+  const parts=[filt!=='l'&&v?v+' venda':'',filt!=='v'&&l?l+' locação':''].filter(Boolean).join(' · ');
+  box.innerHTML=`<div class="t"><b>${c.name}</b><span>${n} ${n===1?'imóvel':'imóveis'}${parts?' · '+parts:''}</span></div><a href="#" role="button">Ver imóveis</a>`;
+  box.querySelector('a').onclick=e=>{e.preventDefault();pause();openCondo(c)};
+  const rec=bubbles.find(x=>x.obj===c);if(rec){rec.b.classList.add('regrow');setTimeout(()=>rec.b.classList.remove('regrow'),650)}}
+function stopTour(silent){if(!TOUR)return;cancelAnimationFrame(raf);TOUR=null;
+  document.documentElement.classList.remove('touring');tourbtn.classList.remove('on');$('#tourbar').classList.remove('on');
+  bubbles.forEach(({b})=>b.classList.remove('near'));
+  if(map.getSource('tour'))map.getSource('tour').setData({type:'FeatureCollection',features:[]});
+  tourUrl(null);lastZf=-1;if(!silent){map.easeTo({pitch:0,bearing:0,duration:900})}apply()}
+$('#tourpp').onclick=()=>TOUR&&(TOUR.playing?pause():(TOUR.s>=TOUR.r.len&&(TOUR.s=0),play()));
+$('#tourx').onclick=()=>stopTour(false);
+map.on('dragstart',()=>{if(TOUR&&TOUR.playing)pause()});
+map.on('move',()=>{if(TOUR&&!TOUR.playing)showNow()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&TOUR)stopTour(false)});
+{const want=URLP.get('passeio');const n=want&&Object.keys(ROUTES).find(k=>slugOf(k)===want);if(n)setTimeout(()=>startTour(n),600)}
 // ---------- início ----------
 function renderStats(){const tot=condos.reduce((s,c)=>s+(c.c?cnt(c):0),0),nc=condos.filter(c=>c.c&&cnt(c)).length;
   $('#stats').textContent=`${nc} condomínios · ${tot.toLocaleString('pt-BR')} imóveis no mapa`}
