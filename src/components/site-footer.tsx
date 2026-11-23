@@ -5,6 +5,8 @@ import { Link } from "@tanstack/react-router";
 import { ChevronDown, Phone, MessageCircle, Mail, MapPin } from "lucide-react";
 import { LOGO_URL } from "@/lib/brand";
 
+import { SeloMLFacil } from "@/components/SeloMLFacil";
+
 function FooterGroup({
   title,
   defaultOpen = false,
@@ -139,6 +141,7 @@ export function SiteFooter() {
           <p className="text-[11px] uppercase tracking-[0.2em] font-medium">
             Aluga · Vende · Permuta · Administra · Reforma
           </p>
+          <SeloMLFacil projeto="sa-imoveis-alphaville" origem="saimoveisalpha.com.br" />
         </div>
       </div>
     </footer>
