@@ -183,6 +183,11 @@ svg#map.drag{cursor:grabbing}
 #panel .chips.t{margin-top:8px}
 #panel .chip.tp{font-weight:500}
 html.embed .brand{display:none}
+#basemap{position:absolute;left:16px;bottom:84px;z-index:5;display:flex;background:rgba(10,10,10,.85);border:1px solid var(--line);border-radius:999px;padding:3px;backdrop-filter:blur(8px)}
+#basemap button{all:unset;cursor:pointer;padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:600;color:#cfcfc6}
+#basemap button.on{background:var(--y);color:#111}
+#esriattr{position:absolute;right:62px;bottom:4px;z-index:4;font-size:9.5px;color:#d0d0c6;background:rgba(0,0,0,.55);padding:2px 6px;border-radius:4px;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none}
+@media (max-width:700px){#basemap{left:10px;bottom:30px}#basemap button{padding:7px 11px;font-size:12px}#esriattr{right:auto;left:10px;bottom:8px;max-width:70%}}
 #panel .x{position:absolute;right:12px;top:14px;z-index:2}
 @media (max-width:700px){
   #top{flex-direction:column;align-items:stretch;gap:8px}
@@ -209,6 +214,7 @@ html.embed .brand{display:none}
     <div class="search"><input id="q" placeholder="Buscar condomínio…" autocomplete="off" enterkeyhint="search"><div class="sugg" id="sugg"></div></div>
   </div>
   <div id="zoom"><button id="zin" aria-label="Aproximar">+</button><button id="zout" aria-label="Afastar">−</button><button id="zfit" aria-label="Ver tudo" style="font-size:15px">⤢</button></div>
+  <div id="basemap" role="group" aria-label="Fundo do mapa"><button data-b="map" class="on">Mapa</button><button data-b="sat">Satélite</button></div><div id="esriattr"></div>
   <div id="legend"><span><i style="background:rgba(255,239,4,.25);border:1px solid var(--y)"></i>Residencial</span><span><i style="background:rgba(140,205,255,.25);border:1px solid #8ccdff"></i>Comercial</span><span><i style="border:1px dashed #aaa"></i>Complexo com vários condomínios</span></div>
   <div id="foot"><b>S.A Imóveis</b> · imóveis ativos do portal <span id="dt"></span> · sem número de casa ou apartamento</div>
   <div id="hint">Toque numa bolha para estourar e ver os imóveis</div>
@@ -361,6 +367,26 @@ function placeCaptions(shown){const cw=MOB()?6.0:6.5;const bx=shown.map(o=>({x0:
     if(ok)for(const b of bx){if(b.own===o.r)continue;if(rc.x0<b.x1&&rc.x1>b.x0&&rc.y0<b.y1&&rc.y1>b.y0){ok=false;break}}
     o.r.b.classList.toggle('capon',ok);if(ok)bx.push(rc)})}
 map.on('move',apply);map.on('resize',apply);
+// ---------- fundo: mapa (OpenFreeMap) ou satélite (Esri, chave restrita aos domínios do portal) ----------
+const ESRI_KEY='AAPTazv4cFD6jYEtxF6_UUoQLmw..5Li-DMWk6rYWialQTNKlaf2iTztzqoaqgmezORsTPXFVTweiM_Dr4Buz6OkwLxfrStGYo6ZFPZ_RyDe-zJOK2_Xlh7coVR65dS1baeAs_MyD8QWJwe-L1--XoXD1tdkocsFpU7OWROPXNwt1iVIl9JHz47tIx4EaPZYOzFp_TBefXXm2b4GIejM0h1zqaFH_jRFuyyFMIOD7E-BDwurlROuRJoAcrqDwjbMRZ9k2lb8NFhOzf5KWUNw9AT1_GUV4CbDA';
+const ESRI_BASE='https://static-map-tiles-api.arcgis.com/arcgis/rest/services/static-basemap-tiles-service/v1/arcgis/imagery/static';
+let base=(URLP.get('base')==='sat')?'sat':'map';
+function setBase(b){base=b;document.querySelectorAll('#basemap button').forEach(x=>x.classList.toggle('on',x.dataset.b===b));
+  const go=()=>{if(b==='sat'&&!map.getSource('sat')){
+      map.addSource('sat',{type:'raster',tiles:[ESRI_BASE+'/tile/{z}/{y}/{x}?token='+ESRI_KEY],tileSize:512,maxzoom:19});
+      const firstSym=(map.getStyle().layers.find(l=>l.type==='symbol')||{}).id;
+      map.addLayer({id:'sat',type:'raster',source:'sat',paint:{'raster-opacity':1}},firstSym);
+      fetch(ESRI_BASE+'?token='+ESRI_KEY).then(r=>r.json()).then(d=>{if(d&&d.copyrightText)$('#esriattr').textContent='Imagens: Powered by Esri · '+d.copyrightText}).catch(()=>{});
+      $('#esriattr').textContent='Imagens: Powered by Esri'}
+    if(map.getLayer('sat'))map.setLayoutProperty('sat','visibility',b==='sat'?'visible':'none');
+    $('#esriattr').style.display=b==='sat'?'block':'none';
+    if(map.getLayer('terr-fill'))map.setPaintProperty('terr-line','line-width',b==='sat'?2:1.3)};
+  map.isStyleLoaded()&&map.getLayer('terr-fill')?go():map.once('load',go);
+  [[window,location],PAR&&[PAR,PAR.location]].filter(Boolean).forEach(([w,l])=>{try{const u=new URL(l.href);b==='sat'?u.searchParams.set('base','sat'):u.searchParams.delete('base');w.history.replaceState(w.history.state,'',u)}catch(e){}});
+  try{(PAR||window).gtag&&(PAR||window).gtag('event','map_basemap',{base:b})}catch(e){}}
+document.querySelectorAll('#basemap button').forEach(x=>x.onclick=()=>setBase(x.dataset.b));
+if(base==='sat')setBase('sat');
+
 // ---------- navegação ----------
 function fitAll(animate){map.fitBounds(ALL,{padding:40,duration:animate?800:0})}
 function flyToRegion(r){const cam=map.cameraForBounds([[r.bb[0]-.003,r.bb[1]-.003],[r.bb[2]+.003,r.bb[3]+.003]],{padding:70});
