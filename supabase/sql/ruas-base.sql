@@ -33,3 +33,5 @@ alter table streets add column if not exists ceps jsonb not null default '[]'::j
 --   Lote 4 (publicado): alameda-cores-da-mata (Premium Tamboré), alameda-iberica (Tamboré 6), alameda-topazio (Residencial 9),
 --   estrada-de-santo-andre (Reserva Santa Anna), avenida-marechal-mascarenhas-de-moraes (Altavis; nome oficial dos Correios,
 --   3 CEPs por trecho; street_aliases "Estrada Marechal Mascarenhas de Moraes" para casar os anúncios).
+--   Lote 5 (publicado, fecha a meta de 50): alameda-canto-dos-passaros (Boulevard Tamboré), alameda-das-embaubas (Gênesis 2),
+--   alameda-tubarao (Residencial 11), alameda-vale-do-taquari (Valville 1). Total: 51 ruas publicadas. Limite inicial combinado: 50.
