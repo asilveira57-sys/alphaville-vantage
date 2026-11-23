@@ -649,7 +649,7 @@ async function runReel(name){const msg=document.createElement('div');msg.id='ree
   // câmeras
   const bAll=new maplibregl.LngLatBounds();r.pts.forEach(p=>b0(p));function b0(p){bAll.extend(p)}
   const a0=r.pts[0],a1=r.pts[r.pts.length-1];const brAll=(Math.atan2((a1[0]-a0[0])*KX,a1[1]-a0[1])*180/Math.PI+360)%360;
-  map.setBearing(brAll);const ov=map.cameraForBounds(bAll,{padding:{top:380,bottom:880,left:90,right:90},bearing:brAll});
+  map.setBearing(brAll);const ov=map.cameraForBounds(bAll,{padding:{top:170,bottom:420,left:40,right:40},bearing:brAll});
   const OV={center:[ov.center.lng,ov.center.lat],zoom:Math.min(ov.zoom,16),pitch:0,bearing:brAll};
   const ST={center:r.at(0),zoom:16.6,pitch:60,bearing:headingAt(r,0)};
   const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;const lerp=(a,b,t)=>a+(b-a)*t;const lb=(a,b,t)=>a+(((b-a+540)%360)-180)*t;
