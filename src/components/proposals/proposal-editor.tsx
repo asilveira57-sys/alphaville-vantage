@@ -221,6 +221,14 @@ export function ProposalEditor({
   const lockedWithoutProfile = !!lockToUserId && brokersQ.isSuccess && !activeBrokers.some((b) => b.user_id === lockToUserId);
   const h2 = "text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-3";
   const canSave = !!brokerId && clientName.trim().length >= 2 && items.length > 0 && !lockedWithoutProfile;
+  const saveLabel = save.isPending ? "Salvando…" : isNew ? `Gerar proposta (${items.length})` : "Salvar alterações";
+  const missingHint = !brokerId
+    ? "Escolha o corretor responsável."
+    : clientName.trim().length < 2
+      ? "Preencha o nome do cliente."
+      : items.length === 0
+        ? "Escolha ao menos um imóvel."
+        : "Perfil de corretor não cadastrado.";
 
   return (
     <div className={compact ? "px-4 pt-4 pb-32" : "max-w-6xl mx-auto px-6 py-14 pb-32"}>
@@ -372,11 +380,24 @@ export function ProposalEditor({
           <h2 className={h2}>4. Mensagem</h2>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={600} rows={4} className={input} />
           <p className="text-[11px] text-muted-foreground mt-1">{"{cliente}"} vira o primeiro nome do cliente.</p>
+          {/* Botão também no fim do formulário (a barra fixa pode ficar escondida atrás de outros elementos). */}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => save.mutate()}
+              disabled={save.isPending || !canSave}
+              className="bg-ink text-canvas px-6 py-3.5 text-xs uppercase tracking-widest font-semibold disabled:opacity-40"
+            >
+              {saveLabel}
+            </button>
+            {save.error && <p className="text-xs text-red-600">{(save.error as Error).message}</p>}
+            {!save.error && !canSave && <p className="text-xs text-muted-foreground">{missingHint}</p>}
+          </div>
         </section>
       </div>
 
       {/* Barra fixa de salvar */}
-      <div className={`fixed inset-x-0 z-40 border-t border-ink/10 bg-canvas/95 backdrop-blur px-4 py-3 ${compact ? "bottom-16" : "bottom-0"}`}>
+      <div className={`fixed inset-x-0 z-[65] border-t border-ink/10 bg-canvas/95 backdrop-blur px-4 py-3 ${compact ? "bottom-16" : "bottom-0"}`}>
         <div className="max-w-6xl mx-auto flex items-center gap-3">
           <button
             type="button"
@@ -384,12 +405,10 @@ export function ProposalEditor({
             disabled={save.isPending || !canSave}
             className="flex-1 sm:flex-none bg-ink text-canvas px-6 py-3.5 text-xs uppercase tracking-widest font-semibold disabled:opacity-40"
           >
-            {save.isPending ? "Salvando…" : isNew ? `Gerar proposta (${items.length})` : "Salvar alterações"}
+            {saveLabel}
           </button>
           {save.error && <p className="text-xs text-red-600">{(save.error as Error).message}</p>}
-          {!save.error && !canSave && (
-            <p className="hidden sm:block text-xs text-muted-foreground">Preencha o cliente e escolha ao menos um imóvel.</p>
-          )}
+          {!save.error && !canSave && <p className="hidden sm:block text-xs text-muted-foreground">{missingHint}</p>}
         </div>
       </div>
     </div>
