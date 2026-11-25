@@ -276,6 +276,15 @@ const upsertSchema = z.object({
   properties_condo_terms: z.array(z.string()).default([]),
   properties_included_ids: z.array(z.string().uuid()).default([]),
   properties_excluded_ids: z.array(z.string().uuid()).default([]),
+  // Vídeo do YouTube (jsonb editorial_pages.video); ausente = não mexe na coluna
+  video: z.object({
+    url: z.string().default(""),
+    title: z.string().default(""),
+    description: z.string().default(""),
+    upload_date: z.string().default(""),
+    duration: z.string().default(""),
+    chapters: z.string().default(""),
+  }).nullable().optional(),
 });
 
 export const upsertEditorialPage = createServerFn({ method: "POST" })

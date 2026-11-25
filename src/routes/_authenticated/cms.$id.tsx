@@ -129,7 +129,18 @@ type FormState = {
   properties_condo_terms: string[];
   properties_included_ids: string[];
   properties_excluded_ids: string[];
+  // Vídeo do YouTube (player + VideoObject)
+  video: { url: string; title: string; description: string; upload_date: string; duration: string; chapters: string; had?: boolean };
 };
+
+const EMPTY_VIDEO = { url: "", title: "", description: "", upload_date: "", duration: "", chapters: "" };
+// Sem link: não envia a coluna (null só se a página já tinha vídeo), assim o
+// CMS continua salvando mesmo antes de rodar supabase/sql/videos-youtube.sql.
+function videoPayload(v: FormState["video"]) {
+  const { had, ...rest } = v;
+  if (rest.url.trim()) return { ...rest, url: rest.url.trim() };
+  return had ? null : undefined;
+}
 
 const EMPTY: FormState = {
   title: "", slug: "", content_type: "blog", excerpt: "", html_content: "",
@@ -150,6 +161,7 @@ const EMPTY: FormState = {
   cta_id: null, cta_hidden: false,
   properties_block_enabled: true, properties_block_title: "",
   properties_condo_terms: [], properties_included_ids: [], properties_excluded_ids: [],
+  video: EMPTY_VIDEO,
 };
 
 const slugify = (s: string) =>
@@ -190,6 +202,7 @@ function toFormState(p: any): FormState {
     properties_condo_terms: p.properties_condo_terms ?? [],
     properties_included_ids: p.properties_included_ids ?? [],
     properties_excluded_ids: p.properties_excluded_ids ?? [],
+    video: { ...EMPTY_VIDEO, ...(p.video && typeof p.video === "object" ? { ...p.video, had: true } : {}) },
     meta_title: p.meta_title ?? "",
     meta_description: p.meta_description ?? "",
     focus_keyword: p.focus_keyword ?? "",
@@ -411,6 +424,7 @@ function CmsEditorPage() {
           properties_condo_terms: form.properties_condo_terms,
           properties_included_ids: form.properties_included_ids,
           properties_excluded_ids: form.properties_excluded_ids,
+          video: videoPayload(form.video),
         } as any,
       });
     },
@@ -496,6 +510,7 @@ function CmsEditorPage() {
         properties_condo_terms: f.properties_condo_terms,
         properties_included_ids: f.properties_included_ids,
         properties_excluded_ids: f.properties_excluded_ids,
+        video: videoPayload(f.video),
       } as any,
     });
     dbContentRef.current = f.html_content;
@@ -808,6 +823,19 @@ function CmsEditorPage() {
                   }))
                 }
               />
+            </section>
+
+            <section className="space-y-4 border-t border-ink/10 pt-6">
+              <h3 className="text-sm font-medium text-ink">Vídeo do YouTube</h3>
+              <p className="text-xs text-muted-foreground">Cole o link do vídeo publicado. O player aparece no topo da página e o Google recebe os dados do vídeo. Use em uma página só por vídeo; nas outras, mostre um card com link para ela.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Link do YouTube"><input value={form.video.url} onChange={(e) => set("video", { ...form.video, url: e.target.value })} className={`${inputCls} font-mono`} placeholder="https://youtu.be/..." /></Field>
+                <Field label="Título do vídeo"><input value={form.video.title} onChange={(e) => set("video", { ...form.video, title: e.target.value })} className={inputCls} placeholder="Igual ao do YouTube" /></Field>
+                <Field label="Data de publicação"><input type="date" value={form.video.upload_date} onChange={(e) => set("video", { ...form.video, upload_date: e.target.value })} className={inputCls} /></Field>
+                <Field label="Duração"><input value={form.video.duration} onChange={(e) => set("video", { ...form.video, duration: e.target.value })} className={inputCls} placeholder="1:52" /></Field>
+                <Field label="Resumo (aparece embaixo do vídeo)"><textarea value={form.video.description} onChange={(e) => set("video", { ...form.video, description: e.target.value })} rows={3} className={inputCls} /></Field>
+                <Field label="Capítulos (um por linha)"><textarea value={form.video.chapters} onChange={(e) => set("video", { ...form.video, chapters: e.target.value })} rows={5} className={`${inputCls} font-mono`} placeholder={"0:00 Abertura\n0:11 Residencial 1"} /></Field>
+              </div>
             </section>
 
             <section className="space-y-4 border-t border-ink/10 pt-6">

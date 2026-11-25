@@ -13,6 +13,8 @@ import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-
 import { AreaOverviewBlock } from "@/components/area-overview-block";
 import { getAreaOverview } from "@/lib/area-overview.functions";
 import { computedAreaFaq, type AreaOverview } from "@/lib/street-overview";
+import { YouTubeVideo } from "@/components/youtube-video";
+import { videoObjectScript } from "@/lib/youtube";
 import { EDITORIAL_AUTHOR, EDITORIAL_PUBLISHER, topicPropsQO, topicBlockTitle } from "@/lib/editorial-topic-properties";
 
 
@@ -91,7 +93,7 @@ export const Route = createFileRoute("/guia/$slug")({
         ...(image ? [{ property: "og:image", content: image }] : []),
       ],
       links: [{ rel: "canonical", href: p.canonical_url || url }],
-      scripts: [...guiaFaqScripts(p, loaderData?.area ?? null), {
+      scripts: [...guiaFaqScripts(p, loaderData?.area ?? null), ...videoObjectScript((p as { video?: unknown }).video, { title: p.title, description: p.excerpt, pageUrl: url }), {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
@@ -158,7 +160,9 @@ function GuiaPage() {
         </div>
       </section>
 
-      {page.featured_image && (
+      <YouTubeVideo video={(page as { video?: unknown }).video} fallbackTitle={page.title} className="border-b border-ink/8" />
+
+      {page.featured_image && !(page as { video?: { url?: string } | null }).video?.url && (
         <section className="px-6 py-12 bg-ink/[0.02]">
           <div className="max-w-5xl mx-auto"><img width={800} height={600} decoding="async" src={page.featured_image} alt={page.title} className="w-full h-auto" loading="lazy" /></div>
         </section>

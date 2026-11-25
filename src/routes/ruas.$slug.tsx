@@ -8,6 +8,8 @@ import { PremiumCard } from "@/components/premium-card";
 import { CleanPropertyCard } from "@/components/premium-cards/clean-property-card";
 import { EditorialContent } from "@/components/editorial-content";
 import { ResolvedCta } from "@/components/resolved-cta";
+import { VideoCard, YouTubeVideo } from "@/components/youtube-video";
+import { videoObjectScript } from "@/lib/youtube";
 import { GuideDownloadLead } from "@/components/guide-download-lead";
 import { areaShort, cepFaq, cepLabel, cleanBairro, parseCeps } from "@/lib/street-ceps";
 import { brl, computedStreetFaq, groupNearby, kmLabel, type StreetOverview } from "@/lib/street-overview";
@@ -81,6 +83,7 @@ export const Route = createFileRoute("/ruas/$slug")({
       ],
       links: [{ rel: "canonical", href: s.canonical_url || url }],
       scripts: [
+        ...videoObjectScript(s.video, { title: s.name, description: desc, pageUrl: url }),
         {
           type: "application/ld+json",
           children: JSON.stringify({
@@ -263,6 +266,10 @@ function StreetDetail() {
             </div>
           </section>
         )}
+
+        {street.video && (street.video.href
+          ? <VideoCard video={street.video} />
+          : <YouTubeVideo video={street.video} fallbackTitle={street.name} className="!px-0 !py-0" />)}
 
         {street.description && (
           <section className="max-w-3xl">

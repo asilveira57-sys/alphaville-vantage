@@ -13,6 +13,8 @@ import { getPostBySlug, listRelatedPosts } from "@/lib/blog.functions";
 import { getRedirectFor } from "@/lib/seo.functions";
 import { SITE_URL } from "@/lib/site";
 import { CondoPropertiesBlock } from "@/components/condominios/condo-properties-block";
+import { YouTubeVideo } from "@/components/youtube-video";
+import { videoObjectScript } from "@/lib/youtube";
 import { EDITORIAL_AUTHOR, EDITORIAL_PUBLISHER, topicPropsQO, topicBlockTitle } from "@/lib/editorial-topic-properties";
 
 
@@ -70,7 +72,7 @@ export const Route = createFileRoute("/blog/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: p.canonical_url || `/blog/${p.slug}` }],
-      scripts: [{
+      scripts: [...videoObjectScript(p.video, { title: p.title, description: p.meta_description ?? p.excerpt, pageUrl: `${SITE_URL}/blog/${p.slug}` }), {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
@@ -173,6 +175,8 @@ function PostPage() {
           </p>
         </div>
       </header>
+
+      <YouTubeVideo video={post.video} fallbackTitle={post.title} className="bg-canvas border-b border-ink/10" />
 
       {/* Body */}
       <article className="bg-canvas px-6 py-16 md:py-24">
