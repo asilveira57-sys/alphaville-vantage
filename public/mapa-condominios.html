@@ -231,6 +231,15 @@ html.touring #zoom,html.touring #legend,html.touring #hint,html.touring #foot{di
 html.reel #app{right:auto;bottom:auto;width:540px;height:960px}
 html.reel #layer,html.reel #top,html.reel #zoom,html.reel #basemap,html.reel #legend,html.reel #foot,html.reel #hint,html.reel #tourbar,html.reel #panel,html.reel #esriattr,html.reel #tip,html.reel .maplibregl-control-container{display:none!important}
 #reelmsg{position:fixed;left:560px;top:20px;font:600 14px Inter,sans-serif;color:#fff;background:#111;border:1px solid #333;padding:10px 14px;border-radius:10px;z-index:99}
+/* desempenho: celular sem desfoque/brilho animado; tudo parado enquanto o mapa se move */
+html.lite .bub .sphere{backdrop-filter:none;transition:none}
+html.lite .bub .sphere::before{animation:none;mix-blend-mode:normal;opacity:.45}
+html.lite .bub .sphere::after{animation:none}
+html.lite .bub .float{animation:none}
+html.moving .bub .float,html.moving .bub .sphere::before,html.moving .bub .sphere::after{animation-play-state:paused}
+html.moving .bub .cap{opacity:0!important;transition:none}
+.bub.cl .sphere{box-shadow:inset 0 0 calc(var(--s)*.22) rgba(255,239,4,.55),0 0 calc(var(--s)*.4) rgba(255,239,4,.28)}
+.bub.cl .cap{color:var(--y)}
 </style>
 </head>
 <body>
@@ -273,6 +282,7 @@ const $=s=>document.querySelector(s);
 const layer=$('#layer');
 const KX=Math.cos(-23.48*Math.PI/180);
 const MOB=()=>innerWidth<=700;
+const LITE=matchMedia('(pointer:coarse)').matches||innerWidth<=700;if(LITE)document.documentElement.classList.add('lite');
 // ---------- região de exibição ----------
 function regionOf(c){if(c.rg)return c.rg;const n=c.name.toLowerCase(),r=(c.region||'').toLowerCase();
   if(/morada das (nuvens|estrelas)/.test(n))return 'Aldeia da Serra';
@@ -337,7 +347,7 @@ const cnt=c=>c.list?c.list.reduce((s,x)=>s+cnt(x),0):c.props.filter(match).lengt
 const pts0=condos.filter(c=>c.c&&['Alphaville','Tamboré'].includes(c.reg)).map(c=>c.c);
 const ALL=[[Math.min(...pts0.map(p=>p[0]))-.004,Math.min(...pts0.map(p=>p[1]))-.004],[Math.max(...pts0.map(p=>p[0]))+.004,Math.max(...pts0.map(p=>p[1]))+.004]];
 const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/dark',bounds:ALL,fitBoundsOptions:{padding:40},
-  attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,touchPitch:false,maxZoom:18.5,minZoom:9,...(REEL?{pixelRatio:2,preserveDrawingBuffer:true,fadeDuration:0,interactive:false}:{})});
+  attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,touchPitch:false,maxZoom:18.5,minZoom:9,...(!REEL&&LITE?{pixelRatio:Math.min(devicePixelRatio||1,1.6),fadeDuration:0}:{}),...(REEL?{pixelRatio:2,preserveDrawingBuffer:true,fadeDuration:0,interactive:false}:{})});
 map.touchZoomRotate.disableRotation();map.keyboard.disableRotation();
 map.getCanvasContainer().appendChild(layer);
 let Z0=map.getZoom();
@@ -390,23 +400,56 @@ function refreshCounts(){bubbles.forEach(({b,obj,region})=>{const n=cnt(obj);b.q
 let lastZf=-1;
 function applySizes(){const mob=MOB();const zf=Math.round(Math.min(1,Math.max(.55,.5+.1*rz()))*(mob?.72:1)*20)/20;if(zf===lastZf)return;lastZf=zf;
   bubbles.forEach(({b,region})=>{const s=Math.round(+b.dataset.base*(region?(mob?.55:1):zf));b.querySelector('.sphere').style.setProperty('--s',s+'px');b.querySelector('small').style.display=s<46?'none':'';b.dataset.s=s})}
-function apply(){applySizes();const showReg=!TOUR&&map.getZoom()<ZREG();const shown=[];const H0=layer.clientHeight;
+const zfRaw=()=>Math.min(1,Math.max(.55,.5+.1*rz()))*(MOB()?.72:1);
+let CL=[];const clEls=[];
+function setVis(el,v){if(el._v!==v){el._v=v;el.style.display=v?'':'none'}}
+function apply(fast){if(!fast)applySizes();const showReg=!TOUR&&map.getZoom()<ZREG();const shown=[];const H0=layer.clientHeight;
+  const k=fast&&lastZf>0?Math.max(.6,Math.min(1.8,zfRaw()/lastZf)):1;const sc=k!==1?` scale(${k.toFixed(3)})`:'';
   for(const r of bubbles){let vis=(r.region?showReg:!showReg)&&+r.b.dataset.n>0&&(!TOUR||TOUR.set.has(r.obj));let p=null;
     if(vis&&TOUR){p=map.project(r.obj.c);if(p.y<H0*.14)vis=false}
-    r.b.style.display=vis?'':'none';
-    if(vis){p=p||map.project(r.obj.c);r.b.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`;if(!r.region)shown.push({r,x:p.x,y:p.y,s:+r.b.dataset.s})}}
+    if(vis&&fast&&r._inCl)vis=false;
+    setVis(r.b,vis);
+    if(vis){p=p||map.project(r.obj.c);r.b.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`+(r.region?'':sc);if(!r.region)shown.push({r,x:p.x,y:p.y,s:+r.b.dataset.s})}}
+  if(fast){CL.forEach(c=>{const p=map.project(c.ll);c.el.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`+sc});
+    for(const l of labels){const vis=rz()>=l.minK&&rz()<l.maxK;setVis(l.d,vis);if(vis){const p=map.project(l.ll);l.d.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`}}
+    return}
+  const fin=TOUR||EDIT||showReg?shown:clusterize(shown);
   if(showReg){const R=bubbles.filter(r=>r.region&&r.b.style.display!=='none').map(r=>{const p=map.project(r.obj.c);return {r,x:p.x,y:p.y,s:+r.b.dataset.s}});
     for(let it=0;it<20;it++)for(let i=0;i<R.length;i++)for(let j=i+1;j<R.length;j++){const A=R[i],B=R[j];let dx=B.x-A.x,dy=B.y-A.y;const d=Math.hypot(dx,dy)||1,min=(A.s+B.s)/2+30;if(d<min){const m=(min-d)/2;dx/=d;dy/=d;A.x-=dx*m;A.y-=dy*m;B.x+=dx*m;B.y+=dy*m}}
     R.forEach(o=>o.r.b.style.transform=`translate(${o.x}px,${o.y}px) translate(-50%,-50%)`)}
-  placeCaptions(shown);
-  for(const l of labels){const vis=rz()>=l.minK&&rz()<l.maxK;l.d.style.display=vis?'':'none';if(vis){const p=map.project(l.ll);l.d.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`}}}
+  if(fin===shown)clearClusters();
+  placeCaptions(fin);
+  for(const l of labels){const vis=rz()>=l.minK&&rz()<l.maxK;setVis(l.d,vis);if(vis){const p=map.project(l.ll);l.d.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`}}}
 function placeCaptions(shown){const cw=MOB()?6.0:6.5;const bx=shown.map(o=>({x0:o.x-o.s/2,y0:o.y-o.s/2-6,x1:o.x+o.s/2,y1:o.y+o.s/2,own:o.r}));
   const W0=layer.clientWidth,H0=layer.clientHeight;
   shown.slice().sort((a,b)=>(+b.r.b.dataset.n)-(+a.r.b.dataset.n)).forEach(o=>{const w=o.r.obj.name.length*cw+16;const rc={x0:o.x-w/2,x1:o.x+w/2,y0:o.y+o.s/2-4,y1:o.y+o.s/2+20};
     let ok=rc.x1>0&&rc.x0<W0&&rc.y1>0&&rc.y0<H0;
     if(ok)for(const b of bx){if(b.own===o.r)continue;if(rc.x0<b.x1&&rc.x1>b.x0&&rc.y0<b.y1&&rc.y1>b.y0){ok=false;break}}
     o.r.b.classList.toggle('capon',ok);if(ok)bx.push(rc)})}
-map.on('move',apply);map.on('resize',apply);
+// agrupa bolhas que se sobrepõem na tela; tocar no grupo aproxima o mapa
+function clearClusters(){bubbles.forEach(r=>r._inCl=false);CL=[];clEls.forEach(e=>setVis(e,false))}
+function clusterEl(i){if(clEls[i])return clEls[i];const b=document.createElement('div');b.className='bub cl';
+  b.innerHTML='<div class="float"><div class="sphere"><div class="num"><b></b><small></small></div></div></div><div class="cap"></div>';
+  let st=null;b.addEventListener('pointerdown',e=>{st=[e.clientX,e.clientY]});
+  b.addEventListener('click',e=>{e.stopPropagation();bubT=Date.now();if(st&&Math.abs(e.clientX-st[0])+Math.abs(e.clientY-st[1])>6)return;const c=b._c;if(!c)return;
+    const bb=new maplibregl.LngLatBounds();c.m.forEach(o=>bb.extend(o.r.obj.c));const H=layer.clientHeight;
+    const cam=map.cameraForBounds(bb,{padding:{top:Math.min(140,H*.2),bottom:Math.min(140,H*.2),left:50,right:50}});
+    let z=Math.max((cam&&cam.zoom)||0,map.getZoom()+1.4);z=Math.min(z,map.getMaxZoom());map.easeTo({center:cam?cam.center:c.ll,zoom:z,duration:650})});
+  layer.appendChild(b);clEls[i]=b;return b}
+function clusterize(shown){bubbles.forEach(r=>r._inCl=false);const o=shown.slice().sort((a,b)=>(+b.r.b.dataset.n)-(+a.r.b.dataset.n));const used=new Set(),out=[],groups=[];
+  for(const a of o){if(used.has(a))continue;const g=[a];used.add(a);
+    for(const b of o){if(used.has(b))continue;if(Math.hypot(a.x-b.x,a.y-b.y)<(a.s+b.s)/2*.78){g.push(b);used.add(b)}}
+    if(g.length===1)out.push(a);else groups.push(g)}
+  CL=[];groups.forEach((g,i)=>{let w=0,x=0,y=0,n=0;g.forEach(m=>{const k=+m.r.b.dataset.n;n+=k;w+=k;x+=m.r.obj.c[0]*k;y+=m.r.obj.c[1]*k;m.r._inCl=true;setVis(m.r.b,false)});
+    const el=clusterEl(i),ll=[x/w,y/w],s=Math.round(sizeFor(n,false)*lastZf);el._c={m:g,ll};el.dataset.n=n;
+    el.querySelector('.sphere').style.setProperty('--s',s+'px');el.querySelector('b').textContent=n;el.querySelector('small').textContent='imóveis';el.querySelector('small').style.display=s<46?'none':'';
+    el.querySelector('.cap').textContent=g.length+' condomínios';setVis(el,true);const p=map.project(ll);el.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`;
+    CL.push({el,ll});out.push({r:{b:el,obj:{name:el.querySelector('.cap').textContent}},x:p.x,y:p.y,s})});
+  for(let i=groups.length;i<clEls.length;i++)setVis(clEls[i],false);
+  return out}
+let raf0=0;map.on('move',()=>{if(raf0)return;raf0=requestAnimationFrame(()=>{raf0=0;apply(!!(TOUR&&TOUR.playing)?false:map.isMoving())})});
+map.on('movestart',()=>{if(!TOUR)document.documentElement.classList.add('moving')});
+map.on('moveend',()=>{document.documentElement.classList.remove('moving');apply()});map.on('resize',()=>apply());
 // ---------- fundo: mapa (OpenFreeMap) ou satélite (Esri, chave restrita aos domínios do portal) ----------
 const ESRI_KEY='AAPTazv4cFD6jYEtxF6_UUoQLmw..5Li-DMWk6rYWialQTNKlaf2iTztzqoaqgmezORsTPXFVTweiM_Dr4Buz6OkwLxfrStGYo6ZFPZ_RyDe-zJOK2_Xlh7coVR65dS1baeAs_MyD8QWJwe-L1--XoXD1tdkocsFpU7OWROPXNwt1iVIl9JHz47tIx4EaPZYOzFp_TBefXXm2b4GIejM0h1zqaFH_jRFuyyFMIOD7E-BDwurlROuRJoAcrqDwjbMRZ9k2lb8NFhOzf5KWUNw9AT1_GUV4CbDA';
 const ESRI_BASE='https://ibasemaps-api.arcgis.com/arcgis/rest/services/World_Imagery/MapServer';
