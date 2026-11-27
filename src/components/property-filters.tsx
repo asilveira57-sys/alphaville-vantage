@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { Fragment, useState, useEffect, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { findPropertyByCode, MORE_FILTER_MIN, type CondoFacet, type MoreFacets } from "@/lib/property-search.functions";
@@ -119,12 +121,17 @@ function CondoMultiSelect({
   selected,
   onToggle,
   onClear,
+  onApplyMany,
+  filteredCount,
 }: {
   options: CondoFacet[];
   selected: string[];
   onToggle: (slug: string) => void;
   onClear: () => void;
+  onApplyMany: (slugs: string[]) => void;
+  filteredCount: number;
 }) {
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
   const toggle = onToggle;
@@ -147,7 +154,19 @@ function CondoMultiSelect({
         <span className="truncate">{label}</span>
         <span aria-hidden>▾</span>
       </button>
-      {open && (
+      {open && isMobile && (
+        <CondoSheetMobile
+          options={options}
+          selected={selected}
+          filteredCount={filteredCount}
+          onClose={() => setOpen(false)}
+          onApply={(slugs) => {
+            setOpen(false);
+            onApplyMany(slugs);
+          }}
+        />
+      )}
+      {open && !isMobile && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
           <div
@@ -215,6 +234,173 @@ function CondoMultiSelect({
       )}
     </div>
   );
+}
+
+// Celular: tela cheia em portal no body. A seleção fica em rascunho e só vale
+// ao tocar em "Ver N imóveis"; o ✕ descarta. Sem foco automático na busca.
+const letterOf = (name: string) => {
+  const c = normTxt(name.trim()).charAt(0).toUpperCase();
+  return c >= "A" && c <= "Z" ? c : "#";
+};
+
+function CondoSheetMobile({
+  options,
+  selected,
+  filteredCount,
+  onClose,
+  onApply,
+}: {
+  options: CondoFacet[];
+  selected: string[];
+  filteredCount: number;
+  onClose: () => void;
+  onApply: (slugs: string[]) => void;
+}) {
+  const [draft, setDraft] = useState<string[]>(selected);
+  const [term, setTerm] = useState("");
+  const [vh, setVh] = useState<number | null>(null);
+
+  // trava a rolagem da página por trás (inclusive no iOS)
+  useEffect(() => {
+    const y = window.scrollY;
+    const b = document.body.style;
+    const prev = { position: b.position, top: b.top, left: b.left, right: b.right, width: b.width, overflow: b.overflow };
+    b.position = "fixed";
+    b.top = `-${y}px`;
+    b.left = "0";
+    b.right = "0";
+    b.width = "100%";
+    b.overflow = "hidden";
+    return () => {
+      Object.assign(b, prev);
+      window.scrollTo(0, y);
+    };
+  }, []);
+
+  // com o teclado aberto, a tela encolhe até a área visível para o rodapé não sumir
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const onResize = () => setVh(vv.height < window.innerHeight - 80 ? vv.height : null);
+    vv.addEventListener("resize", onResize);
+    return () => vv.removeEventListener("resize", onResize);
+  }, []);
+
+  const bySlug = useMemo(() => new Map(options.map((o) => [o.slug, o])), [options]);
+  const sorted = useMemo(() => [...options].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")), [options]);
+  const top = useMemo(() => [...options].sort((a, b) => b.n - a.n).slice(0, 8), [options]);
+  const t = normTxt(term.trim());
+  const found = t ? sorted.filter((o) => normTxt(o.name).includes(t)) : sorted;
+
+  const toggle = (slug: string) => setDraft((d) => (d.includes(slug) ? d.filter((x) => x !== slug) : [...d, slug]));
+  const count = draft.length ? draft.reduce((sum, s) => sum + (bySlug.get(s)?.n ?? 0), 0) : selected.length ? null : filteredCount;
+  const cta = count == null ? "Ver todos os imóveis" : `Ver ${count.toLocaleString("pt-BR")} ${count === 1 ? "imóvel" : "imóveis"}`;
+
+  const row = (o: CondoFacet, key: string) => {
+    const on = draft.includes(o.slug);
+    return (
+      <li key={key}>
+        <label className="flex items-center gap-3 min-h-[48px] px-4 text-[15px] text-white active:bg-white/10 cursor-pointer">
+          <input type="checkbox" checked={on} onChange={() => toggle(o.slug)} className="accent-brand-yellow w-5 h-5 shrink-0" />
+          <span className={`flex-1 ${on ? "font-semibold" : ""}`}>{o.name}</span>
+          <span className="text-white/50 text-xs tabular-nums">{o.n}</span>
+        </label>
+      </li>
+    );
+  };
+
+  let lastLetter = "";
+  const body = (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Filtrar por condomínio"
+      className="fixed inset-x-0 top-0 z-[100] bg-brand-dark text-white flex flex-col"
+      style={{ height: vh ? `${vh}px` : "100dvh" }}
+    >
+      <div className="shrink-0 border-b border-white/10 px-4 pt-4 pb-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold">Condomínios</h2>
+          <button type="button" onClick={onClose} aria-label="Fechar sem aplicar" className="w-11 h-11 -mr-2 grid place-items-center text-xl text-white/80">
+            ✕
+          </button>
+        </div>
+        <input
+          type="search"
+          enterKeyHint="search"
+          className={`${selectCls} text-base py-3`}
+          placeholder="Buscar condomínio…"
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
+          aria-label="Buscar condomínio"
+        />
+        {draft.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1" aria-label="Selecionados">
+            {draft.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => toggle(s)}
+                className="shrink-0 inline-flex items-center gap-1.5 bg-brand-yellow text-brand-dark text-sm font-semibold px-3 py-1.5 rounded-full"
+              >
+                {bySlug.get(s)?.name ?? s} <span aria-hidden>✕</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        {!t && (
+          <>
+            <p className="px-4 pt-4 pb-1 text-[11px] font-bold uppercase tracking-widest text-brand-yellow">Mais procurados</p>
+            <ul>
+              {top.map((o) => row(o, `top-${o.id}`))}
+            </ul>
+            <p className="px-4 pt-5 pb-1 text-[11px] font-bold uppercase tracking-widest text-white/50">Todos de A a Z</p>
+          </>
+        )}
+        <ul>
+          {found.map((o) => {
+            const L = letterOf(o.name);
+            const sep = !t && L !== lastLetter;
+            lastLetter = L;
+            return (
+              <Fragment key={o.id}>
+                {sep && (
+                  <li aria-hidden className="sticky top-0 z-10 bg-brand-dark/95 px-4 py-1 text-xs font-bold text-white/60 border-b border-white/10">{L}</li>
+                )}
+                {row(o, o.id)}
+              </Fragment>
+            );
+          })}
+          {found.length === 0 && <li className="px-4 py-6 text-sm text-white/60">Nenhum condomínio encontrado.</li>}
+        </ul>
+      </div>
+
+      <div
+        className="shrink-0 border-t border-white/10 px-4 pt-3 flex gap-2 bg-brand-dark"
+        style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom))" }}
+      >
+        <button
+          type="button"
+          onClick={() => setDraft([])}
+          disabled={draft.length === 0}
+          className="px-4 min-h-[48px] text-xs font-bold uppercase tracking-widest text-white/80 border border-white/15 rounded-sm disabled:opacity-40"
+        >
+          Limpar
+        </button>
+        <button
+          type="button"
+          onClick={() => onApply(draft)}
+          className="flex-1 min-h-[48px] bg-brand-yellow text-brand-dark font-bold uppercase tracking-widest text-xs rounded-sm"
+        >
+          {cta}
+        </button>
+      </div>
+    </div>
+  );
+  return createPortal(body, document.body);
 }
 
 // "Mais filtros": suítes, estilo, mobília e características. Painel no desktop,
@@ -549,6 +735,8 @@ export function PropertyFilters({
               .filter((t) => options.condoOptions?.some((o) => o.slug === t) ?? false)}
             onToggle={toggleCondo}
             onClear={() => update({ condo: "" })}
+            onApplyMany={(slugs) => update({ condo: slugs.join(",") })}
+            filteredCount={filteredCount}
           />
           <select className={selectCls} value={state.areaMin} onChange={(e) => update({ areaMin: Number(e.target.value) })} aria-label="Área mínima">
             <option value="0">Área mínima</option>
