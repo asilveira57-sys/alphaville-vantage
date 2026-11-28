@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { FloatingWhatsApp } from "./floating-whatsapp";
+import { AppHomePill } from "./app-home-pill";
 
 export function SiteLayout({ children, mobileBottomSpace }: { children: ReactNode; mobileBottomSpace?: boolean }) {
   return (
@@ -11,6 +12,7 @@ export function SiteLayout({ children, mobileBottomSpace }: { children: ReactNod
       <SiteFooter />
       {mobileBottomSpace && <div className="md:hidden h-20" aria-hidden />}
       <FloatingWhatsApp />
+      <AppHomePill />
     </div>
   );
 }

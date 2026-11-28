@@ -2,7 +2,7 @@
   "name": "S.A Imóveis Alphaville",
   "short_name": "S.A Imóveis",
   "id": "/",
-  "start_url": "/?origem=app",
+  "start_url": "/app?origem=app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -16,7 +16,7 @@
     { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Buscar imóveis", "url": "/imoveis?origem=app", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Comprar", "url": "/app/buscar?f=sale&origem=app", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Radar", "url": "/radar?origem=app", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Oportunidades", "url": "/oportunidades?origem=app", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Fale conosco", "url": "/contato?origem=app", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
