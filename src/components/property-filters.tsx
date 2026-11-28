@@ -114,6 +114,10 @@ function PriceInput({
   );
 }
 
+type MultiNoun = { all: string; many: string; title: string; one: string; className?: string };
+const CONDO_NOUN: MultiNoun = { all: "Condomínio — todos", many: "condomínios", title: "Condomínios", one: "condomínio", className: "md:col-span-2" };
+const NBH_NOUN: MultiNoun = { all: "Bairro — todos", many: "bairros", title: "Bairros", one: "bairro" };
+
 // Condomínio com seleção múltipla: dropdown com busca e checkbox no desktop;
 // tela cheia com botão "Aplicar" no celular. Match exato por condominium_id.
 function CondoMultiSelect({
@@ -123,6 +127,8 @@ function CondoMultiSelect({
   onClear,
   onApplyMany,
   filteredCount,
+  noun = CONDO_NOUN,
+  countExact = true,
 }: {
   options: CondoFacet[];
   selected: string[];
@@ -130,6 +136,8 @@ function CondoMultiSelect({
   onClear: () => void;
   onApplyMany: (slugs: string[]) => void;
   filteredCount: number;
+  noun?: MultiNoun;
+  countExact?: boolean;
 }) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
@@ -138,12 +146,12 @@ function CondoMultiSelect({
   const list = term ? options.filter((o) => normTxt(o.name).includes(normTxt(term.trim()))) : options;
   const label =
     selected.length === 0
-      ? "Condomínio — todos"
+      ? noun.all
       : selected.length === 1
         ? (options.find((o) => o.slug === selected[0])?.name ?? selected[0])
-        : `${selected.length} condomínios`;
+        : `${selected.length} ${noun.many}`;
   return (
-    <div className="relative md:col-span-2">
+    <div className={`relative ${noun.className ?? ""}`}>
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -159,6 +167,8 @@ function CondoMultiSelect({
           options={options}
           selected={selected}
           filteredCount={filteredCount}
+          noun={noun}
+          countExact={countExact}
           onClose={() => setOpen(false)}
           onApply={(slugs) => {
             setOpen(false);
@@ -171,17 +181,17 @@ function CondoMultiSelect({
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
           <div
             role="dialog"
-            aria-label="Filtrar por condomínio"
+            aria-label={`Filtrar por ${noun.one}`}
             className="fixed inset-0 z-50 bg-brand-dark flex flex-col md:absolute md:inset-auto md:top-full md:left-0 md:mt-1 md:z-50 md:border md:border-white/15 md:rounded-sm md:shadow-xl md:max-h-96 md:min-w-72"
           >
             <div className="flex items-center gap-2 p-3 border-b border-white/10">
               <input
                 autoFocus
                 className={selectCls}
-                placeholder="Buscar condomínio…"
+                placeholder={`Buscar ${noun.one}…`}
                 value={term}
                 onChange={(e) => setTerm(e.target.value)}
-                aria-label="Buscar condomínio"
+                aria-label={`Buscar ${noun.one}`}
               />
               <button
                 type="button"
@@ -208,7 +218,7 @@ function CondoMultiSelect({
                 </li>
               ))}
               {list.length === 0 && (
-                <li className="px-2 py-3 text-sm text-white/60">Nenhum condomínio encontrado.</li>
+                <li className="px-2 py-3 text-sm text-white/60">Nenhum {noun.one} encontrado.</li>
               )}
             </ul>
             <div className="md:hidden p-3 border-t border-white/10 flex gap-2">
@@ -249,10 +259,14 @@ function CondoSheetMobile({
   filteredCount,
   onClose,
   onApply,
+  noun,
+  countExact,
 }: {
   options: CondoFacet[];
   selected: string[];
   filteredCount: number;
+  noun: MultiNoun;
+  countExact: boolean;
   onClose: () => void;
   onApply: (slugs: string[]) => void;
 }) {
@@ -293,8 +307,10 @@ function CondoSheetMobile({
   const found = t ? sorted.filter((o) => normTxt(o.name).includes(t)) : sorted;
 
   const toggle = (slug: string) => setDraft((d) => (d.includes(slug) ? d.filter((x) => x !== slug) : [...d, slug]));
-  const count = draft.length ? draft.reduce((sum, s) => sum + (bySlug.get(s)?.n ?? 0), 0) : selected.length ? null : filteredCount;
-  const cta = count == null ? "Ver todos os imóveis" : `Ver ${count.toLocaleString("pt-BR")} ${count === 1 ? "imóvel" : "imóveis"}`;
+  const count = draft.length
+    ? countExact ? draft.reduce((sum, s) => sum + (bySlug.get(s)?.n ?? 0), 0) : null
+    : selected.length ? null : filteredCount;
+  const cta = count == null ? (draft.length ? "Ver imóveis" : "Ver todos os imóveis") : `Ver ${count.toLocaleString("pt-BR")} ${count === 1 ? "imóvel" : "imóveis"}`;
 
   const row = (o: CondoFacet, key: string) => {
     const on = draft.includes(o.slug);
@@ -314,13 +330,13 @@ function CondoSheetMobile({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Filtrar por condomínio"
+      aria-label={`Filtrar por ${noun.one}`}
       className="fixed inset-x-0 top-0 z-[100] bg-brand-dark text-white flex flex-col"
       style={{ height: vh ? `${vh}px` : "100dvh" }}
     >
       <div className="shrink-0 border-b border-white/10 px-4 pt-4 pb-3 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold">Condomínios</h2>
+          <h2 className="text-base font-bold">{noun.title}</h2>
           <button type="button" onClick={onClose} aria-label="Fechar sem aplicar" className="w-11 h-11 -mr-2 grid place-items-center text-xl text-white/80">
             ✕
           </button>
@@ -329,10 +345,10 @@ function CondoSheetMobile({
           type="search"
           enterKeyHint="search"
           className={`${selectCls} text-base py-3`}
-          placeholder="Buscar condomínio…"
+          placeholder={`Buscar ${noun.one}…`}
           value={term}
           onChange={(e) => setTerm(e.target.value)}
-          aria-label="Buscar condomínio"
+          aria-label={`Buscar ${noun.one}`}
         />
         {draft.length > 0 && (
           <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1" aria-label="Selecionados">
@@ -374,7 +390,7 @@ function CondoSheetMobile({
               </Fragment>
             );
           })}
-          {found.length === 0 && <li className="px-4 py-6 text-sm text-white/60">Nenhum condomínio encontrado.</li>}
+          {found.length === 0 && <li className="px-4 py-6 text-sm text-white/60">Nenhum {noun.one} encontrado.</li>}
         </ul>
       </div>
 
@@ -583,6 +599,20 @@ export function PropertyFilters({
     });
   };
 
+  // Bairro: lista exata "=A|B" (ver public.nbh_match). Valor antigo sem "=" vale como um bairro só.
+  const nbhList = (v: string) => (v.startsWith("=") ? v.slice(1).split("|") : v ? [v] : []).map((t) => t.trim()).filter(Boolean);
+  const nbhValue = (list: string[]) => (list.length ? "=" + list.join("|") : "");
+  const toggleNbh = (name: string) => {
+    navigate({
+      search: (prev: FilterState) => {
+        const cur = nbhList(prev.neighborhood ?? "");
+        const next = cur.includes(name) ? cur.filter((x) => x !== name) : [...cur, name];
+        return { ...prev, neighborhood: nbhValue(next), page: 1 };
+      },
+      resetScroll: false,
+    });
+  };
+
   const clear = () =>
     navigate({
       search: {
@@ -618,7 +648,10 @@ export function PropertyFilters({
   if (state.purpose) activeChips.push({ label: state.purpose === "sale" ? "Venda" : state.purpose === "rent" ? "Locação" : "Venda/Locação", clear: () => update({ purpose: "" }) });
   if (state.type) activeChips.push({ label: TYPE_LABEL[state.type] ?? cap(state.type), clear: () => update({ type: "" }) });
   if (state.city) activeChips.push({ label: state.city, clear: () => update({ city: "" }) });
-  if (state.neighborhood) activeChips.push({ label: state.neighborhood, clear: () => update({ neighborhood: "" }) });
+  const nbhSel = nbhList(state.neighborhood);
+  for (const b of nbhSel) {
+    activeChips.push({ label: b, clear: () => update({ neighborhood: nbhValue(nbhSel.filter((x) => x !== b)) }) });
+  }
   for (const t of condoTokens) {
     activeChips.push({ label: condoName(t), clear: () => update({ condo: condoTokens.filter((x) => x !== t).join(",") }) });
   }
@@ -677,12 +710,16 @@ export function PropertyFilters({
               <option key={c} value={c}>{options.cityCounts?.[c] != null ? `${c} (${options.cityCounts[c]})` : c}</option>
             ))}
           </select>
-          <select className={selectCls} value={state.neighborhood} onChange={(e) => update({ neighborhood: e.target.value })} aria-label="Bairro">
-            <option value="">Bairro — todos</option>
-            {options.neighborhoods.map((b) => (
-              <option key={b} value={b}>{options.neighborhoodCounts?.[b] != null ? `${b} (${options.neighborhoodCounts[b]})` : b}</option>
-            ))}
-          </select>
+          <CondoMultiSelect
+            noun={NBH_NOUN}
+            options={options.neighborhoods.map((b) => ({ id: b, name: b, slug: b, n: options.neighborhoodCounts?.[b] ?? 0 }))}
+            selected={nbhSel}
+            onToggle={toggleNbh}
+            onClear={() => update({ neighborhood: "" })}
+            onApplyMany={(list) => update({ neighborhood: nbhValue(list) })}
+            filteredCount={filteredCount}
+            countExact={!state.purpose && !state.type && !state.city && !state.condo && !state.bedrooms && !state.parking && !state.priceMin && !state.priceMax && !state.min && !state.max && !state.areaMin && !state.q && !state.suites && !state.estilo && !state.mobilia && !state.carac}
+          />
           <Button variant="ghost"
             type="button"
             onClick={clear}

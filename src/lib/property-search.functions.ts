@@ -26,7 +26,7 @@ export function publicClient() {
 
 const searchInput = z.object({
   purpose: z.string().max(10), type: z.string().max(60), city: z.string().max(80),
-  neighborhood: z.string().max(120), condo: z.string().max(600),
+  neighborhood: z.string().max(1000), condo: z.string().max(600),
   bedrooms: z.number().int().min(0).max(20), parking: z.number().int().min(0).max(20),
   priceMin: z.number().min(0), priceMax: z.number().min(0),
   min: z.number().min(0).default(0), max: z.number().min(0).default(0),
@@ -83,10 +83,9 @@ export const searchProperties = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const limit = data.limit ?? PAGE_SIZE;
     const condoIds = data.condo ? resolveCondoTokens(data.condo, await condoDirectory()) : null;
-    const { data: rows, error } = await publicClient().rpc(
-      "search_properties",
-      toRpcArgs(data, limit, (data.page - 1) * limit, condoIds) as never,
-    );
+    const args = toRpcArgs(data, limit, (data.page - 1) * limit, condoIds);
+    args.p_neighborhood = await neighborhoodArg(args.p_neighborhood);
+    const { data: rows, error } = await publicClient().rpc("search_properties", args as never);
     if (error) {
       console.error("search_properties", error);
       throw new Error("Não foi possível carregar os imóveis.");
@@ -117,7 +116,7 @@ export type CondoFacet = { id: string; name: string; slug: string; n: number };
 
 const condoFacetInput = z.object({
   purpose: z.string().max(10), type: z.string().max(60), city: z.string().max(80),
-  neighborhood: z.string().max(120),
+  neighborhood: z.string().max(1000),
   bedrooms: z.number().int().min(0).max(20), parking: z.number().int().min(0).max(20),
   priceMin: z.number().min(0), priceMax: z.number().min(0),
   min: z.number().min(0).default(0), max: z.number().min(0).default(0),
@@ -129,7 +128,7 @@ export const getCondoFacets = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<CondoFacet[]> => {
     const s = effectiveSearch({ ...IMOVEIS_DEFAULTS, ...data });
     const { data: rows, error } = await publicClient().rpc("property_condo_facets", {
-      p_purpose: s.purpose, p_type: s.type, p_city: s.city, p_neighborhood: s.neighborhood,
+      p_purpose: s.purpose, p_type: s.type, p_city: s.city, p_neighborhood: await neighborhoodArg(s.neighborhood),
       p_bedrooms: s.bedrooms, p_parking: s.parking,
       p_price_min: s.priceMin, p_price_max: s.priceMax, p_area_min: s.areaMin,
     } as never);
@@ -150,6 +149,10 @@ let facetCache: { at: number; value: Facets } | null = null;
 
 export const getSearchFacets = createServerFn({ method: "GET" }).handler(async (): Promise<Facets> => {
   setResponseHeader("Cache-Control", "public, max-age=300");
+  return loadFacets();
+});
+
+async function loadFacets(): Promise<Facets> {
   if (facetCache && Date.now() - facetCache.at < 300_000) return facetCache.value;
   const { data, error } = await publicClient().rpc("property_search_facets");
   if (error) {
@@ -170,7 +173,14 @@ export const getSearchFacets = createServerFn({ method: "GET" }).handler(async (
   };
   facetCache = { at: Date.now(), value };
   return value;
-});
+}
+
+// Bairro: o filtro da tela manda "=A|B" (lista exata, "Aldeia da Serra" não
+// traz "Aldeia"); a função public.nbh_match trata isso no banco. Texto livre e
+// links antigos (ex.: ?neighborhood=Alphaville) seguem com a busca aproximada.
+export async function neighborhoodArg(v: string): Promise<string> {
+  return (v ?? "").trim();
+}
 
 // Painel "Mais filtros": contagens de suítes, estilo, mobília e características
 // respeitando todos os outros filtros. Só aparecem opções com 5+ imóveis.
@@ -187,6 +197,7 @@ export const getMoreFacets = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<MoreFacets> => {
     const condoIds = data.condo ? resolveCondoTokens(data.condo, await condoDirectory()) : null;
     const a = toRpcArgs(data, 1, 0, condoIds) as Record<string, unknown>;
+    a.p_neighborhood = await neighborhoodArg(String(a.p_neighborhood ?? ""));
     delete a.p_sort; delete a.p_limit; delete a.p_offset;
     const { data: r, error } = await publicClient().rpc("property_more_facets", a as never);
     if (error) {
