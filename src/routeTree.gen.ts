@@ -25,6 +25,7 @@ import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as DescadastrarRouteImport } from './routes/descadastrar'
 import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as EscolasRouteImport } from './routes/escolas'
+import { Route as MapaPrototipoRouteImport } from './routes/mapa-prototipo'
 import { Route as GuiaRouteImport } from './routes/guia'
 import { Route as GuiaAlphavilleRouteImport } from './routes/guia-alphaville'
 import { Route as GuiaBarueriRouteImport } from './routes/guia-barueri'
@@ -36,9 +37,7 @@ import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as InvestimentosRouteImport } from './routes/investimentos'
 import { Route as LgpdRouteImport } from './routes/lgpd'
-import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as MapaDoSiteRouteImport } from './routes/mapa-do-site'
-import { Route as MapaPrototipoRouteImport } from './routes/mapa-prototipo'
 import { Route as MeioAmbienteRouteImport } from './routes/meio-ambiente'
 import { Route as MercadoImobiliarioRouteImport } from './routes/mercado-imobiliario'
 import { Route as OportunidadesRouteImport } from './routes/oportunidades'
@@ -63,7 +62,6 @@ import { Route as AuthenticatedAdminCampanhasRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCardsRouteImport } from './routes/_authenticated/admin-cards'
 import { Route as AuthenticatedAdminConciliacaoRouteImport } from './routes/_authenticated/admin-conciliacao'
 import { Route as AuthenticatedAdminCondominiosRouteImport } from './routes/_authenticated/admin-condominios'
-import { Route as AuthenticatedAdminCondominiosFichaRouteImport } from './routes/_authenticated/admin-condominios-ficha'
 import { Route as AuthenticatedAdminCorretoresRouteImport } from './routes/_authenticated/admin-corretores'
 import { Route as AuthenticatedAdminCtasRouteImport } from './routes/_authenticated/admin-ctas'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
@@ -72,6 +70,7 @@ import { Route as AuthenticatedAdminEquipeRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminEtiquetasUnivenRouteImport } from './routes/_authenticated/admin-etiquetas-univen'
 import { Route as AuthenticatedAdminFinanciamentoRouteImport } from './routes/_authenticated/admin-financiamento'
 import { Route as AuthenticatedAdminFotosImoveisRouteImport } from './routes/_authenticated/admin-fotos-imoveis'
+import { Route as AuthenticatedAdminCondominiosFichaRouteImport } from './routes/_authenticated/admin-condominios-ficha'
 import { Route as AuthenticatedAdminImoveisBloqueadosRouteImport } from './routes/_authenticated/admin-imoveis-bloqueados'
 import { Route as AuthenticatedAdminImportarImovelRouteImport } from './routes/_authenticated/admin-importar-imovel'
 import { Route as AuthenticatedAdminIncorporadorasRouteImport } from './routes/_authenticated/admin-incorporadoras'
@@ -111,7 +110,6 @@ import { Route as GuiaDeRuasAlphavilleIndexRouteImport } from './routes/guia-de-
 import { Route as GuiaDeRuasAlphavilleSlugRouteImport } from './routes/guia-de-ruas-alphaville.$slug'
 import { Route as GuiaIndexRouteImport } from './routes/guia.index'
 import { Route as GuiaSlugRouteImport } from './routes/guia.$slug'
-import { Route as ImoveisAlphavilleSlugRouteImport } from './routes/imoveis-alphaville.$slug'
 import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as MeioAmbienteIndexRouteImport } from './routes/meio-ambiente.index'
@@ -125,11 +123,12 @@ import { Route as OportunidadesMetodologiaRouteImport } from './routes/oportunid
 import { Route as ParceirosSlugRouteImport } from './routes/parceiros.$slug'
 import { Route as ParceirosMpdRouteImport } from './routes/parceiros.mpd'
 import { Route as PropostaTokenRouteImport } from './routes/proposta.$token'
+import { Route as ImoveisAlphavilleSlugRouteImport } from './routes/imoveis-alphaville.$slug'
+import { Route as TemasSlugRouteImport } from './routes/temas.$slug'
 import { Route as RadarIndexRouteImport } from './routes/radar.index'
 import { Route as RadarObjetivoRouteImport } from './routes/radar.$objetivo'
 import { Route as RuasIndexRouteImport } from './routes/ruas.index'
 import { Route as RuasSlugRouteImport } from './routes/ruas.$slug'
-import { Route as TemasSlugRouteImport } from './routes/temas.$slug'
 import { Route as AuthenticatedAdminPropostasIndexRouteImport } from './routes/_authenticated/admin-propostas.index'
 import { Route as AuthenticatedAdminPropostasIdRouteImport } from './routes/_authenticated/admin-propostas.$id'
 import { Route as AuthenticatedAdminRuasIndexRouteImport } from './routes/_authenticated/admin-ruas.index'
@@ -236,6 +235,11 @@ const EscolasRoute = EscolasRouteImport.update({
   path: '/escolas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MapaPrototipoRoute = MapaPrototipoRouteImport.update({
+  id: '/mapa-prototipo',
+  path: '/mapa-prototipo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuiaRoute = GuiaRouteImport.update({
   id: '/guia',
   path: '/guia',
@@ -291,19 +295,9 @@ const LgpdRoute = LgpdRouteImport.update({
   path: '/lgpd',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MapaRoute = MapaRouteImport.update({
-  id: '/mapa',
-  path: '/mapa',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MapaDoSiteRoute = MapaDoSiteRouteImport.update({
   id: '/mapa-do-site',
   path: '/mapa-do-site',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MapaPrototipoRoute = MapaPrototipoRouteImport.update({
-  id: '/mapa-prototipo',
-  path: '/mapa-prototipo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MeioAmbienteRoute = MeioAmbienteRouteImport.update({
@@ -432,12 +426,6 @@ const AuthenticatedAdminCondominiosRoute =
     path: '/admin-condominios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAdminCondominiosFichaRoute =
-  AuthenticatedAdminCondominiosFichaRouteImport.update({
-    id: '/admin-condominios-ficha',
-    path: '/admin-condominios-ficha',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminCorretoresRoute =
   AuthenticatedAdminCorretoresRouteImport.update({
     id: '/admin-corretores',
@@ -483,6 +471,12 @@ const AuthenticatedAdminFotosImoveisRoute =
   AuthenticatedAdminFotosImoveisRouteImport.update({
     id: '/admin-fotos-imoveis',
     path: '/admin-fotos-imoveis',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminCondominiosFichaRoute =
+  AuthenticatedAdminCondominiosFichaRouteImport.update({
+    id: '/admin-condominios-ficha',
+    path: '/admin-condominios-ficha',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminImoveisBloqueadosRoute =
@@ -699,11 +693,6 @@ const GuiaSlugRoute = GuiaSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => GuiaRoute,
 } as any)
-const ImoveisAlphavilleSlugRoute = ImoveisAlphavilleSlugRouteImport.update({
-  id: '/imoveis-alphaville/$slug',
-  path: '/imoveis-alphaville/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ImoveisIndexRoute = ImoveisIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -766,6 +755,16 @@ const ParceirosMpdRoute = ParceirosMpdRouteImport.update({
   path: '/parceiros/mpd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImoveisAlphavilleSlugRoute = ImoveisAlphavilleSlugRouteImport.update({
+  id: '/imoveis-alphaville/$slug',
+  path: '/imoveis-alphaville/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TemasSlugRoute = TemasSlugRouteImport.update({
+  id: '/temas/$slug',
+  path: '/temas/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PropostaTokenRoute = PropostaTokenRouteImport.update({
   id: '/proposta/$token',
   path: '/proposta/$token',
@@ -790,11 +789,6 @@ const RuasSlugRoute = RuasSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => RuasRoute,
-} as any)
-const TemasSlugRoute = TemasSlugRouteImport.update({
-  id: '/temas/$slug',
-  path: '/temas/$slug',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminPropostasIndexRoute =
   AuthenticatedAdminPropostasIndexRouteImport.update({
@@ -959,6 +953,7 @@ export interface FileRoutesByFullPath {
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
+  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
@@ -970,9 +965,7 @@ export interface FileRoutesByFullPath {
   '/imoveis': typeof ImoveisRouteWithChildren
   '/investimentos': typeof InvestimentosRoute
   '/lgpd': typeof LgpdRoute
-  '/mapa': typeof MapaRoute
   '/mapa-do-site': typeof MapaDoSiteRoute
-  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/oportunidades': typeof OportunidadesRouteWithChildren
@@ -997,7 +990,6 @@ export interface FileRoutesByFullPath {
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
-  '/admin-condominios-ficha': typeof AuthenticatedAdminCondominiosFichaRoute
   '/admin-corretores': typeof AuthenticatedAdminCorretoresRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
@@ -1006,6 +998,7 @@ export interface FileRoutesByFullPath {
   '/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
+  '/admin-condominios-ficha': typeof AuthenticatedAdminCondominiosFichaRoute
   '/admin-imoveis-bloqueados': typeof AuthenticatedAdminImoveisBloqueadosRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
@@ -1039,7 +1032,6 @@ export interface FileRoutesByFullPath {
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
-  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
@@ -1050,9 +1042,10 @@ export interface FileRoutesByFullPath {
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/proposta/$token': typeof PropostaTokenRoute
+  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
+  '/temas/$slug': typeof TemasSlugRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
-  '/temas/$slug': typeof TemasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
@@ -1105,6 +1098,7 @@ export interface FileRoutesByTo {
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
+  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
   '/guia-de-ruas': typeof GuiaDeRuasRoute
@@ -1113,9 +1107,7 @@ export interface FileRoutesByTo {
   '/historia': typeof HistoriaRoute
   '/investimentos': typeof InvestimentosRoute
   '/lgpd': typeof LgpdRoute
-  '/mapa': typeof MapaRoute
   '/mapa-do-site': typeof MapaDoSiteRoute
-  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/perguntas-frequentes': typeof PerguntasFrequentesRoute
   '/politica-de-atendimento': typeof PoliticaDeAtendimentoRoute
@@ -1137,7 +1129,6 @@ export interface FileRoutesByTo {
   '/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
-  '/admin-condominios-ficha': typeof AuthenticatedAdminCondominiosFichaRoute
   '/admin-corretores': typeof AuthenticatedAdminCorretoresRoute
   '/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
@@ -1146,6 +1137,7 @@ export interface FileRoutesByTo {
   '/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
+  '/admin-condominios-ficha': typeof AuthenticatedAdminCondominiosFichaRoute
   '/admin-imoveis-bloqueados': typeof AuthenticatedAdminImoveisBloqueadosRoute
   '/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
@@ -1174,7 +1166,6 @@ export interface FileRoutesByTo {
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
-  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
@@ -1185,9 +1176,10 @@ export interface FileRoutesByTo {
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/proposta/$token': typeof PropostaTokenRoute
+  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
+  '/temas/$slug': typeof TemasSlugRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
-  '/temas/$slug': typeof TemasSlugRoute
   '/bairros': typeof BairrosIndexRoute
   '/blog': typeof BlogIndexRoute
   '/condominios': typeof CondominiosIndexRoute
@@ -1244,6 +1236,7 @@ export interface FileRoutesById {
   '/descadastrar': typeof DescadastrarRoute
   '/empresas': typeof EmpresasRoute
   '/escolas': typeof EscolasRoute
+  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/guia': typeof GuiaRouteWithChildren
   '/guia-alphaville': typeof GuiaAlphavilleRoute
   '/guia-barueri': typeof GuiaBarueriRoute
@@ -1255,9 +1248,7 @@ export interface FileRoutesById {
   '/imoveis': typeof ImoveisRouteWithChildren
   '/investimentos': typeof InvestimentosRoute
   '/lgpd': typeof LgpdRoute
-  '/mapa': typeof MapaRoute
   '/mapa-do-site': typeof MapaDoSiteRoute
-  '/mapa-prototipo': typeof MapaPrototipoRoute
   '/meio-ambiente': typeof MeioAmbienteRouteWithChildren
   '/mercado-imobiliario': typeof MercadoImobiliarioRoute
   '/oportunidades': typeof OportunidadesRouteWithChildren
@@ -1282,7 +1273,6 @@ export interface FileRoutesById {
   '/_authenticated/admin-cards': typeof AuthenticatedAdminCardsRoute
   '/_authenticated/admin-conciliacao': typeof AuthenticatedAdminConciliacaoRoute
   '/_authenticated/admin-condominios': typeof AuthenticatedAdminCondominiosRoute
-  '/_authenticated/admin-condominios-ficha': typeof AuthenticatedAdminCondominiosFichaRoute
   '/_authenticated/admin-corretores': typeof AuthenticatedAdminCorretoresRoute
   '/_authenticated/admin-ctas': typeof AuthenticatedAdminCtasRoute
   '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
@@ -1291,6 +1281,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-etiquetas-univen': typeof AuthenticatedAdminEtiquetasUnivenRoute
   '/_authenticated/admin-financiamento': typeof AuthenticatedAdminFinanciamentoRoute
   '/_authenticated/admin-fotos-imoveis': typeof AuthenticatedAdminFotosImoveisRoute
+  '/_authenticated/admin-condominios-ficha': typeof AuthenticatedAdminCondominiosFichaRoute
   '/_authenticated/admin-imoveis-bloqueados': typeof AuthenticatedAdminImoveisBloqueadosRoute
   '/_authenticated/admin-importar-imovel': typeof AuthenticatedAdminImportarImovelRoute
   '/_authenticated/admin-incorporadoras': typeof AuthenticatedAdminIncorporadorasRoute
@@ -1324,7 +1315,6 @@ export interface FileRoutesById {
   '/empreendimentos/terrah-alphaville': typeof EmpreendimentosTerrahAlphavilleRoute
   '/guia-de-ruas-alphaville/$slug': typeof GuiaDeRuasAlphavilleSlugRoute
   '/guia/$slug': typeof GuiaSlugRoute
-  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/meio-ambiente/areas': typeof MeioAmbienteAreasRoute
   '/meio-ambiente/fauna': typeof MeioAmbienteFaunaRoute
@@ -1335,9 +1325,10 @@ export interface FileRoutesById {
   '/parceiros/$slug': typeof ParceirosSlugRoute
   '/parceiros/mpd': typeof ParceirosMpdRoute
   '/proposta/$token': typeof PropostaTokenRoute
+  '/imoveis-alphaville/$slug': typeof ImoveisAlphavilleSlugRoute
+  '/temas/$slug': typeof TemasSlugRoute
   '/radar/$objetivo': typeof RadarObjetivoRoute
   '/ruas/$slug': typeof RuasSlugRoute
-  '/temas/$slug': typeof TemasSlugRoute
   '/bairros/': typeof BairrosIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/condominios/': typeof CondominiosIndexRoute
@@ -1394,6 +1385,7 @@ export interface FileRouteTypes {
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
+    | '/mapa-prototipo'
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
@@ -1405,9 +1397,7 @@ export interface FileRouteTypes {
     | '/imoveis'
     | '/investimentos'
     | '/lgpd'
-    | '/mapa'
     | '/mapa-do-site'
-    | '/mapa-prototipo'
     | '/meio-ambiente'
     | '/mercado-imobiliario'
     | '/oportunidades'
@@ -1432,7 +1422,6 @@ export interface FileRouteTypes {
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
-    | '/admin-condominios-ficha'
     | '/admin-corretores'
     | '/admin-ctas'
     | '/admin-emails'
@@ -1441,6 +1430,7 @@ export interface FileRouteTypes {
     | '/admin-etiquetas-univen'
     | '/admin-financiamento'
     | '/admin-fotos-imoveis'
+    | '/admin-condominios-ficha'
     | '/admin-imoveis-bloqueados'
     | '/admin-importar-imovel'
     | '/admin-incorporadoras'
@@ -1474,7 +1464,6 @@ export interface FileRouteTypes {
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
-    | '/imoveis-alphaville/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
@@ -1485,9 +1474,10 @@ export interface FileRouteTypes {
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/proposta/$token'
+    | '/imoveis-alphaville/$slug'
+    | '/temas/$slug'
     | '/radar/$objetivo'
     | '/ruas/$slug'
-    | '/temas/$slug'
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
@@ -1540,6 +1530,7 @@ export interface FileRouteTypes {
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
+    | '/mapa-prototipo'
     | '/guia-alphaville'
     | '/guia-barueri'
     | '/guia-de-ruas'
@@ -1548,9 +1539,7 @@ export interface FileRouteTypes {
     | '/historia'
     | '/investimentos'
     | '/lgpd'
-    | '/mapa'
     | '/mapa-do-site'
-    | '/mapa-prototipo'
     | '/mercado-imobiliario'
     | '/perguntas-frequentes'
     | '/politica-de-atendimento'
@@ -1572,7 +1561,6 @@ export interface FileRouteTypes {
     | '/admin-cards'
     | '/admin-conciliacao'
     | '/admin-condominios'
-    | '/admin-condominios-ficha'
     | '/admin-corretores'
     | '/admin-ctas'
     | '/admin-emails'
@@ -1581,6 +1569,7 @@ export interface FileRouteTypes {
     | '/admin-etiquetas-univen'
     | '/admin-financiamento'
     | '/admin-fotos-imoveis'
+    | '/admin-condominios-ficha'
     | '/admin-imoveis-bloqueados'
     | '/admin-importar-imovel'
     | '/admin-incorporadoras'
@@ -1609,7 +1598,6 @@ export interface FileRouteTypes {
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
-    | '/imoveis-alphaville/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
@@ -1620,9 +1608,10 @@ export interface FileRouteTypes {
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/proposta/$token'
+    | '/imoveis-alphaville/$slug'
+    | '/temas/$slug'
     | '/radar/$objetivo'
     | '/ruas/$slug'
-    | '/temas/$slug'
     | '/bairros'
     | '/blog'
     | '/condominios'
@@ -1678,6 +1667,7 @@ export interface FileRouteTypes {
     | '/descadastrar'
     | '/empresas'
     | '/escolas'
+    | '/mapa-prototipo'
     | '/guia'
     | '/guia-alphaville'
     | '/guia-barueri'
@@ -1689,9 +1679,7 @@ export interface FileRouteTypes {
     | '/imoveis'
     | '/investimentos'
     | '/lgpd'
-    | '/mapa'
     | '/mapa-do-site'
-    | '/mapa-prototipo'
     | '/meio-ambiente'
     | '/mercado-imobiliario'
     | '/oportunidades'
@@ -1716,7 +1704,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-cards'
     | '/_authenticated/admin-conciliacao'
     | '/_authenticated/admin-condominios'
-    | '/_authenticated/admin-condominios-ficha'
     | '/_authenticated/admin-corretores'
     | '/_authenticated/admin-ctas'
     | '/_authenticated/admin-emails'
@@ -1725,6 +1712,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-etiquetas-univen'
     | '/_authenticated/admin-financiamento'
     | '/_authenticated/admin-fotos-imoveis'
+    | '/_authenticated/admin-condominios-ficha'
     | '/_authenticated/admin-imoveis-bloqueados'
     | '/_authenticated/admin-importar-imovel'
     | '/_authenticated/admin-incorporadoras'
@@ -1758,7 +1746,6 @@ export interface FileRouteTypes {
     | '/empreendimentos/terrah-alphaville'
     | '/guia-de-ruas-alphaville/$slug'
     | '/guia/$slug'
-    | '/imoveis-alphaville/$slug'
     | '/imoveis/$slug'
     | '/meio-ambiente/areas'
     | '/meio-ambiente/fauna'
@@ -1769,9 +1756,10 @@ export interface FileRouteTypes {
     | '/parceiros/$slug'
     | '/parceiros/mpd'
     | '/proposta/$token'
+    | '/imoveis-alphaville/$slug'
+    | '/temas/$slug'
     | '/radar/$objetivo'
     | '/ruas/$slug'
-    | '/temas/$slug'
     | '/bairros/'
     | '/blog/'
     | '/condominios/'
@@ -1828,6 +1816,7 @@ export interface RootRouteChildren {
   DescadastrarRoute: typeof DescadastrarRoute
   EmpresasRoute: typeof EmpresasRoute
   EscolasRoute: typeof EscolasRoute
+  MapaPrototipoRoute: typeof MapaPrototipoRoute
   GuiaRoute: typeof GuiaRouteWithChildren
   GuiaAlphavilleRoute: typeof GuiaAlphavilleRoute
   GuiaBarueriRoute: typeof GuiaBarueriRoute
@@ -1839,9 +1828,7 @@ export interface RootRouteChildren {
   ImoveisRoute: typeof ImoveisRouteWithChildren
   InvestimentosRoute: typeof InvestimentosRoute
   LgpdRoute: typeof LgpdRoute
-  MapaRoute: typeof MapaRoute
   MapaDoSiteRoute: typeof MapaDoSiteRoute
-  MapaPrototipoRoute: typeof MapaPrototipoRoute
   MeioAmbienteRoute: typeof MeioAmbienteRouteWithChildren
   MercadoImobiliarioRoute: typeof MercadoImobiliarioRoute
   OportunidadesRoute: typeof OportunidadesRouteWithChildren
@@ -1867,12 +1854,12 @@ export interface RootRouteChildren {
   EmpreendimentosFloraAlphavilleRoute: typeof EmpreendimentosFloraAlphavilleRoute
   EmpreendimentosNeoAlphavilleRoute: typeof EmpreendimentosNeoAlphavilleRoute
   EmpreendimentosTerrahAlphavilleRoute: typeof EmpreendimentosTerrahAlphavilleRoute
-  ImoveisAlphavilleSlugRoute: typeof ImoveisAlphavilleSlugRoute
   ParceirosSlugRoute: typeof ParceirosSlugRoute
   ParceirosMpdRoute: typeof ParceirosMpdRoute
   PropostaTokenRoute: typeof PropostaTokenRoute
-  RadarObjetivoRoute: typeof RadarObjetivoRoute
+  ImoveisAlphavilleSlugRoute: typeof ImoveisAlphavilleSlugRoute
   TemasSlugRoute: typeof TemasSlugRoute
+  RadarObjetivoRoute: typeof RadarObjetivoRoute
   BairrosIndexRoute: typeof BairrosIndexRoute
   CondominiosIndexRoute: typeof CondominiosIndexRoute
   RadarIndexRoute: typeof RadarIndexRoute
@@ -2003,6 +1990,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EscolasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mapa-prototipo': {
+      id: '/mapa-prototipo'
+      path: '/mapa-prototipo'
+      fullPath: '/mapa-prototipo'
+      preLoaderRoute: typeof MapaPrototipoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guia': {
       id: '/guia'
       path: '/guia'
@@ -2080,25 +2074,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LgpdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mapa': {
-      id: '/mapa'
-      path: '/mapa'
-      fullPath: '/mapa'
-      preLoaderRoute: typeof MapaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/mapa-do-site': {
       id: '/mapa-do-site'
       path: '/mapa-do-site'
       fullPath: '/mapa-do-site'
       preLoaderRoute: typeof MapaDoSiteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mapa-prototipo': {
-      id: '/mapa-prototipo'
-      path: '/mapa-prototipo'
-      fullPath: '/mapa-prototipo'
-      preLoaderRoute: typeof MapaPrototipoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/meio-ambiente': {
@@ -2269,13 +2249,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCondominiosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin-condominios-ficha': {
-      id: '/_authenticated/admin-condominios-ficha'
-      path: '/admin-condominios-ficha'
-      fullPath: '/admin-condominios-ficha'
-      preLoaderRoute: typeof AuthenticatedAdminCondominiosFichaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin-corretores': {
       id: '/_authenticated/admin-corretores'
       path: '/admin-corretores'
@@ -2330,6 +2303,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-fotos-imoveis'
       fullPath: '/admin-fotos-imoveis'
       preLoaderRoute: typeof AuthenticatedAdminFotosImoveisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-condominios-ficha': {
+      id: '/_authenticated/admin-condominios-ficha'
+      path: '/admin-condominios-ficha'
+      fullPath: '/admin-condominios-ficha'
+      preLoaderRoute: typeof AuthenticatedAdminCondominiosFichaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-imoveis-bloqueados': {
@@ -2605,13 +2585,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuiaSlugRouteImport
       parentRoute: typeof GuiaRoute
     }
-    '/imoveis-alphaville/$slug': {
-      id: '/imoveis-alphaville/$slug'
-      path: '/imoveis-alphaville/$slug'
-      fullPath: '/imoveis-alphaville/$slug'
-      preLoaderRoute: typeof ImoveisAlphavilleSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/imoveis/': {
       id: '/imoveis/'
       path: '/'
@@ -2696,6 +2669,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceirosMpdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/imoveis-alphaville/$slug': {
+      id: '/imoveis-alphaville/$slug'
+      path: '/imoveis-alphaville/$slug'
+      fullPath: '/imoveis-alphaville/$slug'
+      preLoaderRoute: typeof ImoveisAlphavilleSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/temas/$slug': {
+      id: '/temas/$slug'
+      path: '/temas/$slug'
+      fullPath: '/temas/$slug'
+      preLoaderRoute: typeof TemasSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/proposta/$token': {
       id: '/proposta/$token'
       path: '/proposta/$token'
@@ -2730,13 +2717,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/ruas/$slug'
       preLoaderRoute: typeof RuasSlugRouteImport
       parentRoute: typeof RuasRoute
-    }
-    '/temas/$slug': {
-      id: '/temas/$slug'
-      path: '/temas/$slug'
-      fullPath: '/temas/$slug'
-      preLoaderRoute: typeof TemasSlugRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin-propostas/': {
       id: '/_authenticated/admin-propostas/'
@@ -2980,7 +2960,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCardsRoute: typeof AuthenticatedAdminCardsRoute
   AuthenticatedAdminConciliacaoRoute: typeof AuthenticatedAdminConciliacaoRoute
   AuthenticatedAdminCondominiosRoute: typeof AuthenticatedAdminCondominiosRoute
-  AuthenticatedAdminCondominiosFichaRoute: typeof AuthenticatedAdminCondominiosFichaRoute
   AuthenticatedAdminCorretoresRoute: typeof AuthenticatedAdminCorretoresRoute
   AuthenticatedAdminCtasRoute: typeof AuthenticatedAdminCtasRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
@@ -2989,6 +2968,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminEtiquetasUnivenRoute: typeof AuthenticatedAdminEtiquetasUnivenRoute
   AuthenticatedAdminFinanciamentoRoute: typeof AuthenticatedAdminFinanciamentoRoute
   AuthenticatedAdminFotosImoveisRoute: typeof AuthenticatedAdminFotosImoveisRoute
+  AuthenticatedAdminCondominiosFichaRoute: typeof AuthenticatedAdminCondominiosFichaRoute
   AuthenticatedAdminImoveisBloqueadosRoute: typeof AuthenticatedAdminImoveisBloqueadosRoute
   AuthenticatedAdminImportarImovelRoute: typeof AuthenticatedAdminImportarImovelRoute
   AuthenticatedAdminIncorporadorasRoute: typeof AuthenticatedAdminIncorporadorasRoute
@@ -3023,8 +3003,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCardsRoute: AuthenticatedAdminCardsRoute,
   AuthenticatedAdminConciliacaoRoute: AuthenticatedAdminConciliacaoRoute,
   AuthenticatedAdminCondominiosRoute: AuthenticatedAdminCondominiosRoute,
-  AuthenticatedAdminCondominiosFichaRoute:
-    AuthenticatedAdminCondominiosFichaRoute,
   AuthenticatedAdminCorretoresRoute: AuthenticatedAdminCorretoresRoute,
   AuthenticatedAdminCtasRoute: AuthenticatedAdminCtasRoute,
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
@@ -3035,6 +3013,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAdminEtiquetasUnivenRoute,
   AuthenticatedAdminFinanciamentoRoute: AuthenticatedAdminFinanciamentoRoute,
   AuthenticatedAdminFotosImoveisRoute: AuthenticatedAdminFotosImoveisRoute,
+  AuthenticatedAdminCondominiosFichaRoute: AuthenticatedAdminCondominiosFichaRoute,
   AuthenticatedAdminImoveisBloqueadosRoute:
     AuthenticatedAdminImoveisBloqueadosRoute,
   AuthenticatedAdminImportarImovelRoute: AuthenticatedAdminImportarImovelRoute,
@@ -3225,6 +3204,7 @@ const rootRouteChildren: RootRouteChildren = {
   DescadastrarRoute: DescadastrarRoute,
   EmpresasRoute: EmpresasRoute,
   EscolasRoute: EscolasRoute,
+  MapaPrototipoRoute: MapaPrototipoRoute,
   GuiaRoute: GuiaRouteWithChildren,
   GuiaAlphavilleRoute: GuiaAlphavilleRoute,
   GuiaBarueriRoute: GuiaBarueriRoute,
@@ -3236,9 +3216,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImoveisRoute: ImoveisRouteWithChildren,
   InvestimentosRoute: InvestimentosRoute,
   LgpdRoute: LgpdRoute,
-  MapaRoute: MapaRoute,
   MapaDoSiteRoute: MapaDoSiteRoute,
-  MapaPrototipoRoute: MapaPrototipoRoute,
   MeioAmbienteRoute: MeioAmbienteRouteWithChildren,
   MercadoImobiliarioRoute: MercadoImobiliarioRoute,
   OportunidadesRoute: OportunidadesRouteWithChildren,
@@ -3264,12 +3242,12 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosFloraAlphavilleRoute: EmpreendimentosFloraAlphavilleRoute,
   EmpreendimentosNeoAlphavilleRoute: EmpreendimentosNeoAlphavilleRoute,
   EmpreendimentosTerrahAlphavilleRoute: EmpreendimentosTerrahAlphavilleRoute,
-  ImoveisAlphavilleSlugRoute: ImoveisAlphavilleSlugRoute,
   ParceirosSlugRoute: ParceirosSlugRoute,
   ParceirosMpdRoute: ParceirosMpdRoute,
   PropostaTokenRoute: PropostaTokenRoute,
-  RadarObjetivoRoute: RadarObjetivoRoute,
+  ImoveisAlphavilleSlugRoute: ImoveisAlphavilleSlugRoute,
   TemasSlugRoute: TemasSlugRoute,
+  RadarObjetivoRoute: RadarObjetivoRoute,
   BairrosIndexRoute: BairrosIndexRoute,
   CondominiosIndexRoute: CondominiosIndexRoute,
   RadarIndexRoute: RadarIndexRoute,

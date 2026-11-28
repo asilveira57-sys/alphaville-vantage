@@ -47,3 +47,4 @@
 ## Filtro de bairro (exato, múltiplo)
 - `?neighborhood==A|B` (prefixo "=") = lista exata de bairros; a função SQL `public.nbh_match` trata isso em `search_properties` e `property_condo_facets`. Sem "=" segue a busca aproximada antiga (links como `?neighborhood=Alphaville`).
 - UI: o bairro usa o mesmo `CondoMultiSelect`/sheet mobile do condomínio (`noun={NBH_NOUN}`). Não voltar para `<select>`: "Aldeia da Serra" trazia "Aldeia" junto.
+- Bairro com nome entre parênteses ("Morada das Flores (aldeia da Serra)") conta como o bairro de dentro: `public.nbh_label` (usada em `nbh_match` e em `property_search_facets`). Não alterar o cadastro: a importação regrava o texto.
